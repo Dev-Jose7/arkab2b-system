@@ -45,7 +45,7 @@ public final class InventoryBalance {
         registerStockAndAvailabilityEvents(now, "ReserveStock");
         return StockReservation.createActive(
                 reservationId,
-                stockItem.tenantId(),
+                stockItem.organizationId(),
                 stockItem.stockItemId(),
                 stockItem.warehouseId(),
                 stockItem.sku(),
@@ -89,7 +89,7 @@ public final class InventoryBalance {
 
     public CommitableAvailability committableAvailability() {
         return CommitableAvailability.from(
-                stockItem.tenantId(),
+                stockItem.organizationId(),
                 stockItem.warehouseId(),
                 stockItem.sku(),
                 stockItem.physicalQty(),
@@ -114,7 +114,7 @@ public final class InventoryBalance {
         domainEvents.add(new StockUpdated(
                 occurredAt,
                 stockItem.stockItemId(),
-                stockItem.tenantId(),
+                stockItem.organizationId(),
                 stockItem.warehouseId(),
                 stockItem.sku(),
                 stockItem.physicalQty(),
@@ -128,7 +128,7 @@ public final class InventoryBalance {
         domainEvents.add(new CommitableAvailabilityRecalculated(
                 now,
                 stockItem.stockItemId(),
-                stockItem.tenantId(),
+                stockItem.organizationId(),
                 stockItem.warehouseId(),
                 stockItem.sku(),
                 availability.availableQty(),

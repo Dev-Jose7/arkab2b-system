@@ -4,7 +4,7 @@ import java.time.Instant;
 
 public final class CatalogOfferUpdated extends AbstractCatalogDomainEvent {
 
-    private final String tenantId;
+    private final String organizationId;
     private final String productId;
     private final String variantId;
     private final String priceId;
@@ -12,14 +12,14 @@ public final class CatalogOfferUpdated extends AbstractCatalogDomainEvent {
 
     public CatalogOfferUpdated(
             String offerId,
-            String tenantId,
+            String organizationId,
             String productId,
             String variantId,
             String priceId,
             String regionalPolicyReference,
             Instant occurredAt) {
         super(offerId, "CatalogOffer", occurredAt);
-        this.tenantId = tenantId;
+        this.organizationId = organizationId;
         this.productId = productId;
         this.variantId = variantId;
         this.priceId = priceId;
@@ -31,8 +31,8 @@ public final class CatalogOfferUpdated extends AbstractCatalogDomainEvent {
         return "CatalogOfferUpdated";
     }
 
-    public String tenantId() {
-        return tenantId;
+    public String organizationId() {
+        return organizationId;
     }
 
     public String productId() {

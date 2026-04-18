@@ -9,7 +9,7 @@ import org.springframework.data.relational.core.mapping.Table;
 public record ConsumerCheckpointRow(
         @Id
         @Column("checkpoint_id") String checkpointId,
-        @Column("tenant_id") String tenantId,
+        @Column("organization_id") String organizationId,
         @Column("consumer_name") String consumerName,
         @Column("topic") String topic,
         @Column("partition") Integer partition,

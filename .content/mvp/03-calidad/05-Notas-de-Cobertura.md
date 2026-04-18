@@ -45,7 +45,7 @@ Valida:
 - secuencias end-to-end de negocio entre servicios.
 
 Flujos minimos:
-- authn/authz por tenant/rol,
+- authn/authz por organization/rol,
 - checkout y creacion de pedido,
 - confirmacion comercial de pedido,
 - reservas/stock sin sobreventa,

@@ -8,7 +8,7 @@ import com.arka.inventory.application.service.OutboxEventRelayPublisher;
 import com.arka.inventory.infrastructure.adapter.in.web.controller.InventoryController;
 import com.arka.inventory.infrastructure.adapter.out.event.KafkaDomainEventPublisherAdapter;
 import com.arka.inventory.infrastructure.adapter.out.external.CatalogSkuHttpAdapter;
-import com.arka.inventory.infrastructure.adapter.out.external.DirectoryTenantHttpAdapter;
+import com.arka.inventory.infrastructure.adapter.out.external.DirectoryOrganizationHttpAdapter;
 import com.arka.inventory.infrastructure.adapter.out.external.OrderReferenceHttpAdapter;
 import com.arka.inventory.infrastructure.adapter.out.persistence.DomainInventoryBalanceRepositoryAdapter;
 import com.arka.inventory.infrastructure.adapter.out.persistence.InventoryAuditR2dbcAdapter;
@@ -67,7 +67,7 @@ class InventoryServiceContextBootTest {
     private OrderReferenceHttpAdapter orderReferenceHttpAdapter;
 
     @Autowired
-    private DirectoryTenantHttpAdapter directoryTenantHttpAdapter;
+    private DirectoryOrganizationHttpAdapter directoryOrganizationHttpAdapter;
 
     @Autowired
     private KafkaDomainEventPublisherAdapter kafkaDomainEventPublisherAdapter;
@@ -91,7 +91,7 @@ class InventoryServiceContextBootTest {
         assertThat(inventoryAuditR2dbcAdapter).isNotNull();
         assertThat(catalogSkuHttpAdapter).isNotNull();
         assertThat(orderReferenceHttpAdapter).isNotNull();
-        assertThat(directoryTenantHttpAdapter).isNotNull();
+        assertThat(directoryOrganizationHttpAdapter).isNotNull();
         assertThat(kafkaDomainEventPublisherAdapter).isNotNull();
         assertThat(outboxEventRelayPublisher).isNotNull();
         assertThat(outboxRelayScheduler).isNotNull();

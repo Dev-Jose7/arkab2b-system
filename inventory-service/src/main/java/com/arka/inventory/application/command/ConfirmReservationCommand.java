@@ -1,7 +1,7 @@
 package com.arka.inventory.application.command;
 
 public record ConfirmReservationCommand(
-        String tenantId,
+        String organizationId,
         String reservationId,
         String orderId,
         String actorUserId,

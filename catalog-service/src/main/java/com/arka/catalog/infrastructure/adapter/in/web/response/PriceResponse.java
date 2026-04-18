@@ -5,7 +5,7 @@ import java.time.Instant;
 
 public record PriceResponse(
         String priceId,
-        String tenantId,
+        String organizationId,
         String variantId,
         String priceType,
         BigDecimal amount,
@@ -14,5 +14,4 @@ public record PriceResponse(
         Instant effectiveFrom,
         Instant effectiveUntil,
         Instant createdAt,
-        Instant updatedAt) {
-}
+        Instant updatedAt) {}

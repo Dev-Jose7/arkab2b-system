@@ -19,9 +19,7 @@ class PurchaseOrderPersistenceMapperTest {
     void shouldMapOrderAggregateToPersistenceEntity() {
         Instant now = Instant.parse("2026-04-14T12:00:00Z");
         Order order = Order.createFromValidatedCart(
-                "tenant-1",
-                "org-1",
-                "user-1",
+                "organization-1", "user-1",
                 "cart-1",
                 "corr-1",
                 "addr-1",
@@ -29,13 +27,7 @@ class PurchaseOrderPersistenceMapperTest {
                 1L,
                 "USD",
                 List.of(new OrderLine(
-                        UUID.randomUUID().toString(),
-                        "PENDING_ORDER_ID",
-                        "tenant-1",
-                        "org-1",
-                        "variant-1",
-                        "SKU-1",
-                        2,
+                        UUID.randomUUID().toString(), "PENDING_ORDER_ID", "organization-1", "org-1", "variant-1", 2,
                         new BigDecimal("10.00"),
                         "USD",
                         "res-1",

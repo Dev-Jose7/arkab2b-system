@@ -27,9 +27,9 @@ No incluye:
 
 ## Principios operativos
 - Una sola verdad: operar sobre baseline congelado de `MVP`.
-- Seguridad primero: aislamiento tenant, permisos minimos y auditoria.
+- Seguridad primero: aislamiento organization, permisos minimos y auditoria.
 - Recuperacion sobre perfeccion: contener rapido y restaurar core.
-- Trazabilidad obligatoria: `traceId`, `correlationId`, `tenantId`, `actorId`.
+- Trazabilidad obligatoria: `traceId`, `correlationId`, `organizationId`, `actorId`.
 - Idempotencia operacional: reintentos y reprocesos sin duplicar efectos.
 - Regionalizacion estricta: sin politica vigente por `countryCode` se bloquea
   con `configuracion_pais_no_disponible` y auditoria.

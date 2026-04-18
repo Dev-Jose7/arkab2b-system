@@ -29,7 +29,7 @@ public class InventoryCommandMapper {
             IamSecurityPrincipal principal,
             String idempotencyKey) {
         return new CreateWarehouseCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 request.warehouseCode(),
                 request.warehouseName(),
                 request.countryCode(),
@@ -42,7 +42,7 @@ public class InventoryCommandMapper {
             IamSecurityPrincipal principal,
             String idempotencyKey) {
         return new InitializeStockItemCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 request.warehouseId(),
                 request.sku(),
                 request.initialPhysicalQty(),
@@ -58,7 +58,7 @@ public class InventoryCommandMapper {
             IamSecurityPrincipal principal,
             String idempotencyKey) {
         return new UpdateOperationalStockCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 stockItemId,
                 request.deltaQty(),
                 request.reason(),
@@ -72,7 +72,7 @@ public class InventoryCommandMapper {
             IamSecurityPrincipal principal,
             String idempotencyKey) {
         return new ReserveStockCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 stockItemId,
                 request.cartId(),
                 request.qty(),
@@ -87,7 +87,7 @@ public class InventoryCommandMapper {
             IamSecurityPrincipal principal,
             String idempotencyKey) {
         return new ConfirmReservationCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 reservationId,
                 request.orderId(),
                 principal.userId(),
@@ -100,7 +100,7 @@ public class InventoryCommandMapper {
             IamSecurityPrincipal principal,
             String idempotencyKey) {
         return new ReleaseReservationCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 reservationId,
                 request.reason(),
                 principal.userId(),
@@ -112,7 +112,7 @@ public class InventoryCommandMapper {
             IamSecurityPrincipal principal) {
         Integer batchSize = request == null ? null : request.batchSize();
         return new ExpireReservationsCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 batchSize,
                 principal.userId());
     }
@@ -123,7 +123,7 @@ public class InventoryCommandMapper {
             IamSecurityPrincipal principal,
             String idempotencyKey) {
         return new RecalculateCommitableAvailabilityCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 stockItemId,
                 request == null ? null : request.reason(),
                 principal.userId(),
@@ -136,7 +136,7 @@ public class InventoryCommandMapper {
             IamSecurityPrincipal principal,
             String idempotencyKey) {
         return new UpdateStockItemStatusCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 stockItemId,
                 request.targetStatus(),
                 request.reason(),

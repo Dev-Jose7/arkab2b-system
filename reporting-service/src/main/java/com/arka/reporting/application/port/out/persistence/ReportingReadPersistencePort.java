@@ -4,5 +4,5 @@ import reactor.core.publisher.Mono;
 
 public interface ReportingReadPersistencePort {
 
-    Mono<ReportingMetricsProjection> metrics(String tenantId, String period);
+    Mono<ReportingMetricsProjection> metrics(String organizationId, String period);
 }

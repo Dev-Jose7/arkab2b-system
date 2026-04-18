@@ -15,7 +15,7 @@ public interface ReactiveInventoryAuditRepository extends ReactiveCrudRepository
     @Query("""
             INSERT INTO inventory_audits (
                 audit_id,
-                tenant_id,
+                organization_id,
                 actor_user_id,
                 action_type,
                 target_type,
@@ -25,7 +25,7 @@ public interface ReactiveInventoryAuditRepository extends ReactiveCrudRepository
                 created_at
             ) VALUES (
                 :auditId,
-                :tenantId,
+                :organizationId,
                 :actorUserId,
                 :actionType,
                 :targetType,
@@ -37,7 +37,7 @@ public interface ReactiveInventoryAuditRepository extends ReactiveCrudRepository
             """)
     Mono<Integer> insert(
             @Param("auditId") String auditId,
-            @Param("tenantId") String tenantId,
+            @Param("organizationId") String organizationId,
             @Param("actorUserId") String actorUserId,
             @Param("actionType") String actionType,
             @Param("targetType") String targetType,
@@ -47,11 +47,11 @@ public interface ReactiveInventoryAuditRepository extends ReactiveCrudRepository
             @Param("createdAt") Instant createdAt);
 
     @Query("""
-            SELECT audit_id, tenant_id, actor_user_id, action_type, target_type, target_id, outcome, payload, created_at
+            SELECT audit_id, organization_id, actor_user_id, action_type, target_type, target_id, outcome, payload, created_at
             FROM inventory_audits
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
             ORDER BY created_at DESC
             LIMIT :limit
             """)
-    Flux<InventoryAuditRow> findByTenant(@Param("tenantId") String tenantId, @Param("limit") int limit);
+    Flux<InventoryAuditRow> findByOrganization(@Param("organizationId") String organizationId, @Param("limit") int limit);
 }

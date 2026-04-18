@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS warehouses (
     warehouse_id        VARCHAR(100) PRIMARY KEY,
-    tenant_id           VARCHAR(100) NOT NULL,
+    organization_id           VARCHAR(100) NOT NULL,
     warehouse_code      VARCHAR(60)  NOT NULL,
     warehouse_name      VARCHAR(255) NOT NULL,
     country_code        VARCHAR(2)   NOT NULL,
@@ -11,14 +11,14 @@ CREATE TABLE IF NOT EXISTS warehouses (
         CHECK (status IN ('ACTIVE', 'INACTIVE'))
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS ux_warehouses_tenant_code
-    ON warehouses (tenant_id, UPPER(warehouse_code));
-CREATE INDEX IF NOT EXISTS idx_warehouses_tenant
-    ON warehouses (tenant_id);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_warehouses_organization_code
+    ON warehouses (organization_id, UPPER(warehouse_code));
+CREATE INDEX IF NOT EXISTS idx_warehouses_organization
+    ON warehouses (organization_id);
 
 CREATE TABLE IF NOT EXISTS stock_items (
     stock_item_id       VARCHAR(100) PRIMARY KEY,
-    tenant_id           VARCHAR(100) NOT NULL,
+    organization_id           VARCHAR(100) NOT NULL,
     warehouse_id        VARCHAR(100) NOT NULL,
     sku                 VARCHAR(120) NOT NULL,
     physical_qty        INTEGER      NOT NULL,
@@ -48,16 +48,16 @@ CREATE TABLE IF NOT EXISTS stock_items (
         CHECK (version >= 0)
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS ux_stock_items_tenant_warehouse_sku
-    ON stock_items (tenant_id, warehouse_id, UPPER(sku));
-CREATE INDEX IF NOT EXISTS idx_stock_items_tenant_warehouse
-    ON stock_items (tenant_id, warehouse_id);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_stock_items_organization_warehouse_sku
+    ON stock_items (organization_id, warehouse_id, UPPER(sku));
+CREATE INDEX IF NOT EXISTS idx_stock_items_organization_warehouse
+    ON stock_items (organization_id, warehouse_id);
 CREATE INDEX IF NOT EXISTS idx_stock_items_low_stock
-    ON stock_items (tenant_id, warehouse_id, status, reorder_point, physical_qty, reserved_qty);
+    ON stock_items (organization_id, warehouse_id, status, reorder_point, physical_qty, reserved_qty);
 
 CREATE TABLE IF NOT EXISTS stock_reservations (
     reservation_id      VARCHAR(100) PRIMARY KEY,
-    tenant_id           VARCHAR(100) NOT NULL,
+    organization_id           VARCHAR(100) NOT NULL,
     stock_item_id       VARCHAR(100) NOT NULL,
     warehouse_id        VARCHAR(100) NOT NULL,
     sku                 VARCHAR(120) NOT NULL,
@@ -81,17 +81,17 @@ CREATE TABLE IF NOT EXISTS stock_reservations (
         CHECK ((status <> 'ACTIVE') OR expires_at IS NOT NULL)
 );
 
-CREATE INDEX IF NOT EXISTS idx_stock_reservations_tenant_cart
-    ON stock_reservations (tenant_id, cart_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_stock_reservations_tenant_item
-    ON stock_reservations (tenant_id, stock_item_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_stock_reservations_organization_cart
+    ON stock_reservations (organization_id, cart_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_stock_reservations_organization_item
+    ON stock_reservations (organization_id, stock_item_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_stock_reservations_active_expiration
-    ON stock_reservations (tenant_id, expires_at)
+    ON stock_reservations (organization_id, expires_at)
     WHERE status = 'ACTIVE';
 
 CREATE TABLE IF NOT EXISTS stock_movements (
     movement_id         VARCHAR(100) PRIMARY KEY,
-    tenant_id           VARCHAR(100) NOT NULL,
+    organization_id           VARCHAR(100) NOT NULL,
     stock_item_id       VARCHAR(100) NOT NULL,
     warehouse_id        VARCHAR(100) NOT NULL,
     sku                 VARCHAR(120) NOT NULL,
@@ -117,12 +117,12 @@ CREATE TABLE IF NOT EXISTS stock_movements (
         ))
 );
 
-CREATE INDEX IF NOT EXISTS idx_stock_movements_tenant_item_created
-    ON stock_movements (tenant_id, stock_item_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_stock_movements_organization_item_created
+    ON stock_movements (organization_id, stock_item_id, created_at DESC);
 
 CREATE TABLE IF NOT EXISTS reservation_ledgers (
     ledger_id           VARCHAR(100) PRIMARY KEY,
-    tenant_id           VARCHAR(100) NOT NULL,
+    organization_id           VARCHAR(100) NOT NULL,
     reservation_id      VARCHAR(100) NOT NULL,
     entry_type          VARCHAR(40)  NOT NULL,
     qty                 INTEGER      NOT NULL,
@@ -135,12 +135,12 @@ CREATE TABLE IF NOT EXISTS reservation_ledgers (
         CHECK (qty > 0)
 );
 
-CREATE INDEX IF NOT EXISTS idx_reservation_ledgers_tenant_reservation_created
-    ON reservation_ledgers (tenant_id, reservation_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_reservation_ledgers_organization_reservation_created
+    ON reservation_ledgers (organization_id, reservation_id, created_at DESC);
 
 CREATE TABLE IF NOT EXISTS idempotency_records (
     idempotency_id      VARCHAR(100) PRIMARY KEY,
-    tenant_id           VARCHAR(100) NOT NULL,
+    organization_id           VARCHAR(100) NOT NULL,
     operation_name      VARCHAR(120) NOT NULL,
     idempotency_key     VARCHAR(120) NOT NULL,
     request_hash        VARCHAR(128) NOT NULL,
@@ -149,16 +149,16 @@ CREATE TABLE IF NOT EXISTS idempotency_records (
     response_status     INTEGER      NOT NULL,
     created_at          TIMESTAMP    NOT NULL,
     updated_at          TIMESTAMP    NOT NULL,
-    CONSTRAINT uk_idempotency_tenant_operation_key
-        UNIQUE (tenant_id, operation_name, idempotency_key)
+    CONSTRAINT uk_idempotency_organization_operation_key
+        UNIQUE (organization_id, operation_name, idempotency_key)
 );
 
 CREATE INDEX IF NOT EXISTS idx_idempotency_created
-    ON idempotency_records (tenant_id, created_at DESC);
+    ON idempotency_records (organization_id, created_at DESC);
 
 CREATE TABLE IF NOT EXISTS inventory_audits (
     audit_id            VARCHAR(100) PRIMARY KEY,
-    tenant_id           VARCHAR(100) NOT NULL,
+    organization_id           VARCHAR(100) NOT NULL,
     actor_user_id       VARCHAR(100) NOT NULL,
     action_type         VARCHAR(120) NOT NULL,
     target_type         VARCHAR(80)  NOT NULL,
@@ -168,8 +168,8 @@ CREATE TABLE IF NOT EXISTS inventory_audits (
     created_at          TIMESTAMP    NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_inventory_audits_tenant_created
-    ON inventory_audits (tenant_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_inventory_audits_organization_created
+    ON inventory_audits (organization_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_inventory_audits_actor
     ON inventory_audits (actor_user_id, created_at DESC);
 

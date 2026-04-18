@@ -200,15 +200,15 @@ public class ReportingApplicationService
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
         String consumerName = normalizeConsumerName(command.consumerName());
 
-        return requireActor(command.tenantId(), true, true)
-                .then(checkIdempotency(command.tenantId(), "REGISTER_ANALYTIC_FACT", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true, false)
+                .then(checkIdempotency(command.organizationId(), "REGISTER_ANALYTIC_FACT", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
-                        return findAnalyticFactResult(command.tenantId(), idempotency.targetId());
+                        return findAnalyticFactResult(command.organizationId(), idempotency.targetId());
                     }
                     return analyticFactPersistencePort
                             .findBySourceEventId(
-                                    com.arka.reporting.domain.analyticfact.valueobject.TenantId.of(command.tenantId()),
+                                    com.arka.reporting.domain.analyticfact.valueobject.OrganizationId.of(command.organizationId()),
                                     SourceEventId.of(command.sourceEventId()))
                             .map(resultMapper::toResult)
                             .switchIfEmpty(Mono.defer(() -> registerAnalyticFactInternal(command, consumerName, now, payloadHash)));
@@ -226,7 +226,7 @@ public class ReportingApplicationService
                     if (alreadyProcessed) {
                         return analyticFactPersistencePort
                                 .findBySourceEventId(
-                                        com.arka.reporting.domain.analyticfact.valueobject.TenantId.of(command.tenantId()),
+                                        com.arka.reporting.domain.analyticfact.valueobject.OrganizationId.of(command.organizationId()),
                                         SourceEventId.of(command.sourceEventId()))
                                 .switchIfEmpty(Mono.error(new ApplicationException(
                                         "evento_procesado_sin_hecho",
@@ -235,7 +235,7 @@ public class ReportingApplicationService
                     }
 
                     AnalyticFactAggregate aggregate = AnalyticFactAggregate.rehydrate(AnalyticFact.capture(
-                            com.arka.reporting.domain.analyticfact.valueobject.TenantId.of(command.tenantId()),
+                            com.arka.reporting.domain.analyticfact.valueobject.OrganizationId.of(command.organizationId()),
                             SourceEventId.of(command.sourceEventId()),
                             required(command.sourceEventType(), "sourceEventType"),
                             resolveFactType(command.factType()),
@@ -251,7 +251,7 @@ public class ReportingApplicationService
                                     .record(created.sourceEventId().value(), consumerName, now)
                                     .then(storeDomainEvents(aggregate.pullDomainEvents()))
                                     .then(afterMutation(
-                                            command.tenantId(),
+                                            command.organizationId(),
                                             "REGISTER_ANALYTIC_FACT",
                                             "AnalyticFact",
                                             created.factId().value(),
@@ -275,13 +275,13 @@ public class ReportingApplicationService
     public Mono<AnalyticFactResult> handle(ApplyAnalyticFactCommand command) {
         Instant now = clockPort.now();
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
-        return requireActor(command.tenantId(), true, true)
-                .then(checkIdempotency(command.tenantId(), "APPLY_ANALYTIC_FACT", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true, false)
+                .then(checkIdempotency(command.organizationId(), "APPLY_ANALYTIC_FACT", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
-                        return findAnalyticFactResult(command.tenantId(), idempotency.targetId());
+                        return findAnalyticFactResult(command.organizationId(), idempotency.targetId());
                     }
-                    return loadAnalyticFact(command.tenantId(), command.factId())
+                    return loadAnalyticFact(command.organizationId(), command.factId())
                             .flatMap(existing -> {
                                 if (existing.factStatus() == AnalyticFactStatus.APPLIED) {
                                     return Mono.just(existing);
@@ -295,7 +295,7 @@ public class ReportingApplicationService
                                         .then(analyticFactPersistencePort.update(aggregate.fact()))
                                         .flatMap(updated -> storeDomainEvents(aggregate.pullDomainEvents())
                                                 .then(afterMutation(
-                                                        command.tenantId(),
+                                                        command.organizationId(),
                                                         "APPLY_ANALYTIC_FACT",
                                                         "AnalyticFact",
                                                         updated.factId().value(),
@@ -319,15 +319,15 @@ public class ReportingApplicationService
         Instant now = clockPort.now();
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
 
-        return requireActor(command.tenantId(), true, false)
-                .then(checkIdempotency(command.tenantId(), "UPDATE_CONSUMER_CHECKPOINT", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true, false)
+                .then(checkIdempotency(command.organizationId(), "UPDATE_CONSUMER_CHECKPOINT", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
                         return Mono.empty();
                     }
                     return consumerCheckpointPersistencePort
                             .upsert(
-                                    command.tenantId(),
+                                    command.organizationId(),
                                     required(command.consumerName(), "consumerName"),
                                     required(command.topic(), "topic"),
                                     command.partition(),
@@ -339,7 +339,7 @@ public class ReportingApplicationService
                                         : "ConsumerCheckpointUpdated";
                                 String outcome = checkpoint.lag() > highLagThreshold ? "WARN" : "SUCCESS";
                                 return afterMutation(
-                                        command.tenantId(),
+                                        command.organizationId(),
                                         "UPDATE_CONSUMER_CHECKPOINT",
                                         "ConsumerCheckpoint",
                                         checkpoint.checkpointId(),
@@ -366,15 +366,15 @@ public class ReportingApplicationService
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
         String weekId = resolveWeekId(command.weekId(), now);
 
-        return requireActor(command.tenantId(), true, false)
-                .then(checkIdempotency(command.tenantId(), "REBUILD_PROJECTION", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true, false)
+                .then(checkIdempotency(command.organizationId(), "REBUILD_PROJECTION", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
-                        return findWeeklyExecutionResult(command.tenantId(), idempotency.targetId());
+                        return findWeeklyExecutionResult(command.organizationId(), idempotency.targetId());
                     }
                     if (command.fullRebuild()) {
                         return weeklyReportExecutionPersistencePort
-                                .existsRunningRebuild(com.arka.reporting.domain.weeklyreportexecution.valueobject.TenantId.of(command.tenantId()))
+                                .existsRunningRebuild(com.arka.reporting.domain.weeklyreportexecution.valueobject.OrganizationId.of(command.organizationId()))
                                 .flatMap(exists -> exists
                                         ? Mono.error(new RebuildInProgressException())
                                         : runRebuild(command, weekId, now, payloadHash));
@@ -389,7 +389,7 @@ public class ReportingApplicationService
             Instant now,
             String payloadHash) {
         WeeklyReportExecution initial = WeeklyReportExecution.pending(
-                com.arka.reporting.domain.weeklyreportexecution.valueobject.TenantId.of(command.tenantId()),
+                com.arka.reporting.domain.weeklyreportexecution.valueobject.OrganizationId.of(command.organizationId()),
                 WeekId.of(weekId),
                 ReportType.FULL_REBUILD,
                 now);
@@ -401,10 +401,10 @@ public class ReportingApplicationService
                     startAggregate.start(now);
                     return weeklyReportExecutionPersistencePort
                             .update(startAggregate.execution())
-                            .flatMap(running -> rebuildProjections(command.tenantId(), weekId, command.fullRebuild())
-                                    .then(generateArtifactPayloadForRebuild(command.tenantId(), weekId))
+                            .flatMap(running -> rebuildProjections(command.organizationId(), weekId, command.fullRebuild())
+                                    .then(generateArtifactPayloadForRebuild(command.organizationId(), weekId))
                                     .flatMap(payload -> artifactStoragePort
-                                            .store(command.tenantId(), weekId, ReportType.FULL_REBUILD.name(), "JSON", payload)
+                                            .store(command.organizationId(), weekId, ReportType.FULL_REBUILD.name(), "JSON", payload)
                                             .flatMap(stored -> createArtifact(running, "JSON", stored, now)
                                                     .flatMap(artifact -> {
                                                         WeeklyReportExecutionAggregate completeAggregate =
@@ -414,7 +414,7 @@ public class ReportingApplicationService
                                                                 .update(completeAggregate.execution())
                                                                 .flatMap(updated -> storeDomainEvents(completeAggregate.pullDomainEvents())
                                                                         .then(afterMutation(
-                                                                                command.tenantId(),
+                                                                                command.organizationId(),
                                                                                 "REBUILD_PROJECTION",
                                                                                 "WeeklyReportExecution",
                                                                                 updated.executionId().value(),
@@ -437,17 +437,17 @@ public class ReportingApplicationService
                 .map(resultMapper::toResult);
     }
 
-    private Mono<Void> rebuildProjections(String tenantId, String weekId, boolean fullRebuild) {
+    private Mono<Void> rebuildProjections(String organizationId, String weekId, boolean fullRebuild) {
         Mono<Void> clearStep = fullRebuild
-                ? projectionPersistencePort.clearProjectionsByTenant(tenantId)
-                : projectionPersistencePort.clearProjectionsByTenantAndPeriod(tenantId, weekId);
+                ? projectionPersistencePort.clearProjectionsByOrganization(organizationId)
+                : projectionPersistencePort.clearProjectionsByOrganizationAndPeriod(organizationId, weekId);
 
         Flux<AnalyticFact> sourceFacts = fullRebuild
-                ? analyticFactPersistencePort.findAppliedByTenant(tenantId)
+                ? analyticFactPersistencePort.findAppliedByOrganization(organizationId)
                 : analyticFactPersistencePort
-                        .search(new FactSearchFilter(tenantId, null, null, weekId, AnalyticFactStatus.APPLIED.name(), 0, 5000))
+                        .search(new FactSearchFilter(organizationId, null, null, weekId, AnalyticFactStatus.APPLIED.name(), 0, 5000))
                         .flatMap(entry -> analyticFactPersistencePort.findById(
-                                com.arka.reporting.domain.analyticfact.valueobject.TenantId.of(tenantId),
+                                com.arka.reporting.domain.analyticfact.valueobject.OrganizationId.of(organizationId),
                                 FactId.of(entry.factId())));
 
         return clearStep.thenMany(sourceFacts.concatMap(this::applyFactToProjections)).then();
@@ -458,14 +458,14 @@ public class ReportingApplicationService
         Instant now = clockPort.now();
         String weekId = resolveWeekId(command.weekId(), now);
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
-        return requireActor(command.tenantId(), true, false)
-                .then(checkIdempotency(command.tenantId(), "GENERATE_WEEKLY_SALES_REPORT", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true, false)
+                .then(checkIdempotency(command.organizationId(), "GENERATE_WEEKLY_SALES_REPORT", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
-                        return findWeeklyExecutionResult(command.tenantId(), idempotency.targetId());
+                        return findWeeklyExecutionResult(command.organizationId(), idempotency.targetId());
                     }
                     return generateWeeklyReport(
-                            command.tenantId(),
+                            command.organizationId(),
                             command.actorId(),
                             weekId,
                             command.format(),
@@ -481,14 +481,14 @@ public class ReportingApplicationService
         Instant now = clockPort.now();
         String weekId = resolveWeekId(command.weekId(), now);
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
-        return requireActor(command.tenantId(), true, false)
-                .then(checkIdempotency(command.tenantId(), "GENERATE_WEEKLY_REPLENISHMENT_REPORT", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true, false)
+                .then(checkIdempotency(command.organizationId(), "GENERATE_WEEKLY_REPLENISHMENT_REPORT", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
-                        return findWeeklyExecutionResult(command.tenantId(), idempotency.targetId());
+                        return findWeeklyExecutionResult(command.organizationId(), idempotency.targetId());
                     }
                     return generateWeeklyReport(
-                            command.tenantId(),
+                            command.organizationId(),
                             command.actorId(),
                             weekId,
                             command.format(),
@@ -500,7 +500,7 @@ public class ReportingApplicationService
     }
 
     private Mono<WeeklyExecutionResult> generateWeeklyReport(
-            String tenantId,
+            String organizationId,
             String actorId,
             String weekId,
             String format,
@@ -508,16 +508,16 @@ public class ReportingApplicationService
             String payloadHash,
             ReportType reportType,
             String actionType) {
-        com.arka.reporting.domain.weeklyreportexecution.valueobject.TenantId tenant =
-                com.arka.reporting.domain.weeklyreportexecution.valueobject.TenantId.of(tenantId);
+        com.arka.reporting.domain.weeklyreportexecution.valueobject.OrganizationId organization =
+                com.arka.reporting.domain.weeklyreportexecution.valueobject.OrganizationId.of(organizationId);
         WeekId week = WeekId.of(weekId);
 
         return weeklyReportExecutionPersistencePort
-                .findByWeekAndType(tenant, week, reportType.name())
+                .findByWeekAndType(organization, week, reportType.name())
                 .map(resultMapper::toResult)
                 .switchIfEmpty(Mono.defer(() -> {
                     Instant now = clockPort.now();
-                    WeeklyReportExecution pending = WeeklyReportExecution.pending(tenant, week, reportType, now);
+                    WeeklyReportExecution pending = WeeklyReportExecution.pending(organization, week, reportType, now);
                     return weeklyReportExecutionPersistencePort
                             .create(pending)
                             .flatMap(created -> {
@@ -525,9 +525,9 @@ public class ReportingApplicationService
                                 startAggregate.start(now);
                                 return weeklyReportExecutionPersistencePort
                                         .update(startAggregate.execution())
-                                        .flatMap(running -> renderWeeklyPayload(tenantId, weekId, reportType)
+                                        .flatMap(running -> renderWeeklyPayload(organizationId, weekId, reportType)
                                                 .flatMap(payload -> artifactStoragePort
-                                                        .store(tenantId, weekId, reportType.name(), normalizeFormat(format), payload)
+                                                        .store(organizationId, weekId, reportType.name(), normalizeFormat(format), payload)
                                                         .flatMap(stored -> createArtifact(running, normalizeFormat(format), stored, now)
                                                                 .flatMap(artifact -> {
                                                                     WeeklyReportExecutionAggregate completeAggregate =
@@ -537,7 +537,7 @@ public class ReportingApplicationService
                                                                             .update(completeAggregate.execution())
                                                                             .flatMap(updated -> storeDomainEvents(completeAggregate.pullDomainEvents())
                                                                                     .then(afterMutation(
-                                                                                            tenantId,
+                                                                                            organizationId,
                                                                                             actionType,
                                                                                             "WeeklyReportExecution",
                                                                                             updated.executionId().value(),
@@ -568,23 +568,23 @@ public class ReportingApplicationService
         Instant now = clockPort.now();
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
 
-        return requireActor(command.tenantId(), true, false)
-                .then(checkIdempotency(command.tenantId(), "GENERATE_REPORT_ARTIFACT", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true, false)
+                .then(checkIdempotency(command.organizationId(), "GENERATE_REPORT_ARTIFACT", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
-                        return findArtifactResult(command.tenantId(), idempotency.targetId());
+                        return findArtifactResult(command.organizationId(), idempotency.targetId());
                     }
-                    return loadWeeklyExecution(command.tenantId(), command.executionId())
+                    return loadWeeklyExecution(command.organizationId(), command.executionId())
                             .flatMap(execution -> {
                                 String format = normalizeFormat(command.format());
                                 String payload = command.payload();
                                 Mono<String> payloadMono = (payload == null || payload.isBlank())
-                                        ? renderWeeklyPayload(command.tenantId(), execution.weekId().value(), execution.reportType())
+                                        ? renderWeeklyPayload(command.organizationId(), execution.weekId().value(), execution.reportType())
                                         : Mono.just(payload);
                                 return payloadMono
                                         .flatMap(body -> artifactStoragePort
                                                 .store(
-                                                        command.tenantId(),
+                                                        command.organizationId(),
                                                         execution.weekId().value(),
                                                         execution.reportType().name(),
                                                         format,
@@ -603,7 +603,7 @@ public class ReportingApplicationService
                                                 maybeComplete = Mono.just(execution);
                                             }
                                             return maybeComplete.then(afterMutation(
-                                                            command.tenantId(),
+                                                            command.organizationId(),
                                                             "GENERATE_REPORT_ARTIFACT",
                                                             "ReportArtifact",
                                                             artifact.artifactId(),
@@ -630,8 +630,8 @@ public class ReportingApplicationService
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
         String consumerName = normalizeConsumerName(command.consumerName());
 
-        return requireActor(command.tenantId(), true, false)
-                .then(checkIdempotency(command.tenantId(), "REPROCESS_REPORTING_DLQ", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true, false)
+                .then(checkIdempotency(command.organizationId(), "REPROCESS_REPORTING_DLQ", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
                         return Mono.empty();
@@ -642,7 +642,7 @@ public class ReportingApplicationService
                                 if (alreadyProcessed) {
                                     return Mono.empty();
                                 }
-                                return loadAnalyticFact(command.tenantId(), command.factId())
+                                return loadAnalyticFact(command.organizationId(), command.factId())
                                         .flatMap(fact -> {
                                             if (fact.factStatus() != AnalyticFactStatus.APPLIED) {
                                                 AnalyticFactAggregate aggregate = AnalyticFactAggregate.rehydrate(fact);
@@ -660,7 +660,7 @@ public class ReportingApplicationService
                                         .flatMap(updatedFact -> processedEventPersistencePort
                                                 .record(command.dlqEventId(), consumerName, now)
                                                 .then(afterMutation(
-                                                        command.tenantId(),
+                                                        command.organizationId(),
                                                         "REPROCESS_REPORTING_DLQ",
                                                         "AnalyticFact",
                                                         updatedFact.factId().value(),
@@ -682,13 +682,13 @@ public class ReportingApplicationService
 
     @Override
     public Mono<AnalyticFactResult> handle(GetAnalyticFactByIdQuery query) {
-        return requireActor(query.tenantId(), false, false)
-                .then(findAnalyticFactResult(query.tenantId(), query.factId()));
+        return requireActor(query.organizationId(), false, false)
+                .then(findAnalyticFactResult(query.organizationId(), query.factId()));
     }
 
     @Override
     public Mono<FactSearchResult> handle(SearchAnalyticFactsQuery query) {
-        return requireActor(query.tenantId(), false, false)
+        return requireActor(query.organizationId(), false, false)
                 .then(Mono.defer(() -> {
                     String cacheKey = cacheKeyFor(query);
                     return reportingSearchCachePort
@@ -709,12 +709,12 @@ public class ReportingApplicationService
 
     @Override
     public Mono<SalesProjectionResult> handle(GetWeeklySalesProjectionQuery query) {
-        return requireActor(query.tenantId(), false, false)
+        return requireActor(query.organizationId(), false, false)
                 .then(projectionPersistencePort
-                        .findSalesByPeriod(query.tenantId(), required(query.period(), "period"))
+                        .findSalesByPeriod(query.organizationId(), required(query.period(), "period"))
                         .switchIfEmpty(Mono.error(new ReportingResourceNotFoundException(
                                 "SalesProjection",
-                                query.tenantId() + ":" + query.period())))
+                                query.organizationId() + ":" + query.period())))
                         .map(resultMapper::toResult));
     }
 
@@ -722,10 +722,10 @@ public class ReportingApplicationService
     public Flux<ReplenishmentProjectionResult> handle(GetWeeklyReplenishmentProjectionQuery query) {
         int safePage = Math.max(query.page(), 0);
         int safeSize = Math.max(query.size(), 1);
-        return requireActor(query.tenantId(), false, false)
+        return requireActor(query.organizationId(), false, false)
                 .thenMany(projectionPersistencePort
                         .findReplenishmentByPeriod(
-                                query.tenantId(),
+                                query.organizationId(),
                                 required(query.period(), "period"),
                                 query.sku(),
                                 safePage * safeSize,
@@ -735,18 +735,18 @@ public class ReportingApplicationService
 
     @Override
     public Flux<OperationsKpiResult> handle(GetOperationsKpiQuery query) {
-        return requireActor(query.tenantId(), false, false)
+        return requireActor(query.organizationId(), false, false)
                 .thenMany(projectionPersistencePort
-                        .findOperationsKpisByPeriod(query.tenantId(), required(query.period(), "period"))
+                        .findOperationsKpisByPeriod(query.organizationId(), required(query.period(), "period"))
                         .map(resultMapper::toResult));
     }
 
     @Override
     public Mono<WeeklyExecutionResult> handle(GetWeeklyExecutionQuery query) {
-        return requireActor(query.tenantId(), false, false)
+        return requireActor(query.organizationId(), false, false)
                 .then(Mono.defer(() -> {
                     if (query.executionId() != null && !query.executionId().isBlank()) {
-                        return findWeeklyExecutionResult(query.tenantId(), query.executionId());
+                        return findWeeklyExecutionResult(query.organizationId(), query.executionId());
                     }
                     if (query.weekId() == null || query.weekId().isBlank()
                             || query.reportType() == null || query.reportType().isBlank()) {
@@ -756,12 +756,12 @@ public class ReportingApplicationService
                     }
                     return weeklyReportExecutionPersistencePort
                             .findByWeekAndType(
-                                    com.arka.reporting.domain.weeklyreportexecution.valueobject.TenantId.of(query.tenantId()),
+                                    com.arka.reporting.domain.weeklyreportexecution.valueobject.OrganizationId.of(query.organizationId()),
                                     WeekId.of(query.weekId()),
                                     query.reportType().trim().toUpperCase())
                             .switchIfEmpty(Mono.error(new ReportingResourceNotFoundException(
                                     "WeeklyReportExecution",
-                                    query.tenantId() + ":" + query.weekId() + ":" + query.reportType())))
+                                    query.organizationId() + ":" + query.weekId() + ":" + query.reportType())))
                             .map(resultMapper::toResult);
                 }));
     }
@@ -771,10 +771,10 @@ public class ReportingApplicationService
         int safePage = Math.max(query.page(), 0);
         int safeSize = Math.max(query.size(), 1);
 
-        return requireActor(query.tenantId(), false, false)
+        return requireActor(query.organizationId(), false, false)
                 .thenMany(reportArtifactPersistencePort
                         .findByWeekAndType(
-                                query.tenantId(),
+                                query.organizationId(),
                                 required(query.weekId(), "weekId"),
                                 required(query.reportType(), "reportType").toUpperCase(),
                                 safePage * safeSize,
@@ -784,9 +784,9 @@ public class ReportingApplicationService
 
     @Override
     public Mono<ReportingMetricsResult> handle(GetReportingMetricsQuery query) {
-        return requireActor(query.tenantId(), true, false)
+        return requireActor(query.organizationId(), true, false)
                 .then(reportingReadPersistencePort
-                        .metrics(query.tenantId(), query.period())
+                        .metrics(query.organizationId(), query.period())
                         .defaultIfEmpty(new ReportingMetricsProjection(
                                 BigDecimal.ZERO,
                                 BigDecimal.ZERO,
@@ -801,47 +801,47 @@ public class ReportingApplicationService
         int safePage = Math.max(query.page(), 0);
         int safeSize = Math.max(query.size(), 1);
 
-        return requireActor(query.tenantId(), true, false)
+        return requireActor(query.organizationId(), true, false)
                 .then(reportingAuditPort
                         .findByTarget(
-                                query.tenantId(),
+                                query.organizationId(),
                                 query.targetType(),
                                 query.targetId(),
                                 safePage * safeSize,
                                 safeSize)
                         .map(resultMapper::toResult)
                         .collectList()
-                        .zipWith(reportingAuditPort.countByTarget(query.tenantId(), query.targetType(), query.targetId()))
+                        .zipWith(reportingAuditPort.countByTarget(query.organizationId(), query.targetType(), query.targetId()))
                         .map(tuple -> new ReportingAuditResult(tuple.getT1(), safePage, safeSize, tuple.getT2())));
     }
 
-    private Mono<AnalyticFactResult> findAnalyticFactResult(String tenantId, String factId) {
-        return loadAnalyticFact(tenantId, factId).map(resultMapper::toResult);
+    private Mono<AnalyticFactResult> findAnalyticFactResult(String organizationId, String factId) {
+        return loadAnalyticFact(organizationId, factId).map(resultMapper::toResult);
     }
 
-    private Mono<WeeklyExecutionResult> findWeeklyExecutionResult(String tenantId, String executionId) {
-        return loadWeeklyExecution(tenantId, executionId).map(resultMapper::toResult);
+    private Mono<WeeklyExecutionResult> findWeeklyExecutionResult(String organizationId, String executionId) {
+        return loadWeeklyExecution(organizationId, executionId).map(resultMapper::toResult);
     }
 
-    private Mono<ReportArtifactResult> findArtifactResult(String tenantId, String artifactId) {
+    private Mono<ReportArtifactResult> findArtifactResult(String organizationId, String artifactId) {
         return reportArtifactPersistencePort
-                .findById(tenantId, artifactId)
+                .findById(organizationId, artifactId)
                 .switchIfEmpty(Mono.error(new ReportingResourceNotFoundException("ReportArtifact", artifactId)))
                 .map(resultMapper::toResult);
     }
 
-    private Mono<AnalyticFact> loadAnalyticFact(String tenantId, String factId) {
+    private Mono<AnalyticFact> loadAnalyticFact(String organizationId, String factId) {
         return analyticFactPersistencePort
                 .findById(
-                        com.arka.reporting.domain.analyticfact.valueobject.TenantId.of(tenantId),
+                        com.arka.reporting.domain.analyticfact.valueobject.OrganizationId.of(organizationId),
                         FactId.of(factId))
                 .switchIfEmpty(Mono.error(new ReportingResourceNotFoundException("AnalyticFact", factId)));
     }
 
-    private Mono<WeeklyReportExecution> loadWeeklyExecution(String tenantId, String executionId) {
+    private Mono<WeeklyReportExecution> loadWeeklyExecution(String organizationId, String executionId) {
         return weeklyReportExecutionPersistencePort
                 .findById(
-                        com.arka.reporting.domain.weeklyreportexecution.valueobject.TenantId.of(tenantId),
+                        com.arka.reporting.domain.weeklyreportexecution.valueobject.OrganizationId.of(organizationId),
                         ExecutionId.of(executionId))
                 .switchIfEmpty(Mono.error(new ReportingResourceNotFoundException("WeeklyReportExecution", executionId)));
     }
@@ -852,7 +852,7 @@ public class ReportingApplicationService
         return weeklyReportExecutionPersistencePort
                 .update(failureAggregate.execution())
                 .flatMap(updated -> afterMutation(
-                        updated.tenantId().value(),
+                        updated.organizationId().value(),
                         "WEEKLY_REPORT_FAILED",
                         "WeeklyReportExecution",
                         updated.executionId().value(),
@@ -879,7 +879,7 @@ public class ReportingApplicationService
         ReportArtifact artifact = new ReportArtifact(
                 UUID.randomUUID().toString(),
                 execution.executionId().value(),
-                execution.tenantId().value(),
+                execution.organizationId().value(),
                 execution.weekId().value(),
                 execution.reportType().name(),
                 format,
@@ -891,13 +891,13 @@ public class ReportingApplicationService
         return reportArtifactPersistencePort.create(artifact);
     }
 
-    private Mono<String> renderWeeklyPayload(String tenantId, String weekId, ReportType reportType) {
+    private Mono<String> renderWeeklyPayload(String organizationId, String weekId, ReportType reportType) {
         if (reportType == ReportType.SALES) {
             return projectionPersistencePort
-                    .findSalesByPeriod(tenantId, weekId)
+                    .findSalesByPeriod(organizationId, weekId)
                     .defaultIfEmpty(new SalesProjection(
                             "",
-                            tenantId,
+                            organizationId,
                             weekId,
                             BigDecimal.ZERO,
                             BigDecimal.ZERO,
@@ -908,7 +908,7 @@ public class ReportingApplicationService
                             Instant.EPOCH,
                             Instant.EPOCH))
                     .map(projection -> new WeeklySalesReport(
-                            tenantId,
+                            organizationId,
                             weekId,
                             projection.totalSales(),
                             projection.paidAmount(),
@@ -919,7 +919,7 @@ public class ReportingApplicationService
         }
 
         return projectionPersistencePort
-                .findReplenishmentByPeriod(tenantId, weekId, null, 0, 500)
+                .findReplenishmentByPeriod(organizationId, weekId, null, 0, 500)
                 .collectList()
                 .map(items -> {
                     long highRisk = items.stream()
@@ -930,17 +930,17 @@ public class ReportingApplicationService
                             .map(ReplenishmentProjection::sku)
                             .limit(20)
                             .toList();
-                    return new WeeklyReplenishmentReport(tenantId, weekId, highRisk, prioritizedSkus);
+                    return new WeeklyReplenishmentReport(organizationId, weekId, highRisk, prioritizedSkus);
                 })
                 .map(this::toJsonString);
     }
 
-    private Mono<String> generateArtifactPayloadForRebuild(String tenantId, String weekId) {
+    private Mono<String> generateArtifactPayloadForRebuild(String organizationId, String weekId) {
         Mono<SalesProjection> sales = projectionPersistencePort
-                .findSalesByPeriod(tenantId, weekId)
+                .findSalesByPeriod(organizationId, weekId)
                 .defaultIfEmpty(new SalesProjection(
                         "",
-                        tenantId,
+                        organizationId,
                         weekId,
                         BigDecimal.ZERO,
                         BigDecimal.ZERO,
@@ -951,12 +951,12 @@ public class ReportingApplicationService
                         Instant.EPOCH,
                         Instant.EPOCH));
 
-        Mono<Long> replenishCount = projectionPersistencePort.countReplenishmentByPeriod(tenantId, weekId, null);
-        Mono<Long> maxLag = consumerCheckpointPersistencePort.maxLagByTenant(tenantId);
+        Mono<Long> replenishCount = projectionPersistencePort.countReplenishmentByPeriod(organizationId, weekId, null);
+        Mono<Long> maxLag = consumerCheckpointPersistencePort.maxLagByOrganization(organizationId);
 
         return Mono.zip(sales, replenishCount.defaultIfEmpty(0L), maxLag.defaultIfEmpty(0L))
                 .map(tuple -> payloadJson(Map.of(
-                        "tenantId", tenantId,
+                        "organizationId", organizationId,
                         "weekId", weekId,
                         "salesTotal", tuple.getT1().totalSales(),
                         "confirmedOrders", tuple.getT1().confirmedOrders(),
@@ -1010,7 +1010,7 @@ public class ReportingApplicationService
 
         return projectionPersistencePort
                 .upsertSalesProjection(
-                        fact.tenantId().value(),
+                        fact.organizationId().value(),
                         period,
                         totalSales,
                         paidAmount,
@@ -1031,7 +1031,7 @@ public class ReportingApplicationService
 
         return projectionPersistencePort
                 .upsertReplenishmentProjection(
-                        fact.tenantId().value(),
+                        fact.organizationId().value(),
                         period,
                         sku,
                         availableQty,
@@ -1054,7 +1054,7 @@ public class ReportingApplicationService
         }
 
         return projectionPersistencePort
-                .upsertOperationsKpiProjection(fact.tenantId().value(), period, kpiName, kpiValue)
+                .upsertOperationsKpiProjection(fact.organizationId().value(), period, kpiName, kpiValue)
                 .then();
     }
 
@@ -1064,9 +1064,9 @@ public class ReportingApplicationService
                 .then();
     }
 
-    private Mono<Void> requireActor(String tenantId, boolean adminRequired, boolean regionalPolicyRequired) {
-        if (tenantId == null || tenantId.isBlank()) {
-            return Mono.error(new ApplicationException("tenant_requerido", "tenantId es obligatorio"));
+    private Mono<Void> requireActor(String organizationId, boolean adminRequired, boolean regionalPolicyRequired) {
+        if (organizationId == null || organizationId.isBlank()) {
+            return Mono.error(new ApplicationException("organization_requerida", "organizationId es obligatorio"));
         }
 
         return actorContextProviderPort
@@ -1080,16 +1080,16 @@ public class ReportingApplicationService
                                 "operacion_no_permitida",
                                 "La operacion requiere rol administrativo o servicio tecnico"));
                     }
-                    if (!actor.admin() && !actor.trustedService() && !tenantId.equals(actor.tenantId())) {
+                    if (!actor.admin() && !actor.trustedService() && !organizationId.equals(actor.organizationId())) {
                         return Mono.error(new ApplicationException(
-                                "acceso_cross_tenant",
-                                "Actor no autorizado para el tenant solicitado"));
+                                "acceso_cross_organization",
+                                "Actor no autorizado para el organization solicitado"));
                     }
                     if (actor.trustedService()) {
                         return Mono.just(actor);
                     }
                     return actorLegitimacyPort
-                            .isLegitimate(actor.actorId(), tenantId)
+                            .isLegitimate(actor.actorId(), organizationId)
                             .flatMap(valid -> valid ? Mono.just(actor) : Mono.error(new ActorNotLegitimateException()));
                 })
                 .flatMap(actor -> {
@@ -1100,7 +1100,7 @@ public class ReportingApplicationService
                             ? "GLOBAL"
                             : actor.countryCode();
                     return regionalPolicyPort
-                            .resolveForOperation(tenantId, countryCode)
+                            .resolveForOperation(organizationId, countryCode)
                             .filter(policy -> policy != null && policy.available())
                             .switchIfEmpty(Mono.error(new RegionalPolicyUnavailableException()))
                             .then();
@@ -1108,7 +1108,7 @@ public class ReportingApplicationService
     }
 
     private Mono<IdempotencyDecision> checkIdempotency(
-            String tenantId,
+            String organizationId,
             String actionType,
             String idempotencyKey,
             String payloadHash) {
@@ -1117,7 +1117,7 @@ public class ReportingApplicationService
         }
 
         return reportingAuditPort
-                .findByIdempotency(tenantId, actionType, idempotencyKey)
+                .findByIdempotency(organizationId, actionType, idempotencyKey)
                 .flatMap(existing -> {
                     if (!payloadHash.equals(existing.payloadHash())) {
                         return Mono.error(new IdempotencyConflictException());
@@ -1128,7 +1128,7 @@ public class ReportingApplicationService
     }
 
     private Mono<Void> afterMutation(
-            String tenantId,
+            String organizationId,
             String actionType,
             String targetType,
             String targetId,
@@ -1138,7 +1138,7 @@ public class ReportingApplicationService
             String payload,
             DomainEvent mutationEvent) {
         return afterMutation(
-                tenantId,
+                organizationId,
                 actionType,
                 targetType,
                 targetId,
@@ -1151,7 +1151,7 @@ public class ReportingApplicationService
     }
 
     private Mono<Void> afterMutation(
-            String tenantId,
+            String organizationId,
             String actionType,
             String targetType,
             String targetId,
@@ -1163,7 +1163,7 @@ public class ReportingApplicationService
             String outcome) {
         ReportingAuditEntry auditEntry = new ReportingAuditEntry(
                 UUID.randomUUID().toString(),
-                tenantId,
+                organizationId,
                 actorId == null || actorId.isBlank() ? "system" : actorId,
                 actionType,
                 targetType,
@@ -1177,7 +1177,7 @@ public class ReportingApplicationService
         return reportingAuditPort
                 .record(auditEntry)
                 .then(outboxPersistencePort.store(mutationEvent, domainEventPayload(mutationEvent)))
-                .then(reportingSearchCachePort.evictTenant(tenantId));
+                .then(reportingSearchCachePort.evictOrganization(organizationId));
     }
 
     private String domainEventPayload(DomainEvent event) {
@@ -1202,7 +1202,7 @@ public class ReportingApplicationService
     }
 
     private String cacheKeyFor(SearchAnalyticFactsQuery query) {
-        return query.tenantId() + "::" + safe(query.eventType()) + "::" + safe(query.factType()) + "::"
+        return query.organizationId() + "::" + safe(query.eventType()) + "::" + safe(query.factType()) + "::"
                 + safe(query.period()) + "::" + safe(query.status()) + "::" + query.page() + "::" + query.size();
     }
 
@@ -1210,7 +1210,7 @@ public class ReportingApplicationService
         int safePage = Math.max(query.page(), 0);
         int safeSize = Math.max(query.size(), 1);
         return new FactSearchFilter(
-                query.tenantId(),
+                query.organizationId(),
                 query.eventType(),
                 query.factType(),
                 query.period(),

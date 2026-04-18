@@ -1,0 +1,50 @@
+# JWKS
+jwks_http=200
+{
+  "keys_count": 2
+}
+# register-founder
+register_http=200
+{"userId":"7954245d-8b7b-4f5e-af26-3d1a63611256","email":"founder.audit.1776668531@arka.test","status":"ACTIVE"}# login
+login_http=200
+{
+  "sessionId": "08cb3ceb-fee5-4c70-af10-ceb17d694f3e",
+  "permissions_count": 0
+}
+# service-token claims
+{'sub': 'svc:order-service', 'organization_id': 'organization-phase6', 'organizationId': 'organization-phase6', 'scope': 'service order.read order.write catalog.read inventory.read directory.read', 'aud': 'arka-b2b', 'iss': 'identity-access-service'}
+# gateway security semantics
+noauth_carts_http=401
+{"message":"Authentication is required","path":"/api/v1/carts","status":401,"error":"unauthorized"}forbidden_carts_http=400
+{"code":"order_http_error","message":"Required header 'Idempotency-Key' is not present.","timestamp":"2026-04-20T07:02:13.700609469Z"}# idempotency conflict
+cartA_http=200
+{"cartId":"66900a4c-2d62-4a0a-a094-e62e92b0c402","organizationId":"organization-phase6","userId":"svc:order-service","status":"ACTIVE","subtotal":0,"version":0,"createdAt":"2026-04-20T07:02:14.326171636Z","updatedAt":"2026-04-20T07:02:14.326171636Z","items":[]}cartA_conflict_http=200
+{"cartId":"66900a4c-2d62-4a0a-a094-e62e92b0c402","organizationId":"organization-phase6","userId":"svc:order-service","status":"ACTIVE","subtotal":0,"version":0,"createdAt":"2026-04-20T07:02:14.326172Z","updatedAt":"2026-04-20T07:02:14.326172Z","items":[]}# purchase flow
+cart_id=null
+add_item_http=400
+{
+  "status": null,
+  "items_count": 0
+}
+checkout_http=400
+{
+  "status": null,
+  "summary": null
+}
+create_order_http=200
+{
+  "orderId": null,
+  "status": null,
+  "organizationId": null,
+  "total": null
+}
+order_id=null
+order_not_found_http=404
+{"code":"order_resource_not_found","message":"order not found","timestamp":"2026-04-20T07:02:15.165908845Z"}sleeping_for_async=25s
+# notification db evidence
+notification_requests=1
+notification_statuses=FAILED:1
+# reporting db evidence
+processed_events=1
+facts_applied=1
+checkpoints=1

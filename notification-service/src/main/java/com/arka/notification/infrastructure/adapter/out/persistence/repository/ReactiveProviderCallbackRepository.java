@@ -21,9 +21,9 @@ public interface ReactiveProviderCallbackRepository extends ReactiveCrudReposito
     @Query("""
             SELECT *
             FROM provider_callbacks
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND notification_id = :notificationId
             ORDER BY received_at ASC
             """)
-    Flux<ProviderCallbackRow> findByNotificationId(String tenantId, String notificationId);
+    Flux<ProviderCallbackRow> findByNotificationId(String organizationId, String notificationId);
 }

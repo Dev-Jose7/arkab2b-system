@@ -9,6 +9,7 @@ import com.arka.catalog.infrastructure.adapter.in.web.response.ErrorResponse;
 import java.time.Instant;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.support.WebExchangeBindException;
@@ -42,6 +43,11 @@ public class WebExceptionHandlerConfig {
     @ExceptionHandler(DomainException.class)
     public ResponseEntity<ErrorResponse> handleDomain(DomainException ex) {
         return build(HttpStatus.CONFLICT, ex.errorCode(), ex.getMessage());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
+        return build(HttpStatus.FORBIDDEN, "catalog_access_denied", "Access Denied");
     }
 
     @ExceptionHandler(Exception.class)

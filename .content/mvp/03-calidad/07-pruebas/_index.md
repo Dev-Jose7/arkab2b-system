@@ -10,4 +10,4 @@ Ejecucion operativa de pruebas por servicio para `MVP`.
 Cobertura minima por servicio:
 - `unitarias`: invariantes, politicas y transiciones de estado.
 - `integracion`: repositorios, adapters, contratos API/eventos, idempotencia y dedupe.
-- `e2e`: flujo critico real, errores de negocio y seguridad tenant/rol.
+- `e2e`: flujo critico real, errores de negocio y seguridad organization/rol.

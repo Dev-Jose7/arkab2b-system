@@ -8,8 +8,8 @@ import java.time.Instant;
 public record ManualPayment(
         String paymentRecordId,
         String orderId,
-        String tenantId,
         String organizationId,
+
         String paymentReference,
         BigDecimal amount,
         String method,
@@ -22,7 +22,7 @@ public record ManualPayment(
     public ManualPayment {
         requireNotBlank(paymentRecordId, "paymentRecordId");
         requireNotBlank(orderId, "orderId");
-        requireNotBlank(tenantId, "tenantId");
+        requireNotBlank(organizationId, "organizationId");
         requireNotBlank(organizationId, "organizationId");
         requireNotBlank(paymentReference, "paymentReference");
         requireNotBlank(method, "method");
@@ -40,7 +40,6 @@ public record ManualPayment(
         return new ManualPayment(
                 paymentRecordId,
                 orderId,
-                tenantId,
                 organizationId,
                 paymentReference,
                 amount,
@@ -56,7 +55,6 @@ public record ManualPayment(
         return new ManualPayment(
                 paymentRecordId,
                 orderId,
-                tenantId,
                 organizationId,
                 paymentReference,
                 amount,

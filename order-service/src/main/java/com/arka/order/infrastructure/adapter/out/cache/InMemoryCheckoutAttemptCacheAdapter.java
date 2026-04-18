@@ -22,9 +22,9 @@ public class InMemoryCheckoutAttemptCacheAdapter implements CheckoutAttemptCache
     }
 
     @Override
-    public Mono<CheckoutAttemptResult> findByCorrelation(String tenantId, String checkoutCorrelationId) {
+    public Mono<CheckoutAttemptResult> findByCorrelation(String organizationId, String checkoutCorrelationId) {
         return Mono.defer(() -> {
-            String key = cacheKey(tenantId, checkoutCorrelationId);
+            String key = cacheKey(organizationId, checkoutCorrelationId);
             CacheEntry entry = cache.get(key);
             if (entry == null) {
                 return Mono.empty();
@@ -43,17 +43,17 @@ public class InMemoryCheckoutAttemptCacheAdapter implements CheckoutAttemptCache
             return Mono.error(new IllegalArgumentException("result is required"));
         }
         return Mono.fromRunnable(() -> cache.put(
-                cacheKey(result.tenantId(), result.checkoutCorrelationId()),
+                cacheKey(result.organizationId(), result.checkoutCorrelationId()),
                 new CacheEntry(result, Instant.now().plus(ttl))));
     }
 
     @Override
-    public Mono<Void> evict(String tenantId, String checkoutCorrelationId) {
-        return Mono.fromRunnable(() -> cache.remove(cacheKey(tenantId, checkoutCorrelationId)));
+    public Mono<Void> evict(String organizationId, String checkoutCorrelationId) {
+        return Mono.fromRunnable(() -> cache.remove(cacheKey(organizationId, checkoutCorrelationId)));
     }
 
-    private String cacheKey(String tenantId, String checkoutCorrelationId) {
-        return "order:checkout-attempt:" + tenantId + ":" + checkoutCorrelationId;
+    private String cacheKey(String organizationId, String checkoutCorrelationId) {
+        return "order:checkout-attempt:" + organizationId + ":" + checkoutCorrelationId;
     }
 
     private record CacheEntry(CheckoutAttemptResult value, Instant expiresAt) {}

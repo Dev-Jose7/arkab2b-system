@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ArkaB2B Swagger Hub</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --panel-2: #21262d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #2f81f7;
+      --border: #30363d;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+    }
+
+    header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+
+    header .hint {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+    }
+
+    .tab-btn {
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .tab-btn:hover {
+      border-color: var(--accent);
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .panels {
+      position: relative;
+      min-height: 0;
+    }
+
+    .panel {
+      display: none;
+      height: 100%;
+      grid-template-rows: auto 1fr;
+    }
+
+    .panel.active {
+      display: grid;
+    }
+
+    .panel-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .panel-toolbar a,
+    .panel-toolbar button {
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .panel-toolbar button:hover,
+    .panel-toolbar a:hover {
+      border-color: var(--accent);
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #fff;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ArkaB2B Swagger Hub</h1>
+    <div class="hint">Una pestaña por servicio</div>
+  </header>
+
+  <nav id="tabs" class="tabs" aria-label="Servicios"></nav>
+
+  <main id="panels" class="panels" aria-live="polite"></main>
+
+  <script>
+    const swaggerServices = [
+      { id: "iam", label: "Identity Access", url: "http://localhost:8081/swagger-ui.html" },
+      { id: "directory", label: "Directory", url: "http://localhost:8082/swagger-ui.html" },
+      { id: "catalog", label: "Catalog", url: "http://localhost:8083/swagger-ui.html" },
+      { id: "inventory", label: "Inventory", url: "http://localhost:8084/swagger-ui.html" },
+      { id: "order", label: "Order", url: "http://localhost:8085/swagger-ui.html" },
+      { id: "notification", label: "Notification", url: "http://localhost:8086/swagger-ui.html" },
+      { id: "reporting", label: "Reporting", url: "http://localhost:8087/swagger-ui.html" }
+    ];
+
+    const tabsContainer = document.getElementById("tabs");
+    const panelsContainer = document.getElementById("panels");
+    let currentId = swaggerServices[0].id;
+
+    function createUI() {
+      swaggerServices.forEach((service, index) => {
+        const tab = document.createElement("button");
+        tab.className = "tab-btn";
+        tab.type = "button";
+        tab.textContent = service.label;
+        tab.setAttribute("data-id", service.id);
+        tab.addEventListener("click", () => activate(service.id));
+        if (index === 0) tab.classList.add("active");
+        tabsContainer.appendChild(tab);
+
+        const panel = document.createElement("section");
+        panel.className = "panel";
+        panel.id = `panel-${service.id}`;
+        if (index === 0) panel.classList.add("active");
+
+        const toolbar = document.createElement("div");
+        toolbar.className = "panel-toolbar";
+        toolbar.innerHTML = `
+          <span>${service.url}</span>
+          <div>
+            <a href="${service.url}" target="_blank" rel="noopener noreferrer">Abrir en pestaña nueva</a>
+            <button type="button" data-reload="${service.id}">Recargar</button>
+          </div>
+        `;
+
+        const iframe = document.createElement("iframe");
+        iframe.title = `Swagger ${service.label}`;
+        iframe.setAttribute("data-frame", service.id);
+        if (index === 0) iframe.src = service.url;
+
+        panel.appendChild(toolbar);
+        panel.appendChild(iframe);
+        panelsContainer.appendChild(panel);
+      });
+
+      panelsContainer.addEventListener("click", (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+        const serviceId = target.getAttribute("data-reload");
+        if (!serviceId) return;
+        const service = swaggerServices.find(s => s.id === serviceId);
+        const frame = document.querySelector(`iframe[data-frame="${serviceId}"]`);
+        if (service && frame) {
+          frame.src = service.url;
+        }
+      });
+    }
+
+    function activate(id) {
+      currentId = id;
+      document.querySelectorAll(".tab-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.getAttribute("data-id") === id);
+      });
+      document.querySelectorAll(".panel").forEach((panel) => {
+        panel.classList.toggle("active", panel.id === `panel-${id}`);
+      });
+
+      const service = swaggerServices.find(s => s.id === id);
+      const frame = document.querySelector(`iframe[data-frame="${id}"]`);
+      if (service && frame && !frame.src) {
+        frame.src = service.url;
+      }
+    }
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      const currentIndex = swaggerServices.findIndex(s => s.id === currentId);
+      if (currentIndex === -1) return;
+      const delta = event.key === "ArrowRight" ? 1 : -1;
+      const nextIndex = (currentIndex + delta + swaggerServices.length) % swaggerServices.length;
+      activate(swaggerServices[nextIndex].id);
+    });
+
+    createUI();
+  </script>
+</body>
+</html>

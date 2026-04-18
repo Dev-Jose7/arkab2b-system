@@ -44,19 +44,19 @@ public class PurchaseOrderR2dbcAdapter implements PurchaseOrderPersistencePort {
     }
 
     @Override
-    public Mono<Boolean> existsByCheckoutCorrelation(String tenantId, String checkoutCorrelationId) {
-        return orderRepository.existsByCheckoutCorrelation(tenantId, checkoutCorrelationId);
+    public Mono<Boolean> existsByCheckoutCorrelation(String organizationId, String checkoutCorrelationId) {
+        return orderRepository.existsByCheckoutCorrelation(organizationId, checkoutCorrelationId);
     }
 
     @Override
-    public Mono<Order> findByCheckoutCorrelation(String tenantId, String checkoutCorrelationId) {
-        return orderRepository.findByCheckoutCorrelation(tenantId, checkoutCorrelationId)
+    public Mono<Order> findByCheckoutCorrelation(String organizationId, String checkoutCorrelationId) {
+        return orderRepository.findByCheckoutCorrelation(organizationId, checkoutCorrelationId)
                 .flatMap(this::toDomain);
     }
 
     @Override
-    public Mono<Order> findById(String tenantId, String orderId) {
-        return orderRepository.findByTenantAndOrderId(tenantId, orderId)
+    public Mono<Order> findById(String organizationId, String orderId) {
+        return orderRepository.findByOrganizationAndOrderId(organizationId, orderId)
                 .flatMap(this::toDomain);
     }
 
@@ -72,7 +72,7 @@ public class PurchaseOrderR2dbcAdapter implements PurchaseOrderPersistencePort {
     @Override
     public Mono<Boolean> updateWithExpectedVersion(Order order, long expectedVersion) {
         return orderRepository.updateWithExpectedVersion(
-                        order.tenantId(),
+                        order.organizationId(),
                         order.orderId(),
                         order.status().name(),
                         order.financialStatus().name(),
@@ -91,9 +91,9 @@ public class PurchaseOrderR2dbcAdapter implements PurchaseOrderPersistencePort {
     }
 
     @Override
-    public Flux<Order> listByTenantOrganizationStatus(
-            String tenantId,
+    public Flux<Order> listByOrganizationStatus(
             String organizationId,
+
             String status,
             Instant createdFrom,
             Instant createdTo,
@@ -101,7 +101,7 @@ public class PurchaseOrderR2dbcAdapter implements PurchaseOrderPersistencePort {
         StringBuilder sql = new StringBuilder("""
                 SELECT *
                 FROM purchase_orders
-                WHERE tenant_id = :tenantId
+                WHERE organization_id = :organizationId
                   AND organization_id = :organizationId
                 """);
         if (status != null) {
@@ -116,7 +116,7 @@ public class PurchaseOrderR2dbcAdapter implements PurchaseOrderPersistencePort {
         sql.append(" ORDER BY created_at DESC LIMIT :limit");
 
         DatabaseClient.GenericExecuteSpec query = databaseClient.sql(sql.toString())
-                .bind("tenantId", tenantId)
+                .bind("organizationId", organizationId)
                 .bind("organizationId", organizationId)
                 .bind("limit", limit);
 
@@ -158,7 +158,6 @@ public class PurchaseOrderR2dbcAdapter implements PurchaseOrderPersistencePort {
         return new PurchaseOrderEntity(
                 row.get("order_id", String.class),
                 row.get("order_number", String.class),
-                row.get("tenant_id", String.class),
                 row.get("organization_id", String.class),
                 row.get("user_id", String.class),
                 row.get("cart_id", String.class),

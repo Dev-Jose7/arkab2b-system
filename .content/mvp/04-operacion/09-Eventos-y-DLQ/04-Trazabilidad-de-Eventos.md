@@ -11,7 +11,7 @@ publicados, consumidos, reprocesados o descartados.
 
 ## Metadata minima
 - `eventId`, `eventType`, `eventVersion`, `occurredAt`.
-- `tenantId`, `traceId`, `correlationId`.
+- `organizationId`, `traceId`, `correlationId`.
 - `producer`, `consumerRef`, `processingResult`.
 
 ## Cadena de trazabilidad esperada

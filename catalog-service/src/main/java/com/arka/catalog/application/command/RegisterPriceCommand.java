@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 public record RegisterPriceCommand(
-        String tenantId,
+        String organizationId,
         String actorId,
         String variantId,
         BigDecimal amount,

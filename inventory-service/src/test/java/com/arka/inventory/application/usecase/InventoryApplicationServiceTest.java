@@ -6,7 +6,7 @@ import com.arka.inventory.application.command.ReserveStockCommand;
 import com.arka.inventory.application.mapper.result.InventoryResultMapper;
 import com.arka.inventory.application.port.out.audit.InventoryAuditPort;
 import com.arka.inventory.application.port.out.cache.CommitableAvailabilityCachePort;
-import com.arka.inventory.application.port.out.directory.TenantDirectoryPort;
+import com.arka.inventory.application.port.out.directory.OrganizationDirectoryPort;
 import com.arka.inventory.application.port.out.external.ActorLegitimacyPort;
 import com.arka.inventory.application.port.out.external.CatalogSkuPort;
 import com.arka.inventory.application.port.out.external.ClockPort;
@@ -81,7 +81,7 @@ class InventoryApplicationServiceTest {
     @Mock
     private OrderReferencePort orderReferencePort;
     @Mock
-    private TenantDirectoryPort tenantDirectoryPort;
+    private OrganizationDirectoryPort organizationDirectoryPort;
     @Mock
     private ActorContextProviderPort actorContextProviderPort;
 
@@ -103,7 +103,7 @@ class InventoryApplicationServiceTest {
                 actorLegitimacyPort,
                 catalogSkuPort,
                 orderReferencePort,
-                tenantDirectoryPort,
+                organizationDirectoryPort,
                 actorContextProviderPort,
                 new OversellGuardPolicy(),
                 new CheckoutReservationValidationService(),
@@ -112,9 +112,9 @@ class InventoryApplicationServiceTest {
 
         when(clockPort.now()).thenReturn(Instant.parse("2026-01-01T00:00:00Z"));
         when(actorContextProviderPort.currentActor())
-                .thenReturn(Mono.just(new ActorContext("actor-1", "tenant-1", true)));
+                .thenReturn(Mono.just(new ActorContext("actor-1", "organization-1", true, false)));
         when(actorLegitimacyPort.isLegitimate("actor-1")).thenReturn(Mono.just(true));
-        when(tenantDirectoryPort.tenantExists("tenant-1")).thenReturn(Mono.just(true));
+        when(organizationDirectoryPort.organizationExists("organization-1")).thenReturn(Mono.just(true));
         when(outboxPersistencePort.storeAll(any())).thenReturn(Mono.empty());
         when(inventoryAuditPort.record(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString()))
                 .thenReturn(Mono.empty());
@@ -123,14 +123,14 @@ class InventoryApplicationServiceTest {
 
     @Test
     void reserveStockRejectsWhenRequestedQtyExceedsAvailability() {
-        when(orderReferencePort.isValidCartReference("tenant-1", "cart-1")).thenReturn(Mono.just(true));
-        when(idempotencyRecordPersistencePort.findByTenantOperationAndKey("tenant-1", "ReserveStock", "idem-1"))
+        when(orderReferencePort.isValidCartReference("organization-1", "cart-1")).thenReturn(Mono.just(true));
+        when(idempotencyRecordPersistencePort.findByOrganizationOperationAndKey("organization-1", "ReserveStock", "idem-1"))
                 .thenReturn(Mono.empty());
-        when(stockItemPersistencePort.findById("tenant-1", "stock-1"))
+        when(stockItemPersistencePort.findById("organization-1", "stock-1"))
                 .thenReturn(Mono.just(stockItemWith(5, 4)));
 
         ReserveStockCommand command = new ReserveStockCommand(
-                "tenant-1",
+                "organization-1",
                 "stock-1",
                 "cart-1",
                 2,
@@ -147,16 +147,16 @@ class InventoryApplicationServiceTest {
 
     @Test
     void confirmReservationRequiresReservationStillActive() {
-        when(orderReferencePort.isValidOrderReference("tenant-1", "order-1")).thenReturn(Mono.just(true));
-        when(idempotencyRecordPersistencePort.findByTenantOperationAndKey("tenant-1", "ConfirmReservation", "idem-2"))
+        when(orderReferencePort.isValidOrderReference("organization-1", "order-1")).thenReturn(Mono.just(true));
+        when(idempotencyRecordPersistencePort.findByOrganizationOperationAndKey("organization-1", "ConfirmReservation", "idem-2"))
                 .thenReturn(Mono.empty());
-        when(stockReservationPersistencePort.findById("tenant-1", "res-1"))
+        when(stockReservationPersistencePort.findById("organization-1", "res-1"))
                 .thenReturn(Mono.just(expiredActiveReservation()));
-        when(stockItemPersistencePort.findById("tenant-1", "stock-1"))
+        when(stockItemPersistencePort.findById("organization-1", "stock-1"))
                 .thenReturn(Mono.just(stockItemWith(10, 3)));
 
         ConfirmReservationCommand command = new ConfirmReservationCommand(
-                "tenant-1",
+                "organization-1",
                 "res-1",
                 "order-1",
                 "actor-1",
@@ -172,7 +172,7 @@ class InventoryApplicationServiceTest {
     @Test
     void createWarehouseReplaysFromIdempotencyRecord() {
         CreateWarehouseCommand command = new CreateWarehouseCommand(
-                "tenant-1",
+                "organization-1",
                 "wh-main",
                 "Main Warehouse",
                 "CO",
@@ -183,7 +183,7 @@ class InventoryApplicationServiceTest {
 
         IdempotencyRecord existing = new IdempotencyRecord(
                 "idem-record-1",
-                "tenant-1",
+                "organization-1",
                 "CreateWarehouse",
                 "idem-3",
                 requestHash,
@@ -193,12 +193,12 @@ class InventoryApplicationServiceTest {
                 Instant.parse("2026-01-01T00:00:00Z"),
                 Instant.parse("2026-01-01T00:00:00Z"));
 
-        when(idempotencyRecordPersistencePort.findByTenantOperationAndKey("tenant-1", "CreateWarehouse", "idem-3"))
+        when(idempotencyRecordPersistencePort.findByOrganizationOperationAndKey("organization-1", "CreateWarehouse", "idem-3"))
                 .thenReturn(Mono.just(existing));
-        when(warehousePersistencePort.findById("tenant-1", "wh-1"))
+        when(warehousePersistencePort.findById("organization-1", "wh-1"))
                 .thenReturn(Mono.just(new Warehouse(
                         "wh-1",
-                        "tenant-1",
+                        "organization-1",
                         "WH-MAIN",
                         "Main Warehouse",
                         "CO",
@@ -213,16 +213,16 @@ class InventoryApplicationServiceTest {
                 })
                 .verifyComplete();
 
-        verify(warehousePersistencePort, never()).existsByTenantAndCode(anyString(), anyString());
+        verify(warehousePersistencePort, never()).existsByOrganizationAndCode(anyString(), anyString());
         verify(idempotencyRecordPersistencePort, never()).save(any());
     }
 
     @Test
     void reserveStockRetriesWhenOptimisticLockConflictsOnce() {
-        when(orderReferencePort.isValidCartReference("tenant-1", "cart-1")).thenReturn(Mono.just(true));
-        when(idempotencyRecordPersistencePort.findByTenantOperationAndKey("tenant-1", "ReserveStock", "idem-4"))
+        when(orderReferencePort.isValidCartReference("organization-1", "cart-1")).thenReturn(Mono.just(true));
+        when(idempotencyRecordPersistencePort.findByOrganizationOperationAndKey("organization-1", "ReserveStock", "idem-4"))
                 .thenReturn(Mono.empty());
-        when(stockItemPersistencePort.findById("tenant-1", "stock-1"))
+        when(stockItemPersistencePort.findById("organization-1", "stock-1"))
                 .thenReturn(Mono.just(stockItemWith(10, 1)));
         when(stockItemPersistencePort.updateWithExpectedVersion(any(), any(Long.class)))
                 .thenReturn(Mono.just(false), Mono.just(true));
@@ -232,7 +232,7 @@ class InventoryApplicationServiceTest {
         when(idempotencyRecordPersistencePort.save(any())).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
         ReserveStockCommand command = new ReserveStockCommand(
-                "tenant-1",
+                "organization-1",
                 "stock-1",
                 "cart-1",
                 2,
@@ -241,7 +241,7 @@ class InventoryApplicationServiceTest {
                 "idem-4");
 
         StepVerifier.create(service.handle(command))
-                .assertNext(result -> org.junit.jupiter.api.Assertions.assertEquals("tenant-1", result.tenantId()))
+                .assertNext(result -> org.junit.jupiter.api.Assertions.assertEquals("organization-1", result.organizationId()))
                 .verifyComplete();
 
         verify(stockItemPersistencePort, times(2)).updateWithExpectedVersion(any(), any(Long.class));
@@ -250,7 +250,7 @@ class InventoryApplicationServiceTest {
     private StockItem stockItemWith(int physicalQty, int reservedQty) {
         return new StockItem(
                 "stock-1",
-                "tenant-1",
+                "organization-1",
                 "wh-1",
                 "SKU-1",
                 physicalQty,
@@ -266,7 +266,7 @@ class InventoryApplicationServiceTest {
     private StockReservation expiredActiveReservation() {
         return new StockReservation(
                 "res-1",
-                "tenant-1",
+                "organization-1",
                 "stock-1",
                 "wh-1",
                 "SKU-1",

@@ -8,7 +8,7 @@ import java.time.Instant;
 public final class StockItem {
 
     private final String stockItemId;
-    private final String tenantId;
+    private final String organizationId;
     private final String warehouseId;
     private final String sku;
     private final int physicalQty;
@@ -22,7 +22,7 @@ public final class StockItem {
 
     public StockItem(
             String stockItemId,
-            String tenantId,
+            String organizationId,
             String warehouseId,
             String sku,
             int physicalQty,
@@ -34,7 +34,7 @@ public final class StockItem {
             Instant createdAt,
             Instant updatedAt) {
         this.stockItemId = requireNotBlank(stockItemId, "stockItemId");
-        this.tenantId = requireNotBlank(tenantId, "tenantId");
+        this.organizationId = requireNotBlank(organizationId, "organizationId");
         this.warehouseId = requireNotBlank(warehouseId, "warehouseId");
         this.sku = requireNotBlank(sku, "sku").toUpperCase();
         this.physicalQty = physicalQty;
@@ -50,7 +50,7 @@ public final class StockItem {
 
     public static StockItem initialize(
             String stockItemId,
-            String tenantId,
+            String organizationId,
             String warehouseId,
             String sku,
             int initialPhysicalQty,
@@ -60,7 +60,7 @@ public final class StockItem {
         Instant created = now == null ? Instant.now() : now;
         return new StockItem(
                 stockItemId,
-                tenantId,
+                organizationId,
                 warehouseId,
                 sku,
                 initialPhysicalQty,
@@ -137,7 +137,7 @@ public final class StockItem {
     public StockItem withIncrementedVersion(Instant now) {
         return new StockItem(
                 stockItemId,
-                tenantId,
+                organizationId,
                 warehouseId,
                 sku,
                 physicalQty,
@@ -153,7 +153,7 @@ public final class StockItem {
     private StockItem copy(int nextPhysicalQty, int nextReservedQty, StockItemStatus nextStatus, Instant now) {
         return new StockItem(
                 stockItemId,
-                tenantId,
+                organizationId,
                 warehouseId,
                 sku,
                 nextPhysicalQty,
@@ -201,8 +201,8 @@ public final class StockItem {
         return stockItemId;
     }
 
-    public String tenantId() {
-        return tenantId;
+    public String organizationId() {
+        return organizationId;
     }
 
     public String warehouseId() {

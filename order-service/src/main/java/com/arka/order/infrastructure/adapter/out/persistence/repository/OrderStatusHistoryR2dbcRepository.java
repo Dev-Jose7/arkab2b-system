@@ -10,9 +10,9 @@ public interface OrderStatusHistoryR2dbcRepository extends ReactiveCrudRepositor
     @Query("""
             SELECT *
             FROM order_status_histories
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND order_id = :orderId
             ORDER BY occurred_at ASC
             """)
-    Flux<OrderStatusHistoryEntity> findByTenantAndOrderId(String tenantId, String orderId);
+    Flux<OrderStatusHistoryEntity> findByOrganizationAndOrderId(String organizationId, String orderId);
 }

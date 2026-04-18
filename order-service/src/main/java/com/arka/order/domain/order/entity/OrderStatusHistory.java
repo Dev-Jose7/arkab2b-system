@@ -7,7 +7,7 @@ import java.time.Instant;
 public record OrderStatusHistory(
         String statusHistoryId,
         String orderId,
-        String tenantId,
+        String organizationId,
         String actorUserId,
         OrderStatus fromStatus,
         OrderStatus toStatus,
@@ -17,7 +17,7 @@ public record OrderStatusHistory(
     public OrderStatusHistory {
         requireNotBlank(statusHistoryId, "statusHistoryId");
         requireNotBlank(orderId, "orderId");
-        requireNotBlank(tenantId, "tenantId");
+        requireNotBlank(organizationId, "organizationId");
         requireNotBlank(actorUserId, "actorUserId");
         if (toStatus == null) {
             throw new OrderConsistencyException("toStatus is required");

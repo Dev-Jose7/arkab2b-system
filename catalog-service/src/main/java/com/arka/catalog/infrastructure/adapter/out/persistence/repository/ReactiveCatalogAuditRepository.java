@@ -11,32 +11,32 @@ public interface ReactiveCatalogAuditRepository extends ReactiveCrudRepository<C
     @Query("""
             SELECT *
             FROM catalog_audits
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND action_type = :actionType
               AND idempotency_key = :idempotencyKey
             ORDER BY created_at DESC
             LIMIT 1
             """)
-    Mono<CatalogAuditRow> findByIdempotency(String tenantId, String actionType, String idempotencyKey);
+    Mono<CatalogAuditRow> findByIdempotency(String organizationId, String actionType, String idempotencyKey);
 
     @Query("""
             SELECT *
             FROM catalog_audits
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND (:targetType IS NULL OR target_type = :targetType)
               AND (:targetId IS NULL OR target_id = :targetId)
             ORDER BY created_at DESC
             OFFSET :offset
             LIMIT :limit
             """)
-    Flux<CatalogAuditRow> findByTarget(String tenantId, String targetType, String targetId, int offset, int limit);
+    Flux<CatalogAuditRow> findByTarget(String organizationId, String targetType, String targetId, int offset, int limit);
 
     @Query("""
             SELECT COUNT(*)
             FROM catalog_audits
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND (:targetType IS NULL OR target_type = :targetType)
               AND (:targetId IS NULL OR target_id = :targetId)
             """)
-    Mono<Long> countByTarget(String tenantId, String targetType, String targetId);
+    Mono<Long> countByTarget(String organizationId, String targetType, String targetId);
 }

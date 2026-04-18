@@ -1,0 +1,6 @@
+app:
+  security:
+    jwt:
+      private-key-path: ${APP_SECURITY_JWT_PRIVATE_KEY_PATH:file:${APP_LOCAL_SECRETS_DIR:${user.dir}/../platform/secrets/local}/identity-access-private.pem}
+      public-key-path: ${APP_SECURITY_JWT_PUBLIC_KEY_PATH:file:${APP_LOCAL_SECRETS_DIR:${user.dir}/../platform/secrets/local}/identity-access-public.pem}
+      additional-public-keys: ${APP_SECURITY_JWT_ADDITIONAL_PUBLIC_KEYS:legacy-rsa-key-0=classpath:keys/dev-legacy-public.pem}

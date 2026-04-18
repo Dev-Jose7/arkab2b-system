@@ -3,7 +3,7 @@ package com.arka.catalog.application.port.out.persistence;
 import com.arka.catalog.domain.catalogoffer.entity.Price;
 import com.arka.catalog.domain.catalogoffer.enumtype.PriceType;
 import com.arka.catalog.domain.catalogoffer.valueobject.PriceId;
-import com.arka.catalog.domain.catalogoffer.valueobject.TenantId;
+import com.arka.catalog.domain.catalogoffer.valueobject.OrganizationId;
 import com.arka.catalog.domain.catalogoffer.valueobject.VariantId;
 import java.time.Instant;
 import reactor.core.publisher.Flux;
@@ -15,9 +15,9 @@ public interface CatalogPricePersistencePort {
 
     Mono<Price> update(Price price);
 
-    Mono<Price> findById(TenantId tenantId, PriceId priceId);
+    Mono<Price> findById(OrganizationId organizationId, PriceId priceId);
 
-    Flux<Price> findTimeline(TenantId tenantId, VariantId variantId, String currency, PriceType priceType);
+    Flux<Price> findTimeline(OrganizationId organizationId, VariantId variantId, String currency, PriceType priceType);
 
-    Mono<Price> resolveActive(TenantId tenantId, VariantId variantId, String currency, PriceType priceType, Instant at);
+    Mono<Price> resolveActive(OrganizationId organizationId, VariantId variantId, String currency, PriceType priceType, Instant at);
 }

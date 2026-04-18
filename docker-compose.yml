@@ -7,38 +7,43 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "${ARKAB2B_POSTGRES_PORT:-55432}:5432"
+      - "${ARKAB2B_PRIVATE_BIND_ADDRESS:-0.0.0.0}:${ARKAB2B_POSTGRES_PORT:-55432}:5432"
     volumes:
+      - arkab2b-postgres-data:/var/lib/postgresql/data
       - ./infra/postgres/init-arkab2b.sql:/docker-entrypoint-initdb.d/01-init-arkab2b.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
       interval: 5s
       timeout: 5s
       retries: 20
+    networks:
+      - arkab2b-net
 
   redis:
     image: redis:7
     container_name: arkab2b-redis
     command: ["redis-server", "--save", "", "--appendonly", "no"]
     ports:
-      - "${ARKAB2B_REDIS_PORT:-56379}:6379"
+      - "${ARKAB2B_PRIVATE_BIND_ADDRESS:-0.0.0.0}:${ARKAB2B_REDIS_PORT:-56379}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 20
+    networks:
+      - arkab2b-net
 
   kafka:
     image: apache/kafka:3.8.0
     container_name: arkab2b-kafka
     ports:
-      - "${ARKAB2B_KAFKA_PORT:-59092}:29092"
+      - "${ARKAB2B_PRIVATE_BIND_ADDRESS:-0.0.0.0}:${ARKAB2B_KAFKA_PORT:-59092}:29092"
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LISTENERS: PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093,PLAINTEXT_HOST://0.0.0.0:29092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:${ARKAB2B_KAFKA_PORT:-59092}
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://${ARKAB2B_KAFKA_ADVERTISED_HOST:-localhost}:${ARKAB2B_KAFKA_PORT:-59092}
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
@@ -50,12 +55,16 @@ services:
       KAFKA_MIN_INSYNC_REPLICAS: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    volumes:
+      - arkab2b-kafka-data:/var/lib/kafka/data
     healthcheck:
       test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server kafka:9092 >/dev/null 2>&1"]
       interval: 10s
       timeout: 10s
       retries: 20
       start_period: 20s
+    networks:
+      - arkab2b-net
 
   kafka-topic-init:
     image: apache/kafka:3.8.0
@@ -67,3 +76,431 @@ services:
       - ./infra/kafka/bootstrap-topics.sh:/bootstrap/bootstrap-topics.sh:ro
     entrypoint: ["/bin/bash", "/bootstrap/bootstrap-topics.sh", "kafka:9092"]
     restart: "no"
+    networks:
+      - arkab2b-net
+
+  eureka-server:
+    image: eclipse-temurin:21-jre
+    container_name: arkab2b-eureka-server
+    working_dir: /app
+    command: ["java", "-jar", "/app/eureka-server-0.1.0-SNAPSHOT.jar"]
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SERVER_PORT: "${ARKAB2B_EUREKA_SERVER_PORT:-8761}"
+      APP_EUREKA_DEFAULT_ZONE: "http://eureka-server:${ARKAB2B_EUREKA_SERVER_PORT:-8761}/eureka"
+    ports:
+      - "${ARKAB2B_PRIVATE_BIND_ADDRESS:-0.0.0.0}:${ARKAB2B_EUREKA_SERVER_PORT:-8761}:${ARKAB2B_EUREKA_SERVER_PORT:-8761}"
+    volumes:
+      - ./eureka-server/build/libs:/app:ro
+    networks:
+      arkab2b-net:
+        aliases:
+          - eureka-server
+    restart: unless-stopped
+
+  config-server:
+    image: eclipse-temurin:21-jre
+    container_name: arkab2b-config-server
+    working_dir: /app
+    command: ["java", "-jar", "/app/config-server-0.1.0-SNAPSHOT.jar"]
+    depends_on:
+      eureka-server:
+        condition: service_started
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SERVER_PORT: "${ARKAB2B_CONFIG_SERVER_PORT:-8888}"
+      APP_EUREKA_DEFAULT_ZONE: "http://eureka-server:${ARKAB2B_EUREKA_SERVER_PORT:-8761}/eureka"
+      APP_CONFIG_REPO_PATH: "file:/workspace/platform/config-repo"
+    ports:
+      - "${ARKAB2B_PRIVATE_BIND_ADDRESS:-0.0.0.0}:${ARKAB2B_CONFIG_SERVER_PORT:-8888}:${ARKAB2B_CONFIG_SERVER_PORT:-8888}"
+    volumes:
+      - ./config-server/build/libs:/app:ro
+      - ./platform/config-repo:/workspace/platform/config-repo:ro
+    networks:
+      arkab2b-net:
+        aliases:
+          - config-server
+    restart: unless-stopped
+
+  identity-access-service:
+    image: eclipse-temurin:21-jre
+    container_name: arkab2b-identity-access-service
+    working_dir: /app
+    command: ["java", "-jar", "/app/identity-access-service-0.1.0-SNAPSHOT.jar"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      config-server:
+        condition: service_started
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SERVER_PORT: "${ARKAB2B_IAM_PORT:-8081}"
+      APP_CONFIG_SERVER_URI: "http://config-server:${ARKAB2B_CONFIG_SERVER_PORT:-8888}"
+      APP_EUREKA_DEFAULT_ZONE: "http://eureka-server:${ARKAB2B_EUREKA_SERVER_PORT:-8761}/eureka"
+      APP_DATABASE_SCHEMA_INITIALIZE_ON_STARTUP: "true"
+      APP_LOCAL_R2DBC_URL: "r2dbc:postgresql://postgres:5432/identity_access"
+      APP_LOCAL_R2DBC_USERNAME: "identity_access"
+      APP_LOCAL_R2DBC_PASSWORD: "identity_access"
+      APP_LOCAL_REDIS_HOST: redis
+      APP_LOCAL_REDIS_PORT: "6379"
+      APP_LOCAL_REDIS_PASSWORD: ""
+      APP_LOCAL_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+      APP_LOCAL_SECRETS_DIR: "/workspace/secrets/local"
+      APP_SECURITY_JWT_PRIVATE_KEY_PATH: "file:/workspace/secrets/local/identity-access-private.pem"
+      APP_SECURITY_JWT_PUBLIC_KEY_PATH: "file:/workspace/secrets/local/identity-access-public.pem"
+      APP_EXTERNAL_NOTIFICATION_BASE_URL: "http://notification-service:${ARKAB2B_NOTIFICATION_PORT:-8086}"
+    ports:
+      - "${ARKAB2B_PRIVATE_BIND_ADDRESS:-0.0.0.0}:${ARKAB2B_IAM_PORT:-8081}:${ARKAB2B_IAM_PORT:-8081}"
+    volumes:
+      - ./identity-access-service/build/libs:/app:ro
+      - ${APP_SECRETS_HOST_DIR:-./platform/secrets/local}:/workspace/secrets/local:ro
+    networks:
+      arkab2b-net:
+        aliases:
+          - identity-access-service
+    restart: unless-stopped
+
+  directory-service:
+    image: eclipse-temurin:21-jre
+    container_name: arkab2b-directory-service
+    working_dir: /app
+    command: ["java", "-jar", "/app/directory-service-0.1.0-SNAPSHOT.jar"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      config-server:
+        condition: service_started
+      identity-access-service:
+        condition: service_started
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SERVER_PORT: "${ARKAB2B_DIRECTORY_PORT:-8082}"
+      APP_CONFIG_SERVER_URI: "http://config-server:${ARKAB2B_CONFIG_SERVER_PORT:-8888}"
+      APP_EUREKA_DEFAULT_ZONE: "http://eureka-server:${ARKAB2B_EUREKA_SERVER_PORT:-8761}/eureka"
+      APP_DATABASE_SCHEMA_INITIALIZE_ON_STARTUP: "true"
+      APP_LOCAL_R2DBC_URL: "r2dbc:postgresql://postgres:5432/directory"
+      APP_LOCAL_R2DBC_USERNAME: "directory"
+      APP_LOCAL_R2DBC_PASSWORD: "directory"
+      APP_LOCAL_REDIS_HOST: redis
+      APP_LOCAL_REDIS_PORT: "6379"
+      APP_LOCAL_REDIS_PASSWORD: ""
+      APP_LOCAL_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+      APP_SECURITY_JWT_JWKS_URI: "http://identity-access-service:${ARKAB2B_IAM_PORT:-8081}/.well-known/jwks.json"
+      APP_EXTERNAL_IDENTITY_BASE_URL: "http://identity-access-service:${ARKAB2B_IAM_PORT:-8081}"
+    ports:
+      - "${ARKAB2B_PRIVATE_BIND_ADDRESS:-0.0.0.0}:${ARKAB2B_DIRECTORY_PORT:-8082}:${ARKAB2B_DIRECTORY_PORT:-8082}"
+    volumes:
+      - ./directory-service/build/libs:/app:ro
+    networks:
+      arkab2b-net:
+        aliases:
+          - directory-service
+    restart: unless-stopped
+
+  catalog-service:
+    image: eclipse-temurin:21-jre
+    container_name: arkab2b-catalog-service
+    working_dir: /app
+    command: ["java", "-jar", "/app/catalog-service-0.1.0-SNAPSHOT.jar"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      config-server:
+        condition: service_started
+      identity-access-service:
+        condition: service_started
+      directory-service:
+        condition: service_started
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SERVER_PORT: "${ARKAB2B_CATALOG_PORT:-8083}"
+      APP_CONFIG_SERVER_URI: "http://config-server:${ARKAB2B_CONFIG_SERVER_PORT:-8888}"
+      APP_EUREKA_DEFAULT_ZONE: "http://eureka-server:${ARKAB2B_EUREKA_SERVER_PORT:-8761}/eureka"
+      APP_DATABASE_SCHEMA_INITIALIZE_ON_STARTUP: "true"
+      APP_LOCAL_R2DBC_URL: "r2dbc:postgresql://postgres:5432/arkab2b_catalog"
+      APP_LOCAL_R2DBC_USERNAME: "catalog"
+      APP_LOCAL_R2DBC_PASSWORD: "catalog"
+      APP_LOCAL_REDIS_HOST: redis
+      APP_LOCAL_REDIS_PORT: "6379"
+      APP_LOCAL_REDIS_PASSWORD: ""
+      APP_LOCAL_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+      APP_SECURITY_JWT_JWKS_URI: "http://identity-access-service:${ARKAB2B_IAM_PORT:-8081}/.well-known/jwks.json"
+      APP_EXTERNAL_IDENTITY_BASE_URL: "http://identity-access-service:${ARKAB2B_IAM_PORT:-8081}"
+      APP_EXTERNAL_DIRECTORY_BASE_URL: "http://directory-service:${ARKAB2B_DIRECTORY_PORT:-8082}"
+    ports:
+      - "${ARKAB2B_PRIVATE_BIND_ADDRESS:-0.0.0.0}:${ARKAB2B_CATALOG_PORT:-8083}:${ARKAB2B_CATALOG_PORT:-8083}"
+    volumes:
+      - ./catalog-service/build/libs:/app:ro
+    networks:
+      arkab2b-net:
+        aliases:
+          - catalog-service
+    restart: unless-stopped
+
+  inventory-service:
+    image: eclipse-temurin:21-jre
+    container_name: arkab2b-inventory-service
+    working_dir: /app
+    command: ["java", "-jar", "/app/inventory-service-0.1.0-SNAPSHOT.jar"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      config-server:
+        condition: service_started
+      identity-access-service:
+        condition: service_started
+      directory-service:
+        condition: service_started
+      catalog-service:
+        condition: service_started
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SERVER_PORT: "${ARKAB2B_INVENTORY_PORT:-8084}"
+      APP_CONFIG_SERVER_URI: "http://config-server:${ARKAB2B_CONFIG_SERVER_PORT:-8888}"
+      APP_EUREKA_DEFAULT_ZONE: "http://eureka-server:${ARKAB2B_EUREKA_SERVER_PORT:-8761}/eureka"
+      APP_DATABASE_SCHEMA_INITIALIZE_ON_STARTUP: "true"
+      APP_LOCAL_R2DBC_URL: "r2dbc:postgresql://postgres:5432/inventory"
+      APP_LOCAL_R2DBC_USERNAME: "inventory"
+      APP_LOCAL_R2DBC_PASSWORD: "inventory"
+      APP_LOCAL_REDIS_HOST: redis
+      APP_LOCAL_REDIS_PORT: "6379"
+      APP_LOCAL_REDIS_PASSWORD: ""
+      APP_LOCAL_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+      APP_SECURITY_JWT_JWKS_URI: "http://identity-access-service:${ARKAB2B_IAM_PORT:-8081}/.well-known/jwks.json"
+      APP_EXTERNAL_IDENTITY_BASE_URL: "http://identity-access-service:${ARKAB2B_IAM_PORT:-8081}"
+      APP_EXTERNAL_DIRECTORY_BASE_URL: "http://directory-service:${ARKAB2B_DIRECTORY_PORT:-8082}"
+      APP_EXTERNAL_CATALOG_BASE_URL: "http://catalog-service:${ARKAB2B_CATALOG_PORT:-8083}"
+      APP_EXTERNAL_ORDER_BASE_URL: "http://order-service:${ARKAB2B_ORDER_PORT:-8085}"
+    ports:
+      - "${ARKAB2B_PRIVATE_BIND_ADDRESS:-0.0.0.0}:${ARKAB2B_INVENTORY_PORT:-8084}:${ARKAB2B_INVENTORY_PORT:-8084}"
+    volumes:
+      - ./inventory-service/build/libs:/app:ro
+    networks:
+      arkab2b-net:
+        aliases:
+          - inventory-service
+    restart: unless-stopped
+
+  order-service:
+    image: eclipse-temurin:21-jre
+    container_name: arkab2b-order-service
+    working_dir: /app
+    command: ["java", "-jar", "/app/order-service-0.1.0-SNAPSHOT.jar"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      config-server:
+        condition: service_started
+      identity-access-service:
+        condition: service_started
+      directory-service:
+        condition: service_started
+      catalog-service:
+        condition: service_started
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SERVER_PORT: "${ARKAB2B_ORDER_PORT:-8085}"
+      APP_CONFIG_SERVER_URI: "http://config-server:${ARKAB2B_CONFIG_SERVER_PORT:-8888}"
+      APP_EUREKA_DEFAULT_ZONE: "http://eureka-server:${ARKAB2B_EUREKA_SERVER_PORT:-8761}/eureka"
+      APP_DATABASE_SCHEMA_INITIALIZE_ON_STARTUP: "true"
+      APP_LOCAL_R2DBC_URL: "r2dbc:postgresql://postgres:5432/order"
+      APP_LOCAL_R2DBC_USERNAME: "order"
+      APP_LOCAL_R2DBC_PASSWORD: "order"
+      APP_LOCAL_REDIS_HOST: redis
+      APP_LOCAL_REDIS_PORT: "6379"
+      APP_LOCAL_REDIS_PASSWORD: ""
+      APP_LOCAL_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+      APP_SECURITY_JWT_JWKS_URI: "http://identity-access-service:${ARKAB2B_IAM_PORT:-8081}/.well-known/jwks.json"
+      APP_EXTERNAL_IDENTITY_BASE_URL: "http://identity-access-service:${ARKAB2B_IAM_PORT:-8081}"
+      APP_EXTERNAL_DIRECTORY_BASE_URL: "http://directory-service:${ARKAB2B_DIRECTORY_PORT:-8082}"
+      APP_EXTERNAL_CATALOG_BASE_URL: "http://catalog-service:${ARKAB2B_CATALOG_PORT:-8083}"
+      APP_EXTERNAL_INVENTORY_BASE_URL: "http://inventory-service:${ARKAB2B_INVENTORY_PORT:-8084}"
+    ports:
+      - "${ARKAB2B_PRIVATE_BIND_ADDRESS:-0.0.0.0}:${ARKAB2B_ORDER_PORT:-8085}:${ARKAB2B_ORDER_PORT:-8085}"
+    volumes:
+      - ./order-service/build/libs:/app:ro
+    networks:
+      arkab2b-net:
+        aliases:
+          - order-service
+    restart: unless-stopped
+
+  notification-service:
+    image: eclipse-temurin:21-jre
+    container_name: arkab2b-notification-service
+    working_dir: /app
+    command: ["java", "-jar", "/app/notification-service-0.1.0-SNAPSHOT.jar"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      config-server:
+        condition: service_started
+      identity-access-service:
+        condition: service_started
+      directory-service:
+        condition: service_started
+      order-service:
+        condition: service_started
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SERVER_PORT: "${ARKAB2B_NOTIFICATION_PORT:-8086}"
+      APP_CONFIG_SERVER_URI: "http://config-server:${ARKAB2B_CONFIG_SERVER_PORT:-8888}"
+      APP_EUREKA_DEFAULT_ZONE: "http://eureka-server:${ARKAB2B_EUREKA_SERVER_PORT:-8761}/eureka"
+      APP_DATABASE_SCHEMA_INITIALIZE_ON_STARTUP: "true"
+      APP_LOCAL_R2DBC_URL: "r2dbc:postgresql://postgres:5432/arkab2b_notification"
+      APP_LOCAL_R2DBC_USERNAME: "notification"
+      APP_LOCAL_R2DBC_PASSWORD: "notification"
+      APP_LOCAL_REDIS_HOST: redis
+      APP_LOCAL_REDIS_PORT: "6379"
+      APP_LOCAL_REDIS_PASSWORD: ""
+      APP_LOCAL_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+      APP_SECURITY_JWT_JWKS_URI: "http://identity-access-service:${ARKAB2B_IAM_PORT:-8081}/.well-known/jwks.json"
+      APP_EXTERNAL_IDENTITY_BASE_URL: "http://identity-access-service:${ARKAB2B_IAM_PORT:-8081}"
+      APP_EXTERNAL_DIRECTORY_BASE_URL: "http://directory-service:${ARKAB2B_DIRECTORY_PORT:-8082}"
+      APP_EXTERNAL_ORDER_BASE_URL: "http://order-service:${ARKAB2B_ORDER_PORT:-8085}"
+    ports:
+      - "${ARKAB2B_PRIVATE_BIND_ADDRESS:-0.0.0.0}:${ARKAB2B_NOTIFICATION_PORT:-8086}:${ARKAB2B_NOTIFICATION_PORT:-8086}"
+    volumes:
+      - ./notification-service/build/libs:/app:ro
+    networks:
+      arkab2b-net:
+        aliases:
+          - notification-service
+    restart: unless-stopped
+
+  reporting-service:
+    image: eclipse-temurin:21-jre
+    container_name: arkab2b-reporting-service
+    working_dir: /app
+    command: ["java", "-jar", "/app/reporting-service-0.1.0-SNAPSHOT.jar"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      config-server:
+        condition: service_started
+      identity-access-service:
+        condition: service_started
+      directory-service:
+        condition: service_started
+      order-service:
+        condition: service_started
+      notification-service:
+        condition: service_started
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SERVER_PORT: "${ARKAB2B_REPORTING_PORT:-8087}"
+      APP_CONFIG_SERVER_URI: "http://config-server:${ARKAB2B_CONFIG_SERVER_PORT:-8888}"
+      APP_EUREKA_DEFAULT_ZONE: "http://eureka-server:${ARKAB2B_EUREKA_SERVER_PORT:-8761}/eureka"
+      APP_DATABASE_SCHEMA_INITIALIZE_ON_STARTUP: "true"
+      APP_LOCAL_R2DBC_URL: "r2dbc:postgresql://postgres:5432/arkab2b_reporting"
+      APP_LOCAL_R2DBC_USERNAME: "reporting"
+      APP_LOCAL_R2DBC_PASSWORD: "reporting"
+      APP_LOCAL_REDIS_HOST: redis
+      APP_LOCAL_REDIS_PORT: "6379"
+      APP_LOCAL_REDIS_PASSWORD: ""
+      APP_LOCAL_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+      APP_SECURITY_JWT_JWKS_URI: "http://identity-access-service:${ARKAB2B_IAM_PORT:-8081}/.well-known/jwks.json"
+      APP_EXTERNAL_IDENTITY_BASE_URL: "http://identity-access-service:${ARKAB2B_IAM_PORT:-8081}"
+      APP_EXTERNAL_DIRECTORY_BASE_URL: "http://directory-service:${ARKAB2B_DIRECTORY_PORT:-8082}"
+      APP_EXTERNAL_ORDER_BASE_URL: "http://order-service:${ARKAB2B_ORDER_PORT:-8085}"
+    ports:
+      - "${ARKAB2B_PRIVATE_BIND_ADDRESS:-0.0.0.0}:${ARKAB2B_REPORTING_PORT:-8087}:${ARKAB2B_REPORTING_PORT:-8087}"
+    volumes:
+      - ./reporting-service/build/libs:/app:ro
+    networks:
+      arkab2b-net:
+        aliases:
+          - reporting-service
+    restart: unless-stopped
+
+  api-gateway:
+    image: eclipse-temurin:21-jre
+    container_name: arkab2b-api-gateway
+    working_dir: /app
+    command: ["java", "-jar", "/app/api-gateway-0.1.0-SNAPSHOT.jar"]
+    depends_on:
+      eureka-server:
+        condition: service_started
+      config-server:
+        condition: service_started
+      identity-access-service:
+        condition: service_started
+      directory-service:
+        condition: service_started
+      catalog-service:
+        condition: service_started
+      inventory-service:
+        condition: service_started
+      order-service:
+        condition: service_started
+      notification-service:
+        condition: service_started
+      reporting-service:
+        condition: service_started
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SERVER_PORT: "${ARKAB2B_API_GATEWAY_PORT:-8080}"
+      APP_CONFIG_SERVER_URI: "http://config-server:${ARKAB2B_CONFIG_SERVER_PORT:-8888}"
+      APP_EUREKA_DEFAULT_ZONE: "http://eureka-server:${ARKAB2B_EUREKA_SERVER_PORT:-8761}/eureka"
+      APP_SECURITY_JWT_JWKS_URI: "http://identity-access-service:${ARKAB2B_IAM_PORT:-8081}/.well-known/jwks.json"
+    ports:
+      - "${ARKAB2B_PUBLIC_BIND_ADDRESS:-0.0.0.0}:${ARKAB2B_API_GATEWAY_PORT:-8080}:${ARKAB2B_API_GATEWAY_PORT:-8080}"
+    volumes:
+      - ./api-gateway/build/libs:/app:ro
+    networks:
+      arkab2b-net:
+        aliases:
+          - api-gateway
+    restart: unless-stopped
+
+networks:
+  arkab2b-net:
+    name: arkab2b-net
+
+volumes:
+  arkab2b-postgres-data:
+    name: arkab2b-postgres-data
+  arkab2b-kafka-data:
+    name: arkab2b-kafka-data

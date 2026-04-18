@@ -12,7 +12,7 @@ Validar journeys criticos de inventario de punta a punta con Order, Catalog, Not
 - flujo completo de reserva/confirmacion/liberacion/expiracion.
 - validacion interna de checkout por contrato sync.
 - propagacion de eventos de stock/reservas a consumidores.
-- seguridad tenant/rol e idempotencia operacional.
+- seguridad organization/rol e idempotencia operacional.
 
 ## Escenarios E2E priorizados
 | ID | Escenario | Flujo | Resultado esperado | Trazabilidad |
@@ -27,7 +27,7 @@ Validar journeys criticos de inventario de punta a punta con Order, Catalog, Not
 | INV-E2E-008 | reaccion a variante descontinuada | catalog emite `VariantDiscontinued` | inventory bloquea SKU y evita nuevas reservas | FR-001, FR-004 |
 | INV-E2E-009 | reaccion a producto retirado | catalog emite `ProductRetired` | SKUs asociados bloqueados para nuevas operaciones | FR-001 |
 | INV-E2E-010 | bajo stock genera alerta operativa | ajustar stock bajo umbral | `LowStockDetected` consumible por notification/reporting | FR-003 |
-| INV-E2E-011 | aislamiento tenant en mutaciones y consultas | actor tenant A opera tenant B | rechazo `acceso_cruzado_detectado` | NFR-005, D-CROSS-01 |
+| INV-E2E-011 | aislamiento organization en mutaciones y consultas | actor organization A opera organization B | rechazo `acceso_cruzado_detectado` | NFR-005, D-CROSS-01 |
 | INV-E2E-012 | resiliencia outbox en falla de broker | mutacion exitosa con fallo de publicacion | decision persiste y outbox reintenta | NFR-006 |
 | INV-E2E-013 | dedupe de eventos catalog en runtime | replay mismo evento catalog | `noop idempotente` en segundo consumo | NFR-009 |
 | INV-E2E-014 | trazabilidad tecnica completa | ejecutar mutacion + flujo async | cadena `request -> db -> audit -> idempotency -> outbox -> evento` correlacionada | NFR-006, NFR-009 |
@@ -35,7 +35,7 @@ Validar journeys criticos de inventario de punta a punta con Order, Catalog, Not
 ## Criterio de exito E2E
 - Escenarios `INV-E2E-001..014` disenados para ejecucion reproducible; el estado final requiere corrida y evidencia.
 - En corrida de certificacion, los flujos criticos (`001`, `002`, `005`, `010`, `011`) deben ejecutarse sin desviaciones semanticas.
-- En corrida de certificacion, anti-sobreventa y aislamiento tenant/rol deben verificarse de punta a punta.
+- En corrida de certificacion, anti-sobreventa y aislamiento organization/rol deben verificarse de punta a punta.
 
 ## Evidencia minima por corrida
 - Reporte por escenario con estado (`Implementado`/`Ejecutado`/`Validado con evidencia`).

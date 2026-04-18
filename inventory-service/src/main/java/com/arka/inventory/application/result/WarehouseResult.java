@@ -4,7 +4,7 @@ import java.time.Instant;
 
 public record WarehouseResult(
         String warehouseId,
-        String tenantId,
+        String organizationId,
         String warehouseCode,
         String warehouseName,
         String countryCode,

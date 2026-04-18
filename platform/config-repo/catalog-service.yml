@@ -1,0 +1,42 @@
+server:
+  port: ${SERVER_PORT:8083}
+
+app:
+  kafka:
+    topics:
+      catalog-offer-published: ${APP_KAFKA_TOPIC_CATALOG_OFFER_PUBLISHED:catalog.offer-published.v1}
+      catalog-offer-updated: ${APP_KAFKA_TOPIC_CATALOG_OFFER_UPDATED:catalog.offer-updated.v1}
+      catalog-mutation: ${APP_KAFKA_TOPIC_CATALOG_MUTATION:catalog.mutation.v1}
+  outbox:
+    relay:
+      enabled: ${APP_OUTBOX_RELAY_ENABLED:true}
+      batch-size: ${APP_OUTBOX_RELAY_BATCH_SIZE:200}
+      poll-interval-ms: ${APP_OUTBOX_RELAY_POLL_INTERVAL_MS:2000}
+      max-retries: ${APP_OUTBOX_RELAY_MAX_RETRIES:3}
+  security:
+    jwt:
+      issuer: ${APP_SECURITY_JWT_ISSUER:identity-access-service}
+      allowed-audiences: ${APP_SECURITY_JWT_ALLOWED_AUDIENCES:arka-b2b,catalog-service}
+      jwks-uri: ${APP_SECURITY_JWT_JWKS_URI:http://localhost:8081/.well-known/jwks.json}
+    s2s:
+      client-id: ${APP_SECURITY_S2S_CLIENT_ID:catalog-service}
+      client-secret: ${APP_SECURITY_S2S_CLIENT_SECRET:${APP_S2S_SECRET_CATALOG:catalog-service-secret}}
+      audience: ${APP_SECURITY_S2S_AUDIENCE:arka-b2b}
+      scopes: ${APP_SECURITY_S2S_SCOPES:catalog.read,directory.read,iam.permission.read}
+      identity-base-url: ${APP_SECURITY_S2S_IDENTITY_BASE_URL:http://identity-access-service}
+      token-path: ${APP_SECURITY_S2S_TOKEN_PATH:/api/v1/internal/auth/service-token}
+  external:
+    identity:
+      base-url: ${APP_EXTERNAL_IDENTITY_BASE_URL:http://identity-access-service}
+      service-token: ${APP_EXTERNAL_IDENTITY_SERVICE_TOKEN:}
+      timeout-ms: ${APP_EXTERNAL_IDENTITY_TIMEOUT_MS:3000}
+      actor-legitimacy-path: ${APP_EXTERNAL_IDENTITY_ACTOR_LEGITIMACY_PATH:/api/v1/internal/iam/users/{actorId}/permissions}
+    directory:
+      base-url: ${APP_EXTERNAL_DIRECTORY_BASE_URL:http://directory-service}
+      service-token: ${APP_EXTERNAL_DIRECTORY_SERVICE_TOKEN:}
+      timeout-ms: ${APP_EXTERNAL_DIRECTORY_TIMEOUT_MS:3000}
+      retry:
+        max-attempts: ${APP_EXTERNAL_DIRECTORY_RETRY_MAX_ATTEMPTS:2}
+        backoff-ms: ${APP_EXTERNAL_DIRECTORY_RETRY_BACKOFF_MS:200}
+      country-policy-path: ${APP_EXTERNAL_DIRECTORY_COUNTRY_POLICY_PATH:/api/v1/internal/organizations/{organizationId}/country-policies/{countryCode}}
+      default-currency: ${APP_EXTERNAL_DIRECTORY_DEFAULT_CURRENCY:COP}

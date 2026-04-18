@@ -21,8 +21,7 @@ class InboundDomainEventParserTest {
                   "data":{
                     "aggregateType":"Order",
                     "aggregateId":"ord-100",
-                    "tenantId":"tenant-100",
-                    "organizationId":"org-100",
+                    "organizationId":"organization-100",
                     "actorId":"actor-100"
                   }
                 }
@@ -34,8 +33,7 @@ class InboundDomainEventParserTest {
         assertEquals("OrderCreatedFromValidatedCart", parsed.eventType());
         assertEquals("Order", parsed.aggregateType());
         assertEquals("ord-100", parsed.aggregateId());
-        assertEquals("tenant-100", parsed.tenantId());
-        assertEquals("org-100", parsed.organizationId());
+        assertEquals("organization-100", parsed.organizationId());
         assertEquals("actor-100", parsed.actorId());
         assertEquals("trace-100", parsed.traceId());
         assertEquals("corr-100", parsed.correlationId());
@@ -46,7 +44,7 @@ class InboundDomainEventParserTest {
         String payload = """
                 {
                   "eventType":"OrderOperationalStatusUpdated",
-                  "data":{"aggregateType":"Order","aggregateId":"ord-200","tenantId":"tenant-200","organizationId":"org-200"}
+                  "data":{"aggregateType":"Order","aggregateId":"ord-200","organizationId":"organization-200"}
                 }
                 """;
 

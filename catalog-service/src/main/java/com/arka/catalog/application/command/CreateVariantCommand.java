@@ -3,7 +3,7 @@ package com.arka.catalog.application.command;
 import java.util.List;
 
 public record CreateVariantCommand(
-        String tenantId,
+        String organizationId,
         String actorId,
         String productId,
         String sku,

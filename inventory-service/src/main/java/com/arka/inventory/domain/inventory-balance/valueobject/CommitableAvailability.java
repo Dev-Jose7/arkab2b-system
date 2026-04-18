@@ -1,7 +1,7 @@
 package com.arka.inventory.domain.inventorybalance.valueobject;
 
 public record CommitableAvailability(
-        String tenantId,
+        String organizationId,
         String warehouseId,
         String sku,
         int physicalQty,
@@ -12,7 +12,7 @@ public record CommitableAvailability(
         boolean lowStock) {
 
     public static CommitableAvailability from(
-            String tenantId,
+            String organizationId,
             String warehouseId,
             String sku,
             int physicalQty,
@@ -22,7 +22,7 @@ public record CommitableAvailability(
         int available = physicalQty - reservedQty;
         boolean lowStock = available <= reorderPoint;
         return new CommitableAvailability(
-                tenantId,
+                organizationId,
                 warehouseId,
                 sku,
                 physicalQty,

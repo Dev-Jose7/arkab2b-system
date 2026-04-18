@@ -6,12 +6,12 @@ url: "/mvp/calidad/pruebas/servicio-directorio/"
 ---
 
 ## Objetivo
-Asegurar la verdad organizacional del sistema: organizacion, direcciones, contactos institucionales y parametros operativos por pais, con aislamiento por tenant y trazabilidad completa.
+Asegurar la verdad organizacional del sistema: organizacion, direcciones, contactos institucionales y parametros operativos por pais, con aislamiento por organization y trazabilidad completa.
 
 ## Alcance de calidad del servicio
 - Flujos HTTP de `organization`, `address`, `contact`, `checkout-address-validations` y `operational-country-settings`.
 - Flujos async: publicacion de eventos de directorio por outbox y consumo idempotente de eventos IAM (`RoleAssigned`, `UserBlocked`) para `organization_user_profile`.
-- Reglas de seguridad: tenant/ownership, permisos por rol, masking de PII y auditoria `directory_audit`.
+- Reglas de seguridad: organization/ownership, permisos por rol, masking de PII y auditoria `directory_audit`.
 
 ## Fuentes de verdad usadas
 - Producto: `FR-004`, `FR-006`, `FR-009`, `FR-011`, `NFR-005`, `NFR-006`, `NFR-009`, `NFR-010`, `NFR-011`.
@@ -19,11 +19,11 @@ Asegurar la verdad organizacional del sistema: organizacion, direcciones, contac
 - Arquitectura Directory: contratos API/eventos, seguridad, datos y runtime interno.
 
 ## Datos de entrada comunes
-- `tenant` principal: `org-co-001`.
-- `tenant` alterno: `org-ec-001`.
+- `organization` principal: `org-co-001`.
+- `organization` alterno: `org-ec-001`.
 - actores base:
-  - `tenant_user`.
-  - `tenant_admin`.
+  - `organization_user`.
+  - `organization_admin`.
   - `arka_operator`.
   - `arka_admin`.
   - `trusted_service(order-service)` para endpoints tecnicos.
@@ -49,5 +49,5 @@ Asegurar la verdad organizacional del sistema: organizacion, direcciones, contac
 | Direcciones | alta, actualizacion, default unico, desactivacion y validacion checkout |
 | Contactos institucionales | alta, actualizacion, primario unico por tipo, desactivacion |
 | Regionalizacion | configurar/resolver politica por `countryCode` sin fallback global |
-| Seguridad y aislamiento | tenant/ownership, RBAC, actor tecnico confiable, masking PII |
+| Seguridad y aislamiento | organization/ownership, RBAC, actor tecnico confiable, masking PII |
 | Integracion EDA | eventos `Organization*`, `Address*`, `Contact*`, `CountryOperationalPolicyConfigured`, `CheckoutAddressValidated` + consumo IAM con dedupe |

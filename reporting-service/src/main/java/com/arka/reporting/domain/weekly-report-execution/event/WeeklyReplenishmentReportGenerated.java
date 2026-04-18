@@ -4,24 +4,24 @@ import java.time.Instant;
 
 public final class WeeklyReplenishmentReportGenerated extends AbstractWeeklyReportDomainEvent {
 
-    private final String tenantId;
+    private final String organizationId;
     private final String weekId;
     private final String locationRef;
 
     public WeeklyReplenishmentReportGenerated(
             String executionId,
-            String tenantId,
+            String organizationId,
             String weekId,
             String locationRef,
             Instant occurredAt) {
         super("WeeklyReplenishmentReportGenerated", executionId, occurredAt);
-        this.tenantId = tenantId;
+        this.organizationId = organizationId;
         this.weekId = weekId;
         this.locationRef = locationRef;
     }
 
-    public String tenantId() {
-        return tenantId;
+    public String organizationId() {
+        return organizationId;
     }
 
     public String weekId() {

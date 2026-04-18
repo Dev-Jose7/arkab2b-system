@@ -16,14 +16,15 @@ public class SecurityActorContextProviderAdapter implements ActorContextProvider
     private final ActorContext fallbackActorContext;
 
     public SecurityActorContextProviderAdapter(
-            @Value("${app.security.actor.fallback-enabled:true}") boolean fallbackEnabled,
+            @Value("${app.security.actor.fallback-enabled:false}") boolean fallbackEnabled,
             @Value("${app.security.actor.fallback-actor-id:reporting-scheduler}") String fallbackActorId,
-            @Value("${app.security.actor.fallback-tenant-id:}") String fallbackTenantId,
+            @Value("${app.security.actor.fallback-organization-id:${app.security.actor.fallback-organization-id:}}")
+                    String fallbackOrganizationId,
             @Value("${app.security.actor.fallback-country-code:}") String fallbackCountryCode) {
         this.fallbackEnabled = fallbackEnabled;
         this.fallbackActorContext = new ActorContext(
                 fallbackActorId,
-                fallbackTenantId,
+                fallbackOrganizationId,
                 fallbackCountryCode,
                 true,
                 true);
@@ -42,7 +43,7 @@ public class SecurityActorContextProviderAdapter implements ActorContextProvider
         IamSecurityPrincipal principal = IamSecurityPrincipal.fromAuthentication(authentication);
         return new ActorContext(
                 principal.actorId(),
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.countryCode(),
                 principal.isReportingAdmin(),
                 principal.isTrustedService());

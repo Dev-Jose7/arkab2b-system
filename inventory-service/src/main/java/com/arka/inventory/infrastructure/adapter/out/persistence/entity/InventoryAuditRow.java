@@ -8,7 +8,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @Table("inventory_audits")
 public record InventoryAuditRow(
         @Id @Column("audit_id") String auditId,
-        @Column("tenant_id") String tenantId,
+        @Column("organization_id") String organizationId,
         @Column("actor_user_id") String actorUserId,
         @Column("action_type") String actionType,
         @Column("target_type") String targetType,

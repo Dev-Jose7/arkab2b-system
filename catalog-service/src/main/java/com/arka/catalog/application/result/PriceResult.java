@@ -5,7 +5,7 @@ import java.time.Instant;
 
 public record PriceResult(
         String priceId,
-        String tenantId,
+        String organizationId,
         String variantId,
         String priceType,
         BigDecimal amount,

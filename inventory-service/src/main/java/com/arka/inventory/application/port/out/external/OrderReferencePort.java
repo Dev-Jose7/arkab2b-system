@@ -4,7 +4,7 @@ import reactor.core.publisher.Mono;
 
 public interface OrderReferencePort {
 
-    Mono<Boolean> isValidCartReference(String tenantId, String cartId);
+    Mono<Boolean> isValidCartReference(String organizationId, String cartId);
 
-    Mono<Boolean> isValidOrderReference(String tenantId, String orderId);
+    Mono<Boolean> isValidOrderReference(String organizationId, String orderId);
 }

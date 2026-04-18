@@ -1,7 +1,7 @@
 package com.arka.inventory.application.command;
 
 public record UpdateStockItemStatusCommand(
-        String tenantId,
+        String organizationId,
         String stockItemId,
         String targetStatus,
         String reason,

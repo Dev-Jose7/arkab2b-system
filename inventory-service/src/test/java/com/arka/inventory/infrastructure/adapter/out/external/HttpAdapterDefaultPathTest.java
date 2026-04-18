@@ -21,18 +21,18 @@ class HttpAdapterDefaultPathTest {
             return Mono.just(ClientResponse.create(HttpStatus.OK).build());
         };
 
-        DirectoryTenantHttpAdapter adapter = new DirectoryTenantHttpAdapter(
+        DirectoryOrganizationHttpAdapter adapter = new DirectoryOrganizationHttpAdapter(
                 WebClient.builder().exchangeFunction(exchangeFunction),
                 "http://directory-service:8080",
                 "",
                 "",
                 3_000);
 
-        StepVerifier.create(adapter.tenantExists("org-123"))
+        StepVerifier.create(adapter.organizationExists("org-123"))
                 .expectNext(true)
                 .verifyComplete();
 
-        assertEquals("/api/v1/organizations/org-123", capturedPath.get());
+        assertEquals("/api/v1/internal/organizations/org-123", capturedPath.get());
     }
 
     @Test
@@ -59,14 +59,14 @@ class HttpAdapterDefaultPathTest {
                 "",
                 3_000);
 
-        StepVerifier.create(adapter.isValidCartReference("tenant-1", "cart-001"))
+        StepVerifier.create(adapter.isValidCartReference("organization-1", "cart-001"))
                 .expectNext(true)
                 .verifyComplete();
-        StepVerifier.create(adapter.isValidOrderReference("tenant-1", "order-009"))
+        StepVerifier.create(adapter.isValidOrderReference("organization-1", "order-009"))
                 .expectNext(true)
                 .verifyComplete();
 
-        assertEquals("/api/v1/carts/cart-001", cartPath.get());
-        assertEquals("/api/v1/orders/order-009", orderPath.get());
+        assertEquals("/api/v1/internal/carts/cart-001/organization-context", cartPath.get());
+        assertEquals("/api/v1/internal/orders/order-009/organization-context", orderPath.get());
     }
 }

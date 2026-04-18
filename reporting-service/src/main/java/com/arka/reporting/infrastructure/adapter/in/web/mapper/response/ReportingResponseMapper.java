@@ -30,7 +30,7 @@ public class ReportingResponseMapper {
     public AnalyticFactResponse toResponse(AnalyticFactResult result) {
         return new AnalyticFactResponse(
                 result.factId(),
-                result.tenantId(),
+                result.organizationId(),
                 result.sourceEventId(),
                 result.eventType(),
                 result.factType(),
@@ -66,7 +66,7 @@ public class ReportingResponseMapper {
     public SalesProjectionResponse toResponse(SalesProjectionResult result) {
         return new SalesProjectionResponse(
                 result.projectionId(),
-                result.tenantId(),
+                result.organizationId(),
                 result.period(),
                 result.totalSales(),
                 result.paidAmount(),
@@ -78,7 +78,7 @@ public class ReportingResponseMapper {
     public ReplenishmentProjectionResponse toResponse(ReplenishmentProjectionResult result) {
         return new ReplenishmentProjectionResponse(
                 result.projectionId(),
-                result.tenantId(),
+                result.organizationId(),
                 result.period(),
                 result.sku(),
                 result.availableQty(),
@@ -90,7 +90,7 @@ public class ReportingResponseMapper {
     public OperationsKpiResponse toResponse(OperationsKpiResult result) {
         return new OperationsKpiResponse(
                 result.projectionId(),
-                result.tenantId(),
+                result.organizationId(),
                 result.period(),
                 result.kpiName(),
                 result.kpiValue());
@@ -99,7 +99,7 @@ public class ReportingResponseMapper {
     public WeeklyExecutionResponse toResponse(WeeklyExecutionResult result) {
         return new WeeklyExecutionResponse(
                 result.executionId(),
-                result.tenantId(),
+                result.organizationId(),
                 result.weekId(),
                 result.reportType(),
                 result.status(),
@@ -117,7 +117,7 @@ public class ReportingResponseMapper {
         return new ReportArtifactResponse(
                 result.artifactId(),
                 result.executionId(),
-                result.tenantId(),
+                result.organizationId(),
                 result.weekId(),
                 result.reportType(),
                 result.format(),
@@ -148,7 +148,7 @@ public class ReportingResponseMapper {
     public ReportingAuditEntryResponse toResponse(ReportingAuditEntryResult result) {
         return new ReportingAuditEntryResponse(
                 result.auditId(),
-                result.tenantId(),
+                result.organizationId(),
                 result.actorId(),
                 result.actionType(),
                 result.targetType(),

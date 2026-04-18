@@ -4,7 +4,7 @@ import java.time.Instant;
 
 public record CatalogOfferResult(
         String offerId,
-        String tenantId,
+        String organizationId,
         String productId,
         String variantId,
         String priceId,

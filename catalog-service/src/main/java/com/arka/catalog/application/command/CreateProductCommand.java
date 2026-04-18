@@ -3,7 +3,7 @@ package com.arka.catalog.application.command;
 import java.util.List;
 
 public record CreateProductCommand(
-        String tenantId,
+        String organizationId,
         String actorId,
         String productCode,
         String name,

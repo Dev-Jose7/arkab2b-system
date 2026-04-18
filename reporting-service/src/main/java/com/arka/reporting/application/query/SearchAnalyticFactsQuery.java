@@ -1,7 +1,7 @@
 package com.arka.reporting.application.query;
 
 public record SearchAnalyticFactsQuery(
-        String tenantId,
+        String organizationId,
         String eventType,
         String factType,
         String period,

@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 public record SalesProjectionResult(
         String projectionId,
-        String tenantId,
+        String organizationId,
         String period,
         BigDecimal totalSales,
         BigDecimal paidAmount,

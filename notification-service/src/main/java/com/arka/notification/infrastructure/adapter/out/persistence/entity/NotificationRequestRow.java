@@ -10,7 +10,7 @@ import org.springframework.data.relational.core.mapping.Table;
 public record NotificationRequestRow(
         @Id
         @Column("notification_id") String notificationId,
-        @Column("tenant_id") String tenantId,
+        @Column("organization_id") String organizationId,
         @Column("source_event_id") String sourceEventId,
         @Column("source_event_type") String sourceEventType,
         @Column("recipient_ref") String recipientRef,

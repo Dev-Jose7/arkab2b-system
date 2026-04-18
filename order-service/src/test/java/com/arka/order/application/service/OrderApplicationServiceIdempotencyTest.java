@@ -103,12 +103,12 @@ class OrderApplicationServiceIdempotencyTest {
     @Test
     void shouldRejectIdempotencyKeyReuseWithDifferentPayload() {
         when(actorContextProviderPort.currentActor())
-                .thenReturn(Mono.just(new ActorContext("user-1", "tenant-1", "org-1", false)));
+                .thenReturn(Mono.just(new ActorContext("user-1", "organization-1", false, false)));
         when(actorLegitimacyPort.isLegitimate(anyString())).thenReturn(Mono.just(true));
-        when(idempotencyRecordPersistencePort.findByTenantOperationAndKey("tenant-1", "CreateCart", "idem-key-1"))
+        when(idempotencyRecordPersistencePort.findByOrganizationOperationAndKey("organization-1", "CreateCart", "idem-key-1"))
                 .thenReturn(Mono.just(new IdempotencyRecord(
                         UUID.randomUUID().toString(),
-                        "tenant-1",
+                        "organization-1",
                         "CreateCart",
                         "idem-key-1",
                         "different-hash",
@@ -119,9 +119,7 @@ class OrderApplicationServiceIdempotencyTest {
                         Instant.now())));
 
         CreateCartCommand command = new CreateCartCommand(
-                "tenant-1",
-                "org-1",
-                "user-1",
+                "organization-1", "user-1",
                 "user-1",
                 "idem-key-1");
 
@@ -134,10 +132,7 @@ class OrderApplicationServiceIdempotencyTest {
     void shouldTreatReservationExpiredEventAsIdempotentWhenAlreadyProcessed() {
         Instant now = Instant.parse("2026-04-15T10:00:00Z");
         Cart cart = Cart.rehydrate(
-                "cart-1",
-                "tenant-1",
-                "org-1",
-                "user-1",
+                "cart-1", "organization-1", "user-1",
                 CartStatus.ACTIVE,
                 2L,
                 now.minusSeconds(30),
@@ -145,16 +140,14 @@ class OrderApplicationServiceIdempotencyTest {
                 List.of());
 
         when(actorContextProviderPort.currentActor())
-                .thenReturn(Mono.just(new ActorContext("user-1", "tenant-1", "org-1", true)));
+                .thenReturn(Mono.just(new ActorContext("user-1", "organization-1", true, false)));
         when(actorLegitimacyPort.isLegitimate("user-1")).thenReturn(Mono.just(true));
         when(processedEventPersistencePort.existsByEventAndConsumer("evt-1", "order.reservation-expired-handler"))
                 .thenReturn(Mono.just(true));
-        when(cartPersistencePort.findById("tenant-1", "cart-1")).thenReturn(Mono.just(cart));
+        when(cartPersistencePort.findById("organization-1", "cart-1")).thenReturn(Mono.just(cart));
 
         HandleReservationExpiredCommand command = new HandleReservationExpiredCommand(
-                "tenant-1",
-                "org-1",
-                "cart-1",
+                "organization-1", "cart-1",
                 "res-1",
                 "evt-1",
                 "user-1");

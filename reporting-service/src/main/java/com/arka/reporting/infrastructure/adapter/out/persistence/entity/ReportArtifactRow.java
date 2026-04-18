@@ -10,7 +10,7 @@ public record ReportArtifactRow(
         @Id
         @Column("artifact_id") String artifactId,
         @Column("execution_id") String executionId,
-        @Column("tenant_id") String tenantId,
+        @Column("organization_id") String organizationId,
         @Column("week_id") String weekId,
         @Column("report_type") String reportType,
         @Column("format") String format,

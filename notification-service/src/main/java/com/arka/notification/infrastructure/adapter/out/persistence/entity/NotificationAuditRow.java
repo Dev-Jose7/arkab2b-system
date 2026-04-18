@@ -9,7 +9,7 @@ import org.springframework.data.relational.core.mapping.Table;
 public record NotificationAuditRow(
         @Id
         @Column("audit_id") String auditId,
-        @Column("tenant_id") String tenantId,
+        @Column("organization_id") String organizationId,
         @Column("actor_id") String actorId,
         @Column("action_type") String actionType,
         @Column("target_type") String targetType,

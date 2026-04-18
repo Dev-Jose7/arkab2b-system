@@ -8,7 +8,7 @@ import com.arka.catalog.domain.catalogoffer.enumtype.PriceType;
 import com.arka.catalog.domain.catalogoffer.exception.PricePeriodOverlapException;
 import com.arka.catalog.domain.catalogoffer.valueobject.Money;
 import com.arka.catalog.domain.catalogoffer.valueobject.PriceId;
-import com.arka.catalog.domain.catalogoffer.valueobject.TenantId;
+import com.arka.catalog.domain.catalogoffer.valueobject.OrganizationId;
 import com.arka.catalog.domain.catalogoffer.valueobject.TimeWindow;
 import com.arka.catalog.domain.catalogoffer.valueobject.VariantId;
 import java.math.BigDecimal;
@@ -21,11 +21,11 @@ class PriceInvariantTest {
     @Test
     void shouldRejectOverlappingPricePeriodsForSameVariantCurrencyAndType() {
         Instant now = Instant.parse("2026-01-01T00:00:00Z");
-        TenantId tenantId = TenantId.of("tenant-demo");
+        OrganizationId organizationId = OrganizationId.of("organization-demo");
         VariantId variantId = VariantId.of("variant-1");
 
         Price existing = Price.register(
-                tenantId,
+                organizationId,
                 PriceId.of("price-existing"),
                 variantId,
                 PriceType.BASE,
@@ -34,7 +34,7 @@ class PriceInvariantTest {
                 now);
 
         Price candidate = Price.register(
-                tenantId,
+                organizationId,
                 PriceId.of("price-new"),
                 variantId,
                 PriceType.BASE,
@@ -48,11 +48,11 @@ class PriceInvariantTest {
     @Test
     void shouldAllowNonOverlappingPricePeriodsForSameVariantCurrencyAndType() {
         Instant now = Instant.parse("2026-01-01T00:00:00Z");
-        TenantId tenantId = TenantId.of("tenant-demo");
+        OrganizationId organizationId = OrganizationId.of("organization-demo");
         VariantId variantId = VariantId.of("variant-1");
 
         Price existing = Price.register(
-                tenantId,
+                organizationId,
                 PriceId.of("price-existing"),
                 variantId,
                 PriceType.BASE,
@@ -61,7 +61,7 @@ class PriceInvariantTest {
                 now);
 
         Price candidate = Price.register(
-                tenantId,
+                organizationId,
                 PriceId.of("price-new"),
                 variantId,
                 PriceType.BASE,

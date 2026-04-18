@@ -9,7 +9,7 @@ import org.springframework.data.relational.core.mapping.Table;
 public record CategoryRow(
         @Id
         @Column("category_id") String categoryId,
-        @Column("tenant_id") String tenantId,
+        @Column("organization_id") String organizationId,
         @Column("category_code") String categoryCode,
         @Column("category_name") String categoryName,
         @Column("status") String status,

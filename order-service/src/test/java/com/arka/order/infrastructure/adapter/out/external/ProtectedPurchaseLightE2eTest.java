@@ -72,11 +72,11 @@ class ProtectedPurchaseLightE2eTest {
                     3_000);
 
             Mono<FlowOutcome> flow = directory
-                    .resolveCheckoutContext("tenant-core", "org-core", "addr-core", "CO")
-                    .flatMap(context -> catalog.resolveVariant("tenant-core", null, "SKU-900")
+                    .resolveCheckoutContext("organization-core", "addr-core", "CO")
+                    .flatMap(context -> catalog.resolveVariant("organization-core", null, "SKU-900")
                             .map(snapshot -> new FlowState(context, snapshot)))
                     .flatMap(state -> inventory
-                            .validateReservation("tenant-core", "res-900", state.snapshot().sku(), 1)
+                            .validateReservation("organization-core", "res-900", state.snapshot().sku(), 1)
                             .map(validation -> new FlowOutcome(state.context(), state.snapshot(), validation)));
 
             StepVerifier.create(flow)
@@ -89,7 +89,8 @@ class ProtectedPurchaseLightE2eTest {
                     })
                     .verifyComplete();
 
-            assertThat(directoryServer.lastPath()).isEqualTo("/api/v1/organizations/org-core/addresses/addr-core/checkout-resolution");
+            assertThat(directoryServer.lastPath())
+                    .isEqualTo("/api/v1/organizations/organization-core/addresses/addr-core/checkout-resolution");
             assertThat(catalogServer.lastPath()).isEqualTo("/api/v1/catalog/checkout/variant-resolution");
             assertThat(inventoryServer.lastPath()).isEqualTo("/api/v1/internal/reservations/res-900/validation");
         }
@@ -144,4 +145,3 @@ class ProtectedPurchaseLightE2eTest {
         }
     }
 }
-

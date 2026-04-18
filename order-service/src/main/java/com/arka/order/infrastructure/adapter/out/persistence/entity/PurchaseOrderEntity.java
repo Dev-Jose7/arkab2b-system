@@ -9,8 +9,8 @@ import org.springframework.data.relational.core.mapping.Table;
 public record PurchaseOrderEntity(
         @Id String orderId,
         String orderNumber,
-        String tenantId,
         String organizationId,
+
         String userId,
         String cartId,
         String checkoutCorrelationId,

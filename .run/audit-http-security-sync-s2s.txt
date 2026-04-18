@@ -1,0 +1,8 @@
+reporting_token_present=yes
+catalog_token_present=yes
+# order-internal-with-reporting-token
+code=404 body={"code":"order_resource_not_found","message":"order not found","timestamp":"2026-04-20T05:22:03.063031547Z"}
+# directory-with-catalog-token
+code=200 body={"organizationId":"org-phase6","organizationCode":"ORG-PHASE6","legalName":"Phase 6 Organization","tradeName":"Phase 6","countryCode":"CO","currencyCode":"COP","timezone":"America/Bogota","segmentTier":"FOUNDATION","status":"ACTIVE","createdAt":"2026-04-20T04:18:42.176504Z","updatedAt":"2026-04-20T04:54:41.217748Z"}
+# directory-with-reporting-token
+code=200 body={"organizationId":"org-phase6","organizationCode":"ORG-PHASE6","legalName":"Phase 6 Organization","tradeName":"Phase 6","countryCode":"CO","currencyCode":"COP","timezone":"America/Bogota","segmentTier":"FOUNDATION","status":"ACTIVE","createdAt":"2026-04-20T04:18:42.176504Z","updatedAt":"2026-04-20T04:54:41.217748Z"}

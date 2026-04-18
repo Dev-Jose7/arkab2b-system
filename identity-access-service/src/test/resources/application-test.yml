@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: identity-access-service-test
+
+app:
+  security:
+    jwt:
+      private-key-path: classpath:keys/dev-private.pem
+      public-key-path: classpath:keys/dev-public.pem
+      additional-public-keys: legacy-rsa-key-0=classpath:keys/dev-legacy-public.pem

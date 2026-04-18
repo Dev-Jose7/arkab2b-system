@@ -26,8 +26,8 @@ public class StockItemR2dbcAdapter implements StockItemPersistencePort {
     }
 
     @Override
-    public Mono<Boolean> existsByTenantWarehouseSku(String tenantId, String warehouseId, String sku) {
-        return repository.existsByTenantWarehouseSku(tenantId, warehouseId, sku);
+    public Mono<Boolean> existsByOrganizationWarehouseSku(String organizationId, String warehouseId, String sku) {
+        return repository.existsByOrganizationWarehouseSku(organizationId, warehouseId, sku);
     }
 
     @Override
@@ -36,29 +36,29 @@ public class StockItemR2dbcAdapter implements StockItemPersistencePort {
     }
 
     @Override
-    public Mono<StockItem> findById(String tenantId, String stockItemId) {
-        return repository.findByTenantAndId(tenantId, stockItemId).map(rowMapper::toDomain);
+    public Mono<StockItem> findById(String organizationId, String stockItemId) {
+        return repository.findByOrganizationAndId(organizationId, stockItemId).map(rowMapper::toDomain);
     }
 
     @Override
-    public Mono<StockItem> findByTenantWarehouseSku(String tenantId, String warehouseId, String sku) {
-        return repository.findByTenantWarehouseSku(tenantId, warehouseId, sku).map(rowMapper::toDomain);
+    public Mono<StockItem> findByOrganizationWarehouseSku(String organizationId, String warehouseId, String sku) {
+        return repository.findByOrganizationWarehouseSku(organizationId, warehouseId, sku).map(rowMapper::toDomain);
     }
 
     @Override
-    public Flux<StockItem> findByTenantAndWarehouse(String tenantId, String warehouseId) {
-        return repository.findByTenantAndWarehouse(tenantId, warehouseId).map(rowMapper::toDomain);
+    public Flux<StockItem> findByOrganizationAndWarehouse(String organizationId, String warehouseId) {
+        return repository.findByOrganizationAndWarehouse(organizationId, warehouseId).map(rowMapper::toDomain);
     }
 
     @Override
-    public Flux<StockItem> findLowStockByTenantAndWarehouse(String tenantId, String warehouseId) {
-        return repository.findLowStockByTenantAndWarehouse(tenantId, warehouseId).map(rowMapper::toDomain);
+    public Flux<StockItem> findLowStockByOrganizationAndWarehouse(String organizationId, String warehouseId) {
+        return repository.findLowStockByOrganizationAndWarehouse(organizationId, warehouseId).map(rowMapper::toDomain);
     }
 
     @Override
     public Mono<Boolean> updateWithExpectedVersion(StockItem stockItem, long expectedVersion) {
         return repository.updateWithExpectedVersion(
-                        stockItem.tenantId(),
+                        stockItem.organizationId(),
                         stockItem.stockItemId(),
                         stockItem.physicalQty(),
                         stockItem.reservedQty(),

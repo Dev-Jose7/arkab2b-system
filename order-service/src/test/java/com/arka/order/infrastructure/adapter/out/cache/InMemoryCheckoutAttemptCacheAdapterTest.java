@@ -9,7 +9,7 @@ class InMemoryCheckoutAttemptCacheAdapterTest {
 
     @Test
     void shouldReturnEmptyWhenKeyMissing() {
-        StepVerifier.create(adapter.findByCorrelation("tenant-1", "corr-1"))
+        StepVerifier.create(adapter.findByCorrelation("organization-1", "corr-1"))
                 .verifyComplete();
     }
 
@@ -22,7 +22,7 @@ class InMemoryCheckoutAttemptCacheAdapterTest {
 
     @Test
     void shouldCompleteEvict() {
-        StepVerifier.create(adapter.evict("tenant-1", "corr-1"))
+        StepVerifier.create(adapter.evict("organization-1", "corr-1"))
                 .verifyComplete();
     }
 }

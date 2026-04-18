@@ -46,15 +46,15 @@ public class RedisCommitableAvailabilityCacheAdapter implements CommitableAvaila
     }
 
     @Override
-    public Mono<CommitableAvailabilityResult> find(String tenantId, String warehouseId, String sku) {
+    public Mono<CommitableAvailabilityResult> find(String organizationId, String warehouseId, String sku) {
         // Cache is best-effort optimization; degrade to miss but keep failures observable.
         return redisTemplate.opsForValue()
-                .get(cacheKey(tenantId, warehouseId, sku))
+                .get(cacheKey(organizationId, warehouseId, sku))
                 .flatMap(this::fromJson)
                 .onErrorResume(error -> {
                     log.warn(
-                            "Redis cache read failed; degrading to cache miss. cache=commitable-availability tenantId={} warehouseId={} sku={}",
-                            tenantId,
+                            "Redis cache read failed; degrading to cache miss. cache=commitable-availability organizationId={} warehouseId={} sku={}",
+                            organizationId,
                             warehouseId,
                             sku,
                             error);
@@ -69,7 +69,7 @@ public class RedisCommitableAvailabilityCacheAdapter implements CommitableAvaila
                 .flatMap(payload -> redisTemplate.opsForValue()
                         .set(
                                 cacheKey(
-                                        availabilityResult.tenantId(),
+                                        availabilityResult.organizationId(),
                                         availabilityResult.warehouseId(),
                                         availabilityResult.sku()),
                                 payload,
@@ -77,8 +77,8 @@ public class RedisCommitableAvailabilityCacheAdapter implements CommitableAvaila
                         .then())
                 .onErrorResume(error -> {
                     log.warn(
-                            "Redis cache write failed; continuing without cache. cache=commitable-availability tenantId={} warehouseId={} sku={}",
-                            availabilityResult.tenantId(),
+                            "Redis cache write failed; continuing without cache. cache=commitable-availability organizationId={} warehouseId={} sku={}",
+                            availabilityResult.organizationId(),
                             availabilityResult.warehouseId(),
                             availabilityResult.sku(),
                             error);
@@ -88,8 +88,8 @@ public class RedisCommitableAvailabilityCacheAdapter implements CommitableAvaila
     }
 
     @Override
-    public Mono<Void> evict(String tenantId, String warehouseId, String sku) {
-        return redisTemplate.delete(cacheKey(tenantId, warehouseId, sku)).then();
+    public Mono<Void> evict(String organizationId, String warehouseId, String sku) {
+        return redisTemplate.delete(cacheKey(organizationId, warehouseId, sku)).then();
     }
 
     private Mono<CommitableAvailabilityResult> fromJson(String payload) {
@@ -110,8 +110,8 @@ public class RedisCommitableAvailabilityCacheAdapter implements CommitableAvaila
         }
     }
 
-    private String cacheKey(String tenantId, String warehouseId, String sku) {
-        return "inventory:availability:" + tenantId + ":" + warehouseId + ":" + sku.toUpperCase();
+    private String cacheKey(String organizationId, String warehouseId, String sku) {
+        return "inventory:availability:" + organizationId + ":" + warehouseId + ":" + sku.toUpperCase();
     }
 
     private Counter counter(MeterRegistry meterRegistry, String operation) {

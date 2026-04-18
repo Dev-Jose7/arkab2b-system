@@ -1,7 +1,7 @@
 package com.arka.inventory.application.command;
 
 public record InitializeStockItemCommand(
-        String tenantId,
+        String organizationId,
         String warehouseId,
         String sku,
         Integer initialPhysicalQty,

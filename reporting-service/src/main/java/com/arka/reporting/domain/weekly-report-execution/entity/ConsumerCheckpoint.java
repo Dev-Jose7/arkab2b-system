@@ -4,7 +4,7 @@ import java.time.Instant;
 
 public record ConsumerCheckpoint(
         String checkpointId,
-        String tenantId,
+        String organizationId,
         String consumerName,
         String topic,
         int partition,

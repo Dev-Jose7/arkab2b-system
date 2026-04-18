@@ -4,10 +4,15 @@ import com.arka.notification.application.command.DispatchNotificationCommand;
 import com.arka.notification.application.port.in.DispatchNotificationCommandUseCase;
 import com.arka.notification.application.port.out.external.ClockPort;
 import com.arka.notification.application.port.out.persistence.NotificationRequestPersistencePort;
+import com.arka.notification.infrastructure.adapter.in.security.IamSecurityPrincipal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -47,17 +52,31 @@ public class NotificationDispatchScheduler {
                 .findDispatchable(clockPort.now(), Math.max(1, batchSize))
                 .concatMap(request -> dispatchNotificationCommandUseCase
                         .handle(new DispatchNotificationCommand(
-                                request.tenantId().value(),
+                                request.organizationId().value(),
                                 schedulerActorId,
                                 request.notificationId().value(),
                                 null))
+                        .contextWrite(ReactiveSecurityContextHolder.withAuthentication(
+                                technicalAuthentication(request.organizationId().value())))
                         .doOnError(throwable -> log.warn(
-                                "Notification scheduler dispatch failed notificationId={} tenantId={} error={}",
+                                "Notification scheduler dispatch failed notificationId={} organizationId={} error={}",
                                 request.notificationId().value(),
-                                request.tenantId().value(),
+                                request.organizationId().value(),
                                 throwable.getMessage()))
                         .onErrorResume(throwable -> Mono.empty()))
                 .then()
                 .subscribe();
+    }
+
+    private Authentication technicalAuthentication(String organizationId) {
+        IamSecurityPrincipal principal = new IamSecurityPrincipal(
+                schedulerActorId,
+                organizationId,
+                "",
+                java.util.Set.of("ROLE_TRUSTED_SERVICE"));
+        return UsernamePasswordAuthenticationToken.authenticated(
+                principal,
+                null,
+                java.util.Set.of(new SimpleGrantedAuthority("ROLE_TRUSTED_SERVICE")));
     }
 }

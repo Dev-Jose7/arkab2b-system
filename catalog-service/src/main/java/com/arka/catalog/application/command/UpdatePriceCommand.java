@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 public record UpdatePriceCommand(
-        String tenantId,
+        String organizationId,
         String actorId,
         String priceId,
         BigDecimal amount,

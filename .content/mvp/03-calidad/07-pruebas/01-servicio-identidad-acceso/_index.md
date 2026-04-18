@@ -6,12 +6,12 @@ url: "/mvp/calidad/pruebas/servicio-identidad-acceso/"
 ---
 
 ## Objetivo
-Asegurar autenticacion, autorizacion y ciclo de sesion con aislamiento tenant, trazabilidad completa y contratos IAM estables para el baseline `MVP`.
+Asegurar autenticacion, autorizacion y ciclo de sesion con aislamiento organization, trazabilidad completa y contratos IAM estables para el baseline `MVP`.
 
 ## Alcance de calidad del servicio
 - Flujos HTTP: `login`, `refresh`, `logout`, `introspect`, `JWKS`, `admin roles`, `admin block`, `admin sessions/revoke`, `admin sessions/list`, `admin permissions`.
 - Flujos async: emision de eventos IAM por outbox y consumo idempotente de `OrganizationSuspended`.
-- Reglas de seguridad: aislamiento tenant/rol, errores canonicos, auditoria `auth_audit`, dedupe `processed_event`, propagacion de `traceId` y `correlationId`.
+- Reglas de seguridad: aislamiento organization/rol, errores canonicos, auditoria `auth_audit`, dedupe `processed_event`, propagacion de `traceId` y `correlationId`.
 
 ## Fuentes de verdad usadas
 - Producto: `FR-009`, `NFR-005`, `NFR-006`, `NFR-009`, `NFR-010`.
@@ -19,11 +19,11 @@ Asegurar autenticacion, autorizacion y ciclo de sesion con aislamiento tenant, t
 - Arquitectura IAM: contratos API/eventos, seguridad, datos, runtime.
 
 ## Datos de entrada comunes
-- `tenant` principal: `org-co-001`.
-- `tenant` alterno: `org-ec-001`.
+- `organization` principal: `org-co-001`.
+- `organization` alterno: `org-ec-001`.
 - usuarios base:
-  - `usr-b2b-active` (`tenant_user`).
-  - `usr-b2b-admin` (`tenant_admin`).
+  - `usr-b2b-active` (`organization_user`).
+  - `usr-b2b-admin` (`organization_admin`).
   - `usr-arka-admin` (`arka_admin`, sin obligatoriedad de MFA en baseline actual).
   - `usr-b2b-blocked` (`BLOCKED`).
 - trazabilidad tecnica obligatoria en mutaciones: `traceId`, `correlationId`.
@@ -44,7 +44,7 @@ Asegurar autenticacion, autorizacion y ciclo de sesion con aislamiento tenant, t
 | Bloque | Cobertura minima |
 |---|---|
 | Dominio local | login, refresh, revocacion, politicas de rol, transiciones de sesion |
-| Seguridad | aislamiento tenant, rechazo por rol y trazabilidad de eventos de seguridad |
+| Seguridad | aislamiento organization, rechazo por rol y trazabilidad de eventos de seguridad |
 | Contratos API | endpoints IAM activos sin breaking en `v1` |
 | Contratos de eventos | `UserLoggedIn`, `AuthFailed`, `SessionRefreshed`, `SessionRevoked`, `SessionsRevokedByUser`, `RoleAssigned`, `UserBlocked` |
 | Datos y trazabilidad | persistencia y consulta consistente en `user_session`, `auth_audit`, `outbox_event`, `processed_event` |

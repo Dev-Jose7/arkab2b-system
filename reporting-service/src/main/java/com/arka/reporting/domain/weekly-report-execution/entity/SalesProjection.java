@@ -5,7 +5,7 @@ import java.time.Instant;
 
 public record SalesProjection(
         String projectionId,
-        String tenantId,
+        String organizationId,
         String period,
         BigDecimal totalSales,
         BigDecimal paidAmount,

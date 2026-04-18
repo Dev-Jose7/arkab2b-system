@@ -14,7 +14,7 @@ import com.arka.notification.domain.notificationdispatch.enumtype.ProviderCallba
 import com.arka.notification.domain.notificationdispatch.valueobject.AttemptId;
 import com.arka.notification.domain.notificationdispatch.valueobject.NotificationId;
 import com.arka.notification.domain.notificationdispatch.valueobject.NotificationKey;
-import com.arka.notification.domain.notificationdispatch.valueobject.TenantId;
+import com.arka.notification.domain.notificationdispatch.valueobject.OrganizationId;
 import com.arka.notification.infrastructure.adapter.out.persistence.entity.ChannelPolicyRow;
 import com.arka.notification.infrastructure.adapter.out.persistence.entity.NotificationAttemptRow;
 import com.arka.notification.infrastructure.adapter.out.persistence.entity.NotificationAuditRow;
@@ -29,7 +29,7 @@ public class NotificationRowMapper {
     public NotificationRequestRow toRow(NotificationRequest request) {
         return new NotificationRequestRow(
                 request.notificationId().value(),
-                request.tenantId().value(),
+                request.organizationId().value(),
                 request.sourceEventId(),
                 request.sourceEventType(),
                 request.recipientRef(),
@@ -53,7 +53,7 @@ public class NotificationRowMapper {
     public NotificationRequest toDomain(NotificationRequestRow row) {
         return NotificationRequest.rehydrate(
                 NotificationId.of(row.notificationId()),
-                TenantId.of(row.tenantId()),
+                OrganizationId.of(row.organizationId()),
                 row.sourceEventId(),
                 row.sourceEventType(),
                 row.recipientRef(),
@@ -74,10 +74,10 @@ public class NotificationRowMapper {
                 row.updatedAt());
     }
 
-    public NotificationAttemptRow toRow(NotificationAttempt attempt, String tenantId) {
+    public NotificationAttemptRow toRow(NotificationAttempt attempt, String organizationId) {
         return new NotificationAttemptRow(
                 attempt.attemptId().value(),
-                tenantId,
+                organizationId,
                 attempt.notificationId().value(),
                 attempt.attemptNumber(),
                 attempt.resultStatus().name(),
@@ -112,7 +112,7 @@ public class NotificationRowMapper {
     public NotificationTemplate toDomain(NotificationTemplateRow row) {
         return new NotificationTemplate(
                 row.templateId(),
-                row.tenantId(),
+                row.organizationId(),
                 row.sourceEventType(),
                 NotificationChannel.valueOf(row.channel()),
                 row.subjectTemplate(),
@@ -127,7 +127,7 @@ public class NotificationRowMapper {
                 : NotificationChannel.valueOf(row.fallbackChannel());
         return new ChannelPolicy(
                 row.policyId(),
-                row.tenantId(),
+                row.organizationId(),
                 row.sourceEventType(),
                 NotificationChannel.valueOf(row.primaryChannel()),
                 fallback,
@@ -139,7 +139,7 @@ public class NotificationRowMapper {
     public ProviderCallbackRow toRow(ProviderCallback callback) {
         return new ProviderCallbackRow(
                 callback.callbackId(),
-                callback.tenantId(),
+                callback.organizationId(),
                 callback.notificationId(),
                 callback.providerCode(),
                 callback.providerRef(),
@@ -153,7 +153,7 @@ public class NotificationRowMapper {
     public ProviderCallback toDomain(ProviderCallbackRow row) {
         return new ProviderCallback(
                 row.callbackId(),
-                row.tenantId(),
+                row.organizationId(),
                 row.notificationId(),
                 row.providerCode(),
                 row.providerRef(),
@@ -180,7 +180,7 @@ public class NotificationRowMapper {
     public NotificationAuditRow toRow(NotificationAuditEntry entry) {
         return new NotificationAuditRow(
                 entry.auditId(),
-                entry.tenantId(),
+                entry.organizationId(),
                 entry.actorId(),
                 entry.actionType(),
                 entry.targetType(),
@@ -195,7 +195,7 @@ public class NotificationRowMapper {
     public NotificationAuditEntry toDomain(NotificationAuditRow row) {
         return new NotificationAuditEntry(
                 row.auditId(),
-                row.tenantId(),
+                row.organizationId(),
                 row.actorId(),
                 row.actionType(),
                 row.targetType(),

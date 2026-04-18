@@ -65,11 +65,11 @@ Ejemplos:
 - Usar datos deterministas y repetibles.
 - Separar datos `validos` y `invalidos`.
 - Evitar datos reales de PII; usar anonimizados/sinteticos.
-- Cada fixture debe indicar `tenantId` y, cuando aplique, `countryCode`.
+- Cada fixture debe indicar `organizationId` y, cuando aplique, `countryCode`.
 
 ### 4.3 Semillas minimas comunes
-- Tenant base: `org-co-001`.
-- Tenant alterno para aislamiento: `org-ec-001`.
+- Organization base: `org-co-001`.
+- Organization alterno para aislamiento: `org-ec-001`.
 - Usuario habilitado: `usr-b2b-active`.
 - Usuario bloqueado: `usr-b2b-blocked`.
 - SKU vendible: `SKU-SELLABLE-001`.

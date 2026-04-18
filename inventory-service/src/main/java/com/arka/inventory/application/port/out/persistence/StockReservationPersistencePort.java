@@ -9,9 +9,9 @@ public interface StockReservationPersistencePort {
 
     Mono<StockReservation> save(StockReservation reservation);
 
-    Mono<StockReservation> findById(String tenantId, String reservationId);
+    Mono<StockReservation> findById(String organizationId, String reservationId);
 
-    Flux<StockReservation> findByTenantAndCart(String tenantId, String cartId);
+    Flux<StockReservation> findByOrganizationAndCart(String organizationId, String cartId);
 
-    Flux<StockReservation> findExpiredActive(String tenantId, Instant now, int limit);
+    Flux<StockReservation> findExpiredActive(String organizationId, Instant now, int limit);
 }

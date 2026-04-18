@@ -7,8 +7,8 @@ import org.springframework.data.relational.core.mapping.Table;
 @Table("order_audits")
 public record OrderAuditEntity(
         @Id String auditId,
-        String tenantId,
         String organizationId,
+
         String actorUserId,
         String actionType,
         String targetType,

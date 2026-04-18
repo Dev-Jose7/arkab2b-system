@@ -9,7 +9,7 @@ import org.springframework.data.relational.core.mapping.Table;
 public record VariantRow(
         @Id
         @Column("variant_id") String variantId,
-        @Column("tenant_id") String tenantId,
+        @Column("organization_id") String organizationId,
         @Column("product_id") String productId,
         @Column("sku") String sku,
         @Column("variant_name") String variantName,

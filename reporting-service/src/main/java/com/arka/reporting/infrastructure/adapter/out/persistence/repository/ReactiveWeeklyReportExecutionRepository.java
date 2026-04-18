@@ -8,11 +8,11 @@ import reactor.core.publisher.Mono;
 
 public interface ReactiveWeeklyReportExecutionRepository extends ReactiveCrudRepository<WeeklyReportExecutionRow, String> {
 
-    @Query("SELECT * FROM weekly_report_executions WHERE tenant_id = :tenantId AND execution_id = :executionId")
-    Mono<WeeklyReportExecutionRow> findByTenantAndId(String tenantId, String executionId);
+    @Query("SELECT * FROM weekly_report_executions WHERE organization_id = :organizationId AND execution_id = :executionId")
+    Mono<WeeklyReportExecutionRow> findByOrganizationAndId(String organizationId, String executionId);
 
-    @Query("SELECT * FROM weekly_report_executions WHERE tenant_id = :tenantId AND week_id = :weekId AND report_type = :reportType")
-    Mono<WeeklyReportExecutionRow> findByTenantWeekAndType(String tenantId, String weekId, String reportType);
+    @Query("SELECT * FROM weekly_report_executions WHERE organization_id = :organizationId AND week_id = :weekId AND report_type = :reportType")
+    Mono<WeeklyReportExecutionRow> findByOrganizationWeekAndType(String organizationId, String weekId, String reportType);
 
     @Query("""
             UPDATE weekly_report_executions
@@ -24,12 +24,12 @@ public interface ReactiveWeeklyReportExecutionRepository extends ReactiveCrudRep
                 started_at = :startedAt,
                 completed_at = :completedAt,
                 updated_at = :updatedAt
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND execution_id = :executionId
               AND version = :expectedVersion
             """)
     Mono<Integer> updateOptimistic(
-            String tenantId,
+            String organizationId,
             String executionId,
             String status,
             String errorCode,
@@ -44,9 +44,9 @@ public interface ReactiveWeeklyReportExecutionRepository extends ReactiveCrudRep
     @Query("""
             SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END
             FROM weekly_report_executions
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND report_type = 'FULL_REBUILD'
               AND status = 'RUNNING'
             """)
-    Mono<Boolean> existsRunningRebuild(String tenantId);
+    Mono<Boolean> existsRunningRebuild(String organizationId);
 }

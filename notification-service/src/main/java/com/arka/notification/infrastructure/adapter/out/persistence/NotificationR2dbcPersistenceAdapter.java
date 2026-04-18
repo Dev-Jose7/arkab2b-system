@@ -23,7 +23,7 @@ import com.arka.notification.domain.notificationdispatch.entity.NotificationTemp
 import com.arka.notification.domain.notificationdispatch.entity.ProviderCallback;
 import com.arka.notification.domain.notificationdispatch.valueobject.NotificationId;
 import com.arka.notification.domain.notificationdispatch.valueobject.NotificationKey;
-import com.arka.notification.domain.notificationdispatch.valueobject.TenantId;
+import com.arka.notification.domain.notificationdispatch.valueobject.OrganizationId;
 import com.arka.notification.domain.shared.event.DomainEvent;
 import com.arka.notification.infrastructure.adapter.out.persistence.entity.ProcessedEventRow;
 import com.arka.notification.infrastructure.adapter.out.persistence.mapper.NotificationRowMapper;
@@ -110,7 +110,7 @@ public class NotificationR2dbcPersistenceAdapter
         long nextVersion = expectedVersion + 1;
         return requestRepository
                 .updateOptimistic(
-                        request.tenantId().value(),
+                        request.organizationId().value(),
                         request.notificationId().value(),
                         request.templateId(),
                         request.channelPolicyId(),
@@ -129,18 +129,18 @@ public class NotificationR2dbcPersistenceAdapter
                     if (updatedRows == null || updatedRows == 0) {
                         return Mono.error(new OptimisticLockingFailureException());
                     }
-                    return findById(request.tenantId(), request.notificationId());
+                    return findById(request.organizationId(), request.notificationId());
                 });
     }
 
     @Override
-    public Mono<NotificationRequest> findById(TenantId tenantId, NotificationId notificationId) {
-        return requestRepository.findByTenantAndId(tenantId.value(), notificationId.value()).map(rowMapper::toDomain);
+    public Mono<NotificationRequest> findById(OrganizationId organizationId, NotificationId notificationId) {
+        return requestRepository.findByOrganizationAndId(organizationId.value(), notificationId.value()).map(rowMapper::toDomain);
     }
 
     @Override
-    public Mono<NotificationRequest> findByKey(TenantId tenantId, NotificationKey notificationKey) {
-        return requestRepository.findByTenantAndKey(tenantId.value(), notificationKey.value()).map(rowMapper::toDomain);
+    public Mono<NotificationRequest> findByKey(OrganizationId organizationId, NotificationKey notificationKey) {
+        return requestRepository.findByOrganizationAndKey(organizationId.value(), notificationKey.value()).map(rowMapper::toDomain);
     }
 
     @Override
@@ -150,31 +150,31 @@ public class NotificationR2dbcPersistenceAdapter
     }
 
     @Override
-    public Mono<NotificationAttempt> create(NotificationAttempt attempt, String tenantId) {
-        return entityTemplate.insert(rowMapper.toRow(attempt, tenantId)).map(rowMapper::toDomain);
+    public Mono<NotificationAttempt> create(NotificationAttempt attempt, String organizationId) {
+        return entityTemplate.insert(rowMapper.toRow(attempt, organizationId)).map(rowMapper::toDomain);
     }
 
     @Override
-    public Mono<NotificationAttempt> update(NotificationAttempt attempt, String tenantId) {
-        var row = rowMapper.toRow(attempt, tenantId);
+    public Mono<NotificationAttempt> update(NotificationAttempt attempt, String organizationId) {
+        var row = rowMapper.toRow(attempt, organizationId);
         return attemptRepository.existsById(row.attemptId())
                 .flatMap(exists -> exists ? attemptRepository.save(row) : entityTemplate.insert(row))
                 .map(rowMapper::toDomain);
     }
 
     @Override
-    public Flux<NotificationAttempt> findByNotificationId(TenantId tenantId, NotificationId notificationId) {
-        return attemptRepository.findByNotificationId(tenantId.value(), notificationId.value()).map(rowMapper::toDomain);
+    public Flux<NotificationAttempt> findByNotificationId(OrganizationId organizationId, NotificationId notificationId) {
+        return attemptRepository.findByNotificationId(organizationId.value(), notificationId.value()).map(rowMapper::toDomain);
     }
 
     @Override
-    public Mono<NotificationTemplate> findActiveTemplate(String tenantId, String sourceEventType, String channel) {
-        return templateRepository.findActive(tenantId, sourceEventType, channel).map(rowMapper::toDomain);
+    public Mono<NotificationTemplate> findActiveTemplate(String organizationId, String sourceEventType, String channel) {
+        return templateRepository.findActive(organizationId, sourceEventType, channel).map(rowMapper::toDomain);
     }
 
     @Override
-    public Mono<ChannelPolicy> findActivePolicy(String tenantId, String sourceEventType) {
-        return channelPolicyRepository.findActive(tenantId, sourceEventType).map(rowMapper::toDomain);
+    public Mono<ChannelPolicy> findActivePolicy(String organizationId, String sourceEventType) {
+        return channelPolicyRepository.findActive(organizationId, sourceEventType).map(rowMapper::toDomain);
     }
 
     @Override
@@ -201,9 +201,9 @@ public class NotificationR2dbcPersistenceAdapter
     }
 
     @Override
-    public Flux<ProviderCallbackProjection> findByNotificationId(String tenantId, String notificationId) {
+    public Flux<ProviderCallbackProjection> findByNotificationId(String organizationId, String notificationId) {
         return providerCallbackRepository
-                .findByNotificationId(tenantId, notificationId)
+                .findByNotificationId(organizationId, notificationId)
                 .map(rowMapper::toProjection);
     }
 
@@ -218,7 +218,7 @@ public class NotificationR2dbcPersistenceAdapter
                        attempt_count,
                        updated_at
                 FROM notification_requests
-                WHERE tenant_id = :tenantId
+                WHERE organization_id = :organizationId
                   AND (:status IS NULL OR status = :status)
                   AND (:sourceEventType IS NULL OR source_event_type = :sourceEventType)
                   AND (:channel IS NULL OR channel = :channel)
@@ -229,7 +229,7 @@ public class NotificationR2dbcPersistenceAdapter
                 """;
 
         DatabaseClient.GenericExecuteSpec spec = databaseClient.sql(sql)
-                .bind("tenantId", filter.tenantId())
+                .bind("organizationId", filter.organizationId())
                 .bind("offset", filter.offset())
                 .bind("limit", filter.limit());
 
@@ -255,14 +255,14 @@ public class NotificationR2dbcPersistenceAdapter
         String sql = """
                 SELECT COUNT(*) AS total
                 FROM notification_requests
-                WHERE tenant_id = :tenantId
+                WHERE organization_id = :organizationId
                   AND (:status IS NULL OR status = :status)
                   AND (:sourceEventType IS NULL OR source_event_type = :sourceEventType)
                   AND (:channel IS NULL OR channel = :channel)
                   AND (:recipientRef IS NULL OR recipient_ref = :recipientRef)
                 """;
 
-        DatabaseClient.GenericExecuteSpec spec = databaseClient.sql(sql).bind("tenantId", filter.tenantId());
+        DatabaseClient.GenericExecuteSpec spec = databaseClient.sql(sql).bind("organizationId", filter.organizationId());
         spec = bindNullable(spec, "status", filter.status());
         spec = bindNullable(spec, "sourceEventType", filter.sourceEventType());
         spec = bindNullable(spec, "channel", filter.channel());
@@ -275,7 +275,7 @@ public class NotificationR2dbcPersistenceAdapter
     }
 
     @Override
-    public Mono<NotificationMetricsProjection> metrics(String tenantId) {
+    public Mono<NotificationMetricsProjection> metrics(String organizationId) {
         String sql = """
                 WITH request_stats AS (
                     SELECT
@@ -289,7 +289,7 @@ public class NotificationR2dbcPersistenceAdapter
                         )::bigint AS pending_dispatch_count,
                         AVG(CASE WHEN status = 'SENT' THEN attempt_count::numeric END) AS mean_attempts_to_success
                     FROM notification_requests
-                    WHERE tenant_id = :tenantId
+                    WHERE organization_id = :organizationId
                 ),
                 attempt_stats AS (
                     SELECT
@@ -299,7 +299,7 @@ public class NotificationR2dbcPersistenceAdapter
                               AND error_code IN ('PROVIDER_TIMEOUT', 'TIMEOUT')
                         )::bigint AS timeout_failed_attempts
                     FROM notification_attempts
-                    WHERE tenant_id = :tenantId
+                    WHERE organization_id = :organizationId
                 )
                 SELECT
                     rs.pending_dispatch_count,
@@ -312,7 +312,7 @@ public class NotificationR2dbcPersistenceAdapter
                 """;
 
         return databaseClient.sql(sql)
-                .bind("tenantId", tenantId)
+                .bind("organizationId", organizationId)
                 .map((row, metadata) -> new NotificationMetricsProjection(
                         row.get("pending_dispatch_count", Long.class) == null ? 0L : row.get("pending_dispatch_count", Long.class),
                         defaultDecimal(row.get("delivery_success_rate", BigDecimal.class)),
@@ -372,23 +372,23 @@ public class NotificationR2dbcPersistenceAdapter
     }
 
     @Override
-    public Mono<NotificationAuditEntry> findByIdempotency(String tenantId, String actionType, String idempotencyKey) {
+    public Mono<NotificationAuditEntry> findByIdempotency(String organizationId, String actionType, String idempotencyKey) {
         if (idempotencyKey == null || idempotencyKey.isBlank()) {
             return Mono.empty();
         }
-        return auditRepository.findByIdempotency(tenantId, actionType, idempotencyKey).map(rowMapper::toDomain);
+        return auditRepository.findByIdempotency(organizationId, actionType, idempotencyKey).map(rowMapper::toDomain);
     }
 
     @Override
-    public Flux<NotificationAuditEntry> findByTarget(String tenantId, String targetType, String targetId, int offset, int limit) {
+    public Flux<NotificationAuditEntry> findByTarget(String organizationId, String targetType, String targetId, int offset, int limit) {
         return auditRepository
-                .findByTarget(tenantId, emptyAsNull(targetType), emptyAsNull(targetId), offset, limit)
+                .findByTarget(organizationId, emptyAsNull(targetType), emptyAsNull(targetId), offset, limit)
                 .map(rowMapper::toDomain);
     }
 
     @Override
-    public Mono<Long> countByTarget(String tenantId, String targetType, String targetId) {
-        return auditRepository.countByTarget(tenantId, emptyAsNull(targetType), emptyAsNull(targetId));
+    public Mono<Long> countByTarget(String organizationId, String targetType, String targetId) {
+        return auditRepository.countByTarget(organizationId, emptyAsNull(targetType), emptyAsNull(targetId));
     }
 
     private DatabaseClient.GenericExecuteSpec bindNullable(

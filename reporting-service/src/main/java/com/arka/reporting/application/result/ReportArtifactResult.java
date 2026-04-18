@@ -5,7 +5,7 @@ import java.time.Instant;
 public record ReportArtifactResult(
         String artifactId,
         String executionId,
-        String tenantId,
+        String organizationId,
         String weekId,
         String reportType,
         String format,

@@ -1,482 +1,61 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.0.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :compileJava UP-TO-DATE
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+> Task :resolveMainClassName UP-TO-DATE
+> Task :bootJar UP-TO-DATE
 
-  .   ____          _            __ _ _
- /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
-( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
- \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
-  '  |____| .__|_| |_|_| |_\__, | / / / /
- =========|_|==============|___/=/_/_/_/
-
-[32m :: Spring Boot :: [39m              [2m (v3.5.4)[0;39m
-
-2026-04-17T22:44:49.326-05:00 INFO  [main] [/] c.a.r.ReportingServiceApplication - Starting ReportingServiceApplication using Java 21.0.10 with PID 33816 (/Users/jose/Development/Java/arkab2b/reporting-service/build/classes/java/main started by jose in /Users/jose/Development/Java/arkab2b/reporting-service)
-2026-04-17T22:44:49.371-05:00 INFO  [main] [/] c.a.r.ReportingServiceApplication - The following 1 profile is active: "local"
-2026-04-17T22:44:52.264-05:00 INFO  [main] [/] o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
-2026-04-17T22:44:52.267-05:00 INFO  [main] [/] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data R2DBC repositories in DEFAULT mode.
-2026-04-17T22:44:52.569-05:00 INFO  [main] [/] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 274 ms. Found 10 R2DBC repository interfaces.
-2026-04-17T22:44:52.592-05:00 INFO  [main] [/] o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
-2026-04-17T22:44:52.593-05:00 INFO  [main] [/] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
-2026-04-17T22:44:52.629-05:00 INFO  [main] [/] o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.arka.reporting.infrastructure.adapter.out.persistence.repository.ReactiveAnalyticFactRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
-2026-04-17T22:44:52.632-05:00 INFO  [main] [/] o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.arka.reporting.infrastructure.adapter.out.persistence.repository.ReactiveConsumerCheckpointRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
-2026-04-17T22:44:52.632-05:00 INFO  [main] [/] o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.arka.reporting.infrastructure.adapter.out.persistence.repository.ReactiveOperationsKpiProjectionRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
-2026-04-17T22:44:52.632-05:00 INFO  [main] [/] o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.arka.reporting.infrastructure.adapter.out.persistence.repository.ReactiveOutboxEventRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
-2026-04-17T22:44:52.632-05:00 INFO  [main] [/] o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.arka.reporting.infrastructure.adapter.out.persistence.repository.ReactiveProcessedEventRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
-2026-04-17T22:44:52.632-05:00 INFO  [main] [/] o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.arka.reporting.infrastructure.adapter.out.persistence.repository.ReactiveReplenishmentProjectionRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
-2026-04-17T22:44:52.633-05:00 INFO  [main] [/] o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.arka.reporting.infrastructure.adapter.out.persistence.repository.ReactiveReportArtifactRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
-2026-04-17T22:44:52.633-05:00 INFO  [main] [/] o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.arka.reporting.infrastructure.adapter.out.persistence.repository.ReactiveReportingAuditRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
-2026-04-17T22:44:52.633-05:00 INFO  [main] [/] o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.arka.reporting.infrastructure.adapter.out.persistence.repository.ReactiveSalesProjectionRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
-2026-04-17T22:44:52.633-05:00 INFO  [main] [/] o.s.d.r.c.RepositoryConfigurationExtensionSupport - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.arka.reporting.infrastructure.adapter.out.persistence.repository.ReactiveWeeklyReportExecutionRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
-2026-04-17T22:44:52.633-05:00 INFO  [main] [/] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 23 ms. Found 0 Redis repository interfaces.
-2026-04-17T22:45:00.192-05:00 ERROR [main] [/] i.n.r.d.DnsServerAddressStreamProviders - Unable to load io.netty.resolver.dns.macos.MacOSDnsServerAddressStreamProvider, fallback to system defaults. This may result in incorrect DNS resolutions on MacOS. Check whether you have a dependency on 'io.netty:netty-resolver-dns-native-macos'. Use DEBUG level to see the full stack: java.lang.UnsatisfiedLinkError: failed to load the required native library
-2026-04-17T22:45:00.685-05:00 INFO  [main] [/] o.s.b.a.e.web.EndpointLinksResolver - Exposing 3 endpoints beneath base path '/actuator'
-2026-04-17T22:45:02.088-05:00 INFO  [main] [/] o.s.b.w.e.netty.NettyWebServer - Netty started on port 8087 (http)
-2026-04-17T22:45:02.354-05:00 INFO  [main] [/] o.a.k.c.consumer.ConsumerConfig - ConsumerConfig values: 
-	allow.auto.create.topics = true
-	auto.commit.interval.ms = 5000
-	auto.include.jmx.reporter = true
-	auto.offset.reset = latest
-	bootstrap.servers = [localhost:59092]
-	check.crcs = true
-	client.dns.lookup = use_all_dns_ips
-	client.id = reporting-service-local-0
-	client.rack = 
-	connections.max.idle.ms = 540000
-	default.api.timeout.ms = 60000
-	enable.auto.commit = false
-	enable.metrics.push = true
-	exclude.internal.topics = true
-	fetch.max.bytes = 52428800
-	fetch.max.wait.ms = 500
-	fetch.min.bytes = 1
-	group.id = reporting-upstream-events-consumer
-	group.instance.id = null
-	group.protocol = classic
-	group.remote.assignor = null
-	heartbeat.interval.ms = 3000
-	interceptor.classes = []
-	internal.leave.group.on.close = true
-	internal.throw.on.fetch.stable.offset.unsupported = false
-	isolation.level = read_uncommitted
-	key.deserializer = class org.apache.kafka.common.serialization.StringDeserializer
-	max.partition.fetch.bytes = 1048576
-	max.poll.interval.ms = 300000
-	max.poll.records = 500
-	metadata.max.age.ms = 300000
-	metadata.recovery.strategy = none
-	metric.reporters = []
-	metrics.num.samples = 2
-	metrics.recording.level = INFO
-	metrics.sample.window.ms = 30000
-	partition.assignment.strategy = [class org.apache.kafka.clients.consumer.RangeAssignor, class org.apache.kafka.clients.consumer.CooperativeStickyAssignor]
-	receive.buffer.bytes = 65536
-	reconnect.backoff.max.ms = 1000
-	reconnect.backoff.ms = 50
-	request.timeout.ms = 30000
-	retry.backoff.max.ms = 1000
-	retry.backoff.ms = 100
-	sasl.client.callback.handler.class = null
-	sasl.jaas.config = null
-	sasl.kerberos.kinit.cmd = /usr/bin/kinit
-	sasl.kerberos.min.time.before.relogin = 60000
-	sasl.kerberos.service.name = null
-	sasl.kerberos.ticket.renew.jitter = 0.05
-	sasl.kerberos.ticket.renew.window.factor = 0.8
-	sasl.login.callback.handler.class = null
-	sasl.login.class = null
-	sasl.login.connect.timeout.ms = null
-	sasl.login.read.timeout.ms = null
-	sasl.login.refresh.buffer.seconds = 300
-	sasl.login.refresh.min.period.seconds = 60
-	sasl.login.refresh.window.factor = 0.8
-	sasl.login.refresh.window.jitter = 0.05
-	sasl.login.retry.backoff.max.ms = 10000
-	sasl.login.retry.backoff.ms = 100
-	sasl.mechanism = GSSAPI
-	sasl.oauthbearer.clock.skew.seconds = 30
-	sasl.oauthbearer.expected.audience = null
-	sasl.oauthbearer.expected.issuer = null
-	sasl.oauthbearer.header.urlencode = false
-	sasl.oauthbearer.jwks.endpoint.refresh.ms = 3600000
-	sasl.oauthbearer.jwks.endpoint.retry.backoff.max.ms = 10000
-	sasl.oauthbearer.jwks.endpoint.retry.backoff.ms = 100
-	sasl.oauthbearer.jwks.endpoint.url = null
-	sasl.oauthbearer.scope.claim.name = scope
-	sasl.oauthbearer.sub.claim.name = sub
-	sasl.oauthbearer.token.endpoint.url = null
-	security.protocol = PLAINTEXT
-	security.providers = null
-	send.buffer.bytes = 131072
-	session.timeout.ms = 45000
-	socket.connection.setup.timeout.max.ms = 30000
-	socket.connection.setup.timeout.ms = 10000
-	ssl.cipher.suites = null
-	ssl.enabled.protocols = [TLSv1.2, TLSv1.3]
-	ssl.endpoint.identification.algorithm = https
-	ssl.engine.factory.class = null
-	ssl.key.password = null
-	ssl.keymanager.algorithm = SunX509
-	ssl.keystore.certificate.chain = null
-	ssl.keystore.key = null
-	ssl.keystore.location = null
-	ssl.keystore.password = null
-	ssl.keystore.type = JKS
-	ssl.protocol = TLSv1.3
-	ssl.provider = null
-	ssl.secure.random.implementation = null
-	ssl.trustmanager.algorithm = PKIX
-	ssl.truststore.certificates = null
-	ssl.truststore.location = null
-	ssl.truststore.password = null
-	ssl.truststore.type = JKS
-	value.deserializer = class org.apache.kafka.common.serialization.StringDeserializer
-
-2026-04-17T22:45:02.497-05:00 INFO  [main] [/] o.a.k.c.t.i.KafkaMetricsCollector - initializing Kafka metrics collector
-2026-04-17T22:45:02.927-05:00 INFO  [main] [/] o.a.kafka.common.utils.AppInfoParser - Kafka version: 3.9.1
-2026-04-17T22:45:02.928-05:00 INFO  [main] [/] o.a.kafka.common.utils.AppInfoParser - Kafka commitId: f745dfdcee2b9851
-2026-04-17T22:45:02.928-05:00 INFO  [main] [/] o.a.kafka.common.utils.AppInfoParser - Kafka startTimeMs: 1776483902916
-2026-04-17T22:45:02.991-05:00 INFO  [main] [/] o.a.k.c.c.i.ClassicKafkaConsumer - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Subscribed to topic(s): directory.regional-policy-configured.v1, directory.regional-policy-applied.v1, directory.entity-mutated.v1, catalog.offer-published.v1, catalog.offer-updated.v1, catalog.mutation.v1, inventory.stock-updated.v1, inventory.commitable-availability-recalculated.v1, inventory.mutation.v1, order.events.v1, order.cart.events.v1, notification.relevant-change-notification-emitted.v1, notification.notification-delivery-recorded.v1, notification.mutation.v1
-2026-04-17T22:45:03.063-05:00 INFO  [main] [/] c.a.r.ReportingServiceApplication - Started ReportingServiceApplication in 14.56 seconds (process running for 15.274)
-2026-04-17T22:45:03.698-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] org.apache.kafka.clients.Metadata - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Cluster ID: MkU3OEVBNTcwNTJENDM2Qk
-2026-04-17T22:45:04.235-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Discovered group coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:04.243-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] (Re-)joining group
-2026-04-17T22:45:04.346-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Group coordinator localhost:59092 (id: 2147483646 rack: null) is unavailable or invalid due to cause: error response NOT_COORDINATOR. isDisconnected: false. Rediscovery will be attempted.
-2026-04-17T22:45:04.347-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Requesting disconnect from last known coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:04.347-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] JoinGroup failed: This is not the correct coordinator. Marking coordinator unknown. Sent generation was Generation{generationId=-1, memberId='', protocol='null'}
-2026-04-17T22:45:04.347-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.apache.kafka.clients.NetworkClient - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Client requested disconnect from node 2147483646
-2026-04-17T22:45:04.353-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Discovered group coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:04.353-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Group coordinator localhost:59092 (id: 2147483646 rack: null) is unavailable or invalid due to cause: coordinator unavailable. isDisconnected: false. Rediscovery will be attempted.
-2026-04-17T22:45:04.353-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Requesting disconnect from last known coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:04.470-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Discovered group coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:04.471-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Request joining group due to: rebalance failed due to 'This is not the correct coordinator.' (NotCoordinatorException)
-2026-04-17T22:45:04.471-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] (Re-)joining group
-2026-04-17T22:45:04.483-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Group coordinator localhost:59092 (id: 2147483646 rack: null) is unavailable or invalid due to cause: error response NOT_COORDINATOR. isDisconnected: false. Rediscovery will be attempted.
-2026-04-17T22:45:04.483-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Requesting disconnect from last known coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:04.483-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] JoinGroup failed: This is not the correct coordinator. Marking coordinator unknown. Sent generation was Generation{generationId=-1, memberId='', protocol='null'}
-2026-04-17T22:45:04.483-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.apache.kafka.clients.NetworkClient - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Client requested disconnect from node 2147483646
-2026-04-17T22:45:04.491-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Discovered group coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:04.491-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Group coordinator localhost:59092 (id: 2147483646 rack: null) is unavailable or invalid due to cause: coordinator unavailable. isDisconnected: false. Rediscovery will be attempted.
-2026-04-17T22:45:04.491-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Requesting disconnect from last known coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:04.589-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Discovered group coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:04.590-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Request joining group due to: rebalance failed due to 'This is not the correct coordinator.' (NotCoordinatorException)
-2026-04-17T22:45:04.590-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] (Re-)joining group
-2026-04-17T22:45:04.601-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Group coordinator localhost:59092 (id: 2147483646 rack: null) is unavailable or invalid due to cause: error response NOT_COORDINATOR. isDisconnected: false. Rediscovery will be attempted.
-2026-04-17T22:45:04.601-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Requesting disconnect from last known coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:04.601-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] JoinGroup failed: This is not the correct coordinator. Marking coordinator unknown. Sent generation was Generation{generationId=-1, memberId='', protocol='null'}
-2026-04-17T22:45:04.601-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.apache.kafka.clients.NetworkClient - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Client requested disconnect from node 2147483646
-2026-04-17T22:45:04.605-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Discovered group coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:04.605-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Group coordinator localhost:59092 (id: 2147483646 rack: null) is unavailable or invalid due to cause: coordinator unavailable. isDisconnected: false. Rediscovery will be attempted.
-2026-04-17T22:45:04.605-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Requesting disconnect from last known coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:04.708-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Discovered group coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:04.709-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Request joining group due to: rebalance failed due to 'This is not the correct coordinator.' (NotCoordinatorException)
-2026-04-17T22:45:04.710-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] (Re-)joining group
-2026-04-17T22:45:04.722-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Group coordinator localhost:59092 (id: 2147483646 rack: null) is unavailable or invalid due to cause: error response NOT_COORDINATOR. isDisconnected: false. Rediscovery will be attempted.
-2026-04-17T22:45:04.722-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Requesting disconnect from last known coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:04.722-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] JoinGroup failed: This is not the correct coordinator. Marking coordinator unknown. Sent generation was Generation{generationId=-1, memberId='', protocol='null'}
-2026-04-17T22:45:04.722-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.apache.kafka.clients.NetworkClient - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Client requested disconnect from node 2147483646
-2026-04-17T22:45:04.725-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Discovered group coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:04.725-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Group coordinator localhost:59092 (id: 2147483646 rack: null) is unavailable or invalid due to cause: coordinator unavailable. isDisconnected: false. Rediscovery will be attempted.
-2026-04-17T22:45:04.725-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Requesting disconnect from last known coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:04.812-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Discovered group coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:04.813-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Request joining group due to: rebalance failed due to 'This is not the correct coordinator.' (NotCoordinatorException)
-2026-04-17T22:45:04.815-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] (Re-)joining group
-2026-04-17T22:45:04.819-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Group coordinator localhost:59092 (id: 2147483646 rack: null) is unavailable or invalid due to cause: error response NOT_COORDINATOR. isDisconnected: false. Rediscovery will be attempted.
-2026-04-17T22:45:04.819-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Requesting disconnect from last known coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:04.819-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] JoinGroup failed: This is not the correct coordinator. Marking coordinator unknown. Sent generation was Generation{generationId=-1, memberId='', protocol='null'}
-2026-04-17T22:45:04.819-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.apache.kafka.clients.NetworkClient - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Client requested disconnect from node 2147483646
-2026-04-17T22:45:04.821-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Discovered group coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:04.821-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Group coordinator localhost:59092 (id: 2147483646 rack: null) is unavailable or invalid due to cause: coordinator unavailable. isDisconnected: false. Rediscovery will be attempted.
-2026-04-17T22:45:04.821-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Requesting disconnect from last known coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:04.911-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Discovered group coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:04.912-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Request joining group due to: rebalance failed due to 'This is not the correct coordinator.' (NotCoordinatorException)
-2026-04-17T22:45:04.913-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] (Re-)joining group
-2026-04-17T22:45:04.922-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Group coordinator localhost:59092 (id: 2147483646 rack: null) is unavailable or invalid due to cause: error response NOT_COORDINATOR. isDisconnected: false. Rediscovery will be attempted.
-2026-04-17T22:45:04.923-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Requesting disconnect from last known coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:04.923-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] JoinGroup failed: This is not the correct coordinator. Marking coordinator unknown. Sent generation was Generation{generationId=-1, memberId='', protocol='null'}
-2026-04-17T22:45:04.923-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.apache.kafka.clients.NetworkClient - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Client requested disconnect from node 2147483646
-2026-04-17T22:45:04.926-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Discovered group coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:04.926-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Group coordinator localhost:59092 (id: 2147483646 rack: null) is unavailable or invalid due to cause: coordinator unavailable. isDisconnected: false. Rediscovery will be attempted.
-2026-04-17T22:45:04.926-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Requesting disconnect from last known coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:05.032-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Discovered group coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:05.033-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Request joining group due to: rebalance failed due to 'This is not the correct coordinator.' (NotCoordinatorException)
-2026-04-17T22:45:05.034-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] (Re-)joining group
-2026-04-17T22:45:05.038-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Group coordinator localhost:59092 (id: 2147483646 rack: null) is unavailable or invalid due to cause: error response NOT_COORDINATOR. isDisconnected: false. Rediscovery will be attempted.
-2026-04-17T22:45:05.038-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Requesting disconnect from last known coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:05.039-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] JoinGroup failed: This is not the correct coordinator. Marking coordinator unknown. Sent generation was Generation{generationId=-1, memberId='', protocol='null'}
-2026-04-17T22:45:05.039-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.apache.kafka.clients.NetworkClient - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Client requested disconnect from node 2147483646
-2026-04-17T22:45:05.040-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Discovered group coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:05.040-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Group coordinator localhost:59092 (id: 2147483646 rack: null) is unavailable or invalid due to cause: coordinator unavailable. isDisconnected: false. Rediscovery will be attempted.
-2026-04-17T22:45:05.040-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Requesting disconnect from last known coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:05.141-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Discovered group coordinator localhost:59092 (id: 2147483646 rack: null)
-2026-04-17T22:45:05.142-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Request joining group due to: rebalance failed due to 'This is not the correct coordinator.' (NotCoordinatorException)
-2026-04-17T22:45:05.142-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] (Re-)joining group
-2026-04-17T22:45:05.147-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Request joining group due to: need to re-join with the given member-id: reporting-service-local-0-c2ce4919-c7e6-40a9-a2ee-d17bef5c7cbf
-2026-04-17T22:45:05.147-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] (Re-)joining group
-2026-04-17T22:45:05.165-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Successfully joined group with generation Generation{generationId=1, memberId='reporting-service-local-0-c2ce4919-c7e6-40a9-a2ee-d17bef5c7cbf', protocol='range'}
-2026-04-17T22:45:05.174-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Finished assignment for group at generation 1: {reporting-service-local-0-c2ce4919-c7e6-40a9-a2ee-d17bef5c7cbf=Assignment(partitions=[inventory.stock-updated.v1-0, inventory.stock-updated.v1-1, inventory.stock-updated.v1-2, directory.entity-mutated.v1-0, directory.entity-mutated.v1-1, directory.entity-mutated.v1-2, inventory.mutation.v1-0, inventory.mutation.v1-1, inventory.mutation.v1-2, inventory.commitable-availability-recalculated.v1-0, inventory.commitable-availability-recalculated.v1-1, inventory.commitable-availability-recalculated.v1-2, notification.mutation.v1-0, notification.mutation.v1-1, notification.mutation.v1-2, catalog.offer-updated.v1-0, catalog.offer-updated.v1-1, catalog.offer-updated.v1-2, notification.relevant-change-notification-emitted.v1-0, notification.relevant-change-notification-emitted.v1-1, notification.relevant-change-notification-emitted.v1-2, catalog.mutation.v1-0, catalog.mutation.v1-1, catalog.mutation.v1-2, directory.regional-policy-applied.v1-0, directory.regional-policy-applied.v1-1, directory.regional-policy-applied.v1-2, order.events.v1-0, order.events.v1-1, order.events.v1-2, catalog.offer-published.v1-0, catalog.offer-published.v1-1, catalog.offer-published.v1-2, notification.notification-delivery-recorded.v1-0, notification.notification-delivery-recorded.v1-1, notification.notification-delivery-recorded.v1-2, order.cart.events.v1-0, order.cart.events.v1-1, order.cart.events.v1-2, directory.regional-policy-configured.v1-0, directory.regional-policy-configured.v1-1, directory.regional-policy-configured.v1-2])}
-2026-04-17T22:45:05.231-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Successfully synced group in generation Generation{generationId=1, memberId='reporting-service-local-0-c2ce4919-c7e6-40a9-a2ee-d17bef5c7cbf', protocol='range'}
-2026-04-17T22:45:05.232-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Notifying assignor about the new Assignment(partitions=[inventory.stock-updated.v1-0, inventory.stock-updated.v1-1, inventory.stock-updated.v1-2, directory.entity-mutated.v1-0, directory.entity-mutated.v1-1, directory.entity-mutated.v1-2, inventory.mutation.v1-0, inventory.mutation.v1-1, inventory.mutation.v1-2, inventory.commitable-availability-recalculated.v1-0, inventory.commitable-availability-recalculated.v1-1, inventory.commitable-availability-recalculated.v1-2, notification.mutation.v1-0, notification.mutation.v1-1, notification.mutation.v1-2, catalog.offer-updated.v1-0, catalog.offer-updated.v1-1, catalog.offer-updated.v1-2, notification.relevant-change-notification-emitted.v1-0, notification.relevant-change-notification-emitted.v1-1, notification.relevant-change-notification-emitted.v1-2, catalog.mutation.v1-0, catalog.mutation.v1-1, catalog.mutation.v1-2, directory.regional-policy-applied.v1-0, directory.regional-policy-applied.v1-1, directory.regional-policy-applied.v1-2, order.events.v1-0, order.events.v1-1, order.events.v1-2, catalog.offer-published.v1-0, catalog.offer-published.v1-1, catalog.offer-published.v1-2, notification.notification-delivery-recorded.v1-0, notification.notification-delivery-recorded.v1-1, notification.notification-delivery-recorded.v1-2, order.cart.events.v1-0, order.cart.events.v1-1, order.cart.events.v1-2, directory.regional-policy-configured.v1-0, directory.regional-policy-configured.v1-1, directory.regional-policy-configured.v1-2])
-2026-04-17T22:45:05.236-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerRebalanceListenerInvoker - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Adding newly assigned partitions: catalog.mutation.v1-0, catalog.mutation.v1-1, catalog.mutation.v1-2, catalog.offer-published.v1-0, catalog.offer-published.v1-1, catalog.offer-published.v1-2, catalog.offer-updated.v1-0, catalog.offer-updated.v1-1, catalog.offer-updated.v1-2, directory.entity-mutated.v1-0, directory.entity-mutated.v1-1, directory.entity-mutated.v1-2, directory.regional-policy-applied.v1-0, directory.regional-policy-applied.v1-1, directory.regional-policy-applied.v1-2, directory.regional-policy-configured.v1-0, directory.regional-policy-configured.v1-1, directory.regional-policy-configured.v1-2, inventory.commitable-availability-recalculated.v1-0, inventory.commitable-availability-recalculated.v1-1, inventory.commitable-availability-recalculated.v1-2, inventory.mutation.v1-0, inventory.mutation.v1-1, inventory.mutation.v1-2, inventory.stock-updated.v1-0, inventory.stock-updated.v1-1, inventory.stock-updated.v1-2, notification.mutation.v1-0, notification.mutation.v1-1, notification.mutation.v1-2, notification.notification-delivery-recorded.v1-0, notification.notification-delivery-recorded.v1-1, notification.notification-delivery-recorded.v1-2, notification.relevant-change-notification-emitted.v1-0, notification.relevant-change-notification-emitted.v1-1, notification.relevant-change-notification-emitted.v1-2, order.cart.events.v1-0, order.cart.events.v1-1, order.cart.events.v1-2, order.events.v1-0, order.events.v1-1, order.events.v1-2
-2026-04-17T22:45:05.264-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition inventory.stock-updated.v1-1
-2026-04-17T22:45:05.265-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition directory.entity-mutated.v1-0
-2026-04-17T22:45:05.265-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition directory.entity-mutated.v1-2
-2026-04-17T22:45:05.266-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition inventory.mutation.v1-2
-2026-04-17T22:45:05.266-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition inventory.commitable-availability-recalculated.v1-1
-2026-04-17T22:45:05.266-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition inventory.mutation.v1-0
-2026-04-17T22:45:05.266-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition notification.notification-delivery-recorded.v1-0
-2026-04-17T22:45:05.266-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition notification.mutation.v1-1
-2026-04-17T22:45:05.266-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition catalog.offer-updated.v1-1
-2026-04-17T22:45:05.266-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition notification.relevant-change-notification-emitted.v1-1
-2026-04-17T22:45:05.267-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition directory.regional-policy-applied.v1-0
-2026-04-17T22:45:05.267-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition catalog.mutation.v1-2
-2026-04-17T22:45:05.267-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition directory.regional-policy-applied.v1-2
-2026-04-17T22:45:05.267-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition order.events.v1-1
-2026-04-17T22:45:05.267-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition catalog.offer-published.v1-1
-2026-04-17T22:45:05.267-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition notification.notification-delivery-recorded.v1-1
-2026-04-17T22:45:05.267-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition catalog.mutation.v1-0
-2026-04-17T22:45:05.267-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition order.cart.events.v1-1
-2026-04-17T22:45:05.267-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition directory.regional-policy-configured.v1-2
-2026-04-17T22:45:05.267-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition directory.regional-policy-configured.v1-0
-2026-04-17T22:45:05.268-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition inventory.stock-updated.v1-2
-2026-04-17T22:45:05.268-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition directory.entity-mutated.v1-1
-2026-04-17T22:45:05.269-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition inventory.commitable-availability-recalculated.v1-0
-2026-04-17T22:45:05.269-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition inventory.mutation.v1-1
-2026-04-17T22:45:05.269-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition notification.mutation.v1-2
-2026-04-17T22:45:05.269-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition notification.relevant-change-notification-emitted.v1-0
-2026-04-17T22:45:05.269-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition notification.mutation.v1-0
-2026-04-17T22:45:05.269-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition catalog.offer-updated.v1-0
-2026-04-17T22:45:05.269-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition notification.relevant-change-notification-emitted.v1-2
-2026-04-17T22:45:05.269-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition catalog.offer-updated.v1-2
-2026-04-17T22:45:05.269-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition order.events.v1-2
-2026-04-17T22:45:05.269-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition inventory.stock-updated.v1-0
-2026-04-17T22:45:05.269-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition catalog.offer-published.v1-0
-2026-04-17T22:45:05.269-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition directory.regional-policy-applied.v1-1
-2026-04-17T22:45:05.269-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition catalog.mutation.v1-1
-2026-04-17T22:45:05.269-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition catalog.offer-published.v1-2
-2026-04-17T22:45:05.269-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition order.events.v1-0
-2026-04-17T22:45:05.269-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition order.cart.events.v1-2
-2026-04-17T22:45:05.269-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition notification.notification-delivery-recorded.v1-2
-2026-04-17T22:45:05.269-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition order.cart.events.v1-0
-2026-04-17T22:45:05.269-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition inventory.commitable-availability-recalculated.v1-2
-2026-04-17T22:45:05.269-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition directory.regional-policy-configured.v1-1
-2026-04-17T22:45:05.285-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition inventory.stock-updated.v1-1
-2026-04-17T22:45:05.285-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition directory.entity-mutated.v1-0
-2026-04-17T22:45:05.285-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition directory.entity-mutated.v1-2
-2026-04-17T22:45:05.285-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition inventory.mutation.v1-2
-2026-04-17T22:45:05.285-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition inventory.commitable-availability-recalculated.v1-1
-2026-04-17T22:45:05.286-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition inventory.mutation.v1-0
-2026-04-17T22:45:05.286-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition notification.notification-delivery-recorded.v1-0
-2026-04-17T22:45:05.286-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition notification.mutation.v1-1
-2026-04-17T22:45:05.286-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition catalog.offer-updated.v1-1
-2026-04-17T22:45:05.287-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition notification.relevant-change-notification-emitted.v1-1
-2026-04-17T22:45:05.288-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition directory.regional-policy-applied.v1-0
-2026-04-17T22:45:05.288-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition catalog.mutation.v1-2
-2026-04-17T22:45:05.288-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition directory.regional-policy-applied.v1-2
-2026-04-17T22:45:05.288-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition order.events.v1-1
-2026-04-17T22:45:05.288-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition catalog.offer-published.v1-1
-2026-04-17T22:45:05.288-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition notification.notification-delivery-recorded.v1-1
-2026-04-17T22:45:05.288-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition catalog.mutation.v1-0
-2026-04-17T22:45:05.288-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition order.cart.events.v1-1
-2026-04-17T22:45:05.288-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition directory.regional-policy-configured.v1-2
-2026-04-17T22:45:05.288-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition directory.regional-policy-configured.v1-0
-2026-04-17T22:45:05.288-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition inventory.stock-updated.v1-2
-2026-04-17T22:45:05.288-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition directory.entity-mutated.v1-1
-2026-04-17T22:45:05.289-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition inventory.commitable-availability-recalculated.v1-0
-2026-04-17T22:45:05.289-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition inventory.mutation.v1-1
-2026-04-17T22:45:05.289-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition notification.mutation.v1-2
-2026-04-17T22:45:05.289-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition notification.relevant-change-notification-emitted.v1-0
-2026-04-17T22:45:05.289-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition notification.mutation.v1-0
-2026-04-17T22:45:05.289-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition catalog.offer-updated.v1-0
-2026-04-17T22:45:05.289-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition notification.relevant-change-notification-emitted.v1-2
-2026-04-17T22:45:05.289-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition catalog.offer-updated.v1-2
-2026-04-17T22:45:05.289-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition order.events.v1-2
-2026-04-17T22:45:05.289-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition inventory.stock-updated.v1-0
-2026-04-17T22:45:05.289-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition catalog.offer-published.v1-0
-2026-04-17T22:45:05.289-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition directory.regional-policy-applied.v1-1
-2026-04-17T22:45:05.289-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition catalog.mutation.v1-1
-2026-04-17T22:45:05.289-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition catalog.offer-published.v1-2
-2026-04-17T22:45:05.289-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition order.events.v1-0
-2026-04-17T22:45:05.289-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition order.cart.events.v1-2
-2026-04-17T22:45:05.289-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition notification.notification-delivery-recorded.v1-2
-2026-04-17T22:45:05.289-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition order.cart.events.v1-0
-2026-04-17T22:45:05.289-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition inventory.commitable-availability-recalculated.v1-2
-2026-04-17T22:45:05.289-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.ConsumerCoordinator - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Found no committed offset for partition directory.regional-policy-configured.v1-1
-2026-04-17T22:45:05.309-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition inventory.stock-updated.v1-1 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.310-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition directory.entity-mutated.v1-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.310-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition directory.entity-mutated.v1-2 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.310-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition inventory.mutation.v1-2 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.310-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition inventory.mutation.v1-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.310-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition inventory.commitable-availability-recalculated.v1-1 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.310-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition notification.mutation.v1-1 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.311-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition notification.notification-delivery-recorded.v1-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.312-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition catalog.offer-updated.v1-1 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.312-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition notification.relevant-change-notification-emitted.v1-1 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.312-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition directory.regional-policy-applied.v1-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.312-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition catalog.mutation.v1-2 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.312-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition directory.regional-policy-applied.v1-2 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.312-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition order.events.v1-1 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.312-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition catalog.offer-published.v1-1 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.313-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition catalog.mutation.v1-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.313-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition order.cart.events.v1-1 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.313-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition notification.notification-delivery-recorded.v1-1 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.313-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition directory.regional-policy-configured.v1-2 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.313-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition directory.regional-policy-configured.v1-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.315-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition inventory.stock-updated.v1-2 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.315-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition directory.entity-mutated.v1-1 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.315-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition inventory.mutation.v1-1 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.315-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition inventory.commitable-availability-recalculated.v1-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.315-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition notification.mutation.v1-2 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.315-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition notification.mutation.v1-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.315-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition notification.relevant-change-notification-emitted.v1-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.315-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition catalog.offer-updated.v1-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.315-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition notification.relevant-change-notification-emitted.v1-2 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.315-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition catalog.offer-updated.v1-2 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.315-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition order.events.v1-2 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.315-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition inventory.stock-updated.v1-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.315-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition catalog.offer-published.v1-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.315-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition directory.regional-policy-applied.v1-1 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.315-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition catalog.mutation.v1-1 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.315-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition catalog.offer-published.v1-2 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.316-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition order.events.v1-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.316-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition order.cart.events.v1-2 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.316-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition order.cart.events.v1-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.316-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition notification.notification-delivery-recorded.v1-2 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.316-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition inventory.commitable-availability-recalculated.v1-2 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.316-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.a.k.c.c.i.SubscriptionState - [Consumer clientId=reporting-service-local-0, groupId=reporting-upstream-events-consumer] Resetting offset for partition directory.regional-policy-configured.v1-1 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:59092 (id: 1 rack: null)], epoch=0}}.
-2026-04-17T22:45:05.435-05:00 INFO  [reporting-upstream-events-consumer-0-C-1] [/] o.s.k.l.KafkaMessageListenerContainer - reporting-upstream-events-consumer: partitions assigned: [catalog.mutation.v1-0, catalog.mutation.v1-1, catalog.mutation.v1-2, catalog.offer-published.v1-0, catalog.offer-published.v1-1, catalog.offer-published.v1-2, catalog.offer-updated.v1-0, catalog.offer-updated.v1-1, catalog.offer-updated.v1-2, directory.entity-mutated.v1-0, directory.entity-mutated.v1-1, directory.entity-mutated.v1-2, directory.regional-policy-applied.v1-0, directory.regional-policy-applied.v1-1, directory.regional-policy-applied.v1-2, directory.regional-policy-configured.v1-0, directory.regional-policy-configured.v1-1, directory.regional-policy-configured.v1-2, inventory.commitable-availability-recalculated.v1-0, inventory.commitable-availability-recalculated.v1-1, inventory.commitable-availability-recalculated.v1-2, inventory.mutation.v1-0, inventory.mutation.v1-1, inventory.mutation.v1-2, inventory.stock-updated.v1-0, inventory.stock-updated.v1-1, inventory.stock-updated.v1-2, notification.mutation.v1-0, notification.mutation.v1-1, notification.mutation.v1-2, notification.notification-delivery-recorded.v1-0, notification.notification-delivery-recorded.v1-1, notification.notification-delivery-recorded.v1-2, notification.relevant-change-notification-emitted.v1-0, notification.relevant-change-notification-emitted.v1-1, notification.relevant-change-notification-emitted.v1-2, order.cart.events.v1-0, order.cart.events.v1-1, order.cart.events.v1-2, order.events.v1-0, order.events.v1-1, order.events.v1-2]
-2026-04-17T22:45:11.931-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=catalog.mutation.v1 partition=2 offset=0 eventType=ProductCreated aggregateId=null
-2026-04-17T22:45:11.950-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=catalog.mutation.v1 partition=2 offset=1 eventType=ProductActivated aggregateId=null
-2026-04-17T22:45:11.951-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=catalog.mutation.v1 partition=1 offset=0 eventType=VariantCreated aggregateId=null
-2026-04-17T22:45:11.951-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=catalog.mutation.v1 partition=1 offset=1 eventType=VariantAttributesUpserted aggregateId=null
-2026-04-17T22:45:11.956-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=catalog.mutation.v1 partition=2 offset=2 eventType=PriceCreated aggregateId=null
-2026-04-17T22:45:11.956-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=catalog.mutation.v1 partition=1 offset=2 eventType=VariantSellabilityChanged aggregateId=null
-2026-04-17T22:45:11.959-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=catalog.offer-published.v1 partition=1 offset=0 eventType=CatalogOfferPublished aggregateId=75d9ed52-fb58-49b5-b847-8d83c8320034
-2026-04-17T22:45:13.101-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=inventory.mutation.v1 partition=2 offset=0 eventType=CreateWarehouse aggregateId=7382c30a-8a74-4278-a4b2-1693096db049
-2026-04-17T22:45:14.657-05:00 INFO  [reactor-tcp-nio-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Upstream event consumed for reporting. topic=inventory.stock-updated.v1 partition=0 offset=0 eventType=StockUpdated factId=f67373e8-6284-4863-b710-8234e7467e91
-2026-04-17T22:45:15.429-05:00 INFO  [reactor-tcp-nio-1] [/] o.a.k.c.producer.ProducerConfig - ProducerConfig values: 
-	acks = -1
-	auto.include.jmx.reporter = true
-	batch.size = 16384
-	bootstrap.servers = [localhost:59092]
-	buffer.memory = 33554432
-	client.dns.lookup = use_all_dns_ips
-	client.id = reporting-service-local-1
-	compression.gzip.level = -1
-	compression.lz4.level = 9
-	compression.type = none
-	compression.zstd.level = 3
-	connections.max.idle.ms = 540000
-	delivery.timeout.ms = 120000
-	enable.idempotence = true
-	enable.metrics.push = true
-	interceptor.classes = []
-	key.serializer = class org.apache.kafka.common.serialization.StringSerializer
-	linger.ms = 0
-	max.block.ms = 60000
-	max.in.flight.requests.per.connection = 5
-	max.request.size = 1048576
-	metadata.max.age.ms = 300000
-	metadata.max.idle.ms = 300000
-	metadata.recovery.strategy = none
-	metric.reporters = []
-	metrics.num.samples = 2
-	metrics.recording.level = INFO
-	metrics.sample.window.ms = 30000
-	partitioner.adaptive.partitioning.enable = true
-	partitioner.availability.timeout.ms = 0
-	partitioner.class = null
-	partitioner.ignore.keys = false
-	receive.buffer.bytes = 32768
-	reconnect.backoff.max.ms = 1000
-	reconnect.backoff.ms = 50
-	request.timeout.ms = 30000
-	retries = 3
-	retry.backoff.max.ms = 1000
-	retry.backoff.ms = 100
-	sasl.client.callback.handler.class = null
-	sasl.jaas.config = null
-	sasl.kerberos.kinit.cmd = /usr/bin/kinit
-	sasl.kerberos.min.time.before.relogin = 60000
-	sasl.kerberos.service.name = null
-	sasl.kerberos.ticket.renew.jitter = 0.05
-	sasl.kerberos.ticket.renew.window.factor = 0.8
-	sasl.login.callback.handler.class = null
-	sasl.login.class = null
-	sasl.login.connect.timeout.ms = null
-	sasl.login.read.timeout.ms = null
-	sasl.login.refresh.buffer.seconds = 300
-	sasl.login.refresh.min.period.seconds = 60
-	sasl.login.refresh.window.factor = 0.8
-	sasl.login.refresh.window.jitter = 0.05
-	sasl.login.retry.backoff.max.ms = 10000
-	sasl.login.retry.backoff.ms = 100
-	sasl.mechanism = GSSAPI
-	sasl.oauthbearer.clock.skew.seconds = 30
-	sasl.oauthbearer.expected.audience = null
-	sasl.oauthbearer.expected.issuer = null
-	sasl.oauthbearer.header.urlencode = false
-	sasl.oauthbearer.jwks.endpoint.refresh.ms = 3600000
-	sasl.oauthbearer.jwks.endpoint.retry.backoff.max.ms = 10000
-	sasl.oauthbearer.jwks.endpoint.retry.backoff.ms = 100
-	sasl.oauthbearer.jwks.endpoint.url = null
-	sasl.oauthbearer.scope.claim.name = scope
-	sasl.oauthbearer.sub.claim.name = sub
-	sasl.oauthbearer.token.endpoint.url = null
-	security.protocol = PLAINTEXT
-	security.providers = null
-	send.buffer.bytes = 131072
-	socket.connection.setup.timeout.max.ms = 30000
-	socket.connection.setup.timeout.ms = 10000
-	ssl.cipher.suites = null
-	ssl.enabled.protocols = [TLSv1.2, TLSv1.3]
-	ssl.endpoint.identification.algorithm = https
-	ssl.engine.factory.class = null
-	ssl.key.password = null
-	ssl.keymanager.algorithm = SunX509
-	ssl.keystore.certificate.chain = null
-	ssl.keystore.key = null
-	ssl.keystore.location = null
-	ssl.keystore.password = null
-	ssl.keystore.type = JKS
-	ssl.protocol = TLSv1.3
-	ssl.provider = null
-	ssl.secure.random.implementation = null
-	ssl.trustmanager.algorithm = PKIX
-	ssl.truststore.certificates = null
-	ssl.truststore.location = null
-	ssl.truststore.password = null
-	ssl.truststore.type = JKS
-	transaction.timeout.ms = 60000
-	transactional.id = null
-	value.serializer = class org.apache.kafka.common.serialization.StringSerializer
-
-2026-04-17T22:45:15.432-05:00 INFO  [reactor-tcp-nio-1] [/] o.a.k.c.t.i.KafkaMetricsCollector - initializing Kafka metrics collector
-2026-04-17T22:45:15.478-05:00 INFO  [reactor-tcp-nio-5] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Upstream event consumed for reporting. topic=inventory.commitable-availability-recalculated.v1 partition=0 offset=0 eventType=CommitableAvailabilityRecalculated factId=419f0c2e-eaaa-4dd3-8dcc-2b726144b45c
-2026-04-17T22:45:15.479-05:00 INFO  [reactor-tcp-nio-1] [/] o.a.k.clients.producer.KafkaProducer - [Producer clientId=reporting-service-local-1] Instantiated an idempotent producer.
-2026-04-17T22:45:15.500-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=inventory.mutation.v1 partition=2 offset=1 eventType=ReserveStock aggregateId=7be47e9d-54a8-4d4b-b25e-cc7ab958d67c
-2026-04-17T22:45:15.623-05:00 INFO  [reactor-tcp-nio-1] [/] o.a.kafka.common.utils.AppInfoParser - Kafka version: 3.9.1
-2026-04-17T22:45:15.623-05:00 INFO  [reactor-tcp-nio-1] [/] o.a.kafka.common.utils.AppInfoParser - Kafka commitId: f745dfdcee2b9851
-2026-04-17T22:45:15.623-05:00 INFO  [reactor-tcp-nio-1] [/] o.a.kafka.common.utils.AppInfoParser - Kafka startTimeMs: 1776483915623
-2026-04-17T22:45:15.652-05:00 INFO  [kafka-producer-network-thread | reporting-service-local-1] [/] org.apache.kafka.clients.Metadata - [Producer clientId=reporting-service-local-1] Cluster ID: MkU3OEVBNTcwNTJENDM2Qk
-2026-04-17T22:45:15.652-05:00 INFO  [kafka-producer-network-thread | reporting-service-local-1] [/] o.a.k.c.p.i.TransactionManager - [Producer clientId=reporting-service-local-1] ProducerId set to 3 with epoch 0
-2026-04-17T22:45:15.954-05:00 INFO  [reactor-tcp-nio-4] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Upstream event consumed for reporting. topic=inventory.commitable-availability-recalculated.v1 partition=0 offset=1 eventType=CommitableAvailabilityRecalculated factId=32ba251d-54ed-40dd-b86b-6b176a80ee20
-2026-04-17T22:45:15.955-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=inventory.mutation.v1 partition=0 offset=0 eventType=InitializeStockItem aggregateId=c91854af-79ef-4a63-beab-4c82faa0e2f5
-2026-04-17T22:45:16.083-05:00 INFO  [reactor-tcp-nio-4] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Upstream event consumed for reporting. topic=inventory.stock-updated.v1 partition=0 offset=1 eventType=StockUpdated factId=85964d2a-01fc-4a8f-8fa4-dc11496d8508
-2026-04-17T22:45:16.101-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=notification.relevant-change-notification-emitted.v1 partition=2 offset=0 eventType=RelevantChangeNotificationEmitted aggregateId=d6807c9f-4ac4-4446-8a1a-f169d362f13c
-2026-04-17T22:45:16.261-05:00 INFO  [reactor-tcp-nio-4] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Upstream event consumed for reporting. topic=order.cart.events.v1 partition=2 offset=0 eventType=CartCreated factId=994696cc-38b9-4f6f-8285-6bc1f66818d5
-2026-04-17T22:45:16.363-05:00 INFO  [reactor-tcp-nio-4] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Upstream event consumed for reporting. topic=order.cart.events.v1 partition=2 offset=1 eventType=CartItemsAdjusted factId=33bb14b9-8ece-4c86-82d8-13f4e9f04eaa
-2026-04-17T22:45:16.364-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=notification.mutation.v1 partition=2 offset=0 eventType=NotificationEmitted aggregateId=null
-2026-04-17T22:45:16.364-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=notification.mutation.v1 partition=0 offset=0 eventType=NotificationEmitted aggregateId=null
-2026-04-17T22:45:16.364-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=notification.relevant-change-notification-emitted.v1 partition=0 offset=0 eventType=RelevantChangeNotificationEmitted aggregateId=d8036a59-76a1-4417-a5ac-dcc66ecbddb3
-2026-04-17T22:45:16.593-05:00 INFO  [reactor-tcp-nio-4] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Upstream event consumed for reporting. topic=order.events.v1 partition=2 offset=0 eventType=CheckoutAvailabilityValidated factId=602032e5-b646-4d8c-a111-3b85ad28642a
-2026-04-17T22:45:16.681-05:00 INFO  [reactor-tcp-nio-4] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Upstream event consumed for reporting. topic=order.events.v1 partition=0 offset=0 eventType=OrderCreatedFromValidatedCart factId=ccac3625-c6d1-402c-91c3-b311e513e042
-2026-04-17T22:45:17.404-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=notification.relevant-change-notification-emitted.v1 partition=0 offset=1 eventType=RelevantChangeNotificationEmitted aggregateId=9c066c81-4b4b-4b60-91a1-95ef1d238ccb
-2026-04-17T22:45:17.410-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=notification.mutation.v1 partition=0 offset=1 eventType=NotificationEmitted aggregateId=null
-2026-04-17T22:45:17.415-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=notification.relevant-change-notification-emitted.v1 partition=0 offset=2 eventType=RelevantChangeNotificationEmitted aggregateId=214f3a47-07ea-41fb-bf98-c89d296284d3
-2026-04-17T22:45:17.422-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=notification.mutation.v1 partition=0 offset=2 eventType=NotificationEmitted aggregateId=null
-2026-04-17T22:45:17.429-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=notification.relevant-change-notification-emitted.v1 partition=0 offset=3 eventType=RelevantChangeNotificationEmitted aggregateId=839feded-bfb1-4ed8-bd0d-392a1a2a4426
-2026-04-17T22:45:17.441-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=notification.mutation.v1 partition=0 offset=3 eventType=NotificationEmitted aggregateId=null
-2026-04-17T22:45:17.455-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=notification.relevant-change-notification-emitted.v1 partition=1 offset=0 eventType=RelevantChangeNotificationEmitted aggregateId=cd41a0fa-d989-4e9e-be92-37c157f4a8a2
-2026-04-17T22:45:17.462-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=notification.mutation.v1 partition=1 offset=0 eventType=NotificationEmitted aggregateId=null
-2026-04-17T22:45:17.473-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=notification.relevant-change-notification-emitted.v1 partition=2 offset=1 eventType=RelevantChangeNotificationEmitted aggregateId=dbe86339-94a4-4b04-934c-fcd8847f5a26
-2026-04-17T22:45:17.478-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=notification.mutation.v1 partition=2 offset=1 eventType=NotificationEmitted aggregateId=null
-2026-04-17T22:45:17.481-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=notification.relevant-change-notification-emitted.v1 partition=2 offset=2 eventType=RelevantChangeNotificationEmitted aggregateId=785b710c-5584-4cdb-9498-61be96159daa
-2026-04-17T22:45:17.489-05:00 WARN  [reporting-upstream-events-consumer-0-C-1] [/] c.a.r.i.a.i.e.UpstreamDomainEventKafkaConsumer - Skipping upstream event without tenant resolution. topic=notification.mutation.v1 partition=2 offset=2 eventType=NotificationEmitted aggregateId=null
+BUILD SUCCESSFUL in 5s
+4 actionable tasks: 4 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.0.0/userguide/configuration_cache_enabling.html
+ Container arkab2b-postgres Running 
+ Container arkab2b-eureka-server Running 
+ Container arkab2b-kafka Running 
+ Container arkab2b-redis Running 
+ Container arkab2b-config-server Running 
+ Container arkab2b-identity-access-service Running 
+ Container arkab2b-directory-service Running 
+ Container arkab2b-catalog-service Running 
+ Container arkab2b-order-service Running 
+ Container arkab2b-notification-service Running 
+ Container arkab2b-reporting-service Creating 
+ Container arkab2b-reporting-service Created 
+ Container arkab2b-redis Waiting 
+ Container arkab2b-kafka Waiting 
+ Container arkab2b-postgres Waiting 
+ Container arkab2b-redis Healthy 
+ Container arkab2b-postgres Healthy 
+ Container arkab2b-kafka Healthy 
+ Container arkab2b-postgres Waiting 
+ Container arkab2b-redis Waiting 
+ Container arkab2b-kafka Waiting 
+ Container arkab2b-redis Healthy 
+ Container arkab2b-postgres Healthy 
+ Container arkab2b-kafka Healthy 
+ Container arkab2b-postgres Waiting 
+ Container arkab2b-redis Waiting 
+ Container arkab2b-kafka Waiting 
+ Container arkab2b-kafka Healthy 
+ Container arkab2b-redis Healthy 
+ Container arkab2b-postgres Healthy 
+ Container arkab2b-kafka Waiting 
+ Container arkab2b-postgres Waiting 
+ Container arkab2b-redis Waiting 
+ Container arkab2b-redis Healthy 
+ Container arkab2b-postgres Healthy 
+ Container arkab2b-kafka Healthy 
+ Container arkab2b-postgres Waiting 
+ Container arkab2b-redis Waiting 
+ Container arkab2b-kafka Waiting 
+ Container arkab2b-redis Healthy 
+ Container arkab2b-postgres Healthy 
+ Container arkab2b-kafka Healthy 
+ Container arkab2b-kafka Waiting 
+ Container arkab2b-redis Waiting 
+ Container arkab2b-postgres Waiting 
+ Container arkab2b-redis Healthy 
+ Container arkab2b-postgres Healthy 
+ Container arkab2b-kafka Healthy 
+ Container arkab2b-reporting-service Starting 
+ Container arkab2b-reporting-service Started 

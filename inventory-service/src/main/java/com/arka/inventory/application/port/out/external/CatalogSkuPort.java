@@ -4,5 +4,5 @@ import reactor.core.publisher.Mono;
 
 public interface CatalogSkuPort {
 
-    Mono<Boolean> existsSellableSku(String tenantId, String sku);
+    Mono<Boolean> existsSellableSku(String organizationId, String sku);
 }

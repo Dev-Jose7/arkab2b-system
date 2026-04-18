@@ -10,6 +10,7 @@ import com.arka.notification.application.port.in.EmitRelevantChangeNotificationC
 import com.arka.notification.application.result.NotificationResult;
 import com.arka.notification.infrastructure.adapter.in.event.InboundDomainEventParser.ParsedInboundDomainEvent;
 import com.arka.notification.infrastructure.adapter.out.external.OrderContextLookupHttpAdapter;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Instant;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.ObjectProvider;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -33,6 +35,9 @@ class OrderDomainEventKafkaConsumerTest {
     @Mock
     private OrderContextLookupHttpAdapter orderContextLookupHttpAdapter;
 
+    @Mock
+    private ObjectProvider<MeterRegistry> meterRegistryProvider;
+
     private OrderDomainEventKafkaConsumer consumer;
 
     @BeforeEach
@@ -41,6 +46,7 @@ class OrderDomainEventKafkaConsumerTest {
                 emitUseCase,
                 parser,
                 orderContextLookupHttpAdapter,
+                meterRegistryProvider,
                 "notification-kafka-consumer",
                 "EMAIL",
                 5_000,
@@ -55,8 +61,7 @@ class OrderDomainEventKafkaConsumerTest {
                 "OrderCreatedFromValidatedCart",
                 "Order",
                 "ord-1",
-                "tenant-1",
-                "org-1",
+                "organization-1",
                 "actor-1");
 
         when(parser.parse(record.value())).thenReturn(event);
@@ -67,8 +72,8 @@ class OrderDomainEventKafkaConsumerTest {
         ArgumentCaptor<com.arka.notification.application.command.EmitRelevantChangeNotificationCommand> commandCaptor =
                 ArgumentCaptor.forClass(com.arka.notification.application.command.EmitRelevantChangeNotificationCommand.class);
         verify(emitUseCase).handle(commandCaptor.capture());
-        assertEquals("tenant-1", commandCaptor.getValue().tenantId());
-        assertEquals("org-1", commandCaptor.getValue().recipientRef());
+        assertEquals("organization-1", commandCaptor.getValue().organizationId());
+        assertEquals("organization-1", commandCaptor.getValue().recipientRef());
         assertEquals("OrderCreatedFromValidatedCart", commandCaptor.getValue().sourceEventType());
         assertEquals("kafka-emit-evt-1", commandCaptor.getValue().idempotencyKey());
     }
@@ -77,7 +82,7 @@ class OrderDomainEventKafkaConsumerTest {
     void shouldSkipUnsupportedEventType() {
         ConsumerRecord<String, String> record = new ConsumerRecord<>("order.events.v1", 0, 2L, "k", "{\"eventType\":\"OrderCancelled\"}");
         when(parser.parse(record.value()))
-                .thenReturn(parsedEvent("evt-2", "OrderCancelled", "Order", "ord-2", "tenant-1", "org-1", "actor-1"));
+                .thenReturn(parsedEvent("evt-2", "OrderCancelled", "Order", "ord-2", "organization-1", "actor-1"));
 
         StepVerifier.create(consumer.consume(record)).verifyComplete();
 
@@ -85,12 +90,12 @@ class OrderDomainEventKafkaConsumerTest {
     }
 
     @Test
-    void shouldResolveContextFromOrderServiceWhenTenantOrRecipientMissing() {
+    void shouldResolveContextFromOrderServiceWhenOrganizationOrRecipientMissing() {
         ConsumerRecord<String, String> record = new ConsumerRecord<>("order.events.v1", 0, 3L, "k", "{\"eventType\":\"OrderOperationalStatusUpdated\"}");
         when(parser.parse(record.value()))
-                .thenReturn(parsedEvent("evt-3", "OrderOperationalStatusUpdated", "Order", "ord-3", null, null, null));
+                .thenReturn(parsedEvent("evt-3", "OrderOperationalStatusUpdated", "Order", "ord-3", null, null));
         when(orderContextLookupHttpAdapter.resolveByOrderId("ord-3"))
-                .thenReturn(Mono.just(new OrderContextLookupHttpAdapter.OrderContext("tenant-x", "org-x", "service-actor")));
+                .thenReturn(Mono.just(new OrderContextLookupHttpAdapter.OrderContext("organization-x", "service-actor")));
         when(emitUseCase.handle(any())).thenReturn(Mono.just(notificationResult("noti-3")));
 
         StepVerifier.create(consumer.consume(record)).verifyComplete();
@@ -98,8 +103,8 @@ class OrderDomainEventKafkaConsumerTest {
         ArgumentCaptor<com.arka.notification.application.command.EmitRelevantChangeNotificationCommand> commandCaptor =
                 ArgumentCaptor.forClass(com.arka.notification.application.command.EmitRelevantChangeNotificationCommand.class);
         verify(emitUseCase).handle(commandCaptor.capture());
-        assertEquals("tenant-x", commandCaptor.getValue().tenantId());
-        assertEquals("org-x", commandCaptor.getValue().recipientRef());
+        assertEquals("organization-x", commandCaptor.getValue().organizationId());
+        assertEquals("organization-x", commandCaptor.getValue().recipientRef());
         assertEquals("service-actor", commandCaptor.getValue().actorId());
     }
 
@@ -107,9 +112,9 @@ class OrderDomainEventKafkaConsumerTest {
     void shouldResolveCartContextUsingCartLookup() {
         ConsumerRecord<String, String> record = new ConsumerRecord<>("order.cart.events.v1", 0, 4L, "k", "{\"eventType\":\"CartCreated\"}");
         when(parser.parse(record.value()))
-                .thenReturn(parsedEvent("evt-4", "CartCreated", "Cart", "cart-44", null, null, null));
+                .thenReturn(parsedEvent("evt-4", "CartCreated", "Cart", "cart-44", null, null));
         when(orderContextLookupHttpAdapter.resolveByCartId("cart-44"))
-                .thenReturn(Mono.just(new OrderContextLookupHttpAdapter.OrderContext("tenant-c", "org-c", "actor-c")));
+                .thenReturn(Mono.just(new OrderContextLookupHttpAdapter.OrderContext("organization-c", "actor-c")));
         when(emitUseCase.handle(any())).thenReturn(Mono.just(notificationResult("noti-4")));
 
         StepVerifier.create(consumer.consume(record)).verifyComplete();
@@ -119,10 +124,10 @@ class OrderDomainEventKafkaConsumerTest {
     }
 
     @Test
-    void shouldSkipWhenNoTenantOrRecipientCanBeResolved() {
+    void shouldSkipWhenNoOrganizationOrRecipientCanBeResolved() {
         ConsumerRecord<String, String> record = new ConsumerRecord<>("order.events.v1", 0, 5L, "k", "{\"eventType\":\"OrderOperationalStatusUpdated\"}");
         when(parser.parse(record.value()))
-                .thenReturn(parsedEvent("evt-5", "OrderOperationalStatusUpdated", "Order", "ord-5", null, null, null));
+                .thenReturn(parsedEvent("evt-5", "OrderOperationalStatusUpdated", "Order", "ord-5", null, null));
         when(orderContextLookupHttpAdapter.resolveByOrderId("ord-5")).thenReturn(Mono.empty());
 
         StepVerifier.create(consumer.consume(record)).verifyComplete();
@@ -133,7 +138,7 @@ class OrderDomainEventKafkaConsumerTest {
     void shouldFailWhenEventTypeIsMissing() {
         ConsumerRecord<String, String> record = new ConsumerRecord<>("order.events.v1", 0, 6L, "k", "{}");
         when(parser.parse(record.value()))
-                .thenReturn(parsedEvent("evt-6", "", "Order", "ord-6", "tenant-1", "org-1", "actor-1"));
+                .thenReturn(parsedEvent("evt-6", "", "Order", "ord-6", "organization-1", "actor-1"));
 
         StepVerifier.create(consumer.consume(record))
                 .expectErrorMatches(error -> error instanceof IllegalArgumentException
@@ -146,7 +151,6 @@ class OrderDomainEventKafkaConsumerTest {
             String eventType,
             String aggregateType,
             String aggregateId,
-            String tenantId,
             String organizationId,
             String actorId) {
         return new ParsedInboundDomainEvent(
@@ -154,7 +158,6 @@ class OrderDomainEventKafkaConsumerTest {
                 eventType,
                 aggregateType,
                 aggregateId,
-                tenantId,
                 organizationId,
                 actorId,
                 "trace-1",
@@ -167,7 +170,7 @@ class OrderDomainEventKafkaConsumerTest {
     private NotificationResult notificationResult(String notificationId) {
         return new NotificationResult(
                 notificationId,
-                "tenant-1",
+                "organization-1",
                 "evt",
                 "type",
                 "org-1",

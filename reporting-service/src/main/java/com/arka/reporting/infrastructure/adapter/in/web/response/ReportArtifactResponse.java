@@ -5,7 +5,7 @@ import java.time.Instant;
 public record ReportArtifactResponse(
         String artifactId,
         String executionId,
-        String tenantId,
+        String organizationId,
         String weekId,
         String reportType,
         String format,
@@ -13,5 +13,4 @@ public record ReportArtifactResponse(
         String contentHash,
         long sizeBytes,
         Instant createdAt,
-        Instant updatedAt) {
-}
+        Instant updatedAt) {}

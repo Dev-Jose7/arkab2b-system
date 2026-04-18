@@ -7,9 +7,9 @@ public interface CatalogAuditPort {
 
     Mono<Void> record(CatalogAuditEntry entry);
 
-    Mono<CatalogAuditEntry> findByIdempotency(String tenantId, String actionType, String idempotencyKey);
+    Mono<CatalogAuditEntry> findByIdempotency(String organizationId, String actionType, String idempotencyKey);
 
-    Flux<CatalogAuditEntry> findByTarget(String tenantId, String targetType, String targetId, int offset, int limit);
+    Flux<CatalogAuditEntry> findByTarget(String organizationId, String targetType, String targetId, int offset, int limit);
 
-    Mono<Long> countByTarget(String tenantId, String targetType, String targetId);
+    Mono<Long> countByTarget(String organizationId, String targetType, String targetId);
 }

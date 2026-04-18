@@ -4,7 +4,7 @@ import java.time.Instant;
 
 public record StockItemResult(
         String stockItemId,
-        String tenantId,
+        String organizationId,
         String warehouseId,
         String sku,
         int physicalQty,

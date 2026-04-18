@@ -5,8 +5,8 @@ import java.time.Instant;
 
 public record OrderAudit(
         String auditId,
-        String tenantId,
         String organizationId,
+
         String actorUserId,
         String actionType,
         String targetType,
@@ -17,7 +17,7 @@ public record OrderAudit(
 
     public OrderAudit {
         requireNotBlank(auditId, "auditId");
-        requireNotBlank(tenantId, "tenantId");
+        requireNotBlank(organizationId, "organizationId");
         requireNotBlank(organizationId, "organizationId");
         requireNotBlank(actorUserId, "actorUserId");
         requireNotBlank(actionType, "actionType");

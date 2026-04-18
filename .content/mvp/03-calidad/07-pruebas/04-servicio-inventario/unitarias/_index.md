@@ -36,8 +36,8 @@ Validar invariantes de stock y reservas, transiciones de estado y reglas todo-o-
 | INV-UT-009 | liberar reserva activa resta reserved qty | reserva `ACTIVE` | liberar reserva | estado `RELEASED`, disponibilidad restaurada | FR-004 |
 | INV-UT-010 | expirar reserva por TTL | `now > expiresAt` | ejecutar expiracion | estado `EXPIRED` y evento de expiracion | FR-004 |
 | INV-UT-011 | deteccion de bajo stock | `availableQty <= reorderPoint` | recalcular estado | `low_stock=true` + seaNal de alerta | FR-003 |
-| INV-UT-012 | acceso cruzado en mutacion de stock | actor tenant A sobre stock tenant B | evaluar tenant/ownership | error `acceso_cruzado_detectado` | NFR-005, I-ACC-02 |
-| INV-UT-013 | comando mutante sin tenant es invalido | comando sin `tenantId` | validar policy | rechazo por aislamiento | NFR-005, D-CROSS-01 |
+| INV-UT-012 | acceso cruzado en mutacion de stock | actor organization A sobre stock organization B | evaluar organization/ownership | error `acceso_cruzado_detectado` | NFR-005, I-ACC-02 |
+| INV-UT-013 | comando mutante sin organization es invalido | comando sin `organizationId` | validar policy | rechazo por aislamiento | NFR-005, D-CROSS-01 |
 | INV-UT-014 | idempotencia semantica en mutacion | misma clave + mismo payload | reintentar comando | resultado equivalente sin doble efecto | NFR-009 |
 | INV-UT-015 | conflicto idempotente por payload distinto | misma clave + hash distinto | reintentar comando | error `conflicto_idempotencia` | NFR-009 |
 

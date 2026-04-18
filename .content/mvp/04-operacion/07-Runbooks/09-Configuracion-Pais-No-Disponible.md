@@ -17,14 +17,14 @@ Gestionar bloqueos operativos por ausencia de configuracion regional vigente.
 |---|---|
 | error concentrado en un `countryCode` | politica ausente o vencida en ese pais |
 | error en multiples paises tras cambio | posible falla de propagacion/configuracion global |
-| error solo en un tenant | configuracion organizacional incompleta |
+| error solo en un organization | configuracion organizacional incompleta |
 
 ## Impacto esperado
 No se procesa operacion critica para countryCode afectado.
 
 ## Diagnostico inicial
 - Validar existencia y vigencia de politica regional.
-- Confirmar countryCode, tenant y operacion bloqueada.
+- Confirmar countryCode, organization y operacion bloqueada.
 
 ## Regla de interpretacion HTTP del incidente
 - `404 configuracion_pais_no_disponible`: ausencia del recurso tecnico al
@@ -42,7 +42,7 @@ No se procesa operacion critica para countryCode afectado.
 
 ## Contencion
 - Mantener bloqueo (no hay fallback global implicito).
-- Comunicar impacto por pais/tenant.
+- Comunicar impacto por pais/organization.
 
 ## Criterio de contencion cumplida
 - bloqueo se mantiene solo para alcance afectado;

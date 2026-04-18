@@ -5,7 +5,7 @@ import com.arka.catalog.domain.catalogoffer.enumtype.PriceType;
 import com.arka.catalog.domain.catalogoffer.exception.PricePeriodOverlapException;
 import com.arka.catalog.domain.catalogoffer.valueobject.Money;
 import com.arka.catalog.domain.catalogoffer.valueobject.PriceId;
-import com.arka.catalog.domain.catalogoffer.valueobject.TenantId;
+import com.arka.catalog.domain.catalogoffer.valueobject.OrganizationId;
 import com.arka.catalog.domain.catalogoffer.valueobject.TimeWindow;
 import com.arka.catalog.domain.catalogoffer.valueobject.VariantId;
 import java.time.Instant;
@@ -13,7 +13,7 @@ import java.util.Collection;
 
 public final class Price {
 
-    private final TenantId tenantId;
+    private final OrganizationId organizationId;
     private final PriceId priceId;
     private final VariantId variantId;
     private final Instant createdAt;
@@ -25,7 +25,7 @@ public final class Price {
     private Instant updatedAt;
 
     private Price(
-            TenantId tenantId,
+            OrganizationId organizationId,
             PriceId priceId,
             VariantId variantId,
             PriceType priceType,
@@ -34,7 +34,7 @@ public final class Price {
             PriceStatus status,
             Instant createdAt,
             Instant updatedAt) {
-        this.tenantId = tenantId;
+        this.organizationId = organizationId;
         this.priceId = priceId;
         this.variantId = variantId;
         this.priceType = priceType;
@@ -46,7 +46,7 @@ public final class Price {
     }
 
     public static Price register(
-            TenantId tenantId,
+            OrganizationId organizationId,
             PriceId priceId,
             VariantId variantId,
             PriceType priceType,
@@ -54,7 +54,7 @@ public final class Price {
             TimeWindow timeWindow,
             Instant now) {
         Price price = new Price(
-                tenantId,
+                organizationId,
                 priceId,
                 variantId,
                 priceType,
@@ -68,7 +68,7 @@ public final class Price {
     }
 
     public static Price rehydrate(
-            TenantId tenantId,
+            OrganizationId organizationId,
             PriceId priceId,
             VariantId variantId,
             PriceType priceType,
@@ -78,7 +78,7 @@ public final class Price {
             Instant createdAt,
             Instant updatedAt) {
         return new Price(
-                tenantId,
+                organizationId,
                 priceId,
                 variantId,
                 priceType,
@@ -136,8 +136,8 @@ public final class Price {
         }
     }
 
-    public TenantId tenantId() {
-        return tenantId;
+    public OrganizationId organizationId() {
+        return organizationId;
     }
 
     public PriceId priceId() {

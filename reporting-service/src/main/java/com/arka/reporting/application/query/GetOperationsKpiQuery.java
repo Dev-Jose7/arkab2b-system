@@ -1,4 +1,4 @@
 package com.arka.reporting.application.query;
 
-public record GetOperationsKpiQuery(String tenantId, String period) {
+public record GetOperationsKpiQuery(String organizationId, String period) {
 }

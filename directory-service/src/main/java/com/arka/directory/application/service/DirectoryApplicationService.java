@@ -879,6 +879,9 @@ public class DirectoryApplicationService implements
 
     private Mono<Boolean> ensureActorLegitimate(String actorUserId) {
         String normalizedActorUserId = normalizeRequired(actorUserId, "actorUserId");
+        if (normalizedActorUserId.startsWith("svc:")) {
+            return Mono.just(true);
+        }
         return actorLegitimacyPort
                 .isLegitimate(normalizedActorUserId)
                 .flatMap(legitimate -> legitimate

@@ -1,7 +1,7 @@
 package com.arka.reporting.application.query;
 
 public record GetReportingAuditQuery(
-        String tenantId,
+        String organizationId,
         String targetType,
         String targetId,
         int page,

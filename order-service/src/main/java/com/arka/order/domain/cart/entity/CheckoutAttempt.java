@@ -7,8 +7,8 @@ import java.util.List;
 
 public record CheckoutAttempt(
         String checkoutAttemptId,
-        String tenantId,
         String organizationId,
+
         String userId,
         String cartId,
         String checkoutCorrelationId,
@@ -23,7 +23,7 @@ public record CheckoutAttempt(
 
     public CheckoutAttempt {
         requireNotBlank(checkoutAttemptId, "checkoutAttemptId");
-        requireNotBlank(tenantId, "tenantId");
+        requireNotBlank(organizationId, "organizationId");
         requireNotBlank(organizationId, "organizationId");
         requireNotBlank(userId, "userId");
         requireNotBlank(cartId, "cartId");

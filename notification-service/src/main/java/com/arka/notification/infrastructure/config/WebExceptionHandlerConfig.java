@@ -10,9 +10,11 @@ import java.time.Instant;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.support.WebExchangeBindException;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestControllerAdvice
 public class WebExceptionHandlerConfig {
@@ -51,6 +53,23 @@ public class WebExceptionHandlerConfig {
     @ExceptionHandler(DomainException.class)
     public ResponseEntity<ErrorResponse> handleDomain(DomainException ex) {
         return build(HttpStatus.CONFLICT, ex.errorCode(), ex.getMessage());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
+        return build(HttpStatus.FORBIDDEN, "notification_access_denied", "Access Denied");
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErrorResponse> handleResponseStatus(ResponseStatusException ex) {
+        HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
+        String code = switch (status) {
+            case UNAUTHORIZED -> "notification_unauthorized";
+            case FORBIDDEN -> "notification_access_denied";
+            case NOT_FOUND -> "notification_resource_not_found";
+            default -> "notification_http_error";
+        };
+        return build(status, code, ex.getReason() == null ? ex.getMessage() : ex.getReason());
     }
 
     @ExceptionHandler(Exception.class)

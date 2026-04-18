@@ -30,7 +30,7 @@ public class NotificationResponseMapper {
     public NotificationResponse toResponse(NotificationResult result) {
         return new NotificationResponse(
                 result.notificationId(),
-                result.tenantId(),
+                result.organizationId(),
                 result.sourceEventId(),
                 result.sourceEventType(),
                 result.recipientRef(),
@@ -139,7 +139,7 @@ public class NotificationResponseMapper {
     public NotificationAuditEntryResponse toResponse(NotificationAuditEntryResult result) {
         return new NotificationAuditEntryResponse(
                 result.auditId(),
-                result.tenantId(),
+                result.organizationId(),
                 result.actorId(),
                 result.actionType(),
                 result.targetType(),

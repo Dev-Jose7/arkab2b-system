@@ -2,41 +2,41 @@ CREATE EXTENSION IF NOT EXISTS btree_gist;
 
 CREATE TABLE IF NOT EXISTS brands (
     brand_id         VARCHAR(36) PRIMARY KEY,
-    tenant_id        VARCHAR(64) NOT NULL,
+    organization_id        VARCHAR(64) NOT NULL,
     brand_code       VARCHAR(64) NOT NULL,
     brand_name       VARCHAR(200) NOT NULL,
     status           VARCHAR(16) NOT NULL,
     created_at       TIMESTAMPTZ NOT NULL,
     updated_at       TIMESTAMPTZ NOT NULL,
     CONSTRAINT ck_brands_status CHECK (status IN ('ACTIVE', 'INACTIVE')),
-    CONSTRAINT uq_brands_tenant_brand UNIQUE (tenant_id, brand_id)
+    CONSTRAINT uq_brands_organization_brand UNIQUE (organization_id, brand_id)
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS ux_brands_tenant_code
-    ON brands (tenant_id, UPPER(brand_code));
-CREATE INDEX IF NOT EXISTS idx_brands_tenant_status
-    ON brands (tenant_id, status, updated_at DESC);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_brands_organization_code
+    ON brands (organization_id, UPPER(brand_code));
+CREATE INDEX IF NOT EXISTS idx_brands_organization_status
+    ON brands (organization_id, status, updated_at DESC);
 
 CREATE TABLE IF NOT EXISTS categories (
     category_id      VARCHAR(36) PRIMARY KEY,
-    tenant_id        VARCHAR(64) NOT NULL,
+    organization_id        VARCHAR(64) NOT NULL,
     category_code    VARCHAR(64) NOT NULL,
     category_name    VARCHAR(200) NOT NULL,
     status           VARCHAR(16) NOT NULL,
     created_at       TIMESTAMPTZ NOT NULL,
     updated_at       TIMESTAMPTZ NOT NULL,
     CONSTRAINT ck_categories_status CHECK (status IN ('ACTIVE', 'INACTIVE')),
-    CONSTRAINT uq_categories_tenant_category UNIQUE (tenant_id, category_id)
+    CONSTRAINT uq_categories_organization_category UNIQUE (organization_id, category_id)
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS ux_categories_tenant_code
-    ON categories (tenant_id, UPPER(category_code));
-CREATE INDEX IF NOT EXISTS idx_categories_tenant_status
-    ON categories (tenant_id, status, updated_at DESC);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_categories_organization_code
+    ON categories (organization_id, UPPER(category_code));
+CREATE INDEX IF NOT EXISTS idx_categories_organization_status
+    ON categories (organization_id, status, updated_at DESC);
 
 CREATE TABLE IF NOT EXISTS products (
     product_id       VARCHAR(36) PRIMARY KEY,
-    tenant_id        VARCHAR(64) NOT NULL,
+    organization_id        VARCHAR(64) NOT NULL,
     product_code     VARCHAR(64) NOT NULL,
     product_name     VARCHAR(200) NOT NULL,
     description      TEXT,
@@ -46,39 +46,39 @@ CREATE TABLE IF NOT EXISTS products (
     created_at       TIMESTAMPTZ NOT NULL,
     updated_at       TIMESTAMPTZ NOT NULL,
     CONSTRAINT ck_products_status CHECK (status IN ('DRAFT', 'ACTIVE', 'RETIRED')),
-    CONSTRAINT uq_products_tenant_product UNIQUE (tenant_id, product_id),
-    CONSTRAINT fk_products_brand FOREIGN KEY (tenant_id, brand_id)
-        REFERENCES brands (tenant_id, brand_id),
-    CONSTRAINT fk_products_category FOREIGN KEY (tenant_id, category_id)
-        REFERENCES categories (tenant_id, category_id)
+    CONSTRAINT uq_products_organization_product UNIQUE (organization_id, product_id),
+    CONSTRAINT fk_products_brand FOREIGN KEY (organization_id, brand_id)
+        REFERENCES brands (organization_id, brand_id),
+    CONSTRAINT fk_products_category FOREIGN KEY (organization_id, category_id)
+        REFERENCES categories (organization_id, category_id)
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS ux_products_tenant_product_code
-    ON products (tenant_id, UPPER(product_code));
-CREATE INDEX IF NOT EXISTS idx_products_tenant_status_updated
-    ON products (tenant_id, status, updated_at DESC);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_products_organization_product_code
+    ON products (organization_id, UPPER(product_code));
+CREATE INDEX IF NOT EXISTS idx_products_organization_status_updated
+    ON products (organization_id, status, updated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_products_search_name
-    ON products (tenant_id, UPPER(product_name));
+    ON products (organization_id, UPPER(product_name));
 
 CREATE TABLE IF NOT EXISTS product_tags (
     tag_id           VARCHAR(36) PRIMARY KEY,
-    tenant_id        VARCHAR(64) NOT NULL,
+    organization_id        VARCHAR(64) NOT NULL,
     product_id       VARCHAR(36) NOT NULL,
     tag_code         VARCHAR(100) NOT NULL,
     tag_value        VARCHAR(255) NOT NULL,
     created_at       TIMESTAMPTZ NOT NULL,
     updated_at       TIMESTAMPTZ NOT NULL,
-    CONSTRAINT uq_product_tags_tenant_product_tag UNIQUE (tenant_id, product_id, tag_code, tag_value),
-    CONSTRAINT fk_product_tags_product FOREIGN KEY (tenant_id, product_id)
-        REFERENCES products (tenant_id, product_id)
+    CONSTRAINT uq_product_tags_organization_product_tag UNIQUE (organization_id, product_id, tag_code, tag_value),
+    CONSTRAINT fk_product_tags_product FOREIGN KEY (organization_id, product_id)
+        REFERENCES products (organization_id, product_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_product_tags_tenant_product
-    ON product_tags (tenant_id, product_id);
+CREATE INDEX IF NOT EXISTS idx_product_tags_organization_product
+    ON product_tags (organization_id, product_id);
 
 CREATE TABLE IF NOT EXISTS variants (
     variant_id       VARCHAR(36) PRIMARY KEY,
-    tenant_id        VARCHAR(64) NOT NULL,
+    organization_id        VARCHAR(64) NOT NULL,
     product_id       VARCHAR(36) NOT NULL,
     sku              VARCHAR(80) NOT NULL,
     variant_name     VARCHAR(200) NOT NULL,
@@ -91,41 +91,41 @@ CREATE TABLE IF NOT EXISTS variants (
     updated_at       TIMESTAMPTZ NOT NULL,
     CONSTRAINT ck_variants_status CHECK (status IN ('DRAFT', 'SELLABLE', 'DISCONTINUED')),
     CONSTRAINT ck_variants_sellable_window CHECK (sellable_until IS NULL OR sellable_from IS NULL OR sellable_until > sellable_from),
-    CONSTRAINT uq_variants_tenant_variant UNIQUE (tenant_id, variant_id),
-    CONSTRAINT fk_variants_product FOREIGN KEY (tenant_id, product_id)
-        REFERENCES products (tenant_id, product_id)
+    CONSTRAINT uq_variants_organization_variant UNIQUE (organization_id, variant_id),
+    CONSTRAINT fk_variants_product FOREIGN KEY (organization_id, product_id)
+        REFERENCES products (organization_id, product_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_variants_tenant_product
-    ON variants (tenant_id, product_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_variants_tenant_sku
-    ON variants (tenant_id, UPPER(sku));
-CREATE UNIQUE INDEX IF NOT EXISTS ux_variants_tenant_sku_sellable
-    ON variants (tenant_id, UPPER(sku))
+CREATE INDEX IF NOT EXISTS idx_variants_organization_product
+    ON variants (organization_id, product_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_variants_organization_sku
+    ON variants (organization_id, UPPER(sku));
+CREATE UNIQUE INDEX IF NOT EXISTS ux_variants_organization_sku_sellable
+    ON variants (organization_id, UPPER(sku))
     WHERE status = 'SELLABLE';
 
 CREATE TABLE IF NOT EXISTS variant_attributes (
     attribute_id      VARCHAR(36) PRIMARY KEY,
-    tenant_id         VARCHAR(64) NOT NULL,
+    organization_id         VARCHAR(64) NOT NULL,
     variant_id        VARCHAR(36) NOT NULL,
     attribute_code    VARCHAR(100) NOT NULL,
     attribute_value   VARCHAR(255) NOT NULL,
     normalized_value  VARCHAR(255),
     created_at        TIMESTAMPTZ NOT NULL,
     updated_at        TIMESTAMPTZ NOT NULL,
-    CONSTRAINT uq_variant_attributes_code UNIQUE (tenant_id, variant_id, attribute_code),
-    CONSTRAINT fk_variant_attributes_variant FOREIGN KEY (tenant_id, variant_id)
-        REFERENCES variants (tenant_id, variant_id)
+    CONSTRAINT uq_variant_attributes_code UNIQUE (organization_id, variant_id, attribute_code),
+    CONSTRAINT fk_variant_attributes_variant FOREIGN KEY (organization_id, variant_id)
+        REFERENCES variants (organization_id, variant_id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_variant_attributes_lookup
-    ON variant_attributes (tenant_id, attribute_code, normalized_value);
+    ON variant_attributes (organization_id, attribute_code, normalized_value);
 CREATE INDEX IF NOT EXISTS idx_variant_attributes_variant
-    ON variant_attributes (tenant_id, variant_id);
+    ON variant_attributes (organization_id, variant_id);
 
 CREATE TABLE IF NOT EXISTS prices (
     price_id          VARCHAR(36) PRIMARY KEY,
-    tenant_id         VARCHAR(64) NOT NULL,
+    organization_id         VARCHAR(64) NOT NULL,
     variant_id        VARCHAR(36) NOT NULL,
     price_type        VARCHAR(32) NOT NULL,
     currency          VARCHAR(3) NOT NULL,
@@ -138,21 +138,21 @@ CREATE TABLE IF NOT EXISTS prices (
     CONSTRAINT ck_prices_status CHECK (status IN ('ACTIVE', 'SCHEDULED', 'EXPIRED')),
     CONSTRAINT ck_prices_amount_positive CHECK (amount > 0),
     CONSTRAINT ck_prices_window CHECK (effective_until IS NULL OR effective_until > effective_from),
-    CONSTRAINT uq_prices_tenant_price UNIQUE (tenant_id, price_id),
-    CONSTRAINT fk_prices_variant FOREIGN KEY (tenant_id, variant_id)
-        REFERENCES variants (tenant_id, variant_id)
+    CONSTRAINT uq_prices_organization_price UNIQUE (organization_id, price_id),
+    CONSTRAINT fk_prices_variant FOREIGN KEY (organization_id, variant_id)
+        REFERENCES variants (organization_id, variant_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_prices_tenant_variant_effective
-    ON prices (tenant_id, variant_id, effective_from DESC);
+CREATE INDEX IF NOT EXISTS idx_prices_organization_variant_effective
+    ON prices (organization_id, variant_id, effective_from DESC);
 CREATE INDEX IF NOT EXISTS idx_prices_resolve_active
-    ON prices (tenant_id, variant_id, currency, price_type, effective_from DESC, effective_until);
+    ON prices (organization_id, variant_id, currency, price_type, effective_from DESC, effective_until);
 
 ALTER TABLE prices
     DROP CONSTRAINT IF EXISTS ex_prices_no_overlap;
 ALTER TABLE prices
     ADD CONSTRAINT ex_prices_no_overlap EXCLUDE USING gist (
-        tenant_id WITH =,
+        organization_id WITH =,
         variant_id WITH =,
         currency WITH =,
         price_type WITH =,
@@ -161,7 +161,7 @@ ALTER TABLE prices
 
 CREATE TABLE IF NOT EXISTS price_schedules (
     schedule_id       VARCHAR(36) PRIMARY KEY,
-    tenant_id         VARCHAR(64) NOT NULL,
+    organization_id         VARCHAR(64) NOT NULL,
     price_id          VARCHAR(36) NOT NULL,
     execute_after     TIMESTAMPTZ NOT NULL,
     job_status        VARCHAR(16) NOT NULL,
@@ -169,8 +169,8 @@ CREATE TABLE IF NOT EXISTS price_schedules (
     created_at        TIMESTAMPTZ NOT NULL,
     updated_at        TIMESTAMPTZ NOT NULL,
     CONSTRAINT ck_price_schedules_status CHECK (job_status IN ('PENDING', 'EXECUTED', 'FAILED', 'CANCELLED')),
-    CONSTRAINT fk_price_schedules_price FOREIGN KEY (tenant_id, price_id)
-        REFERENCES prices (tenant_id, price_id)
+    CONSTRAINT fk_price_schedules_price FOREIGN KEY (organization_id, price_id)
+        REFERENCES prices (organization_id, price_id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_price_schedules_pending
@@ -178,7 +178,7 @@ CREATE INDEX IF NOT EXISTS idx_price_schedules_pending
 
 CREATE TABLE IF NOT EXISTS catalog_audits (
     audit_id           VARCHAR(36) PRIMARY KEY,
-    tenant_id          VARCHAR(64) NOT NULL,
+    organization_id          VARCHAR(64) NOT NULL,
     actor_id           VARCHAR(100) NOT NULL,
     action_type        VARCHAR(100) NOT NULL,
     target_type        VARCHAR(80) NOT NULL,
@@ -191,12 +191,12 @@ CREATE TABLE IF NOT EXISTS catalog_audits (
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS ux_catalog_audits_idempotency
-    ON catalog_audits (tenant_id, action_type, idempotency_key)
+    ON catalog_audits (organization_id, action_type, idempotency_key)
     WHERE idempotency_key IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_catalog_audits_target
-    ON catalog_audits (tenant_id, target_type, target_id, created_at DESC);
+    ON catalog_audits (organization_id, target_type, target_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_catalog_audits_created
-    ON catalog_audits (tenant_id, created_at DESC);
+    ON catalog_audits (organization_id, created_at DESC);
 
 CREATE TABLE IF NOT EXISTS outbox_events (
     event_id           VARCHAR(36) PRIMARY KEY,

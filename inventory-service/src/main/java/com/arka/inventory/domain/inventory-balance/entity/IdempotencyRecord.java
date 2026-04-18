@@ -5,7 +5,7 @@ import java.time.Instant;
 
 public record IdempotencyRecord(
         String idempotencyId,
-        String tenantId,
+        String organizationId,
         String operationName,
         String idempotencyKey,
         String requestHash,
@@ -17,7 +17,7 @@ public record IdempotencyRecord(
 
     public IdempotencyRecord {
         requireNotBlank(idempotencyId, "idempotencyId");
-        requireNotBlank(tenantId, "tenantId");
+        requireNotBlank(organizationId, "organizationId");
         requireNotBlank(operationName, "operationName");
         requireNotBlank(idempotencyKey, "idempotencyKey");
         requireNotBlank(requestHash, "requestHash");

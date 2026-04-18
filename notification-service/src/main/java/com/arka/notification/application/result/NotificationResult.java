@@ -4,7 +4,7 @@ import java.time.Instant;
 
 public record NotificationResult(
         String notificationId,
-        String tenantId,
+        String organizationId,
         String sourceEventId,
         String sourceEventType,
         String recipientRef,

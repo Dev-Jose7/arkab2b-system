@@ -1,7 +1,7 @@
 package com.arka.catalog.application.query;
 
 public record GetPriceTimelineQuery(
-        String tenantId,
+        String organizationId,
         String variantId,
         String currency,
         String priceType) {

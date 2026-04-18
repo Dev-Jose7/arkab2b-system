@@ -22,13 +22,7 @@ class OrderAggregateTest {
     void shouldCreateOrderOnlyWithConfirmedReservations() {
         Instant now = Instant.parse("2026-04-14T11:00:00Z");
         OrderLine line = new OrderLine(
-                UUID.randomUUID().toString(),
-                "PENDING_ORDER_ID",
-                "tenant-1",
-                "org-1",
-                "variant-1",
-                "SKU-1",
-                2,
+                UUID.randomUUID().toString(), "PENDING_ORDER_ID", "organization-1", "org-1", "variant-1", 2,
                 new BigDecimal("12.00"),
                 "USD",
                 "res-1",
@@ -38,9 +32,7 @@ class OrderAggregateTest {
                 now);
 
         Order order = Order.createFromValidatedCart(
-                "tenant-1",
-                "org-1",
-                "user-1",
+                "organization-1", "user-1",
                 "cart-1",
                 "corr-1",
                 "addr-1",
@@ -110,13 +102,7 @@ class OrderAggregateTest {
     void shouldRejectOrderLineWhenReservationIsNotConfirmed() {
         Instant now = Instant.parse("2026-04-14T11:00:00Z");
         assertThrows(OrderConsistencyException.class, () -> new OrderLine(
-                UUID.randomUUID().toString(),
-                "PENDING_ORDER_ID",
-                "tenant-1",
-                "org-1",
-                "variant-1",
-                "SKU-1",
-                1,
+                UUID.randomUUID().toString(), "PENDING_ORDER_ID", "organization-1", "org-1", "variant-1", 1,
                 new BigDecimal("12.00"),
                 "USD",
                 "res-1",
@@ -137,13 +123,7 @@ class OrderAggregateTest {
     private Order sampleOrder() {
         Instant now = Instant.parse("2026-04-14T11:00:00Z");
         OrderLine line = new OrderLine(
-                UUID.randomUUID().toString(),
-                "PENDING_ORDER_ID",
-                "tenant-1",
-                "org-1",
-                "variant-1",
-                "SKU-1",
-                2,
+                UUID.randomUUID().toString(), "PENDING_ORDER_ID", "organization-1", "org-1", "variant-1", 2,
                 new BigDecimal("12.00"),
                 "USD",
                 "res-1",
@@ -153,9 +133,7 @@ class OrderAggregateTest {
                 now);
 
         return Order.createFromValidatedCart(
-                "tenant-1",
-                "org-1",
-                "user-1",
+                "organization-1", "user-1",
                 "cart-1",
                 "corr-1",
                 "addr-1",

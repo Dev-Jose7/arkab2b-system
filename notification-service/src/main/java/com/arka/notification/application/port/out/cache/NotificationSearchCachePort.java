@@ -9,5 +9,5 @@ public interface NotificationSearchCachePort {
 
     Mono<Void> put(String cacheKey, NotificationSearchResult result);
 
-    Mono<Void> evictTenant(String tenantId);
+    Mono<Void> evictOrganization(String organizationId);
 }

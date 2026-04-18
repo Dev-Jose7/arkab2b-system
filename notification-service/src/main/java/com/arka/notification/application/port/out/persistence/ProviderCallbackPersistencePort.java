@@ -10,5 +10,5 @@ public interface ProviderCallbackPersistencePort {
 
     Mono<ProviderCallback> findByProviderRefAndEvent(String providerCode, String providerRef, String callbackEventId);
 
-    Flux<ProviderCallbackProjection> findByNotificationId(String tenantId, String notificationId);
+    Flux<ProviderCallbackProjection> findByNotificationId(String organizationId, String notificationId);
 }

@@ -47,10 +47,10 @@ Validar contratos REST/eventos, persistencia operativa, idempotencia write-side 
 | INV-IT-024 | consumo `catalog.product-retired` | bloquear SKUs asociados | bloqueo + `processed_events` + auditoria | politicas Inventory |
 | INV-IT-025 | dedupe evento Catalog duplicado | mismo `eventId` dos veces | segundo consumo `noop idempotente` | NFR-009 |
 | INV-IT-026 | emision `LowStockDetected` | umbral bajo alcanzado | outbox/evento a notification/reporting | FR-003 |
-| INV-IT-027 | seguridad tenant/ownership | actor tenant A sobre stock tenant B | rechazo 403/409 + sin cambios | NFR-005, I-ACC-02 |
+| INV-IT-027 | seguridad organization/ownership | actor organization A sobre stock organization B | rechazo 403/409 + sin cambios | NFR-005, I-ACC-02 |
 | INV-IT-028 | propagacion `traceId/correlationId` | mutacion + evento | ids en response, auditoria y outbox | NFR-006 |
 
 ## Criterio de exito integracion
 - Escenarios `INV-IT-001..028` disenados para verificar ausencia de breaking en contratos `v1`.
 - Idempotencia HTTP (`idempotency_records`) y dedupe async (`processed_events`) disenados para verificarse con evidencia persistida durante la corrida.
-- En corrida de certificacion, no deben ocurrir mutaciones cross-tenant.
+- En corrida de certificacion, no deben ocurrir mutaciones cross-organization.

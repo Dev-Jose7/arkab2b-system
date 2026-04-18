@@ -6,17 +6,17 @@ import reactor.core.publisher.Mono;
 
 public interface StockItemPersistencePort {
 
-    Mono<Boolean> existsByTenantWarehouseSku(String tenantId, String warehouseId, String sku);
+    Mono<Boolean> existsByOrganizationWarehouseSku(String organizationId, String warehouseId, String sku);
 
     Mono<StockItem> insert(StockItem stockItem);
 
-    Mono<StockItem> findById(String tenantId, String stockItemId);
+    Mono<StockItem> findById(String organizationId, String stockItemId);
 
-    Mono<StockItem> findByTenantWarehouseSku(String tenantId, String warehouseId, String sku);
+    Mono<StockItem> findByOrganizationWarehouseSku(String organizationId, String warehouseId, String sku);
 
-    Flux<StockItem> findByTenantAndWarehouse(String tenantId, String warehouseId);
+    Flux<StockItem> findByOrganizationAndWarehouse(String organizationId, String warehouseId);
 
-    Flux<StockItem> findLowStockByTenantAndWarehouse(String tenantId, String warehouseId);
+    Flux<StockItem> findLowStockByOrganizationAndWarehouse(String organizationId, String warehouseId);
 
     Mono<Boolean> updateWithExpectedVersion(StockItem stockItem, long expectedVersion);
 }

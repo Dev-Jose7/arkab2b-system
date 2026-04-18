@@ -6,19 +6,19 @@ import reactor.core.publisher.Mono;
 
 public interface PurchaseOrderPersistencePort {
 
-    Mono<Boolean> existsByCheckoutCorrelation(String tenantId, String checkoutCorrelationId);
+    Mono<Boolean> existsByCheckoutCorrelation(String organizationId, String checkoutCorrelationId);
 
-    Mono<Order> findByCheckoutCorrelation(String tenantId, String checkoutCorrelationId);
+    Mono<Order> findByCheckoutCorrelation(String organizationId, String checkoutCorrelationId);
 
-    Mono<Order> findById(String tenantId, String orderId);
+    Mono<Order> findById(String organizationId, String orderId);
 
     Mono<Order> save(Order order);
 
     Mono<Boolean> updateWithExpectedVersion(Order order, long expectedVersion);
 
-    Flux<Order> listByTenantOrganizationStatus(
-            String tenantId,
+    Flux<Order> listByOrganizationStatus(
             String organizationId,
+
             String status,
             java.time.Instant createdFrom,
             java.time.Instant createdTo,

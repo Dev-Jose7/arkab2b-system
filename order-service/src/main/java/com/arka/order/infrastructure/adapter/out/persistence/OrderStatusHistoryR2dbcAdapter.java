@@ -35,7 +35,7 @@ public class OrderStatusHistoryR2dbcAdapter implements OrderStatusHistoryPersist
     }
 
     @Override
-    public Flux<OrderStatusHistory> findByOrder(String tenantId, String orderId) {
-        return repository.findByTenantAndOrderId(tenantId, orderId).map(mapper::toDomain);
+    public Flux<OrderStatusHistory> findByOrder(String organizationId, String orderId) {
+        return repository.findByOrganizationAndOrderId(organizationId, orderId).map(mapper::toDomain);
     }
 }

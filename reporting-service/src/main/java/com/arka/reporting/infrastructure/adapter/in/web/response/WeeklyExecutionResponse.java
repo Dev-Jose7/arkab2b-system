@@ -4,7 +4,7 @@ import java.time.Instant;
 
 public record WeeklyExecutionResponse(
         String executionId,
-        String tenantId,
+        String organizationId,
         String weekId,
         String reportType,
         String status,
@@ -15,5 +15,4 @@ public record WeeklyExecutionResponse(
         Instant createdAt,
         Instant startedAt,
         Instant completedAt,
-        Instant updatedAt) {
-}
+        Instant updatedAt) {}

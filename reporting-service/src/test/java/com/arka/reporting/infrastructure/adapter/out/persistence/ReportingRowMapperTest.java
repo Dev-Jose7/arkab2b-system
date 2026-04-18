@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.arka.reporting.domain.analyticfact.entity.AnalyticFact;
 import com.arka.reporting.domain.analyticfact.enumtype.AnalyticFactType;
 import com.arka.reporting.domain.analyticfact.valueobject.SourceEventId;
-import com.arka.reporting.domain.analyticfact.valueobject.TenantId;
+import com.arka.reporting.domain.analyticfact.valueobject.OrganizationId;
 import com.arka.reporting.domain.weeklyreportexecution.entity.WeeklyReportExecution;
 import com.arka.reporting.domain.weeklyreportexecution.enumtype.ReportType;
 import com.arka.reporting.domain.weeklyreportexecution.valueobject.WeekId;
@@ -21,7 +21,7 @@ class ReportingRowMapperTest {
     void shouldRoundTripAnalyticFactBetweenDomainAndRow() {
         Instant now = Instant.parse("2026-04-05T10:00:00Z");
         AnalyticFact fact = AnalyticFact.capture(
-                TenantId.of("tenant-demo"),
+                OrganizationId.of("organization-demo"),
                 SourceEventId.of("evt-1"),
                 "order.confirmed",
                 AnalyticFactType.SALES,
@@ -33,7 +33,7 @@ class ReportingRowMapperTest {
         AnalyticFact mapped = mapper.toDomain(mapper.toRow(fact, "2026-W14"));
 
         assertEquals(fact.factId().value(), mapped.factId().value());
-        assertEquals(fact.tenantId().value(), mapped.tenantId().value());
+        assertEquals(fact.organizationId().value(), mapped.organizationId().value());
         assertEquals(fact.factStatus(), mapped.factStatus());
         assertEquals("order.confirmed", mapped.eventType());
     }
@@ -42,7 +42,7 @@ class ReportingRowMapperTest {
     void shouldRoundTripWeeklyExecutionBetweenDomainAndRow() {
         Instant now = Instant.parse("2026-04-05T10:00:00Z");
         WeeklyReportExecution execution = WeeklyReportExecution.pending(
-                com.arka.reporting.domain.weeklyreportexecution.valueobject.TenantId.of("tenant-demo"),
+                com.arka.reporting.domain.weeklyreportexecution.valueobject.OrganizationId.of("organization-demo"),
                 WeekId.of("2026-W14"),
                 ReportType.SALES,
                 now);

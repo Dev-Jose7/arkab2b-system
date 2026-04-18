@@ -1,7 +1,7 @@
 package com.arka.reporting.application.port.out.persistence;
 
 public record FactSearchFilter(
-        String tenantId,
+        String organizationId,
         String eventType,
         String factType,
         String period,

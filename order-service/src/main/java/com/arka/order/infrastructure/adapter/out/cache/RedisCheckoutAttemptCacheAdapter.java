@@ -46,15 +46,15 @@ public class RedisCheckoutAttemptCacheAdapter implements CheckoutAttemptCachePor
     }
 
     @Override
-    public Mono<CheckoutAttemptResult> findByCorrelation(String tenantId, String checkoutCorrelationId) {
+    public Mono<CheckoutAttemptResult> findByCorrelation(String organizationId, String checkoutCorrelationId) {
         // Cache is best-effort optimization; degrade to miss but keep failures observable.
         return redisTemplate.opsForValue()
-                .get(cacheKey(tenantId, checkoutCorrelationId))
+                .get(cacheKey(organizationId, checkoutCorrelationId))
                 .flatMap(this::fromJson)
                 .onErrorResume(error -> {
                     log.warn(
-                            "Redis cache read failed; degrading to cache miss. cache=checkout-attempt tenantId={} checkoutCorrelationId={}",
-                            tenantId,
+                            "Redis cache read failed; degrading to cache miss. cache=checkout-attempt organizationId={} checkoutCorrelationId={}",
+                            organizationId,
                             checkoutCorrelationId,
                             error);
                     increment(readFailureCounter);
@@ -66,12 +66,12 @@ public class RedisCheckoutAttemptCacheAdapter implements CheckoutAttemptCachePor
     public Mono<Void> put(CheckoutAttemptResult result) {
         return Mono.fromCallable(() -> toJson(result))
                 .flatMap(payload -> redisTemplate.opsForValue()
-                        .set(cacheKey(result.tenantId(), result.checkoutCorrelationId()), payload, ttl)
+                        .set(cacheKey(result.organizationId(), result.checkoutCorrelationId()), payload, ttl)
                         .then())
                 .onErrorResume(error -> {
                     log.warn(
-                            "Redis cache write failed; continuing without cache. cache=checkout-attempt tenantId={} checkoutCorrelationId={}",
-                            result.tenantId(),
+                            "Redis cache write failed; continuing without cache. cache=checkout-attempt organizationId={} checkoutCorrelationId={}",
+                            result.organizationId(),
                             result.checkoutCorrelationId(),
                             error);
                     increment(writeFailureCounter);
@@ -80,8 +80,8 @@ public class RedisCheckoutAttemptCacheAdapter implements CheckoutAttemptCachePor
     }
 
     @Override
-    public Mono<Void> evict(String tenantId, String checkoutCorrelationId) {
-        return redisTemplate.delete(cacheKey(tenantId, checkoutCorrelationId)).then();
+    public Mono<Void> evict(String organizationId, String checkoutCorrelationId) {
+        return redisTemplate.delete(cacheKey(organizationId, checkoutCorrelationId)).then();
     }
 
     private Mono<CheckoutAttemptResult> fromJson(String payload) {
@@ -102,8 +102,8 @@ public class RedisCheckoutAttemptCacheAdapter implements CheckoutAttemptCachePor
         }
     }
 
-    private String cacheKey(String tenantId, String checkoutCorrelationId) {
-        return "order:checkout-attempt:" + tenantId + ":" + checkoutCorrelationId;
+    private String cacheKey(String organizationId, String checkoutCorrelationId) {
+        return "order:checkout-attempt:" + organizationId + ":" + checkoutCorrelationId;
     }
 
     private Counter counter(MeterRegistry meterRegistry, String operation) {

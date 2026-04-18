@@ -42,7 +42,7 @@ public final class NotificationDispatch {
 
         NotificationRequest request = NotificationRequest.createPending(
                 notificationId,
-                relevantChangeNotification.tenantId(),
+                relevantChangeNotification.organizationId(),
                 relevantChangeNotification.sourceEventId(),
                 relevantChangeNotification.sourceEventType(),
                 relevantChangeNotification.recipientRef(),
@@ -60,7 +60,7 @@ public final class NotificationDispatch {
         List<DomainEvent> events = new ArrayList<>();
         events.add(new RelevantChangeNotificationEmitted(
                 request.notificationId().value(),
-                request.tenantId().value(),
+                request.organizationId().value(),
                 request.sourceEventId(),
                 request.sourceEventType(),
                 request.recipientRef(),
@@ -104,7 +104,7 @@ public final class NotificationDispatch {
         request.markSent(now);
         domainEvents.add(new NotificationDeliveryRecorded(
                 request.notificationId().value(),
-                request.tenantId().value(),
+                request.organizationId().value(),
                 attempt.attemptId().value(),
                 attempt.providerCode(),
                 attempt.providerRef(),
@@ -136,7 +136,7 @@ public final class NotificationDispatch {
         request.markSent(now);
         domainEvents.add(new NotificationDeliveryRecorded(
                 request.notificationId().value(),
-                request.tenantId().value(),
+                request.organizationId().value(),
                 "callback",
                 providerCode,
                 providerRef,

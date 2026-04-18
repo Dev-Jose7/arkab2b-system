@@ -4,7 +4,7 @@ import java.time.Instant;
 
 public record AnalyticFactResult(
         String factId,
-        String tenantId,
+        String organizationId,
         String sourceEventId,
         String eventType,
         String factType,

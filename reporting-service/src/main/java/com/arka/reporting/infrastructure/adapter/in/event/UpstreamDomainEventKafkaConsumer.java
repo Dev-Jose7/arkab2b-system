@@ -8,15 +8,23 @@ import com.arka.reporting.application.port.in.RegisterAnalyticFactCommandUseCase
 import com.arka.reporting.application.port.in.UpdateConsumerCheckpointCommandUseCase;
 import com.arka.reporting.application.result.AnalyticFactResult;
 import com.arka.reporting.infrastructure.adapter.in.event.InboundDomainEventParser.ParsedInboundDomainEvent;
-import com.arka.reporting.infrastructure.adapter.out.external.OrderTenantLookupHttpAdapter;
+import com.arka.reporting.infrastructure.adapter.in.security.IamSecurityPrincipal;
+import com.arka.reporting.infrastructure.adapter.out.external.OrderOrganizationLookupHttpAdapter;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Locale;
+import java.util.Set;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -29,17 +37,19 @@ public class UpstreamDomainEventKafkaConsumer {
     private final ApplyAnalyticFactCommandUseCase applyAnalyticFactCommandUseCase;
     private final UpdateConsumerCheckpointCommandUseCase updateConsumerCheckpointCommandUseCase;
     private final InboundDomainEventParser inboundDomainEventParser;
-    private final OrderTenantLookupHttpAdapter orderTenantLookupHttpAdapter;
+    private final OrderOrganizationLookupHttpAdapter orderOrganizationLookupHttpAdapter;
     private final String actorId;
     private final String consumerName;
     private final Duration processingTimeout;
+    private final MeterRegistry meterRegistry;
 
     public UpstreamDomainEventKafkaConsumer(
             RegisterAnalyticFactCommandUseCase registerAnalyticFactCommandUseCase,
             ApplyAnalyticFactCommandUseCase applyAnalyticFactCommandUseCase,
             UpdateConsumerCheckpointCommandUseCase updateConsumerCheckpointCommandUseCase,
             InboundDomainEventParser inboundDomainEventParser,
-            OrderTenantLookupHttpAdapter orderTenantLookupHttpAdapter,
+            OrderOrganizationLookupHttpAdapter orderOrganizationLookupHttpAdapter,
+            ObjectProvider<MeterRegistry> meterRegistryProvider,
             @Value("${app.kafka.consumers.upstream-events.actor-id:reporting-kafka-consumer}") String actorId,
             @Value("${app.kafka.consumers.upstream-events.consumer-name:reporting-service}") String consumerName,
             @Value("${app.kafka.consumers.upstream-events.processing-timeout-ms:10000}") long processingTimeoutMs) {
@@ -47,7 +57,8 @@ public class UpstreamDomainEventKafkaConsumer {
         this.applyAnalyticFactCommandUseCase = applyAnalyticFactCommandUseCase;
         this.updateConsumerCheckpointCommandUseCase = updateConsumerCheckpointCommandUseCase;
         this.inboundDomainEventParser = inboundDomainEventParser;
-        this.orderTenantLookupHttpAdapter = orderTenantLookupHttpAdapter;
+        this.orderOrganizationLookupHttpAdapter = orderOrganizationLookupHttpAdapter;
+        this.meterRegistry = meterRegistryProvider.getIfAvailable();
         this.actorId = actorId == null || actorId.isBlank() ? "reporting-kafka-consumer" : actorId.trim();
         this.consumerName = consumerName == null || consumerName.isBlank() ? "reporting-service" : consumerName.trim();
         this.processingTimeout = Duration.ofMillis(Math.max(500L, processingTimeoutMs));
@@ -66,19 +77,22 @@ public class UpstreamDomainEventKafkaConsumer {
     Mono<Void> consume(ConsumerRecord<String, String> record) {
         ParsedInboundDomainEvent event = inboundDomainEventParser.parse(record.value());
         if (event.eventType() == null || event.eventType().isBlank()) {
+            incrementKafkaMetric("failed", "missing-event-type");
             return Mono.error(new IllegalArgumentException("Inbound event missing eventType"));
         }
 
-        return resolveTenant(event)
-                .flatMap(tenantId -> {
-                    if (tenantId == null || tenantId.isBlank()) {
+        return resolveOrganization(event)
+                .flatMap(organizationId -> {
+                    if (organizationId == null || organizationId.isBlank()) {
+                        incrementKafkaMetric("skipped", event.eventType());
                         return Mono.just(Boolean.FALSE);
                     }
+                    Authentication authentication = technicalAuthentication(organizationId);
                     String factType = resolveFactType(event.eventType());
                     Instant occurredAt = event.occurredAt();
 
                     RegisterAnalyticFactCommand register = new RegisterAnalyticFactCommand(
-                            tenantId,
+                            organizationId,
                             actorId,
                             event.eventId(),
                             event.eventType(),
@@ -90,7 +104,9 @@ public class UpstreamDomainEventKafkaConsumer {
 
                     return registerAnalyticFactCommandUseCase
                             .handle(register)
-                            .flatMap(fact -> applyAndCheckpoint(record, tenantId, event.eventId(), fact))
+                            .flatMap(fact -> applyAndCheckpoint(record, organizationId, event.eventId(), fact))
+                            .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
+                            .doOnSuccess(ignored -> incrementKafkaMetric("processed", event.eventType()))
                             .thenReturn(Boolean.TRUE);
                 })
                 .defaultIfEmpty(Boolean.FALSE)
@@ -98,30 +114,33 @@ public class UpstreamDomainEventKafkaConsumer {
                     if (Boolean.TRUE.equals(processed)) {
                         return Mono.empty();
                     }
+                    incrementKafkaMetric("skipped", event.eventType());
                     log.warn(
-                            "Skipping upstream event without tenant resolution. topic={} partition={} offset={} eventType={} aggregateId={}",
+                            "Skipping upstream event without organization resolution. topic={} partition={} offset={} eventType={} aggregateId={}",
                             record.topic(),
                             record.partition(),
                             record.offset(),
                             event.eventType(),
                             event.aggregateId());
                     return Mono.empty();
-                });
+                })
+                .doOnError(error -> incrementKafkaMetric("failed", event.eventType()))
+                .then();
     }
 
     private Mono<Void> applyAndCheckpoint(
             ConsumerRecord<String, String> record,
-            String tenantId,
+            String organizationId,
             String eventId,
             AnalyticFactResult fact) {
         ApplyAnalyticFactCommand apply = new ApplyAnalyticFactCommand(
-                tenantId,
+                organizationId,
                 actorId,
                 fact.factId(),
                 "kafka-apply-" + eventId);
 
         UpdateConsumerCheckpointCommand checkpoint = new UpdateConsumerCheckpointCommand(
-                tenantId,
+                organizationId,
                 actorId,
                 consumerName,
                 record.topic(),
@@ -143,20 +162,20 @@ public class UpstreamDomainEventKafkaConsumer {
                 .then();
     }
 
-    private Mono<String> resolveTenant(ParsedInboundDomainEvent event) {
-        String directTenant = firstNonBlank(event.tenantId(), event.organizationId());
-        if (directTenant != null && !directTenant.isBlank()) {
-            return Mono.just(directTenant);
+    private Mono<String> resolveOrganization(ParsedInboundDomainEvent event) {
+        String directOrganization = firstNonBlank(event.organizationId(), event.organizationId());
+        if (directOrganization != null && !directOrganization.isBlank()) {
+            return Mono.just(directOrganization);
         }
 
         String eventType = event.eventType() == null ? "" : event.eventType();
         String aggregateType = event.aggregateType() == null ? "" : event.aggregateType();
 
         if (eventType.startsWith("Order") || eventType.startsWith("ManualPayment") || "Order".equalsIgnoreCase(aggregateType)) {
-            return orderTenantLookupHttpAdapter.resolveTenantByOrderId(event.aggregateId());
+            return orderOrganizationLookupHttpAdapter.resolveOrganizationByOrderId(event.aggregateId());
         }
         if (eventType.startsWith("Cart") || eventType.startsWith("Checkout") || "Cart".equalsIgnoreCase(aggregateType)) {
-            return orderTenantLookupHttpAdapter.resolveTenantByCartId(event.aggregateId());
+            return orderOrganizationLookupHttpAdapter.resolveOrganizationByCartId(event.aggregateId());
         }
 
         if (eventType.startsWith("RegionalPolicy")
@@ -205,5 +224,38 @@ public class UpstreamDomainEventKafkaConsumer {
             }
         }
         return null;
+    }
+
+    private Authentication technicalAuthentication(String organizationId) {
+        IamSecurityPrincipal principal = new IamSecurityPrincipal(
+                actorId,
+                organizationId,
+                organizationId,
+                Set.of("ROLE_TRUSTED_SERVICE"));
+        return UsernamePasswordAuthenticationToken.authenticated(
+                principal,
+                null,
+                Set.of(new SimpleGrantedAuthority("ROLE_TRUSTED_SERVICE")));
+    }
+
+    private void incrementKafkaMetric(String outcome, String eventType) {
+        if (meterRegistry == null) {
+            return;
+        }
+        meterRegistry
+                .counter(
+                        "arka.reporting.kafka.upstream_events",
+                        "outcome",
+                        normalizeTag(outcome),
+                        "eventType",
+                        normalizeTag(eventType))
+                .increment();
+    }
+
+    private String normalizeTag(String value) {
+        if (value == null || value.isBlank()) {
+            return "unknown";
+        }
+        return value.trim().replace(' ', '_');
     }
 }

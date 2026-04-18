@@ -38,7 +38,7 @@ Referencia canonicidad:
 | `prod` | releases aprobados, cambios de emergencia con incidente abierto y evidencia | cambios manuales fuera de pipeline, activacion de capacidades fuera de baseline |
 
 ## Reglas de consistencia por ambiente
-- Todo ambiente mutante exige `tenantId`, `actorId`, `traceId`, `correlationId`.
+- Todo ambiente mutante exige `organizationId`, `actorId`, `traceId`, `correlationId`.
 - `qa` y `prod` deben mantener contratos API/eventos coherentes por version.
 - `prod` no admite fallback global para regionalizacion.
 - Si falta politica regional vigente por `countryCode`, se bloquea la

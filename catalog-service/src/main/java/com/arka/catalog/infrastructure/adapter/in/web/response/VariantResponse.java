@@ -5,7 +5,7 @@ import java.util.List;
 
 public record VariantResponse(
         String variantId,
-        String tenantId,
+        String organizationId,
         String productId,
         String sku,
         String name,
@@ -16,5 +16,4 @@ public record VariantResponse(
         Integer weightGrams,
         List<VariantAttributeResponse> attributes,
         Instant createdAt,
-        Instant updatedAt) {
-}
+        Instant updatedAt) {}

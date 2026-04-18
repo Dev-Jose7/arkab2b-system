@@ -6,8 +6,8 @@ import java.util.List;
 public record CheckoutAttemptResult(
         String checkoutAttemptId,
         String checkoutCorrelationId,
-        String tenantId,
         String organizationId,
+
         String userId,
         String cartId,
         String validationStatus,

@@ -32,9 +32,9 @@ class ReportingHttpConsumerContractTest {
                     "reporting-token",
                     3_000);
 
-            StepVerifier.create(adapter.resolveForOperation("tenant-77", "co"))
+            StepVerifier.create(adapter.resolveForOperation("organization-77", "co"))
                     .assertNext(resolution -> {
-                        assertThat(resolution.tenantId()).isEqualTo("tenant-77");
+                        assertThat(resolution.organizationId()).isEqualTo("organization-77");
                         assertThat(resolution.countryCode()).isEqualTo("CO");
                         assertThat(resolution.available()).isTrue();
                         assertThat(resolution.policyRef()).isEqualTo("policy-CO-1");
@@ -43,19 +43,19 @@ class ReportingHttpConsumerContractTest {
 
             CapturedRequest request = server.lastRequest();
             assertThat(request.method()).isEqualTo("GET");
-            assertThat(request.path()).isEqualTo("/api/v1/organizations/tenant-77/regional-context/CO");
+            assertThat(request.path()).isEqualTo("/api/v1/organizations/organization-77/regional-context/CO");
             assertThat(request.header("Authorization")).isEqualTo("Bearer reporting-token");
         }
     }
 
     @Test
-    void orderTenantLookupAdapterShouldRespectConsumerContract() throws Exception {
+    void orderOrganizationLookupAdapterShouldRespectConsumerContract() throws Exception {
         try (StubHttpServer server = StubHttpServer.responding(
                 200,
                 """
-                {"organizationId":"tenant-order-1"}
+                {"organizationId":"organization-order-1"}
                 """)) {
-            OrderTenantLookupHttpAdapter adapter = new OrderTenantLookupHttpAdapter(
+            OrderOrganizationLookupHttpAdapter adapter = new OrderOrganizationLookupHttpAdapter(
                     WebClient.builder(),
                     server.baseUrl(),
                     "/api/v1/orders/{orderId}",
@@ -63,8 +63,8 @@ class ReportingHttpConsumerContractTest {
                     "reporting-token",
                     3_000);
 
-            StepVerifier.create(adapter.resolveTenantByOrderId("ord-11"))
-                    .expectNext("tenant-order-1")
+            StepVerifier.create(adapter.resolveOrganizationByOrderId("ord-11"))
+                    .expectNext("organization-order-1")
                     .verifyComplete();
 
             CapturedRequest request = server.lastRequest();
@@ -138,4 +138,3 @@ class ReportingHttpConsumerContractTest {
         }
     }
 }
-

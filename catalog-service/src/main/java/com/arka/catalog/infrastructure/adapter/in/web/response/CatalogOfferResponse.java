@@ -4,11 +4,10 @@ import java.time.Instant;
 
 public record CatalogOfferResponse(
         String offerId,
-        String tenantId,
+        String organizationId,
         String productId,
         String variantId,
         String priceId,
         String regionalPolicyReference,
         Instant publishedAt,
-        Instant updatedAt) {
-}
+        Instant updatedAt) {}

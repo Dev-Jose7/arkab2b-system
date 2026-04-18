@@ -23,11 +23,11 @@ public class InMemoryNotificationSearchCacheAdapter implements NotificationSearc
     }
 
     @Override
-    public Mono<Void> evictTenant(String tenantId) {
-        if (tenantId == null || tenantId.isBlank()) {
+    public Mono<Void> evictOrganization(String organizationId) {
+        if (organizationId == null || organizationId.isBlank()) {
             return Mono.empty();
         }
-        String prefix = tenantId + "::";
+        String prefix = organizationId + "::";
         cache.keySet().removeIf(key -> key.startsWith(prefix));
         return Mono.empty();
     }

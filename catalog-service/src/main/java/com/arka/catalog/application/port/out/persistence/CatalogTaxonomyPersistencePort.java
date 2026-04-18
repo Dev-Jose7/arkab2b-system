@@ -4,7 +4,7 @@ import reactor.core.publisher.Mono;
 
 public interface CatalogTaxonomyPersistencePort {
 
-    Mono<Boolean> isBrandActive(String tenantId, String brandId);
+    Mono<Boolean> isBrandActive(String organizationId, String brandId);
 
-    Mono<Boolean> isCategoryActive(String tenantId, String categoryId);
+    Mono<Boolean> isCategoryActive(String organizationId, String categoryId);
 }

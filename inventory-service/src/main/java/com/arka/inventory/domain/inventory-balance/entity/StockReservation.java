@@ -9,7 +9,7 @@ import java.time.Instant;
 public final class StockReservation {
 
     private final String reservationId;
-    private final String tenantId;
+    private final String organizationId;
     private final String stockItemId;
     private final String warehouseId;
     private final String sku;
@@ -25,7 +25,7 @@ public final class StockReservation {
 
     public StockReservation(
             String reservationId,
-            String tenantId,
+            String organizationId,
             String stockItemId,
             String warehouseId,
             String sku,
@@ -39,7 +39,7 @@ public final class StockReservation {
             Instant createdAt,
             Instant updatedAt) {
         this.reservationId = requireNotBlank(reservationId, "reservationId");
-        this.tenantId = requireNotBlank(tenantId, "tenantId");
+        this.organizationId = requireNotBlank(organizationId, "organizationId");
         this.stockItemId = requireNotBlank(stockItemId, "stockItemId");
         this.warehouseId = requireNotBlank(warehouseId, "warehouseId");
         this.sku = requireNotBlank(sku, "sku").toUpperCase();
@@ -57,7 +57,7 @@ public final class StockReservation {
 
     public static StockReservation createActive(
             String reservationId,
-            String tenantId,
+            String organizationId,
             String stockItemId,
             String warehouseId,
             String sku,
@@ -67,7 +67,7 @@ public final class StockReservation {
             Instant now) {
         return new StockReservation(
                 reservationId,
-                tenantId,
+                organizationId,
                 stockItemId,
                 warehouseId,
                 sku,
@@ -89,7 +89,7 @@ public final class StockReservation {
         }
         return new StockReservation(
                 reservationId,
-                tenantId,
+                organizationId,
                 stockItemId,
                 warehouseId,
                 sku,
@@ -108,7 +108,7 @@ public final class StockReservation {
         ensureActiveOrConfirmed();
         return new StockReservation(
                 reservationId,
-                tenantId,
+                organizationId,
                 stockItemId,
                 warehouseId,
                 sku,
@@ -132,7 +132,7 @@ public final class StockReservation {
         }
         return new StockReservation(
                 reservationId,
-                tenantId,
+                organizationId,
                 stockItemId,
                 warehouseId,
                 sku,
@@ -197,8 +197,8 @@ public final class StockReservation {
         return reservationId;
     }
 
-    public String tenantId() {
-        return tenantId;
+    public String organizationId() {
+        return organizationId;
     }
 
     public String stockItemId() {

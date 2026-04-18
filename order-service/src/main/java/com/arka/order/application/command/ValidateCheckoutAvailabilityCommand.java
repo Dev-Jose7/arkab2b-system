@@ -1,8 +1,8 @@
 package com.arka.order.application.command;
 
 public record ValidateCheckoutAvailabilityCommand(
-        String tenantId,
         String organizationId,
+
         String userId,
         String cartId,
         String checkoutCorrelationId,

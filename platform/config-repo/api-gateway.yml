@@ -1,0 +1,95 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+app:
+  security:
+    jwt:
+      issuer: ${APP_SECURITY_JWT_ISSUER:identity-access-service}
+      allowed-audiences: ${APP_SECURITY_JWT_ALLOWED_AUDIENCES:arka-b2b}
+      jwks-uri: ${APP_SECURITY_JWT_JWKS_URI:http://localhost:8081/.well-known/jwks.json}
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: swagger-iam
+          uri: lb://identity-access-service
+          predicates:
+            - Path=/swagger/iam/**
+          filters:
+            - StripPrefix=2
+            - RemoveResponseHeader=X-Frame-Options
+        - id: swagger-directory
+          uri: lb://directory-service
+          predicates:
+            - Path=/swagger/directory/**
+          filters:
+            - StripPrefix=2
+            - RemoveResponseHeader=X-Frame-Options
+        - id: swagger-catalog
+          uri: lb://catalog-service
+          predicates:
+            - Path=/swagger/catalog/**
+          filters:
+            - StripPrefix=2
+            - RemoveResponseHeader=X-Frame-Options
+        - id: swagger-inventory
+          uri: lb://inventory-service
+          predicates:
+            - Path=/swagger/inventory/**
+          filters:
+            - StripPrefix=2
+            - RemoveResponseHeader=X-Frame-Options
+        - id: swagger-order
+          uri: lb://order-service
+          predicates:
+            - Path=/swagger/order/**
+          filters:
+            - StripPrefix=2
+            - RemoveResponseHeader=X-Frame-Options
+        - id: swagger-notification
+          uri: lb://notification-service
+          predicates:
+            - Path=/swagger/notification/**
+          filters:
+            - StripPrefix=2
+            - RemoveResponseHeader=X-Frame-Options
+        - id: swagger-reporting
+          uri: lb://reporting-service
+          predicates:
+            - Path=/swagger/reporting/**
+          filters:
+            - StripPrefix=2
+            - RemoveResponseHeader=X-Frame-Options
+        - id: iam-auth-public
+          uri: lb://identity-access-service
+          predicates:
+            - Path=/api/v1/auth/**,/.well-known/jwks.json
+        - id: iam-admin
+          uri: lb://identity-access-service
+          predicates:
+            - Path=/api/v1/admin/iam/**
+        - id: directory-public
+          uri: lb://directory-service
+          predicates:
+            - Path=/api/v1/organizations/**,/api/v1/admin/summary
+        - id: catalog-public
+          uri: lb://catalog-service
+          predicates:
+            - Path=/api/v1/catalog/**
+        - id: inventory-public
+          uri: lb://inventory-service
+          predicates:
+            - Path=/api/v1/warehouses/**,/api/v1/stock-items/**,/api/v1/reservations/**,/api/v1/availability/**
+        - id: order-public
+          uri: lb://order-service
+          predicates:
+            - Path=/api/v1/carts/**,/api/v1/orders/**
+        - id: notification-public
+          uri: lb://notification-service
+          predicates:
+            - Path=/api/v1/notifications/**
+        - id: reporting-public
+          uri: lb://reporting-service
+          predicates:
+            - Path=/api/v1/reporting/**

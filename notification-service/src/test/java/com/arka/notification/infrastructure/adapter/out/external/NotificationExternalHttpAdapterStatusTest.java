@@ -18,40 +18,40 @@ class NotificationExternalHttpAdapterStatusTest {
     @Test
     void identityLegitimacyShouldReturnFalseOn404AndErrorOnOther4xx5xx() {
         IdentityActorLegitimacyHttpAdapter notFound = legitimacyAdapter(HttpStatus.NOT_FOUND, "{\"error\":\"not-found\"}");
-        StepVerifier.create(notFound.isLegitimate("actor-1", "tenant-1"))
+        StepVerifier.create(notFound.isLegitimate("actor-1", "organization-1"))
                 .expectNext(false)
                 .verifyComplete();
 
         IdentityActorLegitimacyHttpAdapter badRequest = legitimacyAdapter(HttpStatus.BAD_REQUEST, "{\"error\":\"bad\"}");
-        StepVerifier.create(badRequest.isLegitimate("actor-1", "tenant-1"))
+        StepVerifier.create(badRequest.isLegitimate("actor-1", "organization-1"))
                 .expectError(IllegalArgumentException.class)
                 .verify();
 
         IdentityActorLegitimacyHttpAdapter unauthorized =
                 legitimacyAdapter(HttpStatus.UNAUTHORIZED, "{\"error\":\"unauthorized\"}");
-        StepVerifier.create(unauthorized.isLegitimate("actor-1", "tenant-1"))
+        StepVerifier.create(unauthorized.isLegitimate("actor-1", "organization-1"))
                 .expectError(SecurityException.class)
                 .verify();
 
         IdentityActorLegitimacyHttpAdapter forbidden = legitimacyAdapter(HttpStatus.FORBIDDEN, "{\"error\":\"forbidden\"}");
-        StepVerifier.create(forbidden.isLegitimate("actor-1", "tenant-1"))
+        StepVerifier.create(forbidden.isLegitimate("actor-1", "organization-1"))
                 .expectError(SecurityException.class)
                 .verify();
 
         IdentityActorLegitimacyHttpAdapter conflict = legitimacyAdapter(HttpStatus.CONFLICT, "{\"error\":\"conflict\"}");
-        StepVerifier.create(conflict.isLegitimate("actor-1", "tenant-1"))
+        StepVerifier.create(conflict.isLegitimate("actor-1", "organization-1"))
                 .expectError(IllegalStateException.class)
                 .verify();
 
         IdentityActorLegitimacyHttpAdapter unprocessable =
                 legitimacyAdapter(HttpStatus.UNPROCESSABLE_ENTITY, "{\"error\":\"unprocessable\"}");
-        StepVerifier.create(unprocessable.isLegitimate("actor-1", "tenant-1"))
+        StepVerifier.create(unprocessable.isLegitimate("actor-1", "organization-1"))
                 .expectError(IllegalStateException.class)
                 .verify();
 
         IdentityActorLegitimacyHttpAdapter serverError =
                 legitimacyAdapter(HttpStatus.INTERNAL_SERVER_ERROR, "{\"error\":\"boom\"}");
-        StepVerifier.create(serverError.isLegitimate("actor-1", "tenant-1"))
+        StepVerifier.create(serverError.isLegitimate("actor-1", "organization-1"))
                 .expectError(IllegalStateException.class)
                 .verify();
     }
@@ -61,14 +61,13 @@ class NotificationExternalHttpAdapterStatusTest {
         OrderContextLookupHttpAdapter ok = orderAdapter(
                 HttpStatus.OK,
                 """
-                {"tenantId":"tenant-1","organizationId":"org-1","userId":"user-1"}
+                {"organizationId":"organization-1","userId":"user-1"}
                 """,
                 "/api/v1/orders/{orderId}",
                 "/api/v1/carts/{cartId}");
         StepVerifier.create(ok.resolveByOrderId("order-1"))
                 .assertNext(context -> {
-                    assertEquals("tenant-1", context.tenantId());
-                    assertEquals("org-1", context.organizationId());
+                    assertEquals("organization-1", context.organizationId());
                     assertEquals("user-1", context.actorId());
                 })
                 .verifyComplete();
@@ -163,8 +162,8 @@ class NotificationExternalHttpAdapterStatusTest {
         StepVerifier.create(adapter.resolveByOrderId("order-9")).verifyComplete();
         StepVerifier.create(adapter.resolveByCartId("cart-7")).verifyComplete();
 
-        assertEquals("/api/v1/orders/order-9", orderPath.get());
-        assertEquals("/api/v1/carts/cart-7", cartPath.get());
+        assertEquals("/api/v1/internal/orders/order-9/organization-context", orderPath.get());
+        assertEquals("/api/v1/internal/carts/cart-7/organization-context", cartPath.get());
     }
 
     private IdentityActorLegitimacyHttpAdapter legitimacyAdapter(HttpStatus status, String body) {

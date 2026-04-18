@@ -18,7 +18,7 @@ public class DomainWeeklyReportExecutionRepositoryAdapter implements WeeklyRepor
     @Override
     public Mono<WeeklyReportExecution> save(WeeklyReportExecution execution) {
         return persistencePort
-                .findById(execution.tenantId(), execution.executionId())
+                .findById(execution.organizationId(), execution.executionId())
                 .flatMap(existing -> persistencePort.update(execution))
                 .switchIfEmpty(persistencePort.create(execution));
     }

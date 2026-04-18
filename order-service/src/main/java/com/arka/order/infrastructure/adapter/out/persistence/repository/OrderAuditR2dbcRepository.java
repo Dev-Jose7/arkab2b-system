@@ -10,11 +10,11 @@ public interface OrderAuditR2dbcRepository extends ReactiveCrudRepository<OrderA
     @Query("""
             SELECT *
             FROM order_audits
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND organization_id = :organizationId
               AND target_id = :orderId
             ORDER BY created_at DESC
             LIMIT :limit
             """)
-    Flux<OrderAuditEntity> findByOrder(String tenantId, String organizationId, String orderId, int limit);
+    Flux<OrderAuditEntity> findByOrder(String organizationId, String orderId, int limit);
 }

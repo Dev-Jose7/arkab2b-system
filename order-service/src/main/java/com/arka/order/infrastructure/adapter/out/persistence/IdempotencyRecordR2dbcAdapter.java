@@ -22,8 +22,8 @@ public class IdempotencyRecordR2dbcAdapter implements IdempotencyRecordPersisten
     }
 
     @Override
-    public Mono<IdempotencyRecord> findByTenantOperationAndKey(String tenantId, String operationName, String idempotencyKey) {
-        return repository.findByTenantOperationAndKey(tenantId, operationName, idempotencyKey)
+    public Mono<IdempotencyRecord> findByOrganizationOperationAndKey(String organizationId, String operationName, String idempotencyKey) {
+        return repository.findByOrganizationOperationAndKey(organizationId, operationName, idempotencyKey)
                 .map(this::toDomain);
     }
 
@@ -38,7 +38,7 @@ public class IdempotencyRecordR2dbcAdapter implements IdempotencyRecordPersisten
     private IdempotencyRecordEntity toEntity(IdempotencyRecord record) {
         return new IdempotencyRecordEntity(
                 record.idempotencyId(),
-                record.tenantId(),
+                record.organizationId(),
                 record.operationName(),
                 record.idempotencyKey(),
                 record.requestHash(),
@@ -52,7 +52,7 @@ public class IdempotencyRecordR2dbcAdapter implements IdempotencyRecordPersisten
     private IdempotencyRecord toDomain(IdempotencyRecordEntity entity) {
         return new IdempotencyRecord(
                 entity.idempotencyId(),
-                entity.tenantId(),
+                entity.organizationId(),
                 entity.operationName(),
                 entity.idempotencyKey(),
                 entity.requestHash(),

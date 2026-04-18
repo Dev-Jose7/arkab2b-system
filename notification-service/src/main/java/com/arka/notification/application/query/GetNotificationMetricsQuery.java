@@ -1,4 +1,4 @@
 package com.arka.notification.application.query;
 
-public record GetNotificationMetricsQuery(String tenantId) {
+public record GetNotificationMetricsQuery(String organizationId) {
 }

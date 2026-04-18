@@ -4,7 +4,7 @@ import java.time.Instant;
 
 public record AnalyticFactResponse(
         String factId,
-        String tenantId,
+        String organizationId,
         String sourceEventId,
         String eventType,
         String factType,
@@ -14,5 +14,4 @@ public record AnalyticFactResponse(
         String rejectionReason,
         Instant occurredAt,
         Instant createdAt,
-        Instant updatedAt) {
-}
+        Instant updatedAt) {}

@@ -8,7 +8,6 @@ public final class CartItem {
 
     private final String cartItemId;
     private final String cartId;
-    private final String tenantId;
     private final String organizationId;
     private final String variantId;
     private final String sku;
@@ -23,8 +22,8 @@ public final class CartItem {
     public CartItem(
             String cartItemId,
             String cartId,
-            String tenantId,
             String organizationId,
+
             String variantId,
             String sku,
             int qty,
@@ -36,7 +35,6 @@ public final class CartItem {
             Instant updatedAt) {
         this.cartItemId = requireNotBlank(cartItemId, "cartItemId");
         this.cartId = requireNotBlank(cartId, "cartId");
-        this.tenantId = requireNotBlank(tenantId, "tenantId");
         this.organizationId = requireNotBlank(organizationId, "organizationId");
         this.variantId = requireNotBlank(variantId, "variantId");
         this.sku = requireNotBlank(sku, "sku").toUpperCase();
@@ -59,7 +57,6 @@ public final class CartItem {
         return new CartItem(
                 cartItemId,
                 cartId,
-                tenantId,
                 organizationId,
                 variantId,
                 sku,
@@ -110,10 +107,6 @@ public final class CartItem {
 
     public String cartId() {
         return cartId;
-    }
-
-    public String tenantId() {
-        return tenantId;
     }
 
     public String organizationId() {

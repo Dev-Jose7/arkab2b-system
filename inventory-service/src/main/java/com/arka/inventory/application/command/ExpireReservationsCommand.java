@@ -1,6 +1,6 @@
 package com.arka.inventory.application.command;
 
 public record ExpireReservationsCommand(
-        String tenantId,
+        String organizationId,
         Integer batchSize,
         String actorUserId) {}

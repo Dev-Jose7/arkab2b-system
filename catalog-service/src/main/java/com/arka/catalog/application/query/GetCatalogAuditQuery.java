@@ -1,7 +1,7 @@
 package com.arka.catalog.application.query;
 
 public record GetCatalogAuditQuery(
-        String tenantId,
+        String organizationId,
         String targetType,
         String targetId,
         int page,

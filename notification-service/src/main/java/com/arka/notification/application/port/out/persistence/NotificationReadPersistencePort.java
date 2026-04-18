@@ -9,5 +9,5 @@ public interface NotificationReadPersistencePort {
 
     Mono<Long> count(NotificationSearchFilter filter);
 
-    Mono<NotificationMetricsProjection> metrics(String tenantId);
+    Mono<NotificationMetricsProjection> metrics(String organizationId);
 }

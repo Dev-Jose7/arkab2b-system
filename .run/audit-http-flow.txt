@@ -1,0 +1,16 @@
+# JWKS
+jwks_http=200
+{
+  "keys_count": 2
+}
+# register-founder
+register_http=200
+{"userId":"38169310-1b0b-4e0e-b999-2d5ab1b1f94f","email":"founder.audit.1776668417@arka.test","status":"ACTIVE"}# login
+login_http=200
+{
+  "sessionId": "223c7d74-447b-4453-aa61-eeb34c5bff33",
+  "accessToken": "string",
+  "refreshToken": "string",
+  "permissions_count": 0
+}
+# service-token claims

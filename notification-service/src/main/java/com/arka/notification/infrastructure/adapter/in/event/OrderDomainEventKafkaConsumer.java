@@ -2,16 +2,23 @@ package com.arka.notification.infrastructure.adapter.in.event;
 
 import com.arka.notification.application.command.EmitRelevantChangeNotificationCommand;
 import com.arka.notification.application.port.in.EmitRelevantChangeNotificationCommandUseCase;
+import com.arka.notification.infrastructure.adapter.in.security.IamSecurityPrincipal;
 import com.arka.notification.infrastructure.adapter.in.event.InboundDomainEventParser.ParsedInboundDomainEvent;
 import com.arka.notification.infrastructure.adapter.out.external.OrderContextLookupHttpAdapter;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Set;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -27,11 +34,13 @@ public class OrderDomainEventKafkaConsumer {
     private final String channel;
     private final Duration processingTimeout;
     private final Set<String> supportedOrderEventTypes;
+    private final MeterRegistry meterRegistry;
 
     public OrderDomainEventKafkaConsumer(
             EmitRelevantChangeNotificationCommandUseCase emitRelevantChangeNotificationCommandUseCase,
             InboundDomainEventParser inboundDomainEventParser,
             OrderContextLookupHttpAdapter orderContextLookupHttpAdapter,
+            ObjectProvider<MeterRegistry> meterRegistryProvider,
             @Value("${app.kafka.consumers.order-events.actor-id:notification-kafka-consumer}") String actorId,
             @Value("${app.kafka.consumers.order-events.channel:EMAIL}") String channel,
             @Value("${app.kafka.consumers.order-events.processing-timeout-ms:8000}") long processingTimeoutMs,
@@ -39,6 +48,7 @@ public class OrderDomainEventKafkaConsumer {
         this.emitRelevantChangeNotificationCommandUseCase = emitRelevantChangeNotificationCommandUseCase;
         this.inboundDomainEventParser = inboundDomainEventParser;
         this.orderContextLookupHttpAdapter = orderContextLookupHttpAdapter;
+        this.meterRegistry = meterRegistryProvider.getIfAvailable();
         this.actorId = actorId == null || actorId.isBlank() ? "notification-kafka-consumer" : actorId.trim();
         this.channel = channel == null || channel.isBlank() ? "EMAIL" : channel.trim().toUpperCase();
         this.processingTimeout = Duration.ofMillis(Math.max(500L, processingTimeoutMs));
@@ -61,9 +71,11 @@ public class OrderDomainEventKafkaConsumer {
     Mono<Void> consume(ConsumerRecord<String, String> record) {
         ParsedInboundDomainEvent event = inboundDomainEventParser.parse(record.value());
         if (event.eventType() == null || event.eventType().isBlank()) {
+            incrementKafkaMetric("failed", "missing-event-type");
             return Mono.error(new IllegalArgumentException("Inbound event missing eventType"));
         }
         if (!supportedOrderEventTypes.contains(event.eventType())) {
+            incrementKafkaMetric("skipped", event.eventType());
             log.debug("Skipping unsupported order event. topic={} partition={} offset={} eventType={}",
                     record.topic(),
                     record.partition(),
@@ -74,13 +86,15 @@ public class OrderDomainEventKafkaConsumer {
 
         return resolveContext(event)
                 .flatMap(context -> {
-                    String tenantId = context.tenantId();
+                    String organizationId = context.organizationId();
                     String recipientRef = context.recipientRef();
                     String effectiveActorId = context.actorId();
+                    Authentication authentication = technicalAuthentication(context);
 
-                    if (tenantId == null || tenantId.isBlank()) {
+                    if (organizationId == null || organizationId.isBlank()) {
+                        incrementKafkaMetric("skipped", event.eventType());
                         log.warn(
-                                "Skipping inbound event without tenant context. topic={} partition={} offset={} eventType={} aggregateId={}",
+                                "Skipping inbound event without organization context. topic={} partition={} offset={} eventType={} aggregateId={}",
                                 record.topic(),
                                 record.partition(),
                                 record.offset(),
@@ -89,6 +103,7 @@ public class OrderDomainEventKafkaConsumer {
                         return Mono.just(Boolean.FALSE);
                     }
                     if (recipientRef == null || recipientRef.isBlank()) {
+                        incrementKafkaMetric("skipped", event.eventType());
                         log.warn(
                                 "Skipping inbound event without recipient context. topic={} partition={} offset={} eventType={} aggregateId={}",
                                 record.topic(),
@@ -100,7 +115,7 @@ public class OrderDomainEventKafkaConsumer {
                     }
 
                     EmitRelevantChangeNotificationCommand command = new EmitRelevantChangeNotificationCommand(
-                            tenantId,
+                            organizationId,
                             effectiveActorId,
                             event.eventId(),
                             event.eventType(),
@@ -113,6 +128,7 @@ public class OrderDomainEventKafkaConsumer {
 
                     return emitRelevantChangeNotificationCommandUseCase
                             .handle(command)
+                            .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
                             .doOnSuccess(result -> log.info(
                                     "Order event consumed and notification emitted. topic={} partition={} offset={} eventType={} notificationId={}",
                                     record.topic(),
@@ -120,6 +136,7 @@ public class OrderDomainEventKafkaConsumer {
                                     record.offset(),
                                     event.eventType(),
                                     result.notificationId()))
+                            .doOnSuccess(result -> incrementKafkaMetric("processed", event.eventType()))
                             .thenReturn(Boolean.TRUE);
                 })
                 .defaultIfEmpty(Boolean.FALSE)
@@ -127,6 +144,7 @@ public class OrderDomainEventKafkaConsumer {
                     if (Boolean.TRUE.equals(processed)) {
                         return Mono.empty();
                     }
+                    incrementKafkaMetric("skipped", event.eventType());
                     log.warn(
                             "Skipping inbound event without resolved context. topic={} partition={} offset={} eventType={} aggregateId={}",
                             record.topic(),
@@ -135,17 +153,32 @@ public class OrderDomainEventKafkaConsumer {
                             event.eventType(),
                             event.aggregateId());
                     return Mono.empty();
-                });
+                })
+                .doOnError(error -> incrementKafkaMetric("failed", event.eventType()))
+                .then();
     }
 
     private Mono<ResolvedContext> resolveContext(ParsedInboundDomainEvent event) {
-        String tenantId = event.tenantId();
+        String organizationId = firstNonBlank(event.organizationId(), event.organizationId());
         String recipientRef = event.organizationId();
         String parsedActorId = event.actorId();
 
-        if ((tenantId != null && !tenantId.isBlank()) && (recipientRef != null && !recipientRef.isBlank())) {
+        if ((organizationId != null && !organizationId.isBlank()) && (recipientRef != null && !recipientRef.isBlank())) {
             String effectiveActorId = parsedActorId == null || parsedActorId.isBlank() ? actorId : parsedActorId;
-            return Mono.just(new ResolvedContext(tenantId, recipientRef, effectiveActorId));
+            return Mono.just(new ResolvedContext(organizationId, recipientRef, effectiveActorId));
+        }
+
+        if (isInventoryEvent(event)) {
+            String resolvedOrganizationId = firstNonBlank(event.organizationId(), organizationId);
+            String resolvedRecipientRef = firstNonBlank(recipientRef, event.organizationId(), resolvedOrganizationId);
+            String resolvedActorId = firstNonBlank(parsedActorId, actorId);
+            if (resolvedOrganizationId != null && !resolvedOrganizationId.isBlank()
+                    && resolvedRecipientRef != null && !resolvedRecipientRef.isBlank()) {
+                return Mono.just(new ResolvedContext(
+                        resolvedOrganizationId,
+                        resolvedRecipientRef,
+                        resolvedActorId));
+            }
         }
 
         Mono<OrderContextLookupHttpAdapter.OrderContext> lookup;
@@ -156,13 +189,24 @@ public class OrderDomainEventKafkaConsumer {
         }
 
         return lookup
-                .defaultIfEmpty(new OrderContextLookupHttpAdapter.OrderContext(null, null, null))
+                .defaultIfEmpty(new OrderContextLookupHttpAdapter.OrderContext(null, null))
                 .map(context -> {
-                    String resolvedTenantId = firstNonBlank(tenantId, context.tenantId(), context.organizationId());
-                    String resolvedRecipientRef = firstNonBlank(recipientRef, context.organizationId(), resolvedTenantId);
+                    String resolvedOrganizationId =
+                            firstNonBlank(organizationId, context.organizationId());
+                    String resolvedRecipientRef =
+                            firstNonBlank(recipientRef, context.organizationId(), resolvedOrganizationId);
                     String resolvedActorId = firstNonBlank(parsedActorId, context.actorId(), actorId);
-                    return new ResolvedContext(resolvedTenantId, resolvedRecipientRef, resolvedActorId);
+                    return new ResolvedContext(resolvedOrganizationId, resolvedRecipientRef, resolvedActorId);
                 });
+    }
+
+    private boolean isInventoryEvent(ParsedInboundDomainEvent event) {
+        String eventType = event.eventType() == null ? "" : event.eventType();
+        String aggregateType = event.aggregateType() == null ? "" : event.aggregateType();
+        return eventType.startsWith("Stock")
+                || eventType.contains("Availability")
+                || eventType.startsWith("Inventory")
+                || "InventoryBalance".equalsIgnoreCase(aggregateType);
     }
 
     private String firstNonBlank(String... values) {
@@ -178,6 +222,42 @@ public class OrderDomainEventKafkaConsumer {
         return null;
     }
 
-    private record ResolvedContext(String tenantId, String recipientRef, String actorId) {
+    private record ResolvedContext(
+            String organizationId,
+            String recipientRef,
+            String actorId) {
+    }
+
+    private Authentication technicalAuthentication(ResolvedContext context) {
+        IamSecurityPrincipal principal = new IamSecurityPrincipal(
+                context.actorId(),
+                context.organizationId(),
+                "",
+                Set.of("ROLE_TRUSTED_SERVICE"));
+        return UsernamePasswordAuthenticationToken.authenticated(
+                principal,
+                null,
+                Set.of(new SimpleGrantedAuthority("ROLE_TRUSTED_SERVICE")));
+    }
+
+    private void incrementKafkaMetric(String outcome, String eventType) {
+        if (meterRegistry == null) {
+            return;
+        }
+        meterRegistry
+                .counter(
+                        "arka.notification.kafka.order_events",
+                        "outcome",
+                        normalizeTag(outcome),
+                        "eventType",
+                        normalizeTag(eventType))
+                .increment();
+    }
+
+    private String normalizeTag(String value) {
+        if (value == null || value.isBlank()) {
+            return "unknown";
+        }
+        return value.trim().replace(' ', '_');
     }
 }

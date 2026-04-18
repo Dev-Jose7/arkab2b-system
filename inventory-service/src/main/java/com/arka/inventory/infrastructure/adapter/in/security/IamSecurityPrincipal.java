@@ -12,18 +12,15 @@ import org.springframework.security.oauth2.jwt.Jwt;
 public final class IamSecurityPrincipal {
 
     private final String userId;
-    private final String tenantId;
+    private final String organizationId;
     private final Set<String> roles;
 
-    public IamSecurityPrincipal(String userId, String tenantId, Set<String> roles) {
+    public IamSecurityPrincipal(String userId, String organizationId, Set<String> roles) {
         if (userId == null || userId.isBlank()) {
             throw new IllegalArgumentException("userId is required");
         }
-        if (tenantId == null || tenantId.isBlank()) {
-            throw new IllegalArgumentException("tenantId is required");
-        }
         this.userId = userId.trim();
-        this.tenantId = tenantId.trim();
+        this.organizationId = organizationId == null ? "" : organizationId.trim();
         this.roles = normalizeRoles(roles);
     }
 
@@ -31,8 +28,8 @@ public final class IamSecurityPrincipal {
         return userId;
     }
 
-    public String tenantId() {
-        return tenantId;
+    public String organizationId() {
+        return organizationId;
     }
 
     public Set<String> roles() {
@@ -41,6 +38,10 @@ public final class IamSecurityPrincipal {
 
     public boolean isInventoryAdmin() {
         return roles.contains("INVENTORY_ADMIN") || roles.contains("ROLE_INVENTORY_ADMIN");
+    }
+
+    public boolean isTrustedService() {
+        return roles.contains("TRUSTED_SERVICE") || roles.contains("ROLE_TRUSTED_SERVICE");
     }
 
     public static IamSecurityPrincipal fromAuthentication(Authentication authentication) {
@@ -68,8 +69,8 @@ public final class IamSecurityPrincipal {
 
     private static IamSecurityPrincipal fromJwt(Jwt jwt, Collection<? extends GrantedAuthority> authorities) {
         String subject = jwt.getSubject();
-        String tenantId = claimString(jwt, "tenant_id", claimString(jwt, "organization_id", ""));
-        return new IamSecurityPrincipal(subject, tenantId, authorities(authorities));
+        String organizationId = claimString(jwt, "organization_id", claimString(jwt, "organization_id", ""));
+        return new IamSecurityPrincipal(subject, organizationId, authorities(authorities));
     }
 
     private static String claimString(Jwt jwt, String claim, String fallback) {

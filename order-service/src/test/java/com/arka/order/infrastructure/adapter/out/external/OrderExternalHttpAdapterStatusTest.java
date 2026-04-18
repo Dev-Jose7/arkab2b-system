@@ -59,7 +59,7 @@ class OrderExternalHttpAdapterStatusTest {
     @Test
     void inventoryReservationShouldTreat404AsInvalidAndOther4xxAsErrors() {
         InventoryReservationHttpAdapter notFound = reservationAdapter(HttpStatus.NOT_FOUND, "{\"error\":\"not-found\"}");
-        StepVerifier.create(notFound.validateReservation("tenant-1", "res-1", "SKU-1", 2))
+        StepVerifier.create(notFound.validateReservation("organization-1", "res-1", "SKU-1", 2))
                 .assertNext(result -> {
                     assertFalse(result.reservationConfirmed());
                     assertFalse(result.commitableAvailable());
@@ -67,37 +67,37 @@ class OrderExternalHttpAdapterStatusTest {
                 .verifyComplete();
 
         InventoryReservationHttpAdapter badRequest = reservationAdapter(HttpStatus.BAD_REQUEST, "{\"error\":\"bad\"}");
-        StepVerifier.create(badRequest.validateReservation("tenant-1", "res-1", "SKU-1", 2))
+        StepVerifier.create(badRequest.validateReservation("organization-1", "res-1", "SKU-1", 2))
                 .expectError(IllegalArgumentException.class)
                 .verify();
 
         InventoryReservationHttpAdapter unauthorized =
                 reservationAdapter(HttpStatus.UNAUTHORIZED, "{\"error\":\"unauthorized\"}");
-        StepVerifier.create(unauthorized.validateReservation("tenant-1", "res-1", "SKU-1", 2))
+        StepVerifier.create(unauthorized.validateReservation("organization-1", "res-1", "SKU-1", 2))
                 .expectError(SecurityException.class)
                 .verify();
 
         InventoryReservationHttpAdapter forbidden =
                 reservationAdapter(HttpStatus.FORBIDDEN, "{\"error\":\"forbidden\"}");
-        StepVerifier.create(forbidden.validateReservation("tenant-1", "res-1", "SKU-1", 2))
+        StepVerifier.create(forbidden.validateReservation("organization-1", "res-1", "SKU-1", 2))
                 .expectError(SecurityException.class)
                 .verify();
 
         InventoryReservationHttpAdapter conflict =
                 reservationAdapter(HttpStatus.CONFLICT, "{\"error\":\"conflict\"}");
-        StepVerifier.create(conflict.validateReservation("tenant-1", "res-1", "SKU-1", 2))
+        StepVerifier.create(conflict.validateReservation("organization-1", "res-1", "SKU-1", 2))
                 .expectError(IllegalStateException.class)
                 .verify();
 
         InventoryReservationHttpAdapter unprocessable =
                 reservationAdapter(HttpStatus.UNPROCESSABLE_ENTITY, "{\"error\":\"unprocessable\"}");
-        StepVerifier.create(unprocessable.validateReservation("tenant-1", "res-1", "SKU-1", 2))
+        StepVerifier.create(unprocessable.validateReservation("organization-1", "res-1", "SKU-1", 2))
                 .expectError(IllegalStateException.class)
                 .verify();
 
         InventoryReservationHttpAdapter serverError =
                 reservationAdapter(HttpStatus.INTERNAL_SERVER_ERROR, "{\"error\":\"boom\"}");
-        StepVerifier.create(serverError.validateReservation("tenant-1", "res-1", "SKU-1", 2))
+        StepVerifier.create(serverError.validateReservation("organization-1", "res-1", "SKU-1", 2))
                 .expectError(IllegalStateException.class)
                 .verify();
     }
@@ -113,7 +113,7 @@ class OrderExternalHttpAdapterStatusTest {
                   "countryPolicy":{"policyVersion":9,"currencyCode":"COP","status":"ACTIVE"}
                 }
                 """);
-        StepVerifier.create(ok.resolveCheckoutContext("tenant-1", "org-1", "addr-1", "CO"))
+        StepVerifier.create(ok.resolveCheckoutContext("organization-1", "addr-1", "CO"))
                 .assertNext(context -> {
                     assertTrue(context.policyActive());
                     assertTrue(context.addressValid());
@@ -121,39 +121,39 @@ class OrderExternalHttpAdapterStatusTest {
                 .verifyComplete();
 
         DirectoryCheckoutHttpAdapter notFound = checkoutAdapter(HttpStatus.NOT_FOUND, "{\"error\":\"not-found\"}");
-        StepVerifier.create(notFound.resolveCheckoutContext("tenant-1", "org-1", "addr-1", "CO"))
+        StepVerifier.create(notFound.resolveCheckoutContext("organization-1", "addr-1", "CO"))
                 .expectError(IllegalArgumentException.class)
                 .verify();
 
         DirectoryCheckoutHttpAdapter badRequest = checkoutAdapter(HttpStatus.BAD_REQUEST, "{\"error\":\"bad\"}");
-        StepVerifier.create(badRequest.resolveCheckoutContext("tenant-1", "org-1", "addr-1", "CO"))
+        StepVerifier.create(badRequest.resolveCheckoutContext("organization-1", "addr-1", "CO"))
                 .expectError(IllegalArgumentException.class)
                 .verify();
 
         DirectoryCheckoutHttpAdapter unauthorized = checkoutAdapter(HttpStatus.UNAUTHORIZED, "{\"error\":\"unauthorized\"}");
-        StepVerifier.create(unauthorized.resolveCheckoutContext("tenant-1", "org-1", "addr-1", "CO"))
+        StepVerifier.create(unauthorized.resolveCheckoutContext("organization-1", "addr-1", "CO"))
                 .expectError(SecurityException.class)
                 .verify();
 
         DirectoryCheckoutHttpAdapter forbidden = checkoutAdapter(HttpStatus.FORBIDDEN, "{\"error\":\"forbidden\"}");
-        StepVerifier.create(forbidden.resolveCheckoutContext("tenant-1", "org-1", "addr-1", "CO"))
+        StepVerifier.create(forbidden.resolveCheckoutContext("organization-1", "addr-1", "CO"))
                 .expectError(SecurityException.class)
                 .verify();
 
         DirectoryCheckoutHttpAdapter conflict = checkoutAdapter(HttpStatus.CONFLICT, "{\"error\":\"conflict\"}");
-        StepVerifier.create(conflict.resolveCheckoutContext("tenant-1", "org-1", "addr-1", "CO"))
+        StepVerifier.create(conflict.resolveCheckoutContext("organization-1", "addr-1", "CO"))
                 .expectError(IllegalStateException.class)
                 .verify();
 
         DirectoryCheckoutHttpAdapter unprocessable =
                 checkoutAdapter(HttpStatus.UNPROCESSABLE_ENTITY, "{\"error\":\"unprocessable\"}");
-        StepVerifier.create(unprocessable.resolveCheckoutContext("tenant-1", "org-1", "addr-1", "CO"))
+        StepVerifier.create(unprocessable.resolveCheckoutContext("organization-1", "addr-1", "CO"))
                 .expectError(IllegalStateException.class)
                 .verify();
 
         DirectoryCheckoutHttpAdapter serverError =
                 checkoutAdapter(HttpStatus.INTERNAL_SERVER_ERROR, "{\"error\":\"boom\"}");
-        StepVerifier.create(serverError.resolveCheckoutContext("tenant-1", "org-1", "addr-1", "CO"))
+        StepVerifier.create(serverError.resolveCheckoutContext("organization-1", "addr-1", "CO"))
                 .expectError(IllegalStateException.class)
                 .verify();
     }

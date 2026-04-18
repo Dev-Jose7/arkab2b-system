@@ -1,6 +1,6 @@
 package com.arka.inventory.application.query;
 
 public record ListStockByWarehouseQuery(
-        String tenantId,
+        String organizationId,
         String warehouseId,
         String actorUserId) {}

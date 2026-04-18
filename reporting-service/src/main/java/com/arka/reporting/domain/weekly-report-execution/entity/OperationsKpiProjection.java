@@ -5,7 +5,7 @@ import java.time.Instant;
 
 public record OperationsKpiProjection(
         String projectionId,
-        String tenantId,
+        String organizationId,
         String period,
         String kpiName,
         BigDecimal kpiValue,

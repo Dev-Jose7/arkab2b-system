@@ -1,6 +1,6 @@
 package com.arka.inventory.application.query;
 
 public record ListReservationsByCartQuery(
-        String tenantId,
+        String organizationId,
         String cartId,
         String actorUserId) {}

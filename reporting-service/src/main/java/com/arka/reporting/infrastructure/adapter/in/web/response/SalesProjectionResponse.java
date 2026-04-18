@@ -4,11 +4,10 @@ import java.math.BigDecimal;
 
 public record SalesProjectionResponse(
         String projectionId,
-        String tenantId,
+        String organizationId,
         String period,
         BigDecimal totalSales,
         BigDecimal paidAmount,
         BigDecimal pendingAmount,
         long confirmedOrders,
-        BigDecimal averageTicket) {
-}
+        BigDecimal averageTicket) {}

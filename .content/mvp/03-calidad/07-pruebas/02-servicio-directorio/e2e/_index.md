@@ -26,14 +26,14 @@ Validar journeys de negocio de directorio, rutas de rechazo semantico y coherenc
 | DIR-E2E-007 | consumo `UserBlocked` desactiva profile local | IAM publica bloqueo -> Directory consume | perfil local `INACTIVE` + auditoria | FR-009, NFR-006 |
 | DIR-E2E-008 | politica pais vigente para operacion regional | configurar pais -> resolver politica en runtime | politica correcta por `countryCode` y version | FR-011, RN-LOC-01 |
 | DIR-E2E-009 | sin fallback global por pais faltante | operar sin politica vigente | bloqueo con `configuracion_pais_no_disponible` + auditoria | FR-011, NFR-011, I-LOC-01 |
-| DIR-E2E-010 | aislamiento tenant en endpoints admin y consultas | actor tenant A sobre recursos tenant B | rechazo `acceso_cruzado_detectado` | FR-009, NFR-005, D-CROSS-01 |
+| DIR-E2E-010 | aislamiento organization en endpoints admin y consultas | actor organization A sobre recursos organization B | rechazo `acceso_cruzado_detectado` | FR-009, NFR-005, D-CROSS-01 |
 | DIR-E2E-011 | resiliencia outbox/eventos Directory | mutacion exitosa con falla transitoria de broker | decision persiste, outbox queda pendiente y reintenta | NFR-007, NFR-006 |
 | DIR-E2E-012 | trazabilidad tecnica completa | mutacion legal/contacto/direccion + publicacion evento | cadena `request -> db -> audit -> outbox -> evento` con correlacion | NFR-006, NFR-009 |
 
 ## Criterio de exito E2E
 - Escenarios `DIR-E2E-001..012` disenados para ejecucion reproducible; el estado final requiere corrida y evidencia.
 - En corrida de certificacion, los flujos criticos (`002`, `005`, `009`, `010`) deben ejecutarse sin desviaciones semanticas.
-- En corrida de certificacion, seguridad tenant/rol y regionalizacion obligatoria deben verificarse de punta a punta.
+- En corrida de certificacion, seguridad organization/rol y regionalizacion obligatoria deben verificarse de punta a punta.
 
 ## Evidencia minima por corrida
 - Reporte por escenario con estado (`Implementado`/`Ejecutado`/`Validado con evidencia`).

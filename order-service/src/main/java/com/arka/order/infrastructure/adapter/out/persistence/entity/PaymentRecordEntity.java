@@ -9,8 +9,8 @@ import org.springframework.data.relational.core.mapping.Table;
 public record PaymentRecordEntity(
         @Id String paymentRecordId,
         String orderId,
-        String tenantId,
         String organizationId,
+
         String paymentReference,
         BigDecimal amount,
         String method,

@@ -10,10 +10,10 @@ public interface ReactiveChannelPolicyRepository extends ReactiveCrudRepository<
     @Query("""
             SELECT *
             FROM channel_policies
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND source_event_type = :sourceEventType
               AND active = TRUE
             LIMIT 1
             """)
-    Mono<ChannelPolicyRow> findActive(String tenantId, String sourceEventType);
+    Mono<ChannelPolicyRow> findActive(String organizationId, String sourceEventType);
 }

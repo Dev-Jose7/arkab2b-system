@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 public record CheckoutVariantResolutionResult(
-        String tenantId,
+        String organizationId,
         String productId,
         String variantId,
         String sku,

@@ -1,7 +1,7 @@
 package com.arka.notification.application.command;
 
 public record EmitRelevantChangeNotificationCommand(
-        String tenantId,
+        String organizationId,
         String actorId,
         String sourceEventId,
         String sourceEventType,

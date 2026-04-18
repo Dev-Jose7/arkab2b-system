@@ -4,24 +4,24 @@ import java.time.Instant;
 
 public final class OrderCreatedFromValidatedCart extends AbstractOrderDomainEvent {
 
-    private final String tenantId;
+    private final String organizationId;
     private final String cartId;
     private final String orderNumber;
 
     public OrderCreatedFromValidatedCart(
             Instant occurredAt,
             String orderId,
-            String tenantId,
+            String organizationId,
             String cartId,
             String orderNumber) {
         super("OrderCreatedFromValidatedCart", occurredAt, orderId, "Order");
-        this.tenantId = tenantId;
+        this.organizationId = organizationId;
         this.cartId = cartId;
         this.orderNumber = orderNumber;
     }
 
-    public String tenantId() {
-        return tenantId;
+    public String organizationId() {
+        return organizationId;
     }
 
     public String cartId() {

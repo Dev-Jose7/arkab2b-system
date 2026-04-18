@@ -3,7 +3,7 @@ package com.arka.catalog.application.port.out.persistence;
 import java.time.Instant;
 
 public record CatalogSearchFilter(
-        String tenantId,
+        String organizationId,
         String text,
         String brandId,
         String categoryId,

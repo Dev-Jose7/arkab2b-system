@@ -4,5 +4,5 @@ import reactor.core.publisher.Mono;
 
 public interface RecipientResolverPort {
 
-    Mono<RecipientResolution> resolve(String tenantId, String recipientRef, String channel);
+    Mono<RecipientResolution> resolve(String organizationId, String recipientRef, String channel);
 }

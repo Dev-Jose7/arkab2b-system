@@ -10,7 +10,7 @@ class InMemoryCommitableAvailabilityCacheAdapterTest {
 
     @Test
     void shouldReturnEmptyWhenKeyIsMissing() {
-        StepVerifier.create(adapter.find("tenant-1", "wh-1", "SKU-1"))
+        StepVerifier.create(adapter.find("organization-1", "wh-1", "SKU-1"))
                 .verifyComplete();
     }
 
@@ -23,7 +23,7 @@ class InMemoryCommitableAvailabilityCacheAdapterTest {
 
     @Test
     void shouldCompleteEvict() {
-        StepVerifier.create(adapter.evict("tenant-1", "wh-1", "SKU-1"))
+        StepVerifier.create(adapter.evict("organization-1", "wh-1", "SKU-1"))
                 .verifyComplete();
     }
 }

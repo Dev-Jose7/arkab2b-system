@@ -6,12 +6,12 @@ url: "/mvp/calidad/pruebas/servicio-pedidos/"
 ---
 
 ## Objetivo
-Asegurar el flujo comercial completo de carrito, checkout, pedido y pago manual, con transiciones validas, aislamiento tenant y trazabilidad operacional.
+Asegurar el flujo comercial completo de carrito, checkout, pedido y pago manual, con transiciones validas, aislamiento organization y trazabilidad operacional.
 
 ## Alcance de calidad del servicio
 - Flujos HTTP de carrito, validacion/confirmacion de checkout, ciclo de vida del pedido, pagos y consultas.
 - Flujos async: publicacion de eventos Order por outbox y consumo idempotente de eventos de Inventory, Catalog, Directory e IAM.
-- Reglas de seguridad: tenant/ownership, RBAC por accion y controles de idempotencia en mutaciones.
+- Reglas de seguridad: organization/ownership, RBAC por accion y controles de idempotencia en mutaciones.
 
 ## Fuentes de verdad usadas
 - Producto: `FR-004`, `FR-005`, `FR-006`, `FR-008`, `FR-010`, `FR-011`, `NFR-004`, `NFR-005`, `NFR-006`, `NFR-007`, `NFR-009`, `NFR-011`.
@@ -19,10 +19,10 @@ Asegurar el flujo comercial completo de carrito, checkout, pedido y pago manual,
 - Arquitectura Order: contratos API/eventos, seguridad, datos y runtime.
 
 ## Datos de entrada comunes
-- `tenant` principal: `org-co-001`.
-- `tenant` alterno: `org-ec-001`.
+- `organization` principal: `org-co-001`.
+- `organization` alterno: `org-ec-001`.
 - actores base:
-  - `tenant_user`.
+  - `organization_user`.
   - `arka_operator`.
   - `arka_admin`.
   - `system_scheduler`.

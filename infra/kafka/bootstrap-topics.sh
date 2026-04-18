@@ -4,9 +4,22 @@ set -euo pipefail
 BOOTSTRAP_SERVER="${1:-kafka:9092}"
 PARTITIONS="${KAFKA_TOPIC_PARTITIONS:-3}"
 REPLICATION="${KAFKA_TOPIC_REPLICATION_FACTOR:-1}"
+EXISTING_TOPICS=""
+
+refresh_existing_topics() {
+  EXISTING_TOPICS="$(
+    /opt/kafka/bin/kafka-topics.sh \
+      --bootstrap-server "${BOOTSTRAP_SERVER}" \
+      --list 2>/dev/null || true
+  )"
+}
 
 create_topic() {
   local topic="$1"
+  if printf '%s\n' "${EXISTING_TOPICS}" | grep -Fxq "${topic}"; then
+    echo "topic-ready ${topic}"
+    return 0
+  fi
   /opt/kafka/bin/kafka-topics.sh \
     --bootstrap-server "${BOOTSTRAP_SERVER}" \
     --create \
@@ -14,6 +27,7 @@ create_topic() {
     --topic "${topic}" \
     --partitions "${PARTITIONS}" \
     --replication-factor "${REPLICATION}" >/dev/null
+  refresh_existing_topics
   echo "topic-ready ${topic}"
 }
 
@@ -45,6 +59,8 @@ TOPICS=(
   "reporting.analytic-fact-applied.v1"
   "reporting.mutation.v1"
 )
+
+refresh_existing_topics
 
 for topic in "${TOPICS[@]}"; do
   create_topic "${topic}"

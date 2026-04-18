@@ -31,7 +31,7 @@ public class ReservationLedgerR2dbcAdapter implements ReservationLedgerPersisten
     }
 
     @Override
-    public Flux<ReservationLedger> findByTenantAndReservation(String tenantId, String reservationId) {
-        return repository.findByTenantAndReservation(tenantId, reservationId).map(rowMapper::toDomain);
+    public Flux<ReservationLedger> findByOrganizationAndReservation(String organizationId, String reservationId) {
+        return repository.findByOrganizationAndReservation(organizationId, reservationId).map(rowMapper::toDomain);
     }
 }

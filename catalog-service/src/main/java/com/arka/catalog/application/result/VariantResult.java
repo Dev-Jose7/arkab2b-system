@@ -5,7 +5,7 @@ import java.util.List;
 
 public record VariantResult(
         String variantId,
-        String tenantId,
+        String organizationId,
         String productId,
         String sku,
         String name,

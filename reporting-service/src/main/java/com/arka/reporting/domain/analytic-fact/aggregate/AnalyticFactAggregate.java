@@ -29,7 +29,7 @@ public final class AnalyticFactAggregate {
         fact.apply(now);
         domainEvents.add(new AnalyticFactApplied(
                 fact.factId().value(),
-                fact.tenantId().value(),
+                fact.organizationId().value(),
                 fact.sourceEventId().value(),
                 fact.factType().name(),
                 now));

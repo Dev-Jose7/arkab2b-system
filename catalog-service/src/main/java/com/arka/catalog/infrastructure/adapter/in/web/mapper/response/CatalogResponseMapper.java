@@ -33,7 +33,7 @@ public class CatalogResponseMapper {
     public ProductResponse toResponse(ProductResult result) {
         return new ProductResponse(
                 result.productId(),
-                result.tenantId(),
+                result.organizationId(),
                 result.productCode(),
                 result.name(),
                 result.description(),
@@ -49,7 +49,7 @@ public class CatalogResponseMapper {
         List<VariantAttributeResponse> attributes = result.attributes().stream().map(this::toResponse).toList();
         return new VariantResponse(
                 result.variantId(),
-                result.tenantId(),
+                result.organizationId(),
                 result.productId(),
                 result.sku(),
                 result.name(),
@@ -70,7 +70,7 @@ public class CatalogResponseMapper {
     public PriceResponse toResponse(PriceResult result) {
         return new PriceResponse(
                 result.priceId(),
-                result.tenantId(),
+                result.organizationId(),
                 result.variantId(),
                 result.priceType(),
                 result.amount(),
@@ -85,7 +85,7 @@ public class CatalogResponseMapper {
     public CatalogOfferResponse toResponse(CatalogOfferResult result) {
         return new CatalogOfferResponse(
                 result.offerId(),
-                result.tenantId(),
+                result.organizationId(),
                 result.productId(),
                 result.variantId(),
                 result.priceId(),
@@ -125,7 +125,7 @@ public class CatalogResponseMapper {
 
     public CheckoutVariantResolutionResponse toResponse(CheckoutVariantResolutionResult result) {
         return new CheckoutVariantResolutionResponse(
-                result.tenantId(),
+                result.organizationId(),
                 result.productId(),
                 result.variantId(),
                 result.sku(),
@@ -155,7 +155,7 @@ public class CatalogResponseMapper {
     public CatalogAuditEntryResponse toResponse(CatalogAuditEntryResult result) {
         return new CatalogAuditEntryResponse(
                 result.auditId(),
-                result.tenantId(),
+                result.organizationId(),
                 result.actorId(),
                 result.actionType(),
                 result.targetType(),

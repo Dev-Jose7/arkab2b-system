@@ -7,9 +7,9 @@ public interface ReportingAuditPort {
 
     Mono<Void> record(ReportingAuditEntry entry);
 
-    Mono<ReportingAuditEntry> findByIdempotency(String tenantId, String actionType, String idempotencyKey);
+    Mono<ReportingAuditEntry> findByIdempotency(String organizationId, String actionType, String idempotencyKey);
 
-    Flux<ReportingAuditEntry> findByTarget(String tenantId, String targetType, String targetId, int offset, int limit);
+    Flux<ReportingAuditEntry> findByTarget(String organizationId, String targetType, String targetId, int offset, int limit);
 
-    Mono<Long> countByTarget(String tenantId, String targetType, String targetId);
+    Mono<Long> countByTarget(String organizationId, String targetType, String targetId);
 }

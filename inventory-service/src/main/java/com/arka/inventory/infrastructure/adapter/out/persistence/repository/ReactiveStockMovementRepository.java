@@ -9,16 +9,16 @@ import reactor.core.publisher.Flux;
 public interface ReactiveStockMovementRepository extends ReactiveCrudRepository<StockMovementRow, String> {
 
     @Query("""
-            SELECT movement_id, tenant_id, stock_item_id, warehouse_id, sku, movement_type, delta_qty,
+            SELECT movement_id, organization_id, stock_item_id, warehouse_id, sku, movement_type, delta_qty,
                    reason, reservation_id, order_id, correlation_id, created_at
             FROM stock_movements
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND stock_item_id = :stockItemId
             ORDER BY created_at DESC
             LIMIT :limit
             """)
-    Flux<StockMovementRow> findByTenantAndStockItem(
-            @Param("tenantId") String tenantId,
+    Flux<StockMovementRow> findByOrganizationAndStockItem(
+            @Param("organizationId") String organizationId,
             @Param("stockItemId") String stockItemId,
             @Param("limit") int limit);
 }

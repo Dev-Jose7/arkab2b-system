@@ -8,9 +8,9 @@ import reactor.core.publisher.Mono;
 
 public interface ReactiveVariantAttributeRepository extends ReactiveCrudRepository<VariantAttributeRow, String> {
 
-    @Query("SELECT * FROM variant_attributes WHERE tenant_id = :tenantId AND variant_id = :variantId ORDER BY attribute_code")
-    Flux<VariantAttributeRow> findByTenantAndVariant(String tenantId, String variantId);
+    @Query("SELECT * FROM variant_attributes WHERE organization_id = :organizationId AND variant_id = :variantId ORDER BY attribute_code")
+    Flux<VariantAttributeRow> findByOrganizationAndVariant(String organizationId, String variantId);
 
-    @Query("DELETE FROM variant_attributes WHERE tenant_id = :tenantId AND variant_id = :variantId")
-    Mono<Integer> deleteByTenantAndVariant(String tenantId, String variantId);
+    @Query("DELETE FROM variant_attributes WHERE organization_id = :organizationId AND variant_id = :variantId")
+    Mono<Integer> deleteByOrganizationAndVariant(String organizationId, String variantId);
 }

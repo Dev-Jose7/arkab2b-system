@@ -9,7 +9,7 @@ import org.springframework.data.relational.core.mapping.Table;
 public record NotificationAttemptRow(
         @Id
         @Column("attempt_id") String attemptId,
-        @Column("tenant_id") String tenantId,
+        @Column("organization_id") String organizationId,
         @Column("notification_id") String notificationId,
         @Column("attempt_number") Integer attemptNumber,
         @Column("result_status") String resultStatus,

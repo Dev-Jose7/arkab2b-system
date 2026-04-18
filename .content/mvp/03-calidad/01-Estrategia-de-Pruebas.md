@@ -40,7 +40,7 @@ Requisitos no funcionales del ciclo:
 - `NFR-002` Calidad de reportes.
 - `NFR-003` Disponibilidad operativa.
 - `NFR-004` Control de sobreventa e integridad de stock.
-- `NFR-005` Aislamiento por tenant.
+- `NFR-005` Aislamiento por organization.
 - `NFR-006` Trazabilidad y auditoria.
 - `NFR-007` Resiliencia y observabilidad operacional minima.
 - `NFR-008` Presupuestos de tiempo operacional.
@@ -60,7 +60,7 @@ Baseline normativo de dominio que calidad debe verificar:
 - Invariantes de datos `D-*`.
 
 Agrupacion minima obligatoria para pruebas:
-- Acceso/tenant: `RN-ACC-*`, `I-ACC-*`, `D-ACC-*`, `D-CROSS-01`.
+- Acceso/organization: `RN-ACC-*`, `I-ACC-*`, `D-ACC-*`, `D-CROSS-01`.
 - Inventario/reservas: `RN-INV-*`, `RN-RES-*`, `I-INV-*`, `D-INV-*`.
 - Pedido/pago: `RN-ORD-*`, `RN-PAY-*`, `I-ORD-*`, `I-PAY-*`, `D-ORD-*`, `D-PAY-*`.
 - Notificacion/reporting: `RN-NOTI-*`, `RN-REP-*`, `I-NOTI-*`, `I-REP-*`.
@@ -132,11 +132,11 @@ Servicios obligatorios en el alcance de calidad `MVP`:
 |---|---|---|---|
 | Producto (FR/NFR) | reglas puntuales por caso de uso | endpoints/eventos y semantica de error por contrato | journeys completos contra FR/NFR priorizados |
 | Dominio (invariantes/reglas/eventos) | `RN-*`, `I-*`, `D-*` y transiciones validas/invalidas | propagacion de eventos, idempotencia y dedupe en infraestructura | consistencia de comportamiento end-to-end y compensaciones |
-| Arquitectura (contratos/resiliencia/seguridad/rendimiento) | validaciones de politicas locales | contratos API/eventos, retry, DLQ, aislamiento tenant, auditoria, datos | cumplimiento de runtime critico, presupuesto de latencia y resiliencia operacional |
+| Arquitectura (contratos/resiliencia/seguridad/rendimiento) | validaciones de politicas locales | contratos API/eventos, retry, DLQ, aislamiento organization, auditoria, datos | cumplimiento de runtime critico, presupuesto de latencia y resiliencia operacional |
 
 ### 2.3 Politica de priorizacion por riesgo y criticidad
 Orden de prioridad para construir y ejecutar pruebas:
-1. Riesgo `P1`: seguridad/tenant, sobreventa, creacion-confirmacion de pedido, pagos, regionalizacion.
+1. Riesgo `P1`: seguridad/organization, sobreventa, creacion-confirmacion de pedido, pagos, regionalizacion.
 2. Riesgo `P2`: notificaciones, reporting, sincronizaciones de soporte.
 3. Riesgo `P3`: escenarios de conveniencia o baja criticidad operacional.
 

@@ -4,7 +4,7 @@ import java.time.Instant;
 
 public record CatalogAuditEntryResult(
         String auditId,
-        String tenantId,
+        String organizationId,
         String actorId,
         String actionType,
         String targetType,

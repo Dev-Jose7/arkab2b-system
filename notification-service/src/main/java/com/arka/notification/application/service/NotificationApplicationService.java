@@ -74,12 +74,13 @@ import com.arka.notification.domain.notificationdispatch.entity.NotificationRequ
 import com.arka.notification.domain.notificationdispatch.entity.NotificationTemplate;
 import com.arka.notification.domain.notificationdispatch.entity.ProviderCallback;
 import com.arka.notification.domain.notificationdispatch.enumtype.NotificationChannel;
+import com.arka.notification.domain.notificationdispatch.enumtype.NotificationRequestStatus;
 import com.arka.notification.domain.notificationdispatch.enumtype.ProviderCallbackStatus;
 import com.arka.notification.domain.notificationdispatch.event.NotificationMutationEvent;
 import com.arka.notification.domain.notificationdispatch.valueobject.NotificationId;
 import com.arka.notification.domain.notificationdispatch.valueobject.NotificationKey;
 import com.arka.notification.domain.notificationdispatch.valueobject.RelevantChangeNotification;
-import com.arka.notification.domain.notificationdispatch.valueobject.TenantId;
+import com.arka.notification.domain.notificationdispatch.valueobject.OrganizationId;
 import com.arka.notification.domain.shared.event.DomainEvent;
 import com.arka.notification.domain.shared.exception.OperationNotPermittedException;
 import java.time.Instant;
@@ -87,6 +88,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -168,36 +170,65 @@ public class NotificationApplicationService
     @Override
     public Mono<NotificationResult> handle(EmitRelevantChangeNotificationCommand command) {
         Instant now = clockPort.now();
-        String payloadHash = IdempotencySupport.payloadHash(command.toString());
+        String payloadHash = emissionIdempotencyHash(command);
         NotificationChannel channel = NotificationChannel.from(command.channel());
         NotificationKey notificationKey = NotificationKey.fromEventRecipientAndChannel(
                 command.sourceEventId(),
                 command.recipientRef(),
                 channel);
 
-        return requireActor(command.tenantId(), true)
-                .then(checkIdempotency(command.tenantId(), "NOTIFICATION_EMITTED", command.idempotencyKey(), payloadHash))
-                .flatMap(idempotency -> {
-                    if (idempotency.replayed()) {
-                        return findNotificationResult(command.tenantId(), idempotency.targetId());
-                    }
-                    return requestPersistencePort
-                            .findByKey(TenantId.of(command.tenantId()), notificationKey)
-                            .map(resultMapper::toNotificationResult)
-                            .switchIfEmpty(Mono.defer(() -> processedEventPersistencePort
-                                    .exists(command.sourceEventId(), PROCESSED_EVENT_CONSUMER)
-                                    .flatMap(processed -> {
-                                        if (processed) {
-                                            return requestPersistencePort
-                                                    .findByKey(TenantId.of(command.tenantId()), notificationKey)
-                                                    .switchIfEmpty(Mono.error(new ApplicationException(
-                                                            "evento_procesado_sin_notificacion",
-                                                            "Evento ya marcado como procesado y sin solicitud vinculada")))
-                                                    .map(resultMapper::toNotificationResult);
-                                        }
-                                        return createNotification(command, channel, notificationKey, now, payloadHash);
-                                    })));
-                });
+        return requireActor(command.organizationId(), true)
+                .then(checkIdempotency(command.organizationId(), "NOTIFICATION_EMITTED", command.idempotencyKey(), payloadHash))
+                .flatMap(idempotency -> resolveOrCreateEmittedNotification(
+                        command,
+                        channel,
+                        notificationKey,
+                        now,
+                        payloadHash,
+                        idempotency));
+    }
+
+    private Mono<NotificationResult> resolveOrCreateEmittedNotification(
+            EmitRelevantChangeNotificationCommand command,
+            NotificationChannel channel,
+            NotificationKey notificationKey,
+            Instant now,
+            String payloadHash,
+            IdempotencyDecision idempotency) {
+        if (idempotency.replayed()) {
+            return findNotificationResult(command.organizationId(), idempotency.targetId())
+                    .onErrorResume(NotificationResourceNotFoundException.class, error -> {
+                        if (!isEventDrivenEmitIdempotency(command.idempotencyKey())) {
+                            return Mono.error(error);
+                        }
+                        return locateOrCreateEmittedNotification(command, channel, notificationKey, now, payloadHash);
+                    });
+        }
+        return locateOrCreateEmittedNotification(command, channel, notificationKey, now, payloadHash);
+    }
+
+    private Mono<NotificationResult> locateOrCreateEmittedNotification(
+            EmitRelevantChangeNotificationCommand command,
+            NotificationChannel channel,
+            NotificationKey notificationKey,
+            Instant now,
+            String payloadHash) {
+        return requestPersistencePort
+                .findByKey(OrganizationId.of(command.organizationId()), notificationKey)
+                .map(resultMapper::toNotificationResult)
+                .switchIfEmpty(Mono.defer(() -> processedEventPersistencePort
+                        .exists(command.sourceEventId(), PROCESSED_EVENT_CONSUMER)
+                        .flatMap(processed -> {
+                            if (processed) {
+                                return requestPersistencePort
+                                        .findByKey(OrganizationId.of(command.organizationId()), notificationKey)
+                                        .switchIfEmpty(Mono.error(new ApplicationException(
+                                                "evento_procesado_sin_notificacion",
+                                                "Evento ya marcado como procesado y sin solicitud vinculada")))
+                                        .map(resultMapper::toNotificationResult);
+                            }
+                            return createNotification(command, channel, notificationKey, now, payloadHash);
+                        })));
     }
 
     private Mono<NotificationResult> createNotification(
@@ -207,12 +238,12 @@ public class NotificationApplicationService
             Instant now,
             String payloadHash) {
         return templatePolicyPersistencePort
-                .findActivePolicy(command.tenantId(), command.sourceEventType())
+                .findActivePolicy(command.organizationId(), command.sourceEventType())
                 .switchIfEmpty(Mono.error(new ApplicationException(
                         "policy_no_encontrada",
                         "No existe ChannelPolicy activa para sourceEventType=" + command.sourceEventType())))
                 .flatMap(policy -> templatePolicyPersistencePort
-                        .findActiveTemplate(command.tenantId(), command.sourceEventType(), channel.name())
+                        .findActiveTemplate(command.organizationId(), command.sourceEventType(), channel.name())
                         .switchIfEmpty(Mono.error(new ApplicationException(
                                 "template_no_encontrado",
                                 "No existe NotificationTemplate activa para evento/canal solicitado")))
@@ -223,7 +254,7 @@ public class NotificationApplicationService
                         .create(dispatch.request())
                         .flatMap(created -> storeDomainEvents(dispatch.pullDomainEvents())
                                 .then(afterMutation(
-                                        command.tenantId(),
+                                        command.organizationId(),
                                         "NOTIFICATION_EMITTED",
                                         "NotificationRequest",
                                         created.notificationId().value(),
@@ -248,14 +279,14 @@ public class NotificationApplicationService
     public Mono<NotificationDetailResult> handle(DispatchNotificationCommand command) {
         Instant now = clockPort.now();
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
-        return requireActor(command.tenantId(), true)
-                .then(checkIdempotency(command.tenantId(), "NOTIFICATION_DISPATCHED", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true)
+                .then(checkIdempotency(command.organizationId(), "NOTIFICATION_DISPATCHED", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
-                        return findNotificationDetail(command.tenantId(), idempotency.targetId());
+                        return findNotificationDetail(command.organizationId(), idempotency.targetId());
                     }
                     return dispatchInternal(
-                            command.tenantId(),
+                            command.organizationId(),
                             command.actorId(),
                             command.notificationId(),
                             command.idempotencyKey(),
@@ -270,14 +301,14 @@ public class NotificationApplicationService
     public Mono<NotificationDetailResult> handle(RetryNotificationCommand command) {
         Instant now = clockPort.now();
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
-        return requireActor(command.tenantId(), true)
-                .then(checkIdempotency(command.tenantId(), "NOTIFICATION_RETRIED", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true)
+                .then(checkIdempotency(command.organizationId(), "NOTIFICATION_RETRIED", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
-                        return findNotificationDetail(command.tenantId(), idempotency.targetId());
+                        return findNotificationDetail(command.organizationId(), idempotency.targetId());
                     }
                     return dispatchInternal(
-                            command.tenantId(),
+                            command.organizationId(),
                             command.actorId(),
                             command.notificationId(),
                             command.idempotencyKey(),
@@ -289,7 +320,7 @@ public class NotificationApplicationService
     }
 
     private Mono<NotificationDetailResult> dispatchInternal(
-            String tenantId,
+            String organizationId,
             String actorId,
             String notificationId,
             String idempotencyKey,
@@ -297,15 +328,15 @@ public class NotificationApplicationService
             String actionType,
             String mutationEventType,
             Instant now) {
-        return loadNotificationRequest(tenantId, notificationId)
+        return loadNotificationRequest(organizationId, notificationId)
                 .flatMap(request -> templatePolicyPersistencePort
-                        .findActivePolicy(tenantId, request.sourceEventType())
+                        .findActivePolicy(organizationId, request.sourceEventType())
                         .switchIfEmpty(Mono.error(new ApplicationException(
                                 "policy_no_encontrada",
                                 "No existe ChannelPolicy activa para sourceEventType=" + request.sourceEventType())))
                         .flatMap(policy -> performDispatch(request, policy, now)
                                 .flatMap(updatedRequest -> afterMutation(
-                                                tenantId,
+                                                organizationId,
                                                 actionType,
                                                 "NotificationRequest",
                                                 updatedRequest.notificationId().value(),
@@ -318,25 +349,87 @@ public class NotificationApplicationService
                                                         updatedRequest.notificationId().value(),
                                                         mutationEventType,
                                                         now))
-                                        .then(findNotificationDetail(tenantId, updatedRequest.notificationId().value())))));
+                                        .then(findNotificationDetail(organizationId, updatedRequest.notificationId().value())))));
     }
 
     private Mono<NotificationRequest> performDispatch(NotificationRequest request, ChannelPolicy policy, Instant now) {
-        NotificationDispatch dispatch = NotificationDispatch.rehydrate(request);
-        NotificationAttempt createdAttempt = dispatch.beginDispatchAttempt(policy, now);
+        return synchronizeRequestAttemptState(request, now)
+                .flatMap(reconciledRequest -> {
+                    NotificationDispatch dispatch = NotificationDispatch.rehydrate(reconciledRequest);
+                    NotificationAttempt createdAttempt = dispatch.beginDispatchAttempt(policy, now);
 
+                    return attemptPersistencePort
+                            .create(createdAttempt, reconciledRequest.organizationId().value())
+                            .flatMap(savedAttempt -> recipientResolverPort
+                                    .resolve(
+                                            reconciledRequest.organizationId().value(),
+                                            reconciledRequest.recipientRef(),
+                                            reconciledRequest.channel().name())
+                                    .flatMap(recipient -> {
+                                        if (!recipient.active()) {
+                                            return failAttemptWithoutRecipient(
+                                                    dispatch,
+                                                    savedAttempt,
+                                                    "recipient_inactive",
+                                                    "recipientRef inactivo para canal solicitado",
+                                                    now);
+                                        }
+                                        return sendAndPersistOutcome(dispatch, savedAttempt, recipient, policy, now);
+                                    })
+                                    .switchIfEmpty(Mono.defer(() -> failAttemptWithoutRecipient(
+                                            dispatch,
+                                            savedAttempt,
+                                            "recipient_not_found",
+                                            "No existe destinatario activo para recipientRef="
+                                                    + reconciledRequest.recipientRef(),
+                                            now))));
+                });
+    }
+
+    private Mono<NotificationRequest> synchronizeRequestAttemptState(NotificationRequest request, Instant now) {
         return attemptPersistencePort
-                .create(createdAttempt, request.tenantId().value())
-                .flatMap(savedAttempt -> recipientResolverPort
-                        .resolve(request.tenantId().value(), request.recipientRef(), request.channel().name())
-                        .flatMap(recipient -> {
-                            if (!recipient.active()) {
-                                return Mono.error(new ApplicationException(
-                                        "destinatario_inactivo",
-                                        "recipientRef inactivo para canal solicitado"));
-                            }
-                            return sendAndPersistOutcome(dispatch, savedAttempt, recipient, policy, now);
-                        }));
+                .findByNotificationId(request.organizationId(), request.notificationId())
+                .map(NotificationAttempt::attemptNumber)
+                .reduce(0, Math::max)
+                .flatMap(maxPersistedAttempt -> {
+                    int originalAttemptCount = request.attemptCount();
+                    NotificationRequestStatus originalStatus = request.status();
+                    request.synchronizeAttemptCount(maxPersistedAttempt, now);
+                    if (request.reachedMaxAttempts()
+                            && request.status() != NotificationRequestStatus.DISCARDED
+                            && request.status() != NotificationRequestStatus.SENT) {
+                        request.discard(now);
+                    }
+                    boolean changed = originalAttemptCount != request.attemptCount()
+                            || originalStatus != request.status();
+                    if (!changed) {
+                        return Mono.just(request);
+                    }
+                    return requestPersistencePort.update(request);
+                })
+                .defaultIfEmpty(request);
+    }
+
+    private Mono<NotificationRequest> failAttemptWithoutRecipient(
+            NotificationDispatch dispatch,
+            NotificationAttempt attempt,
+            String errorCode,
+            String errorMessage,
+            Instant now) {
+        dispatch.markAttemptFailed(
+                attempt,
+                errorCode,
+                errorMessage,
+                false,
+                null,
+                null,
+                null,
+                now);
+        NotificationRequest updatedRequest = dispatch.request();
+        return attemptPersistencePort
+                .update(attempt, updatedRequest.organizationId().value())
+                .then(requestPersistencePort.update(updatedRequest))
+                .flatMap(persistedRequest -> storeDomainEvents(dispatch.pullDomainEvents()).thenReturn(persistedRequest));
     }
 
     private Mono<NotificationRequest> sendAndPersistOutcome(
@@ -347,7 +440,7 @@ public class NotificationApplicationService
             Instant now) {
         NotificationRequest request = dispatch.request();
         ProviderSendRequest sendRequest = new ProviderSendRequest(
-                request.tenantId().value(),
+                request.organizationId().value(),
                 attempt.providerCode(),
                 request.channel().name(),
                 recipientResolution.destination(),
@@ -362,7 +455,7 @@ public class NotificationApplicationService
                     NotificationAttempt updatedAttempt = tuple.attempt;
                     NotificationRequest updatedRequest = tuple.request;
                     return attemptPersistencePort
-                            .update(updatedAttempt, updatedRequest.tenantId().value())
+                            .update(updatedAttempt, updatedRequest.organizationId().value())
                             .then(requestPersistencePort.update(updatedRequest))
                             .flatMap(persistedRequest -> storeDomainEvents(dispatch.pullDomainEvents()).thenReturn(persistedRequest));
                 });
@@ -405,19 +498,19 @@ public class NotificationApplicationService
     public Mono<NotificationResult> handle(DiscardNotificationCommand command) {
         Instant now = clockPort.now();
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
-        return requireActor(command.tenantId(), true)
-                .then(checkIdempotency(command.tenantId(), "NOTIFICATION_DISCARDED", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true)
+                .then(checkIdempotency(command.organizationId(), "NOTIFICATION_DISCARDED", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
-                        return findNotificationResult(command.tenantId(), idempotency.targetId());
+                        return findNotificationResult(command.organizationId(), idempotency.targetId());
                     }
-                    return loadNotificationRequest(command.tenantId(), command.notificationId())
+                    return loadNotificationRequest(command.organizationId(), command.notificationId())
                             .flatMap(request -> {
                                 NotificationDispatch dispatch = NotificationDispatch.rehydrate(request);
                                 dispatch.discard(now);
                                 return requestPersistencePort.update(dispatch.request())
                                         .flatMap(updated -> afterMutation(
-                                                        command.tenantId(),
+                                                        command.organizationId(),
                                                         "NOTIFICATION_DISCARDED",
                                                         "NotificationRequest",
                                                         updated.notificationId().value(),
@@ -440,20 +533,20 @@ public class NotificationApplicationService
     public Mono<NotificationResult> handle(RecordNotificationDeliveryCommand command) {
         Instant now = clockPort.now();
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
-        return requireActor(command.tenantId(), true)
-                .then(checkIdempotency(command.tenantId(), "NOTIFICATION_DELIVERY_RECORDED", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true)
+                .then(checkIdempotency(command.organizationId(), "NOTIFICATION_DELIVERY_RECORDED", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
-                        return findNotificationResult(command.tenantId(), idempotency.targetId());
+                        return findNotificationResult(command.organizationId(), idempotency.targetId());
                     }
-                    return loadNotificationRequest(command.tenantId(), command.notificationId())
+                    return loadNotificationRequest(command.organizationId(), command.notificationId())
                             .flatMap(request -> {
                                 NotificationDispatch dispatch = NotificationDispatch.rehydrate(request);
                                 dispatch.reconcileDeliveryByCallback(command.providerCode(), command.providerRef(), now);
                                 return requestPersistencePort.update(dispatch.request())
                                         .flatMap(updated -> storeDomainEvents(dispatch.pullDomainEvents())
                                                 .then(afterMutation(
-                                                        command.tenantId(),
+                                                        command.organizationId(),
                                                         "NOTIFICATION_DELIVERY_RECORDED",
                                                         "NotificationRequest",
                                                         updated.notificationId().value(),
@@ -476,21 +569,21 @@ public class NotificationApplicationService
     public Mono<NotificationDetailResult> handle(ProcessProviderCallbackCommand command) {
         Instant now = clockPort.now();
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
-        return requireActor(command.tenantId(), true)
-                .then(checkIdempotency(command.tenantId(), "PROVIDER_CALLBACK_PROCESSED", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true)
+                .then(checkIdempotency(command.organizationId(), "PROVIDER_CALLBACK_PROCESSED", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
-                        return findNotificationDetail(command.tenantId(), idempotency.targetId());
+                        return findNotificationDetail(command.organizationId(), idempotency.targetId());
                     }
                     return providerCallbackPersistencePort
                             .findByProviderRefAndEvent(command.providerCode(), command.providerRef(), command.callbackEventId())
-                            .flatMap(existing -> findNotificationDetail(command.tenantId(), existing.notificationId()))
-                            .switchIfEmpty(Mono.defer(() -> loadNotificationRequest(command.tenantId(), command.notificationId())
+                            .flatMap(existing -> findNotificationDetail(command.organizationId(), existing.notificationId()))
+                            .switchIfEmpty(Mono.defer(() -> loadNotificationRequest(command.organizationId(), command.notificationId())
                                     .flatMap(request -> {
                                         ProviderCallbackStatus callbackStatus = ProviderCallbackStatus.valueOf(command.callbackStatus().trim().toUpperCase());
                                         ProviderCallback callback = new ProviderCallback(
                                                 UUID.randomUUID().toString(),
-                                                command.tenantId(),
+                                                command.organizationId(),
                                                 request.notificationId().value(),
                                                 command.providerCode(),
                                                 command.providerRef(),
@@ -515,7 +608,7 @@ public class NotificationApplicationService
                                                     }
                                                     return requestUpdate
                                                             .flatMap(updated -> afterMutation(
-                                                                            command.tenantId(),
+                                                                            command.organizationId(),
                                                                             "PROVIDER_CALLBACK_PROCESSED",
                                                                             "NotificationRequest",
                                                                             updated.notificationId().value(),
@@ -528,7 +621,7 @@ public class NotificationApplicationService
                                                                                     updated.notificationId().value(),
                                                                                     "ProviderCallbackProcessed",
                                                                                     now))
-                                                                    .then(findNotificationDetail(command.tenantId(), updated.notificationId().value())));
+                                                                    .then(findNotificationDetail(command.organizationId(), updated.notificationId().value())));
                                                 });
                                     })));
                 });
@@ -538,20 +631,20 @@ public class NotificationApplicationService
     public Mono<NotificationDetailResult> handle(ReprocessNotificationDlqCommand command) {
         Instant now = clockPort.now();
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
-        return requireActor(command.tenantId(), true)
-                .then(checkIdempotency(command.tenantId(), "NOTIFICATION_DLQ_REPROCESSED", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true)
+                .then(checkIdempotency(command.organizationId(), "NOTIFICATION_DLQ_REPROCESSED", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
-                        return findNotificationDetail(command.tenantId(), idempotency.targetId());
+                        return findNotificationDetail(command.organizationId(), idempotency.targetId());
                     }
                     return processedEventPersistencePort
                             .exists(command.dlqEventId(), command.consumerName())
                             .flatMap(alreadyProcessed -> {
                                 if (alreadyProcessed) {
-                                    return findNotificationDetail(command.tenantId(), command.notificationId());
+                                    return findNotificationDetail(command.organizationId(), command.notificationId());
                                 }
                                 return dispatchInternal(
-                                                command.tenantId(),
+                                                command.organizationId(),
                                                 command.actorId(),
                                                 command.notificationId(),
                                                 command.idempotencyKey(),
@@ -568,12 +661,12 @@ public class NotificationApplicationService
 
     @Override
     public Mono<NotificationResult> handle(GetNotificationByIdQuery query) {
-        return requireActor(query.tenantId(), false).then(findNotificationResult(query.tenantId(), query.notificationId()));
+        return requireActor(query.organizationId(), false).then(findNotificationResult(query.organizationId(), query.notificationId()));
     }
 
     @Override
     public Mono<NotificationSearchResult> handle(SearchNotificationsQuery query) {
-        return requireActor(query.tenantId(), false)
+        return requireActor(query.organizationId(), false)
                 .then(Mono.defer(() -> {
                     String cacheKey = cacheKeyFor(query);
                     return notificationSearchCachePort
@@ -594,21 +687,21 @@ public class NotificationApplicationService
 
     @Override
     public Mono<NotificationDetailResult> handle(GetNotificationDetailQuery query) {
-        return requireActor(query.tenantId(), false).then(findNotificationDetail(query.tenantId(), query.notificationId()));
+        return requireActor(query.organizationId(), false).then(findNotificationDetail(query.organizationId(), query.notificationId()));
     }
 
     @Override
     public Flux<NotificationAttemptResult> handle(ListNotificationAttemptsQuery query) {
-        return requireActor(query.tenantId(), false)
+        return requireActor(query.organizationId(), false)
                 .thenMany(attemptPersistencePort
-                        .findByNotificationId(TenantId.of(query.tenantId()), NotificationId.of(query.notificationId()))
+                        .findByNotificationId(OrganizationId.of(query.organizationId()), NotificationId.of(query.notificationId()))
                         .map(resultMapper::toAttemptResult));
     }
 
     @Override
     public Mono<NotificationTimelineResult> handle(GetNotificationTimelineQuery query) {
-        return requireActor(query.tenantId(), false)
-                .then(findNotificationDetail(query.tenantId(), query.notificationId()))
+        return requireActor(query.organizationId(), false)
+                .then(findNotificationDetail(query.organizationId(), query.notificationId()))
                 .map(detail -> {
                     List<NotificationTimelineItemResult> items = new ArrayList<>();
                     for (NotificationAttemptResult attempt : detail.attempts()) {
@@ -636,8 +729,8 @@ public class NotificationApplicationService
 
     @Override
     public Mono<NotificationMetricsResult> handle(GetNotificationMetricsQuery query) {
-        return requireActor(query.tenantId(), true)
-                .then(readPersistencePort.metrics(query.tenantId()).defaultIfEmpty(new NotificationMetricsProjection(
+        return requireActor(query.organizationId(), true)
+                .then(readPersistencePort.metrics(query.organizationId()).defaultIfEmpty(new NotificationMetricsProjection(
                         0L,
                         null,
                         null,
@@ -648,12 +741,12 @@ public class NotificationApplicationService
 
     @Override
     public Mono<NotificationAuditResult> handle(GetNotificationAuditQuery query) {
-        return requireActor(query.tenantId(), true)
+        return requireActor(query.organizationId(), true)
                 .then(notificationAuditPort
-                        .findByTarget(query.tenantId(), query.targetType(), query.targetId(), query.page() * query.size(), query.size())
+                        .findByTarget(query.organizationId(), query.targetType(), query.targetId(), query.page() * query.size(), query.size())
                         .map(resultMapper::toAuditEntryResult)
                         .collectList()
-                        .zipWith(notificationAuditPort.countByTarget(query.tenantId(), query.targetType(), query.targetId()))
+                        .zipWith(notificationAuditPort.countByTarget(query.organizationId(), query.targetType(), query.targetId()))
                         .map(tuple -> new NotificationAuditResult(tuple.getT1(), query.page(), query.size(), tuple.getT2())));
     }
 
@@ -666,7 +759,7 @@ public class NotificationApplicationService
             String renderedPayload,
             Instant now) {
         RelevantChangeNotification relevantChangeNotification = new RelevantChangeNotification(
-                TenantId.of(command.tenantId()),
+                OrganizationId.of(command.organizationId()),
                 command.sourceEventId(),
                 command.sourceEventType(),
                 command.recipientRef(),
@@ -684,24 +777,24 @@ public class NotificationApplicationService
                 now);
     }
 
-    private Mono<NotificationRequest> loadNotificationRequest(String tenantId, String notificationId) {
+    private Mono<NotificationRequest> loadNotificationRequest(String organizationId, String notificationId) {
         return requestPersistencePort
-                .findById(TenantId.of(tenantId), NotificationId.of(notificationId))
+                .findById(OrganizationId.of(organizationId), NotificationId.of(notificationId))
                 .switchIfEmpty(Mono.error(new NotificationResourceNotFoundException("NotificationRequest", notificationId)));
     }
 
-    private Mono<NotificationResult> findNotificationResult(String tenantId, String notificationId) {
-        return loadNotificationRequest(tenantId, notificationId).map(resultMapper::toNotificationResult);
+    private Mono<NotificationResult> findNotificationResult(String organizationId, String notificationId) {
+        return loadNotificationRequest(organizationId, notificationId).map(resultMapper::toNotificationResult);
     }
 
-    private Mono<NotificationDetailResult> findNotificationDetail(String tenantId, String notificationId) {
-        return loadNotificationRequest(tenantId, notificationId)
+    private Mono<NotificationDetailResult> findNotificationDetail(String organizationId, String notificationId) {
+        return loadNotificationRequest(organizationId, notificationId)
                 .flatMap(request -> attemptPersistencePort
-                        .findByNotificationId(request.tenantId(), request.notificationId())
+                        .findByNotificationId(request.organizationId(), request.notificationId())
                         .map(resultMapper::toAttemptResult)
                         .collectList()
                         .zipWith(providerCallbackPersistencePort
-                                .findByNotificationId(tenantId, notificationId)
+                                .findByNotificationId(organizationId, notificationId)
                                 .map(resultMapper::toCallbackResult)
                                 .collectList())
                         .map(tuple -> new NotificationDetailResult(
@@ -716,9 +809,9 @@ public class NotificationApplicationService
                 .then();
     }
 
-    private Mono<Void> requireActor(String tenantId, boolean adminRequired) {
-        if (tenantId == null || tenantId.isBlank()) {
-            return Mono.error(new ApplicationException("tenant_requerido", "tenantId es obligatorio"));
+    private Mono<Void> requireActor(String organizationId, boolean adminRequired) {
+        if (organizationId == null || organizationId.isBlank()) {
+            return Mono.error(new ApplicationException("organization_requerida", "organizationId es obligatorio"));
         }
         return actorContextProviderPort.currentActor()
                 .switchIfEmpty(Mono.error(new OperationNotPermittedException(
@@ -730,21 +823,21 @@ public class NotificationApplicationService
                                 "operacion_no_permitida",
                                 "La operacion requiere rol administrativo o servicio tecnico"));
                     }
-                    if (!actor.admin() && !actor.trustedService() && !tenantId.equals(actor.tenantId())) {
+                    if (!actor.admin() && !actor.trustedService() && !organizationId.equals(actor.organizationId())) {
                         return Mono.error(new ApplicationException(
-                                "acceso_cross_tenant", "Actor no autorizado para el tenant solicitado"));
+                                "acceso_cross_organization", "Actor no autorizado para el organization solicitado"));
                     }
                     if (actor.trustedService()) {
                         return Mono.empty();
                     }
                     return actorLegitimacyPort
-                            .isLegitimate(actor.actorId(), tenantId)
+                            .isLegitimate(actor.actorId(), organizationId)
                             .flatMap(valid -> valid ? Mono.empty() : Mono.error(new ActorNotLegitimateException()));
                 });
     }
 
     private Mono<IdempotencyDecision> checkIdempotency(
-            String tenantId,
+            String organizationId,
             String actionType,
             String idempotencyKey,
             String payloadHash) {
@@ -752,9 +845,12 @@ public class NotificationApplicationService
             return Mono.just(IdempotencyDecision.none());
         }
         return notificationAuditPort
-                .findByIdempotency(tenantId, actionType, idempotencyKey)
+                .findByIdempotency(organizationId, actionType, idempotencyKey)
                 .flatMap(existing -> {
                     if (!payloadHash.equals(existing.payloadHash())) {
+                        if (isEventDrivenEmitIdempotency(actionType, idempotencyKey)) {
+                            return Mono.just(new IdempotencyDecision(true, existing.targetId()));
+                        }
                         return Mono.error(new IdempotencyConflictException());
                     }
                     return Mono.just(new IdempotencyDecision(true, existing.targetId()));
@@ -763,7 +859,7 @@ public class NotificationApplicationService
     }
 
     private Mono<Void> afterMutation(
-            String tenantId,
+            String organizationId,
             String actionType,
             String targetType,
             String targetId,
@@ -775,7 +871,7 @@ public class NotificationApplicationService
         Instant now = clockPort.now();
         NotificationAuditEntry audit = new NotificationAuditEntry(
                 UUID.randomUUID().toString(),
-                tenantId,
+                organizationId,
                 actorId,
                 actionType,
                 targetType,
@@ -786,12 +882,19 @@ public class NotificationApplicationService
                 payloadHash,
                 now);
 
-        Mono<Void> storeAudit = notificationAuditPort.record(audit);
+        Mono<Void> storeAudit = notificationAuditPort
+                .record(audit)
+                .onErrorResume(DuplicateKeyException.class, error -> {
+                    if (isEventDrivenEmitIdempotency(actionType, idempotencyKey)) {
+                        return Mono.empty();
+                    }
+                    return Mono.error(error);
+                });
         Mono<Void> storeEvent = optionalEvent == null
                 ? Mono.empty()
                 : outboxPersistencePort.store(optionalEvent, payloadWithEventType(payload, optionalEvent.eventType()));
 
-        return storeAudit.then(storeEvent).then(notificationSearchCachePort.evictTenant(tenantId));
+        return storeAudit.then(storeEvent).then(notificationSearchCachePort.evictOrganization(organizationId));
     }
 
     private String payloadWithEventType(String payload, String eventType) {
@@ -818,7 +921,7 @@ public class NotificationApplicationService
         int safeSize = query.size() <= 0 ? 20 : Math.min(query.size(), 100);
         int safePage = Math.max(query.page(), 0);
         return new NotificationSearchFilter(
-                query.tenantId(),
+                query.organizationId(),
                 query.status(),
                 query.sourceEventType(),
                 query.channel(),
@@ -830,7 +933,7 @@ public class NotificationApplicationService
     private String cacheKeyFor(SearchNotificationsQuery query) {
         return String.join(
                 "::",
-                query.tenantId(),
+                query.organizationId(),
                 String.valueOf(query.page()),
                 String.valueOf(query.size()),
                 nullSafe(query.status()),
@@ -841,6 +944,29 @@ public class NotificationApplicationService
 
     private String nullSafe(String value) {
         return value == null ? "" : value;
+    }
+
+    private String emissionIdempotencyHash(EmitRelevantChangeNotificationCommand command) {
+        if (!isEventDrivenEmitIdempotency(command.idempotencyKey())) {
+            return IdempotencySupport.payloadHash(command.toString());
+        }
+        String fingerprint = String.join(
+                "::",
+                nullSafe(command.organizationId()),
+                nullSafe(command.sourceEventId()),
+                nullSafe(command.sourceEventType()),
+                nullSafe(command.channel()));
+        return IdempotencySupport.payloadHash(fingerprint);
+    }
+
+    private boolean isEventDrivenEmitIdempotency(String idempotencyKey) {
+        return isEventDrivenEmitIdempotency("NOTIFICATION_EMITTED", idempotencyKey);
+    }
+
+    private boolean isEventDrivenEmitIdempotency(String actionType, String idempotencyKey) {
+        return "NOTIFICATION_EMITTED".equals(actionType)
+                && idempotencyKey != null
+                && idempotencyKey.startsWith("kafka-emit-");
     }
 
     private record IdempotencyDecision(boolean replayed, String targetId) {

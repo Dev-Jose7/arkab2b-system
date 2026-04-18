@@ -20,7 +20,8 @@ public class DatabaseInitializationConfig {
     public ConnectionFactoryInitializer databaseSchemaInitializer(ConnectionFactory connectionFactory) {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator(
                 new ClassPathResource("db/init/01-schema.sql"),
-                new ClassPathResource("db/init/02-seed-roles.sql"));
+                new ClassPathResource("db/init/02-seed-roles.sql"),
+                new ClassPathResource("db/init/03-seed-data.sql"));
 
         ConnectionFactoryInitializer initializer = new ConnectionFactoryInitializer();
         initializer.setConnectionFactory(connectionFactory);

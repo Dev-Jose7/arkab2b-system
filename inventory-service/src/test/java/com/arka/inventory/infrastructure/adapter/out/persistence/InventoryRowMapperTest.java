@@ -16,7 +16,7 @@ class InventoryRowMapperTest {
 
         StockItemRow row = new StockItemRow(
                 "stock-1",
-                "tenant-1",
+                "organization-1",
                 "wh-1",
                 "SKU-1",
                 10,

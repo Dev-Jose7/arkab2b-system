@@ -9,11 +9,11 @@ import reactor.core.publisher.Mono;
 
 public interface ReactiveNotificationRequestRepository extends ReactiveCrudRepository<NotificationRequestRow, String> {
 
-    @Query("SELECT * FROM notification_requests WHERE tenant_id = :tenantId AND notification_id = :notificationId")
-    Mono<NotificationRequestRow> findByTenantAndId(String tenantId, String notificationId);
+    @Query("SELECT * FROM notification_requests WHERE organization_id = :organizationId AND notification_id = :notificationId")
+    Mono<NotificationRequestRow> findByOrganizationAndId(String organizationId, String notificationId);
 
-    @Query("SELECT * FROM notification_requests WHERE tenant_id = :tenantId AND notification_key = :notificationKey")
-    Mono<NotificationRequestRow> findByTenantAndKey(String tenantId, String notificationKey);
+    @Query("SELECT * FROM notification_requests WHERE organization_id = :organizationId AND notification_key = :notificationKey")
+    Mono<NotificationRequestRow> findByOrganizationAndKey(String organizationId, String notificationKey);
 
     @Query("""
             SELECT *
@@ -40,12 +40,12 @@ public interface ReactiveNotificationRequestRepository extends ReactiveCrudRepos
                 correlation_id = :correlationId,
                 version = :nextVersion,
                 updated_at = :updatedAt
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND notification_id = :notificationId
               AND version = :expectedVersion
             """)
     Mono<Integer> updateOptimistic(
-            String tenantId,
+            String organizationId,
             String notificationId,
             String templateId,
             String channelPolicyId,

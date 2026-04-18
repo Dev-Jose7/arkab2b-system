@@ -21,7 +21,6 @@ public class PurchaseOrderPersistenceMapper {
         return new PurchaseOrderEntity(
                 order.orderId(),
                 order.orderNumber(),
-                order.tenantId(),
                 order.organizationId(),
                 order.userId(),
                 order.cartId(),
@@ -51,7 +50,6 @@ public class PurchaseOrderPersistenceMapper {
         return new OrderLineEntity(
                 line.orderLineId(),
                 line.orderId(),
-                line.tenantId(),
                 line.organizationId(),
                 line.variantId(),
                 line.sku(),
@@ -69,7 +67,6 @@ public class PurchaseOrderPersistenceMapper {
         return new PaymentRecordEntity(
                 payment.paymentRecordId(),
                 payment.orderId(),
-                payment.tenantId(),
                 payment.organizationId(),
                 payment.paymentReference(),
                 payment.amount(),
@@ -85,7 +82,6 @@ public class PurchaseOrderPersistenceMapper {
         return Order.rehydrate(
                 order.orderId(),
                 order.orderNumber(),
-                order.tenantId(),
                 order.organizationId(),
                 order.userId(),
                 order.cartId(),
@@ -109,7 +105,6 @@ public class PurchaseOrderPersistenceMapper {
         return new OrderLine(
                 line.orderLineId(),
                 line.orderId(),
-                line.tenantId(),
                 line.organizationId(),
                 line.variantId(),
                 line.sku(),
@@ -127,7 +122,6 @@ public class PurchaseOrderPersistenceMapper {
         return new ManualPayment(
                 payment.paymentRecordId(),
                 payment.orderId(),
-                payment.tenantId(),
                 payment.organizationId(),
                 payment.paymentReference(),
                 payment.amount(),
@@ -143,7 +137,7 @@ public class PurchaseOrderPersistenceMapper {
         return new OrderStatusHistoryEntity(
                 history.statusHistoryId(),
                 history.orderId(),
-                history.tenantId(),
+                history.organizationId(),
                 history.actorUserId(),
                 history.fromStatus() == null ? null : history.fromStatus().name(),
                 history.toStatus().name(),
@@ -155,7 +149,7 @@ public class PurchaseOrderPersistenceMapper {
         return new OrderStatusHistory(
                 history.statusHistoryId(),
                 history.orderId(),
-                history.tenantId(),
+                history.organizationId(),
                 history.actorUserId(),
                 history.fromStatus() == null || history.fromStatus().isBlank()
                         ? null

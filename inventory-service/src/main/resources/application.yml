@@ -1,6 +1,16 @@
 spring:
   application:
     name: ${SPRING_APPLICATION_NAME:inventory-service}
+  config:
+    import: "optional:configserver:${APP_CONFIG_SERVER_URI:http://localhost:8888}"
+  cloud:
+    config:
+      enabled: ${APP_CONFIG_ENABLED:true}
+      fail-fast: ${APP_CONFIG_FAIL_FAST:false}
+      label: ${APP_CONFIG_LABEL:main}
+      discovery:
+        enabled: ${APP_CONFIG_DISCOVERY_ENABLED:false}
+        service-id: ${APP_CONFIG_DISCOVERY_SERVICE_ID:config-server}
   main:
     web-application-type: reactive
 
@@ -11,7 +21,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: ${MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE:health,info,metrics}
+        include: ${MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE:health,info,metrics,prometheus}
   endpoint:
     health:
       probes:
@@ -48,7 +58,7 @@ logging:
 springdoc:
   api-docs:
     enabled: ${SPRINGDOC_API_DOCS_ENABLED:true}
-    path: ${SPRINGDOC_API_DOCS_PATH:/v3/api-docs}
+    path: ${SPRINGDOC_API_DOCS_PATH:/v1/api-docs}
   swagger-ui:
     enabled: ${SPRINGDOC_SWAGGER_UI_ENABLED:true}
     path: ${SPRINGDOC_SWAGGER_UI_PATH:/swagger-ui.html}
@@ -60,12 +70,19 @@ app:
   security:
     jwt:
       issuer: ${APP_SECURITY_JWT_ISSUER:identity-access-service}
-      audience: ${APP_SECURITY_JWT_AUDIENCE:arka-b2b}
+      allowed-audiences: ${APP_SECURITY_JWT_ALLOWED_AUDIENCES:arka-b2b,inventory-service}
       clock-skew-seconds: ${APP_SECURITY_JWT_CLOCK_SKEW_SECONDS:60}
-      key-id: ${APP_SECURITY_JWT_KEY_ID:dev-rsa-key-1}
-      public-key-path: ${APP_SECURITY_JWT_PUBLIC_KEY_PATH:classpath:keys/dev-public.pem}
-      additional-public-keys: ${APP_SECURITY_JWT_ADDITIONAL_PUBLIC_KEYS:}
-      jwks-path: ${APP_SECURITY_JWT_JWKS_PATH:/.well-known/jwks.json}
+      jwks-uri: ${APP_SECURITY_JWT_JWKS_URI:http://localhost:8081/.well-known/jwks.json}
+    s2s:
+      enabled: ${APP_SECURITY_S2S_ENABLED:true}
+      client-id: ${APP_SECURITY_S2S_CLIENT_ID:${spring.application.name}}
+      client-secret: ${APP_SECURITY_S2S_CLIENT_SECRET:}
+      audience: ${APP_SECURITY_S2S_AUDIENCE:arka-b2b}
+      scopes: ${APP_SECURITY_S2S_SCOPES:inventory.read,inventory.reserve,catalog.read,directory.read,order.read,iam.permission.read}
+      identity-base-url: ${APP_SECURITY_S2S_IDENTITY_BASE_URL:${app.external.identity.base-url:http://identity-access-service}}
+      token-path: ${APP_SECURITY_S2S_TOKEN_PATH:/api/v1/internal/auth/service-token}
+      timeout-ms: ${APP_SECURITY_S2S_TIMEOUT_MS:2000}
+      refresh-skew-seconds: ${APP_SECURITY_S2S_REFRESH_SKEW_SECONDS:30}
   redis:
     cache:
       commitable-availability-ttl-seconds: ${APP_REDIS_COMMITABLE_AVAILABILITY_TTL_SECONDS:300}
@@ -85,22 +102,22 @@ app:
       base-url: ${APP_EXTERNAL_IDENTITY_BASE_URL:http://localhost:8081}
       service-token: ${APP_EXTERNAL_IDENTITY_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
       timeout-ms: ${APP_EXTERNAL_IDENTITY_TIMEOUT_MS:3000}
-      actor-legitimacy-path: ${APP_EXTERNAL_IDENTITY_ACTOR_LEGITIMACY_PATH:/api/v1/admin/iam/users/{actorId}/permissions}
+      actor-legitimacy-path: ${APP_EXTERNAL_IDENTITY_ACTOR_LEGITIMACY_PATH:/api/v1/internal/iam/users/{actorId}/permissions}
     catalog:
       base-url: ${APP_EXTERNAL_CATALOG_BASE_URL:http://localhost:8083}
       service-token: ${APP_EXTERNAL_CATALOG_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
       timeout-ms: ${APP_EXTERNAL_CATALOG_TIMEOUT_MS:3000}
-      variant-resolution-path: ${APP_EXTERNAL_CATALOG_VARIANT_RESOLUTION_PATH:/api/v1/catalog/checkout/variant-resolution}
+      variant-resolution-path: ${APP_EXTERNAL_CATALOG_VARIANT_RESOLUTION_PATH:/api/v1/internal/catalog/checkout/variant-resolution}
       default-currency: ${APP_EXTERNAL_CATALOG_DEFAULT_CURRENCY:COP}
       default-price-type: ${APP_EXTERNAL_CATALOG_DEFAULT_PRICE_TYPE:BASE}
     order:
       base-url: ${APP_EXTERNAL_ORDER_BASE_URL:http://localhost:8085}
       service-token: ${APP_EXTERNAL_ORDER_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
       timeout-ms: ${APP_EXTERNAL_ORDER_TIMEOUT_MS:3000}
-      cart-path: ${APP_EXTERNAL_ORDER_CART_PATH:}
-      order-path: ${APP_EXTERNAL_ORDER_ORDER_PATH:}
+      cart-path: ${APP_EXTERNAL_ORDER_CART_PATH:/api/v1/internal/carts/{cartId}/organization-context}
+      order-path: ${APP_EXTERNAL_ORDER_ORDER_PATH:/api/v1/internal/orders/{orderId}/organization-context}
     directory:
       base-url: ${APP_EXTERNAL_DIRECTORY_BASE_URL:http://localhost:8082}
       service-token: ${APP_EXTERNAL_DIRECTORY_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
       timeout-ms: ${APP_EXTERNAL_DIRECTORY_TIMEOUT_MS:3000}
-      organization-path: ${APP_EXTERNAL_DIRECTORY_ORGANIZATION_PATH:}
+      organization-path: ${APP_EXTERNAL_DIRECTORY_ORGANIZATION_PATH:/api/v1/internal/organizations/{organizationId}}

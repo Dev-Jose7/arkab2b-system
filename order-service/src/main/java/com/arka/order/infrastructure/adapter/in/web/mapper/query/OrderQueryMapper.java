@@ -20,7 +20,6 @@ public class OrderQueryMapper {
     public GetActiveCartQuery toQuery(IamSecurityPrincipal principal, String userId) {
         String effectiveUser = userId == null || userId.isBlank() ? principal.userId() : userId.trim();
         return new GetActiveCartQuery(
-                principal.tenantId(),
                 principal.organizationId(),
                 effectiveUser,
                 principal.userId());
@@ -28,7 +27,6 @@ public class OrderQueryMapper {
 
     public GetCartQuery toCartQuery(String cartId, IamSecurityPrincipal principal) {
         return new GetCartQuery(
-                principal.tenantId(),
                 principal.organizationId(),
                 cartId,
                 principal.userId());
@@ -36,7 +34,6 @@ public class OrderQueryMapper {
 
     public GetCheckoutAttemptByCorrelationQuery toCheckoutAttemptQuery(String checkoutCorrelationId, IamSecurityPrincipal principal) {
         return new GetCheckoutAttemptByCorrelationQuery(
-                principal.tenantId(),
                 principal.organizationId(),
                 checkoutCorrelationId,
                 principal.userId());
@@ -44,7 +41,6 @@ public class OrderQueryMapper {
 
     public GetOrderQuery toOrderQuery(String orderId, IamSecurityPrincipal principal) {
         return new GetOrderQuery(
-                principal.tenantId(),
                 principal.organizationId(),
                 orderId,
                 principal.userId());
@@ -57,7 +53,6 @@ public class OrderQueryMapper {
             Instant createdTo,
             Integer limit) {
         return new ListOrdersQuery(
-                principal.tenantId(),
                 principal.organizationId(),
                 status,
                 createdFrom,
@@ -68,7 +63,6 @@ public class OrderQueryMapper {
 
     public GetOrderTimelineQuery toTimelineQuery(String orderId, IamSecurityPrincipal principal) {
         return new GetOrderTimelineQuery(
-                principal.tenantId(),
                 principal.organizationId(),
                 orderId,
                 principal.userId());
@@ -76,7 +70,6 @@ public class OrderQueryMapper {
 
     public GetOrderFinancialStatusQuery toFinancialStatusQuery(String orderId, IamSecurityPrincipal principal) {
         return new GetOrderFinancialStatusQuery(
-                principal.tenantId(),
                 principal.organizationId(),
                 orderId,
                 principal.userId());
@@ -84,7 +77,6 @@ public class OrderQueryMapper {
 
     public ListOrderPaymentsQuery toListPaymentsQuery(String orderId, IamSecurityPrincipal principal) {
         return new ListOrderPaymentsQuery(
-                principal.tenantId(),
                 principal.organizationId(),
                 orderId,
                 principal.userId());
@@ -92,7 +84,6 @@ public class OrderQueryMapper {
 
     public GetOrderAuditQuery toAuditQuery(String orderId, Integer limit, IamSecurityPrincipal principal) {
         return new GetOrderAuditQuery(
-                principal.tenantId(),
                 principal.organizationId(),
                 orderId,
                 limit,
@@ -101,7 +92,6 @@ public class OrderQueryMapper {
 
     public CalculateOrderAmountsQuery toAmountsQuery(String orderId, IamSecurityPrincipal principal) {
         return new CalculateOrderAmountsQuery(
-                principal.tenantId(),
                 principal.organizationId(),
                 orderId,
                 principal.userId());

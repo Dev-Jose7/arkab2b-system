@@ -7,14 +7,14 @@ import com.arka.notification.domain.notificationdispatch.exception.InvalidNotifi
 import com.arka.notification.domain.notificationdispatch.exception.NotificationTerminalStateException;
 import com.arka.notification.domain.notificationdispatch.valueobject.NotificationId;
 import com.arka.notification.domain.notificationdispatch.valueobject.NotificationKey;
-import com.arka.notification.domain.notificationdispatch.valueobject.TenantId;
+import com.arka.notification.domain.notificationdispatch.valueobject.OrganizationId;
 import com.arka.notification.domain.shared.exception.DomainInvariantViolationException;
 import java.time.Instant;
 
 public final class NotificationRequest {
 
     private final NotificationId notificationId;
-    private final TenantId tenantId;
+    private final OrganizationId organizationId;
     private final String sourceEventId;
     private final String sourceEventType;
     private final String recipientRef;
@@ -37,7 +37,7 @@ public final class NotificationRequest {
 
     private NotificationRequest(
             NotificationId notificationId,
-            TenantId tenantId,
+            OrganizationId organizationId,
             String sourceEventId,
             String sourceEventType,
             String recipientRef,
@@ -57,7 +57,7 @@ public final class NotificationRequest {
             Instant createdAt,
             Instant updatedAt) {
         this.notificationId = notificationId;
-        this.tenantId = tenantId;
+        this.organizationId = organizationId;
         this.sourceEventId = required(sourceEventId, "sourceEventId");
         this.sourceEventType = required(sourceEventType, "sourceEventType");
         this.recipientRef = required(recipientRef, "recipientRef");
@@ -80,7 +80,7 @@ public final class NotificationRequest {
 
     public static NotificationRequest createPending(
             NotificationId notificationId,
-            TenantId tenantId,
+            OrganizationId organizationId,
             String sourceEventId,
             String sourceEventType,
             String recipientRef,
@@ -96,7 +96,7 @@ public final class NotificationRequest {
             Instant now) {
         return new NotificationRequest(
                 notificationId,
-                tenantId,
+                organizationId,
                 sourceEventId,
                 sourceEventType,
                 recipientRef,
@@ -119,7 +119,7 @@ public final class NotificationRequest {
 
     public static NotificationRequest rehydrate(
             NotificationId notificationId,
-            TenantId tenantId,
+            OrganizationId organizationId,
             String sourceEventId,
             String sourceEventType,
             String recipientRef,
@@ -140,7 +140,7 @@ public final class NotificationRequest {
             Instant updatedAt) {
         return new NotificationRequest(
                 notificationId,
-                tenantId,
+                organizationId,
                 sourceEventId,
                 sourceEventType,
                 recipientRef,
@@ -172,6 +172,15 @@ public final class NotificationRequest {
         }
         attemptCount = attemptNumber;
         updatedAt = now;
+    }
+
+    public void synchronizeAttemptCount(int persistedAttemptCount, Instant now) {
+        int normalized = Math.max(persistedAttemptCount, 0);
+        if (normalized == attemptCount) {
+            return;
+        }
+        this.attemptCount = normalized;
+        this.updatedAt = now;
     }
 
     public void markSent(Instant now) {
@@ -210,6 +219,9 @@ public final class NotificationRequest {
             return false;
         }
         if (!retryable) {
+            return false;
+        }
+        if (reachedMaxAttempts()) {
             return false;
         }
         return nextRetryAt == null || !now.isBefore(nextRetryAt);
@@ -270,8 +282,8 @@ public final class NotificationRequest {
         return notificationId;
     }
 
-    public TenantId tenantId() {
-        return tenantId;
+    public OrganizationId organizationId() {
+        return organizationId;
     }
 
     public String sourceEventId() {

@@ -4,7 +4,7 @@ import com.arka.notification.domain.notificationdispatch.enumtype.NotificationCh
 import com.arka.notification.domain.shared.exception.DomainInvariantViolationException;
 
 public record RelevantChangeNotification(
-        TenantId tenantId,
+        OrganizationId organizationId,
         String sourceEventId,
         String sourceEventType,
         String recipientRef,

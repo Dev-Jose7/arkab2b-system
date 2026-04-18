@@ -24,7 +24,7 @@ public class CatalogResultMapper {
     public ProductResult toProductResult(Product product, List<ProductTag> tags) {
         return new ProductResult(
                 product.productId().value(),
-                product.tenantId().value(),
+                product.organizationId().value(),
                 product.productCode(),
                 product.name(),
                 product.description(),
@@ -39,7 +39,7 @@ public class CatalogResultMapper {
     public VariantResult toVariantResult(Variant variant, List<VariantAttribute> attributes) {
         return new VariantResult(
                 variant.variantId().value(),
-                variant.tenantId().value(),
+                variant.organizationId().value(),
                 variant.productId().value(),
                 variant.sku(),
                 variant.name(),
@@ -61,7 +61,7 @@ public class CatalogResultMapper {
     public PriceResult toPriceResult(Price price) {
         return new PriceResult(
                 price.priceId().value(),
-                price.tenantId().value(),
+                price.organizationId().value(),
                 price.variantId().value(),
                 price.priceType().name(),
                 price.money().amount(),
@@ -76,7 +76,7 @@ public class CatalogResultMapper {
     public CatalogOfferResult toOfferResult(CatalogOffer offer) {
         return new CatalogOfferResult(
                 offer.offerId().value(),
-                offer.tenantId().value(),
+                offer.organizationId().value(),
                 offer.product().productId().value(),
                 offer.variant().variantId().value(),
                 offer.price().priceId().value(),
@@ -88,7 +88,7 @@ public class CatalogResultMapper {
     public CatalogAuditEntryResult toAuditEntryResult(CatalogAuditEntry entry) {
         return new CatalogAuditEntryResult(
                 entry.auditId(),
-                entry.tenantId(),
+                entry.organizationId(),
                 entry.actorId(),
                 entry.actionType(),
                 entry.targetType(),

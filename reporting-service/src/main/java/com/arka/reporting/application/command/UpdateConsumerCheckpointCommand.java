@@ -1,7 +1,7 @@
 package com.arka.reporting.application.command;
 
 public record UpdateConsumerCheckpointCommand(
-        String tenantId,
+        String organizationId,
         String actorId,
         String consumerName,
         String topic,

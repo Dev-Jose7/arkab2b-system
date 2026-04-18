@@ -4,7 +4,7 @@ import com.arka.catalog.application.port.out.persistence.CatalogOfferPersistence
 import com.arka.catalog.domain.catalogoffer.aggregate.CatalogOffer;
 import com.arka.catalog.domain.catalogoffer.repository.CatalogOfferRepository;
 import com.arka.catalog.domain.catalogoffer.valueobject.OfferId;
-import com.arka.catalog.domain.catalogoffer.valueobject.TenantId;
+import com.arka.catalog.domain.catalogoffer.valueobject.OrganizationId;
 import com.arka.catalog.domain.catalogoffer.valueobject.VariantId;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -21,18 +21,18 @@ public class DomainCatalogOfferRepositoryAdapter implements CatalogOfferReposito
     @Override
     public Mono<CatalogOffer> save(CatalogOffer offer) {
         return persistencePort
-                .findByOfferId(offer.tenantId(), offer.offerId())
+                .findByOfferId(offer.organizationId(), offer.offerId())
                 .flatMap(existing -> persistencePort.update(offer))
                 .switchIfEmpty(persistencePort.create(offer));
     }
 
     @Override
-    public Mono<CatalogOffer> findByOfferId(TenantId tenantId, OfferId offerId) {
-        return persistencePort.findByOfferId(tenantId, offerId);
+    public Mono<CatalogOffer> findByOfferId(OrganizationId organizationId, OfferId offerId) {
+        return persistencePort.findByOfferId(organizationId, offerId);
     }
 
     @Override
-    public Mono<CatalogOffer> findByVariantId(TenantId tenantId, String variantId) {
-        return persistencePort.findByVariantId(tenantId, VariantId.of(variantId));
+    public Mono<CatalogOffer> findByVariantId(OrganizationId organizationId, String variantId) {
+        return persistencePort.findByVariantId(organizationId, VariantId.of(variantId));
     }
 }

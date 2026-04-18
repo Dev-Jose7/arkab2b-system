@@ -1,7 +1,7 @@
 package com.arka.reporting.application.query;
 
 public record ListReportArtifactsQuery(
-        String tenantId,
+        String organizationId,
         String weekId,
         String reportType,
         int page,

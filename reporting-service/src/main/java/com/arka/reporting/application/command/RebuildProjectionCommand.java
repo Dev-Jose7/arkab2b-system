@@ -1,7 +1,7 @@
 package com.arka.reporting.application.command;
 
 public record RebuildProjectionCommand(
-        String tenantId,
+        String organizationId,
         String actorId,
         boolean fullRebuild,
         String weekId,

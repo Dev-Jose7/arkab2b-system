@@ -1,0 +1,52 @@
+# macOS
+.DS_Store
+
+# IDE / Editors
+.idea/
+*.iml
+.vscode/
+
+# Gradle / Java build artifacts
+.gradle/
+**/.gradle/
+**/.gradle-user/
+build/
+**/build/
+/out/
+*.class
+
+# Gradle user-home local dirs (present in this repo)
+catalog-service/.gradle-user/
+config-server/.gradle-user/
+directory-service/.gradle-user/
+eureka-server/.gradle-user/
+identity-access-service/.gradle-user/
+inventory-service/.gradle-user/
+notification-service/.gradle-user/
+order-service/.gradle-user/
+reporting-service/.gradle-user/
+
+# Runtime logs / pids
+*.log
+*.pid
+*.pid.lock
+
+# Local env files (sensitive)
+.env
+.env.*
+platform/stack/.env
+!.env.example
+!platform/stack/.env.example
+!platform/stack/.env.cloud.example
+
+# Local secrets
+platform/secrets/local/*.pem
+platform/secrets/local/*.key
+platform/secrets/local/*.crt
+platform/secrets/local/*.p12
+
+# Generated docs/scratch outputs
+tmp/
+
+# Docs
+.content/

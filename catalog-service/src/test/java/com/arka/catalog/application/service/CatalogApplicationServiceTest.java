@@ -35,7 +35,7 @@ import com.arka.catalog.domain.catalogoffer.exception.SkuNotUniqueException;
 import com.arka.catalog.domain.catalogoffer.valueobject.Money;
 import com.arka.catalog.domain.catalogoffer.valueobject.PriceId;
 import com.arka.catalog.domain.catalogoffer.valueobject.ProductId;
-import com.arka.catalog.domain.catalogoffer.valueobject.TenantId;
+import com.arka.catalog.domain.catalogoffer.valueobject.OrganizationId;
 import com.arka.catalog.domain.catalogoffer.valueobject.TimeWindow;
 import com.arka.catalog.domain.catalogoffer.valueobject.VariantId;
 import com.arka.catalog.domain.shared.exception.OperationNotPermittedException;
@@ -126,7 +126,7 @@ class CatalogApplicationServiceTest {
     void shouldRejectCreateVariantWhenSellableSkuAlreadyExists() {
         Instant now = Instant.parse("2026-04-01T10:00:00Z");
         CreateVariantCommand command = new CreateVariantCommand(
-                "tenant-demo",
+                "organization-demo",
                 "actor-1",
                 "product-1",
                 "SKU-100",
@@ -137,7 +137,7 @@ class CatalogApplicationServiceTest {
                 "idem-100");
 
         Product product = Product.draft(
-                TenantId.of("tenant-demo"),
+                OrganizationId.of("organization-demo"),
                 ProductId.of("product-1"),
                 "PROD-1",
                 "Product",
@@ -148,9 +148,9 @@ class CatalogApplicationServiceTest {
 
         when(clockPort.now()).thenReturn(now);
         when(actorContextProviderPort.currentActor())
-                .thenReturn(Mono.just(new ActorContext("actor-1", "tenant-demo", "CO", true, false)));
-        when(actorLegitimacyPort.isLegitimate("actor-1", "tenant-demo")).thenReturn(Mono.just(Boolean.TRUE));
-        when(catalogAuditPort.findByIdempotency("tenant-demo", "VARIANT_CREATED", "idem-100"))
+                .thenReturn(Mono.just(new ActorContext("actor-1", "organization-demo", "CO", true, false)));
+        when(actorLegitimacyPort.isLegitimate("actor-1", "organization-demo")).thenReturn(Mono.just(Boolean.TRUE));
+        when(catalogAuditPort.findByIdempotency("organization-demo", "VARIANT_CREATED", "idem-100"))
                 .thenReturn(Mono.empty());
         when(productPersistencePort.findById(any(), any())).thenReturn(Mono.just(product));
         when(variantPersistencePort.existsSellableSku(any(), eq("SKU-100"), eq(null))).thenReturn(Mono.just(Boolean.TRUE));
@@ -166,7 +166,7 @@ class CatalogApplicationServiceTest {
     void shouldRejectRegisterPriceWhenItOverlapsTimeline() {
         Instant now = Instant.parse("2026-04-02T10:00:00Z");
         RegisterPriceCommand command = new RegisterPriceCommand(
-                "tenant-demo",
+                "organization-demo",
                 "actor-1",
                 "variant-1",
                 new BigDecimal("15.00"),
@@ -177,7 +177,7 @@ class CatalogApplicationServiceTest {
                 "idem-price-1");
 
         Variant variant = Variant.draft(
-                TenantId.of("tenant-demo"),
+                OrganizationId.of("organization-demo"),
                 VariantId.of("variant-1"),
                 ProductId.of("product-1"),
                 "SKU-1",
@@ -187,7 +187,7 @@ class CatalogApplicationServiceTest {
                 now);
 
         Price existing = Price.register(
-                TenantId.of("tenant-demo"),
+                OrganizationId.of("organization-demo"),
                 PriceId.of("price-existing"),
                 variant.variantId(),
                 PriceType.BASE,
@@ -197,9 +197,9 @@ class CatalogApplicationServiceTest {
 
         when(clockPort.now()).thenReturn(now);
         when(actorContextProviderPort.currentActor())
-                .thenReturn(Mono.just(new ActorContext("actor-1", "tenant-demo", "CO", true, false)));
-        when(actorLegitimacyPort.isLegitimate("actor-1", "tenant-demo")).thenReturn(Mono.just(Boolean.TRUE));
-        when(catalogAuditPort.findByIdempotency("tenant-demo", "PRICE_CREATED", "idem-price-1"))
+                .thenReturn(Mono.just(new ActorContext("actor-1", "organization-demo", "CO", true, false)));
+        when(actorLegitimacyPort.isLegitimate("actor-1", "organization-demo")).thenReturn(Mono.just(Boolean.TRUE));
+        when(catalogAuditPort.findByIdempotency("organization-demo", "PRICE_CREATED", "idem-price-1"))
                 .thenReturn(Mono.empty());
         when(variantPersistencePort.findById(any(), any())).thenReturn(Mono.just(variant));
         when(pricePersistencePort.findTimeline(any(), any(), eq("COP"), eq(PriceType.BASE))).thenReturn(Flux.just(existing));
@@ -215,7 +215,7 @@ class CatalogApplicationServiceTest {
     void shouldRejectMutationWhenActorContextIsMissing() {
         Instant now = Instant.parse("2026-04-01T10:00:00Z");
         CreateVariantCommand command = new CreateVariantCommand(
-                "tenant-demo",
+                "organization-demo",
                 "actor-1",
                 "product-1",
                 "SKU-200",

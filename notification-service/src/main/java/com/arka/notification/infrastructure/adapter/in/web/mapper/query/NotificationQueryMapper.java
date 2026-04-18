@@ -14,19 +14,19 @@ import org.springframework.stereotype.Component;
 public class NotificationQueryMapper {
 
     public GetNotificationByIdQuery toGetByIdQuery(String notificationId, IamSecurityPrincipal principal) {
-        return new GetNotificationByIdQuery(principal.tenantId(), notificationId);
+        return new GetNotificationByIdQuery(principal.organizationId(), notificationId);
     }
 
     public GetNotificationDetailQuery toGetDetailQuery(String notificationId, IamSecurityPrincipal principal) {
-        return new GetNotificationDetailQuery(principal.tenantId(), notificationId);
+        return new GetNotificationDetailQuery(principal.organizationId(), notificationId);
     }
 
     public ListNotificationAttemptsQuery toListAttemptsQuery(String notificationId, IamSecurityPrincipal principal) {
-        return new ListNotificationAttemptsQuery(principal.tenantId(), notificationId);
+        return new ListNotificationAttemptsQuery(principal.organizationId(), notificationId);
     }
 
     public GetNotificationTimelineQuery toTimelineQuery(String notificationId, IamSecurityPrincipal principal) {
-        return new GetNotificationTimelineQuery(principal.tenantId(), notificationId);
+        return new GetNotificationTimelineQuery(principal.organizationId(), notificationId);
     }
 
     public SearchNotificationsQuery toSearchQuery(
@@ -40,7 +40,7 @@ public class NotificationQueryMapper {
         int safePage = page == null ? 0 : Math.max(page, 0);
         int safeSize = size == null ? 20 : Math.max(size, 1);
         return new SearchNotificationsQuery(
-                principal.tenantId(),
+                principal.organizationId(),
                 status,
                 sourceEventType,
                 channel,
@@ -50,7 +50,7 @@ public class NotificationQueryMapper {
     }
 
     public GetNotificationMetricsQuery toMetricsQuery(IamSecurityPrincipal principal) {
-        return new GetNotificationMetricsQuery(principal.tenantId());
+        return new GetNotificationMetricsQuery(principal.organizationId());
     }
 
     public GetNotificationAuditQuery toAuditQuery(
@@ -61,6 +61,6 @@ public class NotificationQueryMapper {
             IamSecurityPrincipal principal) {
         int safePage = page == null ? 0 : Math.max(page, 0);
         int safeSize = size == null ? 20 : Math.max(size, 1);
-        return new GetNotificationAuditQuery(principal.tenantId(), targetType, targetId, safePage, safeSize);
+        return new GetNotificationAuditQuery(principal.organizationId(), targetType, targetId, safePage, safeSize);
     }
 }

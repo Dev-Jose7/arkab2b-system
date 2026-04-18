@@ -26,8 +26,8 @@ public class WarehouseR2dbcAdapter implements WarehousePersistencePort {
     }
 
     @Override
-    public Mono<Boolean> existsByTenantAndCode(String tenantId, String warehouseCode) {
-        return repository.existsByTenantAndCode(tenantId, warehouseCode);
+    public Mono<Boolean> existsByOrganizationAndCode(String organizationId, String warehouseCode) {
+        return repository.existsByOrganizationAndCode(organizationId, warehouseCode);
     }
 
     @Override
@@ -39,12 +39,12 @@ public class WarehouseR2dbcAdapter implements WarehousePersistencePort {
     }
 
     @Override
-    public Mono<Warehouse> findById(String tenantId, String warehouseId) {
-        return repository.findByTenantAndId(tenantId, warehouseId).map(rowMapper::toDomain);
+    public Mono<Warehouse> findById(String organizationId, String warehouseId) {
+        return repository.findByOrganizationAndId(organizationId, warehouseId).map(rowMapper::toDomain);
     }
 
     @Override
-    public Flux<Warehouse> findByTenant(String tenantId) {
-        return repository.findByTenant(tenantId).map(rowMapper::toDomain);
+    public Flux<Warehouse> findByOrganization(String organizationId) {
+        return repository.findByOrganization(organizationId).map(rowMapper::toDomain);
     }
 }

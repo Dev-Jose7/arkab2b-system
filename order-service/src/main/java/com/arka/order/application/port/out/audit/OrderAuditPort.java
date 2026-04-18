@@ -7,8 +7,8 @@ import reactor.core.publisher.Mono;
 public interface OrderAuditPort {
 
     Mono<Void> record(
-            String tenantId,
             String organizationId,
+
             String actorUserId,
             String actionType,
             String targetType,
@@ -16,5 +16,5 @@ public interface OrderAuditPort {
             String outcome,
             String payload);
 
-    Flux<OrderAuditEntryResult> findByOrder(String tenantId, String organizationId, String orderId, int limit);
+    Flux<OrderAuditEntryResult> findByOrder(String organizationId, String orderId, int limit);
 }

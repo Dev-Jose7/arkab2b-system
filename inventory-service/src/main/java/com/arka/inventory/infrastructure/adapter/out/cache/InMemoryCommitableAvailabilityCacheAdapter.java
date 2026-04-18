@@ -22,9 +22,9 @@ public class InMemoryCommitableAvailabilityCacheAdapter implements CommitableAva
     }
 
     @Override
-    public Mono<CommitableAvailabilityResult> find(String tenantId, String warehouseId, String sku) {
+    public Mono<CommitableAvailabilityResult> find(String organizationId, String warehouseId, String sku) {
         return Mono.defer(() -> {
-            String key = cacheKey(tenantId, warehouseId, sku);
+            String key = cacheKey(organizationId, warehouseId, sku);
             CacheEntry entry = cache.get(key);
             if (entry == null) {
                 return Mono.empty();
@@ -44,19 +44,19 @@ public class InMemoryCommitableAvailabilityCacheAdapter implements CommitableAva
         }
         return Mono.fromRunnable(() -> cache.put(
                 cacheKey(
-                        availabilityResult.tenantId(),
+                        availabilityResult.organizationId(),
                         availabilityResult.warehouseId(),
                         availabilityResult.sku()),
                 new CacheEntry(availabilityResult, Instant.now().plus(ttl))));
     }
 
     @Override
-    public Mono<Void> evict(String tenantId, String warehouseId, String sku) {
-        return Mono.fromRunnable(() -> cache.remove(cacheKey(tenantId, warehouseId, sku)));
+    public Mono<Void> evict(String organizationId, String warehouseId, String sku) {
+        return Mono.fromRunnable(() -> cache.remove(cacheKey(organizationId, warehouseId, sku)));
     }
 
-    private String cacheKey(String tenantId, String warehouseId, String sku) {
-        return "inventory:availability:" + tenantId + ":" + warehouseId + ":" + sku.toUpperCase();
+    private String cacheKey(String organizationId, String warehouseId, String sku) {
+        return "inventory:availability:" + organizationId + ":" + warehouseId + ":" + sku.toUpperCase();
     }
 
     private record CacheEntry(CommitableAvailabilityResult value, Instant expiresAt) {}

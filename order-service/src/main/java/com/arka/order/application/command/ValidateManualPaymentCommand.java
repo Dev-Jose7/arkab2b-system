@@ -1,8 +1,8 @@
 package com.arka.order.application.command;
 
 public record ValidateManualPaymentCommand(
-        String tenantId,
         String organizationId,
+
         String orderId,
         String paymentRecordId,
         String targetStatus,

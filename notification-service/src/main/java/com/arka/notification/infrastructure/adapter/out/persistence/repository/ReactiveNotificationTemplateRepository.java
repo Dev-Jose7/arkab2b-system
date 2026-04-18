@@ -10,12 +10,12 @@ public interface ReactiveNotificationTemplateRepository extends ReactiveCrudRepo
     @Query("""
             SELECT *
             FROM notification_templates
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND source_event_type = :sourceEventType
               AND channel = :channel
               AND active = TRUE
             ORDER BY template_version DESC
             LIMIT 1
             """)
-    Mono<NotificationTemplateRow> findActive(String tenantId, String sourceEventType, String channel);
+    Mono<NotificationTemplateRow> findActive(String organizationId, String sourceEventType, String channel);
 }

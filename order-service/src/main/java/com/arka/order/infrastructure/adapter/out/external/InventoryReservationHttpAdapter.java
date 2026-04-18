@@ -4,12 +4,17 @@ import com.arka.order.application.port.out.external.InventoryReservationPort;
 import com.arka.order.application.port.out.external.InventoryReservationValidation;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.time.Duration;
+import java.util.concurrent.TimeoutException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 @Component
 public class InventoryReservationHttpAdapter implements InventoryReservationPort {
@@ -18,22 +23,42 @@ public class InventoryReservationHttpAdapter implements InventoryReservationPort
     private final String path;
     private final String serviceToken;
     private final Duration timeout;
+    private final int maxRetryAttempts;
+    private final Duration retryBackoff;
 
+    @Autowired
     public InventoryReservationHttpAdapter(
-            WebClient.Builder webClientBuilder,
-            @Value("${app.external.inventory.base-url:http://inventory-service:8080}") String baseUrl,
+            @Qualifier("loadBalancedWebClientBuilder") WebClient.Builder webClientBuilder,
+            @Value("${app.external.inventory.base-url:http://inventory-service}") String baseUrl,
             @Value("${app.external.inventory.reservation-validation-path:/api/v1/internal/reservations/{reservationId}/validation}") String path,
             @Value("${app.external.inventory.service-token:}") String serviceToken,
-            @Value("${app.external.inventory.timeout-ms:3000}") long timeoutMs) {
+            @Value("${app.external.inventory.timeout-ms:3000}") long timeoutMs,
+            @Value("${app.external.inventory.retry.max-attempts:2}") int maxRetryAttempts,
+            @Value("${app.external.inventory.retry.backoff-ms:200}") long retryBackoffMs) {
         this.webClient = webClientBuilder.baseUrl(baseUrl).build();
         this.path = path;
         this.serviceToken = serviceToken == null ? "" : serviceToken.trim();
         this.timeout = Duration.ofMillis(Math.max(500L, timeoutMs));
+        this.maxRetryAttempts = Math.max(0, maxRetryAttempts);
+        this.retryBackoff = Duration.ofMillis(Math.max(50L, retryBackoffMs));
+    }
+
+    public InventoryReservationHttpAdapter(
+            WebClient.Builder webClientBuilder,
+            String baseUrl,
+            String path,
+            String serviceToken,
+            long timeoutMs) {
+        this(webClientBuilder, baseUrl, path, serviceToken, timeoutMs, 2, 200L);
     }
 
     @Override
-    public Mono<InventoryReservationValidation> validateReservation(String tenantId, String reservationId, String sku, int qty) {
-        if (tenantId == null || tenantId.isBlank() || reservationId == null || reservationId.isBlank()
+    public Mono<InventoryReservationValidation> validateReservation(
+            String organizationId,
+            String reservationId,
+            String sku,
+            int qty) {
+        if (organizationId == null || organizationId.isBlank() || reservationId == null || reservationId.isBlank()
                 || sku == null || sku.isBlank() || qty <= 0) {
             return Mono.just(new InventoryReservationValidation(reservationId, sku, qty, false, false));
         }
@@ -41,7 +66,7 @@ public class InventoryReservationHttpAdapter implements InventoryReservationPort
                 .get()
                 .uri(uriBuilder -> uriBuilder
                         .path(path)
-                        .queryParam("tenantId", tenantId.trim())
+                        .queryParam("organizationId", organizationId.trim())
                         .queryParam("sku", sku.trim().toUpperCase())
                         .queryParam("qty", qty)
                         .build(reservationId.trim()))
@@ -69,13 +94,14 @@ public class InventoryReservationHttpAdapter implements InventoryReservationPort
                     return response
                             .bodyToMono(String.class)
                             .defaultIfEmpty("")
-                            .flatMap(body -> Mono.error(new IllegalStateException(
+                            .flatMap(body -> Mono.error(new TransientRemoteException(
                                     "Inventory reservation validation failed status="
                                             + status
                                             + " body="
                                             + body)));
                 })
-                .timeout(timeout);
+                .timeout(timeout)
+                .retryWhen(Retry.backoff(maxRetryAttempts, retryBackoff).filter(this::isRetryable));
     }
 
     private RuntimeException clientError(int status, String reservationId, String sku, int qty, String body) {
@@ -122,6 +148,18 @@ public class InventoryReservationHttpAdapter implements InventoryReservationPort
     private void applyAuthHeader(HttpHeaders headers) {
         if (!serviceToken.isBlank()) {
             headers.setBearerAuth(serviceToken);
+        }
+    }
+
+    private boolean isRetryable(Throwable throwable) {
+        return throwable instanceof TimeoutException
+                || throwable instanceof WebClientRequestException
+                || throwable instanceof TransientRemoteException;
+    }
+
+    private static final class TransientRemoteException extends RuntimeException {
+        private TransientRemoteException(String message) {
+            super(message);
         }
     }
 }

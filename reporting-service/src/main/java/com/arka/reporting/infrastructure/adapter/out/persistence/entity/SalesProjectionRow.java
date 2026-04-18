@@ -10,7 +10,7 @@ import org.springframework.data.relational.core.mapping.Table;
 public record SalesProjectionRow(
         @Id
         @Column("projection_id") String projectionId,
-        @Column("tenant_id") String tenantId,
+        @Column("organization_id") String organizationId,
         @Column("period") String period,
         @Column("total_sales") BigDecimal totalSales,
         @Column("paid_amount") BigDecimal paidAmount,

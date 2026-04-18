@@ -4,7 +4,7 @@ import java.time.Instant;
 
 public record CatalogAuditEntryResponse(
         String auditId,
-        String tenantId,
+        String organizationId,
         String actorId,
         String actionType,
         String targetType,
@@ -12,5 +12,4 @@ public record CatalogAuditEntryResponse(
         String outcome,
         String payload,
         String idempotencyKey,
-        Instant createdAt) {
-}
+        Instant createdAt) {}

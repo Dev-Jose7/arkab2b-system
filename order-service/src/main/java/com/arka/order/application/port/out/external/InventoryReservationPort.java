@@ -4,5 +4,5 @@ import reactor.core.publisher.Mono;
 
 public interface InventoryReservationPort {
 
-    Mono<InventoryReservationValidation> validateReservation(String tenantId, String reservationId, String sku, int qty);
+    Mono<InventoryReservationValidation> validateReservation(String organizationId, String reservationId, String sku, int qty);
 }

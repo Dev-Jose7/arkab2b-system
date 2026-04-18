@@ -9,7 +9,7 @@ import org.springframework.data.relational.core.mapping.Table;
 public record AnalyticFactRow(
         @Id
         @Column("fact_id") String factId,
-        @Column("tenant_id") String tenantId,
+        @Column("organization_id") String organizationId,
         @Column("source_event_id") String sourceEventId,
         @Column("event_type") String eventType,
         @Column("fact_type") String factType,

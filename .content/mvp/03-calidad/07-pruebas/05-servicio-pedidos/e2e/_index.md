@@ -13,7 +13,7 @@ Validar journeys comerciales de pedidos de punta a punta, con dependencias reale
 - ciclo de estado del pedido dentro del baseline MVP.
 - pagos manuales y estado de pago.
 - eventos y politicas de reaccion por integraciones.
-- seguridad tenant/rol y regionalizacion obligatoria.
+- seguridad organization/rol y regionalizacion obligatoria.
 
 ## Escenarios E2E priorizados
 | ID | Escenario | Flujo | Resultado esperado | Trazabilidad |
@@ -29,7 +29,7 @@ Validar journeys comerciales de pedidos de punta a punta, con dependencias reale
 | ORD-E2E-009 | variant discontinued impacta carrito | catalog emite `VariantDiscontinued` | item invalido/removido, checkout protegido | FR-004 |
 | ORD-E2E-010 | user blocked contiene riesgo operativo | IAM emite `UserBlocked` | cancela/no permite mutaciones en pedidos no terminales segun politica | FR-009 |
 | ORD-E2E-011 | cart abandoned dispara notificacion | scheduler detecta abandono | `CartAbandonedDetected` + flujo notificacion no bloqueante | FR-008, NFR-007 |
-| ORD-E2E-012 | seguridad tenant en APIs de pedidos | actor tenant A consulta/muta tenant B | rechazo `acceso_cruzado_detectado` | NFR-005 |
+| ORD-E2E-012 | seguridad organization en APIs de pedidos | actor organization A consulta/muta organization B | rechazo `acceso_cruzado_detectado` | NFR-005 |
 | ORD-E2E-013 | resiliencia outbox ante falla broker | mutacion exitosa con publicacion fallida | decision persiste + outbox reintenta | NFR-006 |
 | ORD-E2E-014 | trazabilidad tecnica completa | ejecutar checkout+pago+status | cadena `request -> db -> outbox -> evento` correlacionada | NFR-006, NFR-009 |
 

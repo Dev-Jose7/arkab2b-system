@@ -10,8 +10,9 @@ import com.arka.reporting.application.port.in.ApplyAnalyticFactCommandUseCase;
 import com.arka.reporting.application.port.in.RegisterAnalyticFactCommandUseCase;
 import com.arka.reporting.application.port.in.UpdateConsumerCheckpointCommandUseCase;
 import com.arka.reporting.application.result.AnalyticFactResult;
-import com.arka.reporting.infrastructure.adapter.out.external.OrderTenantLookupHttpAdapter;
+import com.arka.reporting.infrastructure.adapter.out.external.OrderOrganizationLookupHttpAdapter;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Instant;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.ObjectProvider;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -36,7 +38,10 @@ class UpstreamEventConsumerContractCompatibilityTest {
     private UpdateConsumerCheckpointCommandUseCase checkpointUseCase;
 
     @Mock
-    private OrderTenantLookupHttpAdapter orderTenantLookupHttpAdapter;
+    private OrderOrganizationLookupHttpAdapter orderOrganizationLookupHttpAdapter;
+
+    @Mock
+    private ObjectProvider<MeterRegistry> meterRegistryProvider;
 
     private UpstreamDomainEventKafkaConsumer consumer;
 
@@ -48,7 +53,8 @@ class UpstreamEventConsumerContractCompatibilityTest {
                 applyUseCase,
                 checkpointUseCase,
                 parser,
-                orderTenantLookupHttpAdapter,
+                orderOrganizationLookupHttpAdapter,
+                meterRegistryProvider,
                 "reporting-kafka-consumer",
                 "reporting-service",
                 8_000);
@@ -65,7 +71,7 @@ class UpstreamEventConsumerContractCompatibilityTest {
                   "eventVersion":"v1",
                   "aggregateType":"Order",
                   "aggregateId":"ord-101",
-                  "tenantId":"tenant-order",
+                  "organizationId":"organization-order",
                   "traceId":"trace-order",
                   "correlationId":"corr-order",
                   "occurredAt":"2026-04-16T19:00:00Z"
@@ -78,7 +84,7 @@ class UpstreamEventConsumerContractCompatibilityTest {
 
         ArgumentCaptor<RegisterAnalyticFactCommand> captor = ArgumentCaptor.forClass(RegisterAnalyticFactCommand.class);
         verify(registerUseCase).handle(captor.capture());
-        assertThat(captor.getValue().tenantId()).isEqualTo("tenant-order");
+        assertThat(captor.getValue().organizationId()).isEqualTo("organization-order");
         assertThat(captor.getValue().factType()).isEqualTo("SALES");
         assertThat(captor.getValue().sourceEventType()).isEqualTo("OrderCreatedFromValidatedCart");
     }
@@ -92,7 +98,7 @@ class UpstreamEventConsumerContractCompatibilityTest {
                   "eventVersion":"v1",
                   "aggregateType":"InventoryBalance",
                   "aggregateId":"inv-1",
-                  "tenantId":"tenant-inv",
+                  "organizationId":"organization-inv",
                   "traceId":"trace-inv",
                   "correlationId":"corr-inv",
                   "occurredAt":"2026-04-16T19:10:00Z"
@@ -105,7 +111,7 @@ class UpstreamEventConsumerContractCompatibilityTest {
 
         ArgumentCaptor<RegisterAnalyticFactCommand> captor = ArgumentCaptor.forClass(RegisterAnalyticFactCommand.class);
         verify(registerUseCase).handle(captor.capture());
-        assertThat(captor.getValue().tenantId()).isEqualTo("tenant-inv");
+        assertThat(captor.getValue().organizationId()).isEqualTo("organization-inv");
         assertThat(captor.getValue().factType()).isEqualTo("REPLENISHMENT");
     }
 
@@ -118,7 +124,7 @@ class UpstreamEventConsumerContractCompatibilityTest {
                   "eventVersion":"v1",
                   "aggregateType":"NotificationDispatch",
                   "aggregateId":"noti-1",
-                  "tenantId":"tenant-noti",
+                  "organizationId":"organization-noti",
                   "traceId":"trace-noti",
                   "correlationId":"corr-noti",
                   "occurredAt":"2026-04-16T19:20:00Z"
@@ -131,7 +137,7 @@ class UpstreamEventConsumerContractCompatibilityTest {
 
         ArgumentCaptor<RegisterAnalyticFactCommand> captor = ArgumentCaptor.forClass(RegisterAnalyticFactCommand.class);
         verify(registerUseCase).handle(captor.capture());
-        assertThat(captor.getValue().tenantId()).isEqualTo("tenant-noti");
+        assertThat(captor.getValue().organizationId()).isEqualTo("organization-noti");
         assertThat(captor.getValue().factType()).isEqualTo("NOTIFICATION");
     }
 
@@ -144,7 +150,7 @@ class UpstreamEventConsumerContractCompatibilityTest {
                   "eventVersion":"v1",
                   "aggregateType":"CatalogOffer",
                   "aggregateId":"offer-1",
-                  "tenantId":"tenant-cat",
+                  "organizationId":"organization-cat",
                   "traceId":"trace-cat",
                   "correlationId":"corr-cat",
                   "occurredAt":"2026-04-16T19:25:00Z"
@@ -157,19 +163,19 @@ class UpstreamEventConsumerContractCompatibilityTest {
 
         ArgumentCaptor<RegisterAnalyticFactCommand> captor = ArgumentCaptor.forClass(RegisterAnalyticFactCommand.class);
         verify(registerUseCase).handle(captor.capture());
-        assertThat(captor.getValue().tenantId()).isEqualTo("tenant-cat");
+        assertThat(captor.getValue().organizationId()).isEqualTo("organization-cat");
         assertThat(captor.getValue().factType()).isEqualTo("GENERIC");
     }
 
     @Test
-    void shouldAcceptDirectoryEventContractUsingAggregateAsTenantWhenNeeded() {
+    void shouldAcceptDirectoryEventContractUsingAggregateAsOrganizationWhenNeeded() {
         String payload = """
                 {
                   "eventId":"evt-dir-1",
                   "eventType":"OrganizationStatusChanged",
                   "eventVersion":"v1",
                   "aggregateType":"Organization",
-                  "aggregateId":"tenant-dir",
+                  "aggregateId":"organization-dir",
                   "traceId":"trace-dir",
                   "correlationId":"corr-dir",
                   "occurredAt":"2026-04-16T19:30:00Z"
@@ -177,19 +183,19 @@ class UpstreamEventConsumerContractCompatibilityTest {
                 """;
         when(registerUseCase.handle(any())).thenReturn(Mono.just(fact("fact-dir", "evt-dir-1", "OrganizationStatusChanged")));
 
-        StepVerifier.create(consumer.consume(new ConsumerRecord<>("directory.entity-mutated.v1", 2, 4L, "tenant-dir", payload)))
+        StepVerifier.create(consumer.consume(new ConsumerRecord<>("directory.entity-mutated.v1", 2, 4L, "organization-dir", payload)))
                 .verifyComplete();
 
         ArgumentCaptor<RegisterAnalyticFactCommand> captor = ArgumentCaptor.forClass(RegisterAnalyticFactCommand.class);
         verify(registerUseCase).handle(captor.capture());
-        assertThat(captor.getValue().tenantId()).isEqualTo("tenant-dir");
+        assertThat(captor.getValue().organizationId()).isEqualTo("organization-dir");
         assertThat(captor.getValue().factType()).isEqualTo("OPERATIONS");
     }
 
     private AnalyticFactResult fact(String factId, String sourceEventId, String sourceEventType) {
         return new AnalyticFactResult(
                 factId,
-                "tenant",
+                "organization",
                 sourceEventId,
                 sourceEventType,
                 "GENERIC",

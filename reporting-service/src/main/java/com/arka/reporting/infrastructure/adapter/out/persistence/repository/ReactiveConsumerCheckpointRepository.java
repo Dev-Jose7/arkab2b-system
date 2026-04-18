@@ -10,17 +10,17 @@ public interface ReactiveConsumerCheckpointRepository extends ReactiveCrudReposi
     @Query("""
             SELECT *
             FROM consumer_checkpoints
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND consumer_name = :consumerName
               AND topic = :topic
               AND partition = :partition
             """)
-    Mono<ConsumerCheckpointRow> findByTenantConsumerTopicAndPartition(
-            String tenantId,
+    Mono<ConsumerCheckpointRow> findByOrganizationConsumerTopicAndPartition(
+            String organizationId,
             String consumerName,
             String topic,
             int partition);
 
-    @Query("SELECT COALESCE(MAX(lag), 0) FROM consumer_checkpoints WHERE tenant_id = :tenantId")
-    Mono<Long> maxLagByTenant(String tenantId);
+    @Query("SELECT COALESCE(MAX(lag), 0) FROM consumer_checkpoints WHERE organization_id = :organizationId")
+    Mono<Long> maxLagByOrganization(String organizationId);
 }

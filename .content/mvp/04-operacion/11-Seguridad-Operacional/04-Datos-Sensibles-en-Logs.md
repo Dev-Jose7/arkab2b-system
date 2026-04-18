@@ -11,7 +11,7 @@ No registrar payloads sensibles completos ni datos personales innecesarios.
 ## Permitido
 - identificadores tecnicos
 - codigos de error
-- metadatos de trazabilidad (traceId, correlationId, tenantId)
+- metadatos de trazabilidad (traceId, correlationId, organizationId)
 - actorId tecnico cuando corresponda a auditoria
 
 ## No permitido

@@ -28,24 +28,24 @@ public class FileSystemArtifactStorageAdapter implements ArtifactStoragePort {
 
     @Override
     public Mono<StoredArtifact> store(
-            String tenantId,
+            String organizationId,
             String weekId,
             String reportType,
             String format,
             String payload) {
-        return Mono.fromCallable(() -> doStore(tenantId, weekId, reportType, format, payload))
+        return Mono.fromCallable(() -> doStore(organizationId, weekId, reportType, format, payload))
                 .subscribeOn(Schedulers.boundedElastic());
     }
 
-    private StoredArtifact doStore(String tenantId, String weekId, String reportType, String format, String payload) throws Exception {
-        String safeTenant = sanitize(tenantId, "unknown-tenant");
+    private StoredArtifact doStore(String organizationId, String weekId, String reportType, String format, String payload) throws Exception {
+        String safeOrganization = sanitize(organizationId, "unknown-organization");
         String safeWeek = sanitize(weekId, "unknown-week");
         String safeType = sanitize(reportType, "generic");
         String safeFormat = sanitize(format, "json").toLowerCase(Locale.ROOT);
         String safePayload = payload == null ? "" : payload;
         byte[] bytes = safePayload.getBytes(StandardCharsets.UTF_8);
 
-        Path folder = basePath.resolve(safeTenant).resolve(safeWeek).resolve(safeType);
+        Path folder = basePath.resolve(safeOrganization).resolve(safeWeek).resolve(safeType);
         Files.createDirectories(folder);
 
         String fileName = Instant.now().toEpochMilli() + "-" + UUID.randomUUID() + "." + safeFormat;

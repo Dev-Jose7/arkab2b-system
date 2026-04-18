@@ -6,7 +6,7 @@ import java.time.Instant;
 
 public record StockMovement(
         String movementId,
-        String tenantId,
+        String organizationId,
         String stockItemId,
         String warehouseId,
         String sku,
@@ -20,7 +20,7 @@ public record StockMovement(
 
     public StockMovement {
         requireNotBlank(movementId, "movementId");
-        requireNotBlank(tenantId, "tenantId");
+        requireNotBlank(organizationId, "organizationId");
         requireNotBlank(stockItemId, "stockItemId");
         requireNotBlank(warehouseId, "warehouseId");
         requireNotBlank(sku, "sku");

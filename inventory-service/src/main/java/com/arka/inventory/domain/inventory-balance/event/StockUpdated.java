@@ -4,7 +4,7 @@ import java.time.Instant;
 
 public final class StockUpdated extends AbstractInventoryDomainEvent {
 
-    private final String tenantId;
+    private final String organizationId;
     private final String warehouseId;
     private final String sku;
     private final int physicalQty;
@@ -14,14 +14,14 @@ public final class StockUpdated extends AbstractInventoryDomainEvent {
     public StockUpdated(
             Instant occurredAt,
             String stockItemId,
-            String tenantId,
+            String organizationId,
             String warehouseId,
             String sku,
             int physicalQty,
             int reservedQty,
             String reason) {
         super("StockUpdated", occurredAt, stockItemId, "InventoryBalance");
-        this.tenantId = tenantId;
+        this.organizationId = organizationId;
         this.warehouseId = warehouseId;
         this.sku = sku;
         this.physicalQty = physicalQty;
@@ -29,8 +29,8 @@ public final class StockUpdated extends AbstractInventoryDomainEvent {
         this.reason = reason;
     }
 
-    public String tenantId() {
-        return tenantId;
+    public String organizationId() {
+        return organizationId;
     }
 
     public String warehouseId() {

@@ -22,8 +22,8 @@ public class SecurityActorContextProviderAdapter implements ActorContextProvider
         IamSecurityPrincipal principal = IamSecurityPrincipal.fromAuthentication(authentication);
         return new ActorContext(
                 principal.userId(),
-                principal.tenantId(),
                 principal.organizationId(),
-                principal.isOrderAdmin());
+                principal.isOrderAdmin(),
+                principal.isTrustedService());
     }
 }

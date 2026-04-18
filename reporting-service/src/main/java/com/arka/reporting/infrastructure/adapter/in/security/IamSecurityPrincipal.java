@@ -12,16 +12,16 @@ import org.springframework.security.oauth2.jwt.Jwt;
 public final class IamSecurityPrincipal {
 
     private final String actorId;
-    private final String tenantId;
+    private final String organizationId;
     private final String countryCode;
     private final Set<String> roles;
 
-    public IamSecurityPrincipal(String actorId, String tenantId, String countryCode, Set<String> roles) {
+    public IamSecurityPrincipal(String actorId, String organizationId, String countryCode, Set<String> roles) {
         if (actorId == null || actorId.isBlank()) {
             throw new IllegalArgumentException("actorId is required");
         }
         this.actorId = actorId.trim();
-        this.tenantId = tenantId == null ? "" : tenantId.trim();
+        this.organizationId = organizationId == null ? "" : organizationId.trim();
         this.countryCode = countryCode == null ? "" : countryCode.trim().toUpperCase();
         this.roles = normalizeRoles(roles);
     }
@@ -30,8 +30,8 @@ public final class IamSecurityPrincipal {
         return actorId;
     }
 
-    public String tenantId() {
-        return tenantId;
+    public String organizationId() {
+        return organizationId;
     }
 
     public String countryCode() {
@@ -71,9 +71,9 @@ public final class IamSecurityPrincipal {
 
     private static IamSecurityPrincipal fromJwt(Jwt jwt, Collection<? extends GrantedAuthority> authorities) {
         String sub = jwt.getSubject();
-        String tenantId = claimString(jwt, "organization_id", claimString(jwt, "tenant_id", ""));
+        String organizationId = claimString(jwt, "organization_id", claimString(jwt, "organization_id", ""));
         String countryCode = claimString(jwt, "country_code", claimString(jwt, "countryCode", ""));
-        return new IamSecurityPrincipal(sub, tenantId, countryCode, authorities(authorities));
+        return new IamSecurityPrincipal(sub, organizationId, countryCode, authorities(authorities));
     }
 
     private static String claimString(Jwt jwt, String claim, String fallback) {

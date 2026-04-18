@@ -68,9 +68,9 @@ Referencia: [Modelo de Evidencia](/mvp/calidad/modelo-evidencia/)
   - autenticacion en borde;
   - autorizacion contextual en servicio;
   - errores canonicos esperados.
-- Multi-tenant evaluado:
+- Multi-organization evaluado:
   - no hay acceso cruzado;
-  - `tenantId` presente en mutaciones y evidencia.
+  - `organizationId` presente en mutaciones y evidencia.
 - Stack reproducible de integracion levantado con el mecanismo multi-contenedor
   definido en arquitectura cuando
   aplique al alcance del cambio.
@@ -104,11 +104,11 @@ Flujos criticos end-to-end exigidos segun el alcance documentado por servicio en
 | NFR | Flujo medido | Entorno objetivo | Metrica/umbral | Ventana | Evidencia esperada |
 |---|---|---|---|---|---|
 | NFR-001 | lecturas de catalogo + mutaciones checkout/pedido | `qa`/`staging` | p95 <= 800 ms (lecturas), p95 <= 1500 ms (mutaciones) | corrida controlada por release | reporte de performance con percentiles por endpoint |
-| NFR-002 | generacion de reporte semanal | `qa`/`staging` | <= 15 min por ejecucion semanal | por corrida semanal | tiempos de inicio/fin por `tenant+week+type` |
+| NFR-002 | generacion de reporte semanal | `qa`/`staging` | <= 15 min por ejecucion semanal | por corrida semanal | tiempos de inicio/fin por `organization+week+type` |
 | NFR-003 | disponibilidad backend core | `prod` (o simulacion operativa previa) | >= 99.5% mensual | 06:00-22:00 hora local | reporte SLI/SLO por servicio y consolidado |
 | NFR-004 | checkout + reserva/confirmacion de stock | `qa`/`staging` | sobreventa <= 1.0% semanal | semanal | metrica de sobreventa y detalle de incidentes |
-| NFR-005 | mutaciones tenantizadas | `qa`/`staging` | 0 incidentes criticos cross-tenant/mes | por release + mensual | consultas de auditoria/seguridad por `tenantId` |
-| NFR-006 | mutaciones criticas | `qa`/`staging` | >= 99% con `actorId/tenantId/fechaOperacion` | por release | evidencia de auditoria y logs estructurados |
+| NFR-005 | mutaciones organizationizadas | `qa`/`staging` | 0 incidentes criticos cross-organization/mes | por release + mensual | consultas de auditoria/seguridad por `organizationId` |
+| NFR-006 | mutaciones criticas | `qa`/`staging` | >= 99% con `actorId/organizationId/fechaOperacion` | por release | evidencia de auditoria y logs estructurados |
 | NFR-007 | mutaciones y consumo async | `qa`/`staging` | 100% respuestas mutantes con `traceId`; alertas de error-rate/latencia activas | por release | reporte de observabilidad + alertas + trazas |
 | NFR-008 | picos de demanda en checkout/pedido | `qa`/`staging` | 3x baseline con degradacion <= 30% de p95 (NFR-001) | corrida de estres por release | comparativo baseline vs carga pico |
 | NFR-009 | APIs/eventos `v1` | `qa`/`staging` | sin breaking no versionado | por PR/release | resultados de contract tests producer/consumer |
@@ -131,7 +131,7 @@ Flujos criticos end-to-end exigidos segun el alcance documentado por servicio en
 ## Criterio explicito de bloqueo/desbloqueo por severidad
 
 ### Clasificacion
-- `P0` Critico: vulneracion de seguridad/tenant, corrupcion de datos core, caida de flujo comercial critico.
+- `P0` Critico: vulneracion de seguridad/organization, corrupcion de datos core, caida de flujo comercial critico.
 - `P1` Alto: ruptura funcional de FR core o NFR clave sin workaround aceptable.
 - `P2` Medio: degradacion relevante con workaround temporal.
 - `P3` Bajo: defecto menor sin impacto operativo significativo.

@@ -39,7 +39,7 @@ class OrderHttpConsumerContractTest {
                     "BASE",
                     3_000);
 
-            StepVerifier.create(adapter.resolveVariant("tenant-1", "ignored", "SKU-1"))
+            StepVerifier.create(adapter.resolveVariant("organization-1", "ignored", "SKU-1"))
                     .assertNext(snapshot -> {
                         assertThat(snapshot.variantId()).isEqualTo("var-1");
                         assertThat(snapshot.sku()).isEqualTo("SKU-1");
@@ -76,9 +76,9 @@ class OrderHttpConsumerContractTest {
                     "order-service-token",
                     3_000);
 
-            StepVerifier.create(adapter.resolveCheckoutContext("tenant-1", "org-11", "addr-22", "co"))
+            StepVerifier.create(adapter.resolveCheckoutContext("organization-1", "addr-22", "co"))
                     .assertNext(context -> {
-                        assertThat(context.organizationId()).isEqualTo("org-11");
+                        assertThat(context.organizationId()).isEqualTo("organization-1");
                         assertThat(context.addressId()).isEqualTo("addr-22");
                         assertThat(context.countryCode()).isEqualTo("CO");
                         assertThat(context.policyActive()).isTrue();
@@ -88,7 +88,7 @@ class OrderHttpConsumerContractTest {
 
             CapturedRequest request = server.lastRequest();
             assertThat(request.method()).isEqualTo("GET");
-            assertThat(request.path()).isEqualTo("/api/v1/organizations/org-11/addresses/addr-22/checkout-resolution");
+            assertThat(request.path()).isEqualTo("/api/v1/organizations/organization-1/addresses/addr-22/checkout-resolution");
             assertThat(request.query()).isEqualTo("countryCode=CO");
             assertThat(request.header("Authorization")).isEqualTo("Bearer order-service-token");
         }
@@ -114,7 +114,7 @@ class OrderHttpConsumerContractTest {
                     "order-service-token",
                     3_000);
 
-            StepVerifier.create(adapter.validateReservation("tenant-9", "res-77", "sku-9", 3))
+            StepVerifier.create(adapter.validateReservation("organization-9", "res-77", "sku-9", 3))
                     .assertNext(validation -> {
                         assertThat(validation.reservationId()).isEqualTo("res-77");
                         assertThat(validation.sku()).isEqualTo("SKU-9");
@@ -127,7 +127,7 @@ class OrderHttpConsumerContractTest {
             CapturedRequest request = server.lastRequest();
             assertThat(request.method()).isEqualTo("GET");
             assertThat(request.path()).isEqualTo("/api/v1/internal/reservations/res-77/validation");
-            assertThat(request.query()).contains("tenantId=tenant-9");
+            assertThat(request.query()).contains("organizationId=organization-9");
             assertThat(request.query()).contains("sku=SKU-9");
             assertThat(request.query()).contains("qty=3");
             assertThat(request.header("Authorization")).isEqualTo("Bearer order-service-token");

@@ -1,7 +1,7 @@
 package com.arka.inventory.infrastructure.adapter.in.web.response;
 
 public record CommitableAvailabilityResponse(
-        String tenantId,
+        String organizationId,
         String warehouseId,
         String sku,
         int physicalQty,

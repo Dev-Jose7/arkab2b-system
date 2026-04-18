@@ -11,7 +11,7 @@ Asegurar entrega no bloqueante de notificaciones, control de fallos por canal y 
 ## Alcance de calidad del servicio
 - Flujos HTTP internos: request, dispatch, retry, discard, callbacks de proveedor, consultas y reproceso DLQ.
 - Flujos async: consumo de eventos de Order/Inventory/Directory/Reporting/IAM y emision de eventos de Notification.
-- Reglas de seguridad: scopes m2m, aislamiento tenant, validacion de callback provider, dedupe e integridad de payload.
+- Reglas de seguridad: scopes m2m, aislamiento organization, validacion de callback provider, dedupe e integridad de payload.
 
 ## Fuentes de verdad usadas
 - Producto: `FR-006`, `FR-008`, `FR-010`, `NFR-005`, `NFR-006`, `NFR-007`, `NFR-009`.
@@ -19,8 +19,8 @@ Asegurar entrega no bloqueante de notificaciones, control de fallos por canal y 
 - Arquitectura Notification: contratos API/eventos, seguridad, datos y runtime.
 
 ## Datos de entrada comunes
-- `tenant` principal: `org-co-001`.
-- `tenant` alterno: `org-ec-001`.
+- `organization` principal: `org-co-001`.
+- `organization` alterno: `org-ec-001`.
 - actores/identidades base:
   - caller interno con scope `notification.write`.
   - caller interno con scope `notification.dispatch`.
@@ -52,4 +52,4 @@ Asegurar entrega no bloqueante de notificaciones, control de fallos por canal y 
 | Consumo upstream | `Order*`, `CartAbandonedDetected`, `Stock*`, `Directory*`, `WeeklyReportGenerated`, `UserBlocked` |
 | Desacople no bloqueante | falla de notificacion no revierte core transaccional |
 | Resiliencia | retries, DLQ, reprocess-dlq |
-| Seguridad | scopes m2m, tenant isolation, validacion callback |
+| Seguridad | scopes m2m, organization isolation, validacion callback |

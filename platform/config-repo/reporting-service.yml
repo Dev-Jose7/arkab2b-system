@@ -1,0 +1,66 @@
+server:
+  port: ${SERVER_PORT:8087}
+
+app:
+  kafka:
+    topics:
+      weekly-sales-report-generated: ${APP_KAFKA_TOPIC_WEEKLY_SALES_REPORT_GENERATED:reporting.weekly-sales-report-generated.v1}
+      weekly-replenishment-report-generated: ${APP_KAFKA_TOPIC_WEEKLY_REPLENISHMENT_REPORT_GENERATED:reporting.weekly-replenishment-report-generated.v1}
+      analytic-fact-applied: ${APP_KAFKA_TOPIC_ANALYTIC_FACT_APPLIED:reporting.analytic-fact-applied.v1}
+      reporting-mutation: ${APP_KAFKA_TOPIC_REPORTING_MUTATION:reporting.mutation.v1}
+    consumers:
+      upstream-events:
+        enabled: ${APP_KAFKA_CONSUMER_UPSTREAM_EVENTS_ENABLED:true}
+        group-id: ${APP_KAFKA_CONSUMER_UPSTREAM_EVENTS_GROUP_ID:reporting-upstream-events-consumer}
+        topics: ${APP_KAFKA_CONSUMER_UPSTREAM_EVENTS_TOPICS:directory.regional-policy-configured.v1,directory.regional-policy-applied.v1,directory.entity-mutated.v1,catalog.offer-published.v1,catalog.offer-updated.v1,catalog.mutation.v1,inventory.stock-updated.v1,inventory.commitable-availability-recalculated.v1,inventory.mutation.v1,order.events.v1,order.cart.events.v1,notification.relevant-change-notification-emitted.v1,notification.notification-delivery-recorded.v1,notification.mutation.v1}
+        consumer-name: ${APP_KAFKA_CONSUMER_UPSTREAM_EVENTS_CONSUMER_NAME:reporting-service}
+        actor-id: ${APP_KAFKA_CONSUMER_UPSTREAM_EVENTS_ACTOR_ID:reporting-kafka-consumer}
+        processing-timeout-ms: ${APP_KAFKA_CONSUMER_UPSTREAM_EVENTS_PROCESSING_TIMEOUT_MS:10000}
+        retry-backoff-ms: ${APP_KAFKA_CONSUMER_UPSTREAM_EVENTS_RETRY_BACKOFF_MS:1000}
+        max-retries: ${APP_KAFKA_CONSUMER_UPSTREAM_EVENTS_MAX_RETRIES:3}
+        dlq-suffix: ${APP_KAFKA_CONSUMER_UPSTREAM_EVENTS_DLQ_SUFFIX:.dlq}
+  outbox:
+    relay:
+      enabled: ${APP_OUTBOX_RELAY_ENABLED:true}
+      batch-size: ${APP_OUTBOX_RELAY_BATCH_SIZE:200}
+      poll-interval-ms: ${APP_OUTBOX_RELAY_POLL_INTERVAL_MS:2000}
+      max-retries: ${APP_OUTBOX_RELAY_MAX_RETRIES:3}
+  security:
+    jwt:
+      issuer: ${APP_SECURITY_JWT_ISSUER:identity-access-service}
+      allowed-audiences: ${APP_SECURITY_JWT_ALLOWED_AUDIENCES:arka-b2b,reporting-service}
+      jwks-uri: ${APP_SECURITY_JWT_JWKS_URI:http://localhost:8081/.well-known/jwks.json}
+    s2s:
+      client-id: ${APP_SECURITY_S2S_CLIENT_ID:reporting-service}
+      client-secret: ${APP_SECURITY_S2S_CLIENT_SECRET:${APP_S2S_SECRET_REPORTING:reporting-service-secret}}
+      audience: ${APP_SECURITY_S2S_AUDIENCE:arka-b2b}
+      scopes: ${APP_SECURITY_S2S_SCOPES:reporting.ingest,order.read,directory.read,catalog.read,inventory.read,notification.dispatch,iam.permission.read}
+      identity-base-url: ${APP_SECURITY_S2S_IDENTITY_BASE_URL:http://identity-access-service}
+      token-path: ${APP_SECURITY_S2S_TOKEN_PATH:/api/v1/internal/auth/service-token}
+    actor:
+      fallback-enabled: ${APP_SECURITY_ACTOR_FALLBACK_ENABLED:false}
+      fallback-organization-id: 
+      fallback-country-code: ${APP_SECURITY_ACTOR_FALLBACK_COUNTRY_CODE:}
+  external:
+    identity:
+      base-url: ${APP_EXTERNAL_IDENTITY_BASE_URL:http://identity-access-service}
+      service-token: ${APP_EXTERNAL_IDENTITY_SERVICE_TOKEN:}
+      timeout-ms: ${APP_EXTERNAL_IDENTITY_TIMEOUT_MS:3000}
+      actor-legitimacy-path: ${APP_EXTERNAL_IDENTITY_ACTOR_LEGITIMACY_PATH:/api/v1/internal/iam/users/{actorId}/permissions}
+    directory:
+      base-url: ${APP_EXTERNAL_DIRECTORY_BASE_URL:http://directory-service}
+      service-token: ${APP_EXTERNAL_DIRECTORY_SERVICE_TOKEN:}
+      timeout-ms: ${APP_EXTERNAL_DIRECTORY_TIMEOUT_MS:3000}
+      retry:
+        max-attempts: ${APP_EXTERNAL_DIRECTORY_RETRY_MAX_ATTEMPTS:2}
+        backoff-ms: ${APP_EXTERNAL_DIRECTORY_RETRY_BACKOFF_MS:200}
+      regional-context-path: ${APP_EXTERNAL_DIRECTORY_REGIONAL_CONTEXT_PATH:/api/v1/internal/organizations/{organizationId}/regional-context/{countryCode}}
+    order:
+      base-url: ${APP_EXTERNAL_ORDER_BASE_URL:http://order-service}
+      service-token: ${APP_EXTERNAL_ORDER_SERVICE_TOKEN:}
+      timeout-ms: ${APP_EXTERNAL_ORDER_TIMEOUT_MS:3000}
+      retry:
+        max-attempts: ${APP_EXTERNAL_ORDER_RETRY_MAX_ATTEMPTS:2}
+        backoff-ms: ${APP_EXTERNAL_ORDER_RETRY_BACKOFF_MS:200}
+      order-path: ${APP_EXTERNAL_ORDER_ORDER_PATH:/api/v1/internal/orders/{orderId}/organization-context}
+      cart-path: ${APP_EXTERNAL_ORDER_CART_PATH:/api/v1/internal/carts/{cartId}/organization-context}

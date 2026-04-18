@@ -8,7 +8,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @Table("warehouses")
 public record WarehouseRow(
         @Id @Column("warehouse_id") String warehouseId,
-        @Column("tenant_id") String tenantId,
+        @Column("organization_id") String organizationId,
         @Column("warehouse_code") String warehouseCode,
         @Column("warehouse_name") String warehouseName,
         @Column("country_code") String countryCode,

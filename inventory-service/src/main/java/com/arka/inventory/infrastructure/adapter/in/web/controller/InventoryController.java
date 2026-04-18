@@ -332,15 +332,22 @@ public class InventoryController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_TRUSTED_SERVICE','inventory.read', 'ROLE_INVENTORY_ADMIN')")
+    @PreAuthorize("hasRole('TRUSTED_SERVICE') and hasAuthority('inventory.read')")
     @GetMapping("/internal/reservations/{reservationId}/validation")
     public Mono<ReservationValidationResponse> validateReservationReference(
             @PathVariable String reservationId,
-            @RequestParam String tenantId,
+            @RequestParam(name = "organizationId", required = false) String organizationId,
             @RequestParam String sku,
             @RequestParam @Min(1) Integer qty) {
         return validateReservationReferenceQueryUseCase
-                .handle(queryMapper.toReservationValidationQuery(tenantId, reservationId, sku, qty))
+                .handle(queryMapper.toReservationValidationQuery(normalizeOrganizationId(organizationId), reservationId, sku, qty))
                 .map(responseMapper::toResponse);
+    }
+
+    private String normalizeOrganizationId(String organizationId) {
+        if (organizationId == null || organizationId.isBlank()) {
+            return null;
+        }
+        return organizationId.trim();
     }
 }

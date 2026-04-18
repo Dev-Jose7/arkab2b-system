@@ -22,7 +22,7 @@ public class NotificationCommandMapper {
 
     public EmitRelevantChangeNotificationCommand toCommand(EmitNotificationRequest request, IamSecurityPrincipal principal) {
         return new EmitRelevantChangeNotificationCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 request.sourceEventId(),
                 request.sourceEventType(),
@@ -39,7 +39,7 @@ public class NotificationCommandMapper {
             DispatchNotificationRequest request,
             IamSecurityPrincipal principal) {
         return new DispatchNotificationCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 notificationId,
                 request == null ? null : normalizeIdempotencyKey(request.idempotencyKey()));
@@ -50,7 +50,7 @@ public class NotificationCommandMapper {
             RetryNotificationRequest request,
             IamSecurityPrincipal principal) {
         return new RetryNotificationCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 notificationId,
                 request == null ? null : normalizeIdempotencyKey(request.idempotencyKey()));
@@ -61,7 +61,7 @@ public class NotificationCommandMapper {
             DiscardNotificationRequest request,
             IamSecurityPrincipal principal) {
         return new DiscardNotificationCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 notificationId,
                 request.reason(),
@@ -73,7 +73,7 @@ public class NotificationCommandMapper {
             RecordNotificationDeliveryRequest request,
             IamSecurityPrincipal principal) {
         return new RecordNotificationDeliveryCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 notificationId,
                 request.attemptId(),
@@ -86,7 +86,7 @@ public class NotificationCommandMapper {
             ProcessProviderCallbackRequest request,
             IamSecurityPrincipal principal) {
         return new ProcessProviderCallbackCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 request.notificationId(),
                 request.providerCode(),
@@ -102,7 +102,7 @@ public class NotificationCommandMapper {
             ReprocessNotificationDlqRequest request,
             IamSecurityPrincipal principal) {
         return new ReprocessNotificationDlqCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 notificationId,
                 request.dlqEventId(),

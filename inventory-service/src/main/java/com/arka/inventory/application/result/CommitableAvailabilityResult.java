@@ -1,7 +1,7 @@
 package com.arka.inventory.application.result;
 
 public record CommitableAvailabilityResult(
-        String tenantId,
+        String organizationId,
         String warehouseId,
         String sku,
         int physicalQty,

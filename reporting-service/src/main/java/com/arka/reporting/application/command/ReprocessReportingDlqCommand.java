@@ -1,7 +1,7 @@
 package com.arka.reporting.application.command;
 
 public record ReprocessReportingDlqCommand(
-        String tenantId,
+        String organizationId,
         String actorId,
         String dlqEventId,
         String consumerName,

@@ -21,8 +21,7 @@ class InboundDomainEventParserTest {
                   "data":{
                     "aggregateType":"InventoryBalance",
                     "aggregateId":"bal-1",
-                    "tenantId":"tenant-r-1",
-                    "organizationId":"org-r-1"
+                    "organizationId":"organization-r-1"
                   }
                 }
                 """;
@@ -33,8 +32,7 @@ class InboundDomainEventParserTest {
         assertEquals("InventoryStockAdjusted", parsed.eventType());
         assertEquals("InventoryBalance", parsed.aggregateType());
         assertEquals("bal-1", parsed.aggregateId());
-        assertEquals("tenant-r-1", parsed.tenantId());
-        assertEquals("org-r-1", parsed.organizationId());
+        assertEquals("organization-r-1", parsed.organizationId());
         assertEquals("trace-r-1", parsed.traceId());
         assertEquals("corr-r-1", parsed.correlationId());
     }
@@ -44,7 +42,7 @@ class InboundDomainEventParserTest {
         String payload = """
                 {
                   "eventType":"CatalogOfferPublished",
-                  "data":{"aggregateType":"CatalogOffer","aggregateId":"offer-1","tenantId":"tenant-r-2"}
+                  "data":{"aggregateType":"CatalogOffer","aggregateId":"offer-1","organizationId":"organization-r-2"}
                 }
                 """;
 

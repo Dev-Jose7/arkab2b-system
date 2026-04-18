@@ -2,6 +2,7 @@ package com.arka.directory.infrastructure.adapter.out.external;
 
 import com.arka.directory.application.port.out.external.ActorLegitimacyPort;
 import java.time.Duration;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -18,9 +19,9 @@ public class IdentityActorLegitimacyHttpAdapter implements ActorLegitimacyPort {
     private final Duration timeout;
 
     public IdentityActorLegitimacyHttpAdapter(
-            WebClient.Builder webClientBuilder,
-            @Value("${app.external.identity.base-url:http://identity-access-service:8080}") String baseUrl,
-            @Value("${app.external.identity.actor-legitimacy-path:/api/v1/admin/iam/users/{actorId}/permissions}") String path,
+            @Qualifier("loadBalancedWebClientBuilder") WebClient.Builder webClientBuilder,
+            @Value("${app.external.identity.base-url:http://identity-access-service}") String baseUrl,
+            @Value("${app.external.identity.actor-legitimacy-path:/api/v1/internal/iam/users/{actorId}/permissions}") String path,
             @Value("${app.external.identity.service-token:}") String serviceToken,
             @Value("${app.external.identity.timeout-ms:3000}") long timeoutMs) {
         this.webClient = webClientBuilder.baseUrl(baseUrl).build();

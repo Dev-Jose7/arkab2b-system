@@ -1,7 +1,7 @@
 package com.arka.notification.application.query;
 
 public record SearchNotificationsQuery(
-        String tenantId,
+        String organizationId,
         String status,
         String sourceEventType,
         String channel,

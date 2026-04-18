@@ -6,12 +6,12 @@ import reactor.core.publisher.Mono;
 public interface ConsumerCheckpointPersistencePort {
 
     Mono<ConsumerCheckpoint> upsert(
-            String tenantId,
+            String organizationId,
             String consumerName,
             String topic,
             int partition,
             long currentOffset,
             long latestOffset);
 
-    Mono<Long> maxLagByTenant(String tenantId);
+    Mono<Long> maxLagByOrganization(String organizationId);
 }

@@ -12,7 +12,7 @@ import com.arka.catalog.domain.catalogoffer.exception.VariantNotSellableExceptio
 import com.arka.catalog.domain.catalogoffer.valueobject.Money;
 import com.arka.catalog.domain.catalogoffer.valueobject.PriceId;
 import com.arka.catalog.domain.catalogoffer.valueobject.ProductId;
-import com.arka.catalog.domain.catalogoffer.valueobject.TenantId;
+import com.arka.catalog.domain.catalogoffer.valueobject.OrganizationId;
 import com.arka.catalog.domain.catalogoffer.valueobject.TimeWindow;
 import com.arka.catalog.domain.catalogoffer.valueobject.VariantId;
 import java.math.BigDecimal;
@@ -25,7 +25,7 @@ class CatalogOfferAggregateTest {
     void shouldPublishConsistentCatalogOfferAndEmitDomainEvent() {
         Instant now = Instant.parse("2026-03-01T00:00:00Z");
         Product product = Product.draft(
-                TenantId.of("tenant-demo"),
+                OrganizationId.of("organization-demo"),
                 ProductId.of("product-1"),
                 "PROD-1",
                 "Product 1",
@@ -36,7 +36,7 @@ class CatalogOfferAggregateTest {
         product.activate(now);
 
         Variant variant = Variant.draft(
-                TenantId.of("tenant-demo"),
+                OrganizationId.of("organization-demo"),
                 VariantId.of("variant-1"),
                 product.productId(),
                 "SKU-100",
@@ -47,7 +47,7 @@ class CatalogOfferAggregateTest {
         variant.markSellable(product.status(), true, now.minusSeconds(1), null, now);
 
         Price price = Price.register(
-                TenantId.of("tenant-demo"),
+                OrganizationId.of("organization-demo"),
                 PriceId.of("price-1"),
                 variant.variantId(),
                 PriceType.BASE,
@@ -65,7 +65,7 @@ class CatalogOfferAggregateTest {
     void shouldRejectPublishingWhenVariantIsNotSellableAtGivenTime() {
         Instant now = Instant.parse("2026-03-01T00:00:00Z");
         Product product = Product.draft(
-                TenantId.of("tenant-demo"),
+                OrganizationId.of("organization-demo"),
                 ProductId.of("product-1"),
                 "PROD-1",
                 "Product 1",
@@ -76,7 +76,7 @@ class CatalogOfferAggregateTest {
         product.activate(now);
 
         Variant variant = Variant.draft(
-                TenantId.of("tenant-demo"),
+                OrganizationId.of("organization-demo"),
                 VariantId.of("variant-1"),
                 product.productId(),
                 "SKU-100",
@@ -86,7 +86,7 @@ class CatalogOfferAggregateTest {
                 now);
 
         Price price = Price.register(
-                TenantId.of("tenant-demo"),
+                OrganizationId.of("organization-demo"),
                 PriceId.of("price-1"),
                 variant.variantId(),
                 PriceType.BASE,

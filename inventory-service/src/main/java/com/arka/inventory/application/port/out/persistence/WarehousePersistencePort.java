@@ -6,11 +6,11 @@ import reactor.core.publisher.Mono;
 
 public interface WarehousePersistencePort {
 
-    Mono<Boolean> existsByTenantAndCode(String tenantId, String warehouseCode);
+    Mono<Boolean> existsByOrganizationAndCode(String organizationId, String warehouseCode);
 
     Mono<Warehouse> save(Warehouse warehouse);
 
-    Mono<Warehouse> findById(String tenantId, String warehouseId);
+    Mono<Warehouse> findById(String organizationId, String warehouseId);
 
-    Flux<Warehouse> findByTenant(String tenantId);
+    Flux<Warehouse> findByOrganization(String organizationId);
 }

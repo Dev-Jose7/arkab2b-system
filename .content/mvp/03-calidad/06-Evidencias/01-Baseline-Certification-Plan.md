@@ -17,7 +17,7 @@ Definir el nucleo minimo y defendible de pruebas para certificar el baseline `MV
 
 ### A) Unitarias criticas por servicio
 Se exige evidencia de al menos una suite critica por cada servicio:
-- `identity-access-service`: sesion valida/revocada, bloqueo de usuario, aislamiento de tenant.
+- `identity-access-service`: sesion valida/revocada, bloqueo de usuario, aislamiento de organization.
 - `directory-service`: ownership organizacional, direccion valida, politica regional vigente.
 - `catalog-service`: vendibilidad, precio vigente, transiciones de variante.
 - `inventory-service`: stock no negativo, reserva/expiracion/confirmacion idempotente.
@@ -38,7 +38,7 @@ Se exige evidencia de al menos una suite critica por cada servicio:
 3. Rechazo por falta de disponibilidad/reserva (`stock_insuficiente` o `reserva_expirada`).
 
 ### D) No funcional minimo defendible
-- aislamiento tenant (NFR-005);
+- aislamiento organization (NFR-005);
 - idempotencia basica en mutaciones core y consumo async (NFR-004/NFR-009);
 - contratos API/eventos minimos sin breaking no versionado (NFR-009);
 - build de imagen Docker por servicio y arranque con configuracion externa;

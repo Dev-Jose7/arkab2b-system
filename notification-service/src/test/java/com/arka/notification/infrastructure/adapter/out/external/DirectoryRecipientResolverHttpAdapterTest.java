@@ -24,7 +24,7 @@ class DirectoryRecipientResolverHttpAdapterTest {
                 ]
                 """);
 
-        StepVerifier.create(adapter.resolve("tenant-1", "org-1", "EMAIL"))
+        StepVerifier.create(adapter.resolve("organization-1", "org-1", "EMAIL"))
                 .assertNext(result -> {
                     assertEquals("org-1", result.recipientRef());
                     assertEquals("EMAIL", result.channel());
@@ -37,14 +37,14 @@ class DirectoryRecipientResolverHttpAdapterTest {
     void shouldReturnEmptyWhenStatusIs404() {
         DirectoryRecipientResolverHttpAdapter adapter = adapterFor(HttpStatus.NOT_FOUND, "{\"error\":\"not-found\"}");
 
-        StepVerifier.create(adapter.resolve("tenant-1", "org-1", "EMAIL")).verifyComplete();
+        StepVerifier.create(adapter.resolve("organization-1", "org-1", "EMAIL")).verifyComplete();
     }
 
     @Test
     void shouldFailWhenStatusIs400() {
         DirectoryRecipientResolverHttpAdapter adapter = adapterFor(HttpStatus.BAD_REQUEST, "{\"error\":\"bad-request\"}");
 
-        StepVerifier.create(adapter.resolve("tenant-1", "org-1", "EMAIL"))
+        StepVerifier.create(adapter.resolve("organization-1", "org-1", "EMAIL"))
                 .expectError(IllegalArgumentException.class)
                 .verify();
     }
@@ -53,7 +53,7 @@ class DirectoryRecipientResolverHttpAdapterTest {
     void shouldFailWhenStatusIs401() {
         DirectoryRecipientResolverHttpAdapter adapter = adapterFor(HttpStatus.UNAUTHORIZED, "{\"error\":\"unauthorized\"}");
 
-        StepVerifier.create(adapter.resolve("tenant-1", "org-1", "EMAIL"))
+        StepVerifier.create(adapter.resolve("organization-1", "org-1", "EMAIL"))
                 .expectError(SecurityException.class)
                 .verify();
     }
@@ -62,7 +62,7 @@ class DirectoryRecipientResolverHttpAdapterTest {
     void shouldFailWhenStatusIs403() {
         DirectoryRecipientResolverHttpAdapter adapter = adapterFor(HttpStatus.FORBIDDEN, "{\"error\":\"forbidden\"}");
 
-        StepVerifier.create(adapter.resolve("tenant-1", "org-1", "EMAIL"))
+        StepVerifier.create(adapter.resolve("organization-1", "org-1", "EMAIL"))
                 .expectError(SecurityException.class)
                 .verify();
     }
@@ -71,7 +71,7 @@ class DirectoryRecipientResolverHttpAdapterTest {
     void shouldFailWhenStatusIs409() {
         DirectoryRecipientResolverHttpAdapter adapter = adapterFor(HttpStatus.CONFLICT, "{\"error\":\"conflict\"}");
 
-        StepVerifier.create(adapter.resolve("tenant-1", "org-1", "EMAIL"))
+        StepVerifier.create(adapter.resolve("organization-1", "org-1", "EMAIL"))
                 .expectError(IllegalStateException.class)
                 .verify();
     }
@@ -81,7 +81,7 @@ class DirectoryRecipientResolverHttpAdapterTest {
         DirectoryRecipientResolverHttpAdapter adapter =
                 adapterFor(HttpStatus.UNPROCESSABLE_ENTITY, "{\"error\":\"unprocessable\"}");
 
-        StepVerifier.create(adapter.resolve("tenant-1", "org-1", "EMAIL"))
+        StepVerifier.create(adapter.resolve("organization-1", "org-1", "EMAIL"))
                 .expectError(IllegalStateException.class)
                 .verify();
     }
@@ -91,7 +91,7 @@ class DirectoryRecipientResolverHttpAdapterTest {
         DirectoryRecipientResolverHttpAdapter adapter =
                 adapterFor(HttpStatus.INTERNAL_SERVER_ERROR, "{\"error\":\"provider-down\"}");
 
-        StepVerifier.create(adapter.resolve("tenant-1", "org-1", "EMAIL"))
+        StepVerifier.create(adapter.resolve("organization-1", "org-1", "EMAIL"))
                 .expectError(IllegalStateException.class)
                 .verify();
     }

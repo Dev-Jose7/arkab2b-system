@@ -1,7 +1,7 @@
 package com.arka.notification.application.query;
 
 public record GetNotificationAuditQuery(
-        String tenantId,
+        String organizationId,
         String targetType,
         String targetId,
         int page,

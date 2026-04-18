@@ -33,10 +33,10 @@ Validar contratos REST/eventos, persistencia, proyecciones de consulta, idempote
 | CAT-IT-010 | `POST /variants/{id}/prices/schedule` | precio programado | 201 + precio `SCHEDULED` + outbox `PriceScheduled` | FR-001 |
 | CAT-IT-011 | `GET /variants/{id}/prices` | timeline consistente de precios | response usa estados `ACTIVE/SCHEDULED/EXPIRED` | dominio+contratos Catalog |
 | CAT-IT-012 | `POST /prices/bulk-upsert` | carga masiva con idempotencia | resultado consistente + sin duplicar side effects | NFR-009 |
-| CAT-IT-013 | `GET /catalog/search` | consulta catalogo filtrada por tenant | resultados solo del tenant | NFR-005 |
+| CAT-IT-013 | `GET /catalog/search` | consulta catalogo filtrada por organization | resultados solo del organization | NFR-005 |
 | CAT-IT-014 | `POST /variants/resolve` valido | endpoint trusted para checkout | 200 con variante resoluble y precio vigente | FR-004 |
 | CAT-IT-015 | `POST /variants/resolve` no vendible | validacion para checkout | rechazo `variante_no_vendible` | FR-004 |
-| CAT-IT-016 | seguridad tenant/ownership en mutaciones | actor tenant A sobre recurso tenant B | rechazo 403/409 + sin cambios DB | NFR-005, I-ACC-02, D-CROSS-01 |
+| CAT-IT-016 | seguridad organization/ownership en mutaciones | actor organization A sobre recurso organization B | rechazo 403/409 + sin cambios DB | NFR-005, I-ACC-02, D-CROSS-01 |
 | CAT-IT-017 | idempotencia mutacion admin | misma clave + mismo payload | un solo efecto persistente | NFR-009 |
 | CAT-IT-018 | conflicto idempotente | misma clave + payload distinto | rechazo de conflicto | NFR-009 |
 | CAT-IT-019 | consumo `StockUpdated` | recalculo `availabilityHint` | cache/index actualizados + `processed_event` | politicas Catalog |
@@ -50,4 +50,4 @@ Validar contratos REST/eventos, persistencia, proyecciones de consulta, idempote
 ## Criterio de exito integracion
 - Escenarios `CAT-IT-001..025` disenados para verificar ausencia de breaking en contratos `v1`.
 - Dedupe/outbox/idempotencia disenados para verificarse con evidencia persistida durante la corrida.
-- En corrida de certificacion, no deben ocurrir mutaciones cross-tenant.
+- En corrida de certificacion, no deben ocurrir mutaciones cross-organization.

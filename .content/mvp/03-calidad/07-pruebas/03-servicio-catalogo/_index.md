@@ -11,7 +11,7 @@ Asegurar la coherencia comercial de producto, variante (SKU) y precio, mantenien
 ## Alcance de calidad del servicio
 - Flujos HTTP de administracion y consulta de catalogo (`products`, `variants`, `prices`, `search`, `resolve`).
 - Flujos async: publicacion de eventos de Catalog por outbox y consumo idempotente de eventos de Inventory (`StockUpdated`, `SkuReconciled`).
-- Reglas de seguridad: aislamiento tenant/rol, integridad comercial de SKU/precio, auditoria y trazabilidad tecnica.
+- Reglas de seguridad: aislamiento organization/rol, integridad comercial de SKU/precio, auditoria y trazabilidad tecnica.
 
 ## Fuentes de verdad usadas
 - Producto: `FR-001`, `FR-004`, `NFR-005`, `NFR-006`, `NFR-009`.
@@ -19,10 +19,10 @@ Asegurar la coherencia comercial de producto, variante (SKU) y precio, mantenien
 - Arquitectura Catalog: contratos API/eventos, seguridad, datos y runtime.
 
 ## Datos de entrada comunes
-- `tenant` principal: `org-co-001`.
-- `tenant` alterno: `org-ec-001`.
+- `organization` principal: `org-co-001`.
+- `organization` alterno: `org-ec-001`.
 - actores base:
-  - `tenant_user` (consultas).
+  - `organization_user` (consultas).
   - `arka_admin` (mutaciones comerciales).
   - `trusted_service(order-service)` para `variants/resolve`.
 - trazabilidad tecnica obligatoria en mutaciones: `traceId`, `correlationId`.
@@ -49,5 +49,5 @@ Asegurar la coherencia comercial de producto, variante (SKU) y precio, mantenien
 | Variante | alta, actualizacion, `mark-sellable`, descontinuacion |
 | Precio | vigente, programado y expirado (`ACTIVE`, `SCHEDULED`, `EXPIRED`) sin vocabulario alterno |
 | Taxonomia referencial | validacion de marca/categoria activas (sin CRUD independiente en MVP) |
-| Seguridad y aislamiento | tenant/ownership, RBAC por accion, trusted-service |
+| Seguridad y aislamiento | organization/ownership, RBAC por accion, trusted-service |
 | Integracion EDA | eventos `Product*`, `Variant*`, `Price*` + consumo Inventory con dedupe |

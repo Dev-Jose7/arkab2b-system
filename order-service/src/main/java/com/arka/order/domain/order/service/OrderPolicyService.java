@@ -9,12 +9,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class OrderPolicyService {
 
-    public void ensureOwnership(Order order, String tenantId, String organizationId) {
+    public void ensureOwnership(Order order, String organizationId) {
         if (order == null) {
             throw new DomainInvariantViolationException("order is required");
-        }
-        if (!order.tenantId().equals(tenantId)) {
-            throw new DomainInvariantViolationException("tenant isolation violated for order");
         }
         if (!order.organizationId().equals(organizationId)) {
             throw new DomainInvariantViolationException("organization isolation violated for order");

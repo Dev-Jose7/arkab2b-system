@@ -15,77 +15,77 @@ class InventoryExternalHttpAdapterStatusTest {
     @Test
     void catalogSkuShouldTreat404AsNotFoundAndDifferentiate4xx5xx() {
         CatalogSkuHttpAdapter notFound = catalogAdapter(HttpStatus.NOT_FOUND, "{\"error\":\"not-found\"}");
-        StepVerifier.create(notFound.existsSellableSku("tenant-1", "SKU-1"))
+        StepVerifier.create(notFound.existsSellableSku("organization-1", "SKU-1"))
                 .expectNext(false)
                 .verifyComplete();
 
         CatalogSkuHttpAdapter badRequest = catalogAdapter(HttpStatus.BAD_REQUEST, "{\"error\":\"bad\"}");
-        StepVerifier.create(badRequest.existsSellableSku("tenant-1", "SKU-1"))
+        StepVerifier.create(badRequest.existsSellableSku("organization-1", "SKU-1"))
                 .expectError(IllegalArgumentException.class)
                 .verify();
 
         CatalogSkuHttpAdapter unauthorized = catalogAdapter(HttpStatus.UNAUTHORIZED, "{\"error\":\"unauthorized\"}");
-        StepVerifier.create(unauthorized.existsSellableSku("tenant-1", "SKU-1"))
+        StepVerifier.create(unauthorized.existsSellableSku("organization-1", "SKU-1"))
                 .expectError(SecurityException.class)
                 .verify();
 
         CatalogSkuHttpAdapter forbidden = catalogAdapter(HttpStatus.FORBIDDEN, "{\"error\":\"forbidden\"}");
-        StepVerifier.create(forbidden.existsSellableSku("tenant-1", "SKU-1"))
+        StepVerifier.create(forbidden.existsSellableSku("organization-1", "SKU-1"))
                 .expectError(SecurityException.class)
                 .verify();
 
         CatalogSkuHttpAdapter conflict = catalogAdapter(HttpStatus.CONFLICT, "{\"error\":\"conflict\"}");
-        StepVerifier.create(conflict.existsSellableSku("tenant-1", "SKU-1"))
+        StepVerifier.create(conflict.existsSellableSku("organization-1", "SKU-1"))
                 .expectError(IllegalStateException.class)
                 .verify();
 
         CatalogSkuHttpAdapter unprocessable =
                 catalogAdapter(HttpStatus.UNPROCESSABLE_ENTITY, "{\"error\":\"unprocessable\"}");
-        StepVerifier.create(unprocessable.existsSellableSku("tenant-1", "SKU-1"))
+        StepVerifier.create(unprocessable.existsSellableSku("organization-1", "SKU-1"))
                 .expectError(IllegalStateException.class)
                 .verify();
 
         CatalogSkuHttpAdapter serverError = catalogAdapter(HttpStatus.INTERNAL_SERVER_ERROR, "{\"error\":\"boom\"}");
-        StepVerifier.create(serverError.existsSellableSku("tenant-1", "SKU-1"))
+        StepVerifier.create(serverError.existsSellableSku("organization-1", "SKU-1"))
                 .expectError(IllegalStateException.class)
                 .verify();
     }
 
     @Test
-    void directoryTenantShouldTreat404AsNotFoundAndDifferentiate4xx5xx() {
-        DirectoryTenantHttpAdapter notFound = directoryAdapter(HttpStatus.NOT_FOUND, "{\"error\":\"not-found\"}");
-        StepVerifier.create(notFound.tenantExists("tenant-1"))
+    void directoryOrganizationShouldTreat404AsNotFoundAndDifferentiate4xx5xx() {
+        DirectoryOrganizationHttpAdapter notFound = directoryAdapter(HttpStatus.NOT_FOUND, "{\"error\":\"not-found\"}");
+        StepVerifier.create(notFound.organizationExists("organization-1"))
                 .expectNext(false)
                 .verifyComplete();
 
-        DirectoryTenantHttpAdapter badRequest = directoryAdapter(HttpStatus.BAD_REQUEST, "{\"error\":\"bad\"}");
-        StepVerifier.create(badRequest.tenantExists("tenant-1"))
+        DirectoryOrganizationHttpAdapter badRequest = directoryAdapter(HttpStatus.BAD_REQUEST, "{\"error\":\"bad\"}");
+        StepVerifier.create(badRequest.organizationExists("organization-1"))
                 .expectError(IllegalArgumentException.class)
                 .verify();
 
-        DirectoryTenantHttpAdapter unauthorized = directoryAdapter(HttpStatus.UNAUTHORIZED, "{\"error\":\"unauthorized\"}");
-        StepVerifier.create(unauthorized.tenantExists("tenant-1"))
+        DirectoryOrganizationHttpAdapter unauthorized = directoryAdapter(HttpStatus.UNAUTHORIZED, "{\"error\":\"unauthorized\"}");
+        StepVerifier.create(unauthorized.organizationExists("organization-1"))
                 .expectError(SecurityException.class)
                 .verify();
 
-        DirectoryTenantHttpAdapter forbidden = directoryAdapter(HttpStatus.FORBIDDEN, "{\"error\":\"forbidden\"}");
-        StepVerifier.create(forbidden.tenantExists("tenant-1"))
+        DirectoryOrganizationHttpAdapter forbidden = directoryAdapter(HttpStatus.FORBIDDEN, "{\"error\":\"forbidden\"}");
+        StepVerifier.create(forbidden.organizationExists("organization-1"))
                 .expectError(SecurityException.class)
                 .verify();
 
-        DirectoryTenantHttpAdapter conflict = directoryAdapter(HttpStatus.CONFLICT, "{\"error\":\"conflict\"}");
-        StepVerifier.create(conflict.tenantExists("tenant-1"))
+        DirectoryOrganizationHttpAdapter conflict = directoryAdapter(HttpStatus.CONFLICT, "{\"error\":\"conflict\"}");
+        StepVerifier.create(conflict.organizationExists("organization-1"))
                 .expectError(IllegalStateException.class)
                 .verify();
 
-        DirectoryTenantHttpAdapter unprocessable =
+        DirectoryOrganizationHttpAdapter unprocessable =
                 directoryAdapter(HttpStatus.UNPROCESSABLE_ENTITY, "{\"error\":\"unprocessable\"}");
-        StepVerifier.create(unprocessable.tenantExists("tenant-1"))
+        StepVerifier.create(unprocessable.organizationExists("organization-1"))
                 .expectError(IllegalStateException.class)
                 .verify();
 
-        DirectoryTenantHttpAdapter serverError = directoryAdapter(HttpStatus.INTERNAL_SERVER_ERROR, "{\"error\":\"boom\"}");
-        StepVerifier.create(serverError.tenantExists("tenant-1"))
+        DirectoryOrganizationHttpAdapter serverError = directoryAdapter(HttpStatus.INTERNAL_SERVER_ERROR, "{\"error\":\"boom\"}");
+        StepVerifier.create(serverError.organizationExists("organization-1"))
                 .expectError(IllegalStateException.class)
                 .verify();
     }
@@ -134,38 +134,38 @@ class InventoryExternalHttpAdapterStatusTest {
     @Test
     void orderReferenceShouldTreat404AsNotFoundAndDifferentiate4xx5xx() {
         OrderReferenceHttpAdapter notFound = orderAdapter(HttpStatus.NOT_FOUND, "{\"error\":\"not-found\"}");
-        StepVerifier.create(notFound.isValidOrderReference("tenant-1", "order-1"))
+        StepVerifier.create(notFound.isValidOrderReference("organization-1", "order-1"))
                 .expectNext(false)
                 .verifyComplete();
 
         OrderReferenceHttpAdapter badRequest = orderAdapter(HttpStatus.BAD_REQUEST, "{\"error\":\"bad\"}");
-        StepVerifier.create(badRequest.isValidOrderReference("tenant-1", "order-1"))
+        StepVerifier.create(badRequest.isValidOrderReference("organization-1", "order-1"))
                 .expectError(IllegalArgumentException.class)
                 .verify();
 
         OrderReferenceHttpAdapter unauthorized = orderAdapter(HttpStatus.UNAUTHORIZED, "{\"error\":\"unauthorized\"}");
-        StepVerifier.create(unauthorized.isValidOrderReference("tenant-1", "order-1"))
+        StepVerifier.create(unauthorized.isValidOrderReference("organization-1", "order-1"))
                 .expectError(SecurityException.class)
                 .verify();
 
         OrderReferenceHttpAdapter forbidden = orderAdapter(HttpStatus.FORBIDDEN, "{\"error\":\"forbidden\"}");
-        StepVerifier.create(forbidden.isValidOrderReference("tenant-1", "order-1"))
+        StepVerifier.create(forbidden.isValidOrderReference("organization-1", "order-1"))
                 .expectError(SecurityException.class)
                 .verify();
 
         OrderReferenceHttpAdapter conflict = orderAdapter(HttpStatus.CONFLICT, "{\"error\":\"conflict\"}");
-        StepVerifier.create(conflict.isValidOrderReference("tenant-1", "order-1"))
+        StepVerifier.create(conflict.isValidOrderReference("organization-1", "order-1"))
                 .expectError(IllegalStateException.class)
                 .verify();
 
         OrderReferenceHttpAdapter unprocessable =
                 orderAdapter(HttpStatus.UNPROCESSABLE_ENTITY, "{\"error\":\"unprocessable\"}");
-        StepVerifier.create(unprocessable.isValidOrderReference("tenant-1", "order-1"))
+        StepVerifier.create(unprocessable.isValidOrderReference("organization-1", "order-1"))
                 .expectError(IllegalStateException.class)
                 .verify();
 
         OrderReferenceHttpAdapter serverError = orderAdapter(HttpStatus.INTERNAL_SERVER_ERROR, "{\"error\":\"boom\"}");
-        StepVerifier.create(serverError.isValidOrderReference("tenant-1", "order-1"))
+        StepVerifier.create(serverError.isValidOrderReference("organization-1", "order-1"))
                 .expectError(IllegalStateException.class)
                 .verify();
     }
@@ -181,8 +181,8 @@ class InventoryExternalHttpAdapterStatusTest {
                 3_000);
     }
 
-    private DirectoryTenantHttpAdapter directoryAdapter(HttpStatus status, String body) {
-        return new DirectoryTenantHttpAdapter(
+    private DirectoryOrganizationHttpAdapter directoryAdapter(HttpStatus status, String body) {
+        return new DirectoryOrganizationHttpAdapter(
                 builder(status, body),
                 "http://directory-service",
                 "/api/v1/organizations/{organizationId}",

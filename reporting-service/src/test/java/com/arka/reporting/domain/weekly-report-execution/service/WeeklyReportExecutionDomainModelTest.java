@@ -8,7 +8,7 @@ import com.arka.reporting.domain.weeklyreportexecution.entity.WeeklyReportExecut
 import com.arka.reporting.domain.weeklyreportexecution.enumtype.ReportType;
 import com.arka.reporting.domain.weeklyreportexecution.exception.WeeklyReportExecutionArtifactRequiredException;
 import com.arka.reporting.domain.weeklyreportexecution.exception.WeeklyReportExecutionTransitionException;
-import com.arka.reporting.domain.weeklyreportexecution.valueobject.TenantId;
+import com.arka.reporting.domain.weeklyreportexecution.valueobject.OrganizationId;
 import com.arka.reporting.domain.weeklyreportexecution.valueobject.WeekId;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,7 @@ class WeeklyReportExecutionDomainModelTest {
     void shouldRequireArtifactLocationToCompleteExecution() {
         Instant now = Instant.parse("2026-04-07T00:00:00Z");
         WeeklyReportExecution execution = WeeklyReportExecution.pending(
-                TenantId.of("tenant-demo"),
+                OrganizationId.of("organization-demo"),
                 WeekId.of("2026-W14"),
                 ReportType.SALES,
                 now);
@@ -36,7 +36,7 @@ class WeeklyReportExecutionDomainModelTest {
     void shouldEmitWeeklyReportGeneratedEventOnComplete() {
         Instant now = Instant.parse("2026-04-07T00:00:00Z");
         WeeklyReportExecution execution = WeeklyReportExecution.pending(
-                TenantId.of("tenant-demo"),
+                OrganizationId.of("organization-demo"),
                 WeekId.of("2026-W14"),
                 ReportType.REPLENISHMENT,
                 now);
@@ -53,7 +53,7 @@ class WeeklyReportExecutionDomainModelTest {
     void shouldRejectInvalidTransitionWhenStartAfterCompleted() {
         Instant now = Instant.parse("2026-04-07T00:00:00Z");
         WeeklyReportExecution execution = WeeklyReportExecution.pending(
-                TenantId.of("tenant-demo"),
+                OrganizationId.of("organization-demo"),
                 WeekId.of("2026-W14"),
                 ReportType.SALES,
                 now);

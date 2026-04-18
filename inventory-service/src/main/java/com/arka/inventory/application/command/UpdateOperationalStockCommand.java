@@ -1,7 +1,7 @@
 package com.arka.inventory.application.command;
 
 public record UpdateOperationalStockCommand(
-        String tenantId,
+        String organizationId,
         String stockItemId,
         Integer deltaQty,
         String reason,

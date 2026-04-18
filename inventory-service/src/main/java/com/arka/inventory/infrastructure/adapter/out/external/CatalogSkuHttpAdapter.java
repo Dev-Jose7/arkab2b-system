@@ -2,12 +2,17 @@ package com.arka.inventory.infrastructure.adapter.out.external;
 
 import com.arka.inventory.application.port.out.external.CatalogSkuPort;
 import java.time.Duration;
+import java.util.concurrent.TimeoutException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 @Component
 public class CatalogSkuHttpAdapter implements CatalogSkuPort {
@@ -18,32 +23,51 @@ public class CatalogSkuHttpAdapter implements CatalogSkuPort {
     private final String currency;
     private final String priceType;
     private final Duration timeout;
+    private final int maxRetryAttempts;
+    private final Duration retryBackoff;
 
+    @Autowired
     public CatalogSkuHttpAdapter(
-            WebClient.Builder webClientBuilder,
-            @Value("${app.external.catalog.base-url:http://catalog-service:8082}") String baseUrl,
-            @Value("${app.external.catalog.variant-resolution-path:/api/v1/catalog/checkout/variant-resolution}") String path,
+            @Qualifier("loadBalancedWebClientBuilder") WebClient.Builder webClientBuilder,
+            @Value("${app.external.catalog.base-url:http://catalog-service}") String baseUrl,
+            @Value("${app.external.catalog.variant-resolution-path:/api/v1/internal/catalog/checkout/variant-resolution}") String path,
             @Value("${app.external.catalog.service-token:}") String serviceToken,
             @Value("${app.external.catalog.default-currency:COP}") String currency,
             @Value("${app.external.catalog.default-price-type:BASE}") String priceType,
-            @Value("${app.external.catalog.timeout-ms:3000}") long timeoutMs) {
+            @Value("${app.external.catalog.timeout-ms:3000}") long timeoutMs,
+            @Value("${app.external.catalog.retry.max-attempts:2}") int maxRetryAttempts,
+            @Value("${app.external.catalog.retry.backoff-ms:200}") long retryBackoffMs) {
         this.webClient = webClientBuilder.baseUrl(baseUrl).build();
         this.path = path;
         this.serviceToken = serviceToken == null ? "" : serviceToken.trim();
         this.currency = currency == null || currency.isBlank() ? "COP" : currency.trim().toUpperCase();
         this.priceType = priceType == null || priceType.isBlank() ? "BASE" : priceType.trim().toUpperCase();
         this.timeout = Duration.ofMillis(Math.max(500L, timeoutMs));
+        this.maxRetryAttempts = Math.max(0, maxRetryAttempts);
+        this.retryBackoff = Duration.ofMillis(Math.max(50L, retryBackoffMs));
+    }
+
+    public CatalogSkuHttpAdapter(
+            WebClient.Builder webClientBuilder,
+            String baseUrl,
+            String path,
+            String serviceToken,
+            String currency,
+            String priceType,
+            long timeoutMs) {
+        this(webClientBuilder, baseUrl, path, serviceToken, currency, priceType, timeoutMs, 2, 200L);
     }
 
     @Override
-    public Mono<Boolean> existsSellableSku(String tenantId, String sku) {
-        if (tenantId == null || tenantId.isBlank() || sku == null || sku.isBlank()) {
+    public Mono<Boolean> existsSellableSku(String organizationId, String sku) {
+        if (organizationId == null || organizationId.isBlank() || sku == null || sku.isBlank()) {
             return Mono.just(false);
         }
         return webClient
                 .get()
                 .uri(uriBuilder -> uriBuilder
                         .path(path)
+                        .queryParam("organizationId", organizationId.trim())
                         .queryParam("sku", sku.trim())
                         .queryParam("currency", currency)
                         .queryParam("priceType", priceType)
@@ -67,13 +91,14 @@ public class CatalogSkuHttpAdapter implements CatalogSkuPort {
                     return response
                             .bodyToMono(String.class)
                             .defaultIfEmpty("")
-                            .flatMap(body -> Mono.error(new IllegalStateException(
+                            .flatMap(body -> Mono.error(new TransientRemoteException(
                                     "Catalog SKU validation failed status="
                                             + status
                                             + " body="
                                             + body)));
                 })
-                .timeout(timeout);
+                .timeout(timeout)
+                .retryWhen(Retry.backoff(maxRetryAttempts, retryBackoff).filter(this::isRetryable));
     }
 
     private RuntimeException clientError(int status, String sku, String body) {
@@ -97,6 +122,18 @@ public class CatalogSkuHttpAdapter implements CatalogSkuPort {
     private void applyAuthHeader(HttpHeaders headers) {
         if (!serviceToken.isBlank()) {
             headers.setBearerAuth(serviceToken);
+        }
+    }
+
+    private boolean isRetryable(Throwable throwable) {
+        return throwable instanceof TimeoutException
+                || throwable instanceof WebClientRequestException
+                || throwable instanceof TransientRemoteException;
+    }
+
+    private static final class TransientRemoteException extends RuntimeException {
+        private TransientRemoteException(String message) {
+            super(message);
         }
     }
 }

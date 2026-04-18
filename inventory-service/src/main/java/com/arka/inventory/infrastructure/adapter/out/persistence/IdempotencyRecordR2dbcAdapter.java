@@ -25,11 +25,11 @@ public class IdempotencyRecordR2dbcAdapter implements IdempotencyRecordPersisten
     }
 
     @Override
-    public Mono<IdempotencyRecord> findByTenantOperationAndKey(
-            String tenantId,
+    public Mono<IdempotencyRecord> findByOrganizationOperationAndKey(
+            String organizationId,
             String operationName,
             String idempotencyKey) {
-        return repository.findByTenantOperationAndKey(tenantId, operationName, idempotencyKey)
+        return repository.findByOrganizationOperationAndKey(organizationId, operationName, idempotencyKey)
                 .map(rowMapper::toDomain);
     }
 

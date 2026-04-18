@@ -5,14 +5,14 @@ import com.arka.catalog.domain.catalogoffer.enumtype.VariantStatus;
 import com.arka.catalog.domain.catalogoffer.exception.ProductNotActiveException;
 import com.arka.catalog.domain.catalogoffer.exception.RequiredAttributesMissingException;
 import com.arka.catalog.domain.catalogoffer.valueobject.ProductId;
-import com.arka.catalog.domain.catalogoffer.valueobject.TenantId;
+import com.arka.catalog.domain.catalogoffer.valueobject.OrganizationId;
 import com.arka.catalog.domain.catalogoffer.valueobject.VariantId;
 import com.arka.catalog.domain.shared.exception.DomainInvariantViolationException;
 import java.time.Instant;
 
 public final class Variant {
 
-    private final TenantId tenantId;
+    private final OrganizationId organizationId;
     private final VariantId variantId;
     private final ProductId productId;
     private final Instant createdAt;
@@ -27,7 +27,7 @@ public final class Variant {
     private Instant updatedAt;
 
     private Variant(
-            TenantId tenantId,
+            OrganizationId organizationId,
             VariantId variantId,
             ProductId productId,
             String sku,
@@ -39,7 +39,7 @@ public final class Variant {
             Integer weightGrams,
             Instant createdAt,
             Instant updatedAt) {
-        this.tenantId = tenantId;
+        this.organizationId = organizationId;
         this.variantId = variantId;
         this.productId = productId;
         this.sku = requireNotBlank(sku, "sku").toUpperCase();
@@ -55,7 +55,7 @@ public final class Variant {
     }
 
     public static Variant draft(
-            TenantId tenantId,
+            OrganizationId organizationId,
             VariantId variantId,
             ProductId productId,
             String sku,
@@ -64,7 +64,7 @@ public final class Variant {
             Integer weightGrams,
             Instant now) {
         return new Variant(
-                tenantId,
+                organizationId,
                 variantId,
                 productId,
                 sku,
@@ -79,7 +79,7 @@ public final class Variant {
     }
 
     public static Variant rehydrate(
-            TenantId tenantId,
+            OrganizationId organizationId,
             VariantId variantId,
             ProductId productId,
             String sku,
@@ -92,7 +92,7 @@ public final class Variant {
             Instant createdAt,
             Instant updatedAt) {
         return new Variant(
-                tenantId,
+                organizationId,
                 variantId,
                 productId,
                 sku,
@@ -152,8 +152,8 @@ public final class Variant {
         return !instant.isBefore(from) && instant.isBefore(until);
     }
 
-    public TenantId tenantId() {
-        return tenantId;
+    public OrganizationId organizationId() {
+        return organizationId;
     }
 
     public VariantId variantId() {

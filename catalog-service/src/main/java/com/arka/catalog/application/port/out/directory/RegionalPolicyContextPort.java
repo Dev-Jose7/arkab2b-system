@@ -4,5 +4,5 @@ import reactor.core.publisher.Mono;
 
 public interface RegionalPolicyContextPort {
 
-    Mono<RegionalPolicyContext> resolveForTenant(String tenantId, String countryCode);
+    Mono<RegionalPolicyContext> resolveForOrganization(String organizationId, String countryCode);
 }

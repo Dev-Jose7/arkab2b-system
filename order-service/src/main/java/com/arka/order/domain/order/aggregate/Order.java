@@ -28,7 +28,6 @@ public final class Order {
 
     private final String orderId;
     private final String orderNumber;
-    private final String tenantId;
     private final String organizationId;
     private final String userId;
     private final String cartId;
@@ -51,8 +50,8 @@ public final class Order {
     private Order(
             String orderId,
             String orderNumber,
-            String tenantId,
             String organizationId,
+
             String userId,
             String cartId,
             String checkoutCorrelationId,
@@ -72,7 +71,6 @@ public final class Order {
             List<DomainEvent> domainEvents) {
         this.orderId = requireNotBlank(orderId, "orderId");
         this.orderNumber = requireNotBlank(orderNumber, "orderNumber");
-        this.tenantId = requireNotBlank(tenantId, "tenantId");
         this.organizationId = requireNotBlank(organizationId, "organizationId");
         this.userId = requireNotBlank(userId, "userId");
         this.cartId = requireNotBlank(cartId, "cartId");
@@ -95,8 +93,8 @@ public final class Order {
     }
 
     public static Order createFromValidatedCart(
-            String tenantId,
             String organizationId,
+
             String userId,
             String cartId,
             String checkoutCorrelationId,
@@ -115,7 +113,6 @@ public final class Order {
             OrderLine boundLine = new OrderLine(
                     line.orderLineId(),
                     orderId,
-                    tenantId,
                     organizationId,
                     line.variantId(),
                     line.sku(),
@@ -134,7 +131,6 @@ public final class Order {
         Order order = new Order(
                 orderId,
                 orderNumber,
-                tenantId,
                 organizationId,
                 userId,
                 cartId,
@@ -147,22 +143,22 @@ public final class Order {
                 FinancialStatus.PENDING,
                 subtotal,
                 subtotal,
-                0,
+                0L,
                 created,
                 created,
                 lineMap,
                 new LinkedHashMap<>(),
                 new ArrayList<>());
 
-        order.domainEvents.add(new OrderCreatedFromValidatedCart(created, orderId, tenantId, cartId, orderNumber));
+        order.domainEvents.add(new OrderCreatedFromValidatedCart(created, orderId, organizationId, cartId, orderNumber));
         return order;
     }
 
     public static Order rehydrate(
             String orderId,
             String orderNumber,
-            String tenantId,
             String organizationId,
+
             String userId,
             String cartId,
             String checkoutCorrelationId,
@@ -196,7 +192,6 @@ public final class Order {
         return new Order(
                 orderId,
                 orderNumber,
-                tenantId,
                 organizationId,
                 userId,
                 cartId,
@@ -229,7 +224,6 @@ public final class Order {
         Order next = new Order(
                 orderId,
                 orderNumber,
-                tenantId,
                 organizationId,
                 userId,
                 cartId,
@@ -258,7 +252,6 @@ public final class Order {
         Order next = new Order(
                 orderId,
                 orderNumber,
-                tenantId,
                 organizationId,
                 userId,
                 cartId,
@@ -290,7 +283,6 @@ public final class Order {
         Order next = new Order(
                 orderId,
                 orderNumber,
-                tenantId,
                 organizationId,
                 userId,
                 cartId,
@@ -324,7 +316,6 @@ public final class Order {
         ManualPayment payment = new ManualPayment(
                 UUID.randomUUID().toString(),
                 orderId,
-                tenantId,
                 organizationId,
                 paymentReference,
                 amount,
@@ -342,7 +333,6 @@ public final class Order {
         Order next = new Order(
                 orderId,
                 orderNumber,
-                tenantId,
                 organizationId,
                 userId,
                 cartId,
@@ -395,7 +385,6 @@ public final class Order {
         Order next = new Order(
                 orderId,
                 orderNumber,
-                tenantId,
                 organizationId,
                 userId,
                 cartId,
@@ -450,10 +439,6 @@ public final class Order {
 
     public String orderNumber() {
         return orderNumber;
-    }
-
-    public String tenantId() {
-        return tenantId;
     }
 
     public String organizationId() {
@@ -536,7 +521,7 @@ public final class Order {
             return FinancialStatus.PARTIALLY_PAID;
         }
         if (compare == 0) {
-            return FinancialStatus.PAID;
+            return FinancialStatus.PAID_IN_FULL;
         }
         return FinancialStatus.OVERPAID_REVIEW;
     }

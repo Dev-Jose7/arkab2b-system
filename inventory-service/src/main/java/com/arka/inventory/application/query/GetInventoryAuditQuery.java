@@ -1,6 +1,6 @@
 package com.arka.inventory.application.query;
 
 public record GetInventoryAuditQuery(
-        String tenantId,
+        String organizationId,
         Integer limit,
         String actorUserId) {}

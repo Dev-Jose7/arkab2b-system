@@ -2,13 +2,13 @@ package com.arka.catalog.domain.catalogoffer.entity;
 
 import com.arka.catalog.domain.catalogoffer.enumtype.ProductStatus;
 import com.arka.catalog.domain.catalogoffer.valueobject.ProductId;
-import com.arka.catalog.domain.catalogoffer.valueobject.TenantId;
+import com.arka.catalog.domain.catalogoffer.valueobject.OrganizationId;
 import com.arka.catalog.domain.shared.exception.DomainInvariantViolationException;
 import java.time.Instant;
 
 public final class Product {
 
-    private final TenantId tenantId;
+    private final OrganizationId organizationId;
     private final ProductId productId;
     private final Instant createdAt;
 
@@ -21,7 +21,7 @@ public final class Product {
     private Instant updatedAt;
 
     private Product(
-            TenantId tenantId,
+            OrganizationId organizationId,
             ProductId productId,
             String productCode,
             String name,
@@ -31,7 +31,7 @@ public final class Product {
             ProductStatus status,
             Instant createdAt,
             Instant updatedAt) {
-        this.tenantId = tenantId;
+        this.organizationId = organizationId;
         this.productId = productId;
         this.productCode = requireNotBlank(productCode, "productCode").toUpperCase();
         this.name = requireNotBlank(name, "name");
@@ -44,7 +44,7 @@ public final class Product {
     }
 
     public static Product draft(
-            TenantId tenantId,
+            OrganizationId organizationId,
             ProductId productId,
             String productCode,
             String name,
@@ -53,7 +53,7 @@ public final class Product {
             String categoryId,
             Instant now) {
         return new Product(
-                tenantId,
+                organizationId,
                 productId,
                 productCode,
                 name,
@@ -66,7 +66,7 @@ public final class Product {
     }
 
     public static Product rehydrate(
-            TenantId tenantId,
+            OrganizationId organizationId,
             ProductId productId,
             String productCode,
             String name,
@@ -77,7 +77,7 @@ public final class Product {
             Instant createdAt,
             Instant updatedAt) {
         return new Product(
-                tenantId,
+                organizationId,
                 productId,
                 productCode,
                 name,
@@ -122,8 +122,8 @@ public final class Product {
         this.updatedAt = now;
     }
 
-    public TenantId tenantId() {
-        return tenantId;
+    public OrganizationId organizationId() {
+        return organizationId;
     }
 
     public ProductId productId() {

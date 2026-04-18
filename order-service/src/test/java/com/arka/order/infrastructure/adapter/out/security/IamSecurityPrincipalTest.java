@@ -13,10 +13,9 @@ import org.springframework.security.oauth2.jwt.Jwt;
 class IamSecurityPrincipalTest {
 
     @Test
-    void shouldExtractTenantOrganizationAndRolesFromJwtAuthentication() {
+    void shouldExtractOrganizationAndRolesFromJwtAuthentication() {
         Jwt jwt = Jwt.withTokenValue("token")
                 .header("alg", "none")
-                .claim("tenant_id", "tenant-1")
                 .claim("organization_id", "org-1")
                 .subject("user-1")
                 .build();
@@ -29,7 +28,6 @@ class IamSecurityPrincipalTest {
         IamSecurityPrincipal principal = IamSecurityPrincipal.fromAuthentication(authentication);
 
         assertEquals("user-1", principal.userId());
-        assertEquals("tenant-1", principal.tenantId());
         assertEquals("org-1", principal.organizationId());
         assertTrue(principal.isOrderAdmin());
     }

@@ -35,11 +35,11 @@ Validar invariantes y politicas de dominio del directorio sin dependencias exter
 | DIR-UT-008 | evitar doble primario inconsistente | estado con dos primarios mismo tipo | validar invariante | error `contacto_primario_inconsistente` | FR-006, NFR-006 |
 | DIR-UT-009 | inactivar perfil organizacional por `UserBlocked` | `organization_user_profile` activo | aplicar politica de bloqueo IAM | estado `INACTIVE` | FR-009, politicas Directory |
 | DIR-UT-010 | actualizar perfil por `RoleAssigned` sin duplicar identidad | perfil existente + evento IAM valido | aplicar sincronizacion | perfil reconciliado, sin crear credenciales/sesiones | FR-009 |
-| DIR-UT-011 | no permitir mutacion sin tenant | comando mutante sin `tenantId` | validar policy | rechazo por aislamiento | NFR-005, D-CROSS-01 |
+| DIR-UT-011 | no permitir mutacion sin organization | comando mutante sin `organizationId` | validar policy | rechazo por aislamiento | NFR-005, D-CROSS-01 |
 | DIR-UT-012 | resolver politica pais vigente por fecha | multiples versiones de politica | resolver por `countryCode` y fecha | retorna version `ACTIVE` vigente | FR-011, RN-LOC-01 |
 | DIR-UT-013 | deactivar direccion usada como default | direccion default activa | desactivar direccion | default se recalcula o queda sin default segun regla | FR-004 |
 | DIR-UT-014 | masking de contacto institucional sensible | contacto `EMAIL` y `PHONE` | proyectar para lista/resumen | `contactValue` enmascarado | NFR-010, seguridad Directory |
-| DIR-UT-015 | acceso cruzado en recurso organizacional | actor tenant A sobre org tenant B | evaluar ownership/tenant | error `acceso_cruzado_detectado` | FR-009, NFR-005, I-ACC-02 |
+| DIR-UT-015 | acceso cruzado en recurso organizacional | actor organization A sobre org organization B | evaluar ownership/organization | error `acceso_cruzado_detectado` | FR-009, NFR-005, I-ACC-02 |
 
 ## Criterio de exito unitario
 - Escenarios `DIR-UT-001..015` en estado `Disenado` o superior, segun corrida y evidencia.

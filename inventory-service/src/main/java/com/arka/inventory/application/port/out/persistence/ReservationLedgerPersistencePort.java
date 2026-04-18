@@ -8,5 +8,5 @@ public interface ReservationLedgerPersistencePort {
 
     Mono<ReservationLedger> save(ReservationLedger ledger);
 
-    Flux<ReservationLedger> findByTenantAndReservation(String tenantId, String reservationId);
+    Flux<ReservationLedger> findByOrganizationAndReservation(String organizationId, String reservationId);
 }

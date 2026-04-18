@@ -10,9 +10,9 @@ public interface ReactiveCategoryRepository extends ReactiveCrudRepository<Categ
     @Query("""
             SELECT *
             FROM categories
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND category_id = :categoryId
               AND status = 'ACTIVE'
             """)
-    Mono<CategoryRow> findActive(String tenantId, String categoryId);
+    Mono<CategoryRow> findActive(String organizationId, String categoryId);
 }

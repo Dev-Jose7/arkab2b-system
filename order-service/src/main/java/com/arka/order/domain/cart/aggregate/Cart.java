@@ -21,7 +21,6 @@ import java.util.UUID;
 public final class Cart {
 
     private final String cartId;
-    private final String tenantId;
     private final String organizationId;
     private final String userId;
     private final CartStatus status;
@@ -33,8 +32,8 @@ public final class Cart {
 
     private Cart(
             String cartId,
-            String tenantId,
             String organizationId,
+
             String userId,
             CartStatus status,
             long version,
@@ -43,7 +42,6 @@ public final class Cart {
             Map<String, CartItem> itemsById,
             List<DomainEvent> domainEvents) {
         this.cartId = requireNotBlank(cartId, "cartId");
-        this.tenantId = requireNotBlank(tenantId, "tenantId");
         this.organizationId = requireNotBlank(organizationId, "organizationId");
         this.userId = requireNotBlank(userId, "userId");
         this.status = status == null ? CartStatus.ACTIVE : status;
@@ -55,27 +53,26 @@ public final class Cart {
         validate();
     }
 
-    public static Cart create(String tenantId, String organizationId, String userId, Instant now) {
+    public static Cart create(String organizationId, String userId, Instant now) {
         Instant created = now == null ? Instant.now() : now;
         Cart cart = new Cart(
                 UUID.randomUUID().toString(),
-                tenantId,
                 organizationId,
                 userId,
                 CartStatus.ACTIVE,
-                0,
+                0L,
                 created,
                 created,
                 new LinkedHashMap<>(),
                 new ArrayList<>());
-        cart.domainEvents.add(new CartCreated(created, cart.cartId, cart.tenantId, cart.organizationId, cart.userId));
+        cart.domainEvents.add(new CartCreated(created, cart.cartId, cart.organizationId, cart.userId));
         return cart;
     }
 
     public static Cart rehydrate(
             String cartId,
-            String tenantId,
             String organizationId,
+
             String userId,
             CartStatus status,
             long version,
@@ -90,7 +87,6 @@ public final class Cart {
         }
         return new Cart(
                 cartId,
-                tenantId,
                 organizationId,
                 userId,
                 status,
@@ -123,7 +119,6 @@ public final class Cart {
                 ? new CartItem(
                         itemId,
                         cartId,
-                        tenantId,
                         organizationId,
                         variantId,
                         sku,
@@ -137,7 +132,7 @@ public final class Cart {
                 : existing.adjust(qty, unitPrice, reservationId, reservationConfirmed, changedAt);
 
         itemsById.put(next.cartItemId(), next);
-        domainEvents.add(new CartItemsAdjusted(changedAt, cartId, tenantId, organizationId, itemsById.size()));
+        domainEvents.add(new CartItemsAdjusted(changedAt, cartId, organizationId, itemsById.size()));
         return withVersionIncrement(changedAt);
     }
 
@@ -148,7 +143,7 @@ public final class Cart {
         }
         Instant changedAt = now == null ? Instant.now() : now;
         itemsById.remove(cartItemId);
-        domainEvents.add(new CartItemsAdjusted(changedAt, cartId, tenantId, organizationId, itemsById.size()));
+        domainEvents.add(new CartItemsAdjusted(changedAt, cartId, organizationId, itemsById.size()));
         return withVersionIncrement(changedAt);
     }
 
@@ -167,13 +162,12 @@ public final class Cart {
         domainEvents.add(new CheckoutAvailabilityValidated(
                 changedAt,
                 cartId,
-                tenantId,
+                organizationId,
                 validatedCheckout.checkoutCorrelationId(),
                 validatedCheckout.isValid(),
                 validatedCheckout.rejectionReasons()));
         return new Cart(
                 cartId,
-                tenantId,
                 organizationId,
                 userId,
                 validatedCheckout.isValid() ? CartStatus.CHECKOUT_IN_PROGRESS : CartStatus.ACTIVE,
@@ -192,7 +186,6 @@ public final class Cart {
         Instant changedAt = now == null ? Instant.now() : now;
         return new Cart(
                 cartId,
-                tenantId,
                 organizationId,
                 userId,
                 CartStatus.CONVERTED,
@@ -210,7 +203,6 @@ public final class Cart {
         Instant changedAt = now == null ? Instant.now() : now;
         return new Cart(
                 cartId,
-                tenantId,
                 organizationId,
                 userId,
                 CartStatus.ABANDONED,
@@ -231,7 +223,6 @@ public final class Cart {
         Instant changedAt = now == null ? Instant.now() : now;
         return new Cart(
                 cartId,
-                tenantId,
                 organizationId,
                 userId,
                 CartStatus.CANCELLED,
@@ -271,10 +262,6 @@ public final class Cart {
         return cartId;
     }
 
-    public String tenantId() {
-        return tenantId;
-    }
-
     public String organizationId() {
         return organizationId;
     }
@@ -308,7 +295,6 @@ public final class Cart {
     private Cart withVersionIncrement(Instant changedAt) {
         return new Cart(
                 cartId,
-                tenantId,
                 organizationId,
                 userId,
                 status,

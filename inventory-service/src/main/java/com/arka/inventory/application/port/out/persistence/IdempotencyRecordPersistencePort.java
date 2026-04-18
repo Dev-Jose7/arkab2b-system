@@ -5,7 +5,7 @@ import reactor.core.publisher.Mono;
 
 public interface IdempotencyRecordPersistencePort {
 
-    Mono<IdempotencyRecord> findByTenantOperationAndKey(String tenantId, String operationName, String idempotencyKey);
+    Mono<IdempotencyRecord> findByOrganizationOperationAndKey(String organizationId, String operationName, String idempotencyKey);
 
     Mono<IdempotencyRecord> save(IdempotencyRecord idempotencyRecord);
 }

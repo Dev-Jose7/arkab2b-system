@@ -12,7 +12,7 @@ Validar journeys comerciales de Catalog de punta a punta, incluyendo integracion
 - ciclo completo producto-variante-precio para disponibilidad comercial.
 - resolucion de variante para checkout.
 - propagacion de eventos a consumidores reales.
-- seguridad tenant/rol y trazabilidad operacional.
+- seguridad organization/rol y trazabilidad operacional.
 
 ## Escenarios E2E priorizados
 | ID | Escenario | Flujo | Resultado esperado | Trazabilidad |
@@ -25,7 +25,7 @@ Validar journeys comerciales de Catalog de punta a punta, incluyendo integracion
 | CAT-E2E-006 | retiro de producto dispara efectos downstream | retirar producto -> `ProductRetired` | inventory/notification reaccionan segun contrato | FR-001 |
 | CAT-E2E-007 | descontinuacion de variante impacta order/inventory | descontinuar variante -> `VariantDiscontinued` | consumidores aplican restriccion operacional | FR-001, FR-004 |
 | CAT-E2E-008 | ingest de eventos inventory ajusta proyeccion | inventory publica `StockUpdated/SkuReconciled` | Catalog actualiza hint/index con dedupe | politicas Catalog |
-| CAT-E2E-009 | aislamiento tenant en admin y consultas | actor tenant A sobre datos tenant B | rechazo `acceso_cruzado_detectado` | NFR-005 |
+| CAT-E2E-009 | aislamiento organization en admin y consultas | actor organization A sobre datos organization B | rechazo `acceso_cruzado_detectado` | NFR-005 |
 | CAT-E2E-010 | taxonomia referencial invalida bloquea alta | crear producto con brand/category inactiva | rechazo semantico y auditoria | FR-001 |
 | CAT-E2E-011 | resiliencia outbox en falla de broker | mutacion exitosa con fallo de publicacion | decision persiste y outbox reintenta | NFR-006 |
 | CAT-E2E-012 | trazabilidad tecnica completa | mutacion admin + consumo/emit de evento | cadena `request -> db -> audit -> outbox -> evento` con correlacion | NFR-006, NFR-009 |

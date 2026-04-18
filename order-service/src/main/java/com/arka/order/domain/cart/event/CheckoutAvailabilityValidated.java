@@ -5,7 +5,7 @@ import java.util.List;
 
 public final class CheckoutAvailabilityValidated extends AbstractCartDomainEvent {
 
-    private final String tenantId;
+    private final String organizationId;
     private final String checkoutCorrelationId;
     private final boolean valid;
     private final List<String> reasons;
@@ -13,19 +13,19 @@ public final class CheckoutAvailabilityValidated extends AbstractCartDomainEvent
     public CheckoutAvailabilityValidated(
             Instant occurredAt,
             String cartId,
-            String tenantId,
+            String organizationId,
             String checkoutCorrelationId,
             boolean valid,
             List<String> reasons) {
         super("CheckoutAvailabilityValidated", occurredAt, cartId, "Cart");
-        this.tenantId = tenantId;
+        this.organizationId = organizationId;
         this.checkoutCorrelationId = checkoutCorrelationId;
         this.valid = valid;
         this.reasons = reasons == null ? List.of() : List.copyOf(reasons);
     }
 
-    public String tenantId() {
-        return tenantId;
+    public String organizationId() {
+        return organizationId;
     }
 
     public String checkoutCorrelationId() {

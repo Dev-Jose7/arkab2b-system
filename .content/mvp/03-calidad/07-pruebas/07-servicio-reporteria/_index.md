@@ -6,7 +6,7 @@ url: "/mvp/calidad/pruebas/servicio-reporteria/"
 ---
 
 ## Objetivo
-Asegurar proyecciones analiticas `read-only`, generacion de reportes semanales por pais y trazabilidad tecnica completa sin romper aislamiento tenant ni reglas regionales.
+Asegurar proyecciones analiticas `read-only`, generacion de reportes semanales por pais y trazabilidad tecnica completa sin romper aislamiento organization ni reglas regionales.
 
 ## Alcance de calidad del servicio
 - Flujos HTTP de consulta (`sales`, `replenishment`, `operations`, `artifacts`) y operaciones internas (`rebuild`, `weekly/generate`, `reprocess-dlq`).
@@ -19,9 +19,9 @@ Asegurar proyecciones analiticas `read-only`, generacion de reportes semanales p
 - Arquitectura Reporting: contratos API/eventos, seguridad, datos y runtime.
 
 ## Datos de entrada comunes
-- `tenant` principal: `org-co-001` (`countryCode=CO`).
-- `tenant` alterno: `org-ec-001` (`countryCode=EC`).
-- actor de consulta con rol `tenant_user`.
+- `organization` principal: `org-co-001` (`countryCode=CO`).
+- `organization` alterno: `org-ec-001` (`countryCode=EC`).
+- actor de consulta con rol `organization_user`.
 - actor de consulta operativa con rol `arka_operator`.
 - actor tecnico m2m con scope `service_scope:reporting.ops`.
 - cabeceras de trazabilidad: `traceId`, `correlationId`.
@@ -31,18 +31,18 @@ Asegurar proyecciones analiticas `read-only`, generacion de reportes semanales p
 - Carpetas `unitarias`, `integracion` y `e2e` cubren escenarios `P1` y `P2` del servicio.
 - Cada escenario referencia al menos un `FR/NFR` y una regla/invariante de dominio.
 - Se debe verificar explicitamente la regla de regionalizacion: sin politica vigente por `countryCode` se bloquea la operacion con `configuracion_pais_no_disponible`.
-- Se valida aislamiento tenant/rol/scope en lectura y operaciones internas.
+- Se valida aislamiento organization/rol/scope en lectura y operaciones internas.
 
 ## Cobertura minima obligatoria (Reporting)
 | Bloque | Cobertura minima |
 |---|---|
 | Ingestion y proyecciones | consumo idempotente multi-evento + dedupe por `sourceEventId` |
-| Reporte semanal | generacion por `tenant+week+type` y unicidad operacional |
+| Reporte semanal | generacion por `organization+week+type` y unicidad operacional |
 | Regionalizacion | bloqueo sin fallback global con error semantico estable |
 | Read-only | cero mutaciones sobre BC core transaccionales |
 | Operaciones internas | `rebuild`, `weekly/generate`, `reprocess-dlq` con idempotencia |
 | Eventos salientes | `AnalyticFactUpdated`, `WeeklyReportGenerated` con envelope canonico |
-| Seguridad | tenant isolation, RBAC baseline, trazabilidad auditada |
+| Seguridad | organization isolation, RBAC baseline, trazabilidad auditada |
 | Resiliencia | retry, DLQ, replay controlado sin duplicar efectos |
 
 ## Errores canonicos a cubrir en pruebas

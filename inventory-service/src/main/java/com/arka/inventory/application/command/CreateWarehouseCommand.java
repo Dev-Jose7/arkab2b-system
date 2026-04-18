@@ -1,7 +1,7 @@
 package com.arka.inventory.application.command;
 
 public record CreateWarehouseCommand(
-        String tenantId,
+        String organizationId,
         String warehouseCode,
         String warehouseName,
         String countryCode,

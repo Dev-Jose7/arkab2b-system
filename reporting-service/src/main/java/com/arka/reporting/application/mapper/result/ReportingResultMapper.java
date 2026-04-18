@@ -27,7 +27,7 @@ public class ReportingResultMapper {
     public AnalyticFactResult toResult(AnalyticFact fact) {
         return new AnalyticFactResult(
                 fact.factId().value(),
-                fact.tenantId().value(),
+                fact.organizationId().value(),
                 fact.sourceEventId().value(),
                 fact.eventType(),
                 fact.factType().name(),
@@ -55,7 +55,7 @@ public class ReportingResultMapper {
     public SalesProjectionResult toResult(SalesProjection projection) {
         return new SalesProjectionResult(
                 projection.projectionId(),
-                projection.tenantId(),
+                projection.organizationId(),
                 projection.period(),
                 projection.totalSales(),
                 projection.paidAmount(),
@@ -67,7 +67,7 @@ public class ReportingResultMapper {
     public ReplenishmentProjectionResult toResult(ReplenishmentProjection projection) {
         return new ReplenishmentProjectionResult(
                 projection.projectionId(),
-                projection.tenantId(),
+                projection.organizationId(),
                 projection.period(),
                 projection.sku(),
                 projection.availableQty(),
@@ -79,7 +79,7 @@ public class ReportingResultMapper {
     public OperationsKpiResult toResult(OperationsKpiProjection projection) {
         return new OperationsKpiResult(
                 projection.projectionId(),
-                projection.tenantId(),
+                projection.organizationId(),
                 projection.period(),
                 projection.kpiName(),
                 projection.kpiValue());
@@ -88,7 +88,7 @@ public class ReportingResultMapper {
     public WeeklyExecutionResult toResult(WeeklyReportExecution execution) {
         return new WeeklyExecutionResult(
                 execution.executionId().value(),
-                execution.tenantId().value(),
+                execution.organizationId().value(),
                 execution.weekId().value(),
                 execution.reportType().name(),
                 execution.status().name(),
@@ -106,7 +106,7 @@ public class ReportingResultMapper {
         return new ReportArtifactResult(
                 artifact.artifactId(),
                 artifact.executionId(),
-                artifact.tenantId(),
+                artifact.organizationId(),
                 artifact.weekId(),
                 artifact.reportType(),
                 artifact.format(),
@@ -132,7 +132,7 @@ public class ReportingResultMapper {
     public ReportingAuditEntryResult toResult(ReportingAuditEntry entry) {
         return new ReportingAuditEntryResult(
                 entry.auditId(),
-                entry.tenantId(),
+                entry.organizationId(),
                 entry.actorId(),
                 entry.actionType(),
                 entry.targetType(),

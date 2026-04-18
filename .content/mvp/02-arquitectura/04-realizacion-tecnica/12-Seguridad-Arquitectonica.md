@@ -36,7 +36,7 @@ flowchart LR
 | borde (`api-gateway`) | valida token, firma, expiracion, `iss`, `aud` y condiciones tecnicas de acceso |
 | gateways internos m2m | autentican scopes tecnicos para operaciones internas (`notification`/`reporting` ops) |
 | servicios de negocio | aplican autorizacion contextual del caso de uso y aislamiento organizacional |
-| eventos/listeners | usan `TriggerContext` tecnico + dedupe + validacion de tenant antes de mutar estado |
+| eventos/listeners | usan `TriggerContext` tecnico + dedupe + validacion de organization antes de mutar estado |
 | capacidad transversal (`identity-access`) | emite/valida legitimidad de actor y politicas de acceso |
 
 ## Aislamiento por organizacion operante
@@ -45,7 +45,7 @@ flowchart LR
 | contexto organizacional resuelto | toda mutacion/consulta de negocio opera con organizacion valida |
 | validacion de ownership | servicio owner confirma relacion actor-organizacion-recurso |
 | metadata obligatoria | `organizationId`, actor efectivo, `traceId` y `correlationId` en comandos/eventos |
-| rechazo de cruce de tenant | `403 acceso_cruzado_detectado` + evidencia obligatoria en auditoria |
+| rechazo de cruce de organization | `403 acceso_cruzado_detectado` + evidencia obligatoria en auditoria |
 
 ## Arquitectura de seguridad por servicio (rescatada y adaptada)
 | Servicio | Controles dominantes | Trust boundary principal | Datos sensibles a proteger |
@@ -55,12 +55,12 @@ flowchart LR
 | `inventory-service` | permisos granulares para write de stock, identidad tecnica para confirmacion de reservas, proteccion contra contencion/replay | frontera de operaciones de stock/reserva vs consultas de disponibilidad | estado de stock y reservas activas |
 | `order-service` | aislamiento por organizacion en carrito/checkout/pedido, controles de transicion de estado y evidencia de pago manual | frontera de comandos criticos que coordinan `directory`/`catalog`/`inventory` | referencia de pago manual, snapshots de checkout |
 | `notification-service` (`Generic`) | scopes m2m por endpoint interno, validacion de firma/origen de callbacks, sanitizacion de payload | frontera entre hechos internos y proveedor externo de envio | destinatario, payload de notificacion, callback raw |
-| `reporting-service` (`Generic`) | read-only por tenant owner, scope `reporting.ops` para rebuild/generate, URLs firmadas para artefactos | frontera entre datos derivados multi-contexto y consultas operativas | artefactos exportados, payload derivado de hechos |
+| `reporting-service` (`Generic`) | read-only por organization owner, scope `reporting.ops` para rebuild/generate, URLs firmadas para artefactos | frontera entre datos derivados multi-contexto y consultas operativas | artefactos exportados, payload derivado de hechos |
 
 ## Seguridad de integraciones y eventos
 | Mecanismo | Regla aplicable |
 |---|---|
-| contrato de evento | validar `eventType`, `eventVersion`, `tenantId`, `traceId`, `correlationId` antes de procesar |
+| contrato de evento | validar `eventType`, `eventVersion`, `organizationId`, `traceId`, `correlationId` antes de procesar |
 | dedupe de consumo | registrar `eventId + consumerRef`; duplicados se tratan como `noop` idempotente |
 | retry + DLQ | mensajes transitorios con backoff; no recuperables a `DLQ` con alerta |
 | callback externo | validar firma/token del proveedor y origen permitido |
@@ -78,7 +78,7 @@ flowchart LR
 ## Escenarios de calidad de seguridad (base operativa)
 | Escenario | Respuesta esperada |
 |---|---|
-| intento de acceso cross-tenant | rechazo inmediato y auditoria trazable |
+| intento de acceso cross-organization | rechazo inmediato y auditoria trazable |
 | replay de comando mutante con misma llave | respuesta idempotente sin duplicar efecto |
 | callback de proveedor con firma invalida | descarte seguro + registro de incidente |
 | incremento anomalo de errores 403/401 | alerta operativa y trazabilidad por `traceId` |

@@ -9,7 +9,7 @@ import org.springframework.data.relational.core.mapping.Table;
 public record PriceScheduleRow(
         @Id
         @Column("schedule_id") String scheduleId,
-        @Column("tenant_id") String tenantId,
+        @Column("organization_id") String organizationId,
         @Column("price_id") String priceId,
         @Column("execute_after") Instant executeAfter,
         @Column("job_status") String jobStatus,

@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS notification_requests (
     notification_id       VARCHAR(36) PRIMARY KEY,
-    tenant_id             VARCHAR(64) NOT NULL,
+    organization_id             VARCHAR(64) NOT NULL,
     source_event_id       VARCHAR(120) NOT NULL,
     source_event_type     VARCHAR(120) NOT NULL,
     recipient_ref         VARCHAR(120) NOT NULL,
@@ -27,21 +27,21 @@ CREATE TABLE IF NOT EXISTS notification_requests (
         CHECK (max_attempts > 0 AND attempt_count >= 0),
     CONSTRAINT ck_notification_requests_version
         CHECK (version >= 0),
-    CONSTRAINT uq_notification_requests_tenant_notification UNIQUE (tenant_id, notification_id)
+    CONSTRAINT uq_notification_requests_organization_notification UNIQUE (organization_id, notification_id)
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS ux_requests_tenant_notification_key
-    ON notification_requests (tenant_id, notification_key);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_requests_organization_notification_key
+    ON notification_requests (organization_id, notification_key);
 CREATE INDEX IF NOT EXISTS idx_notification_requests_dispatchable
     ON notification_requests (status, retryable, next_retry_at);
-CREATE INDEX IF NOT EXISTS idx_notification_requests_tenant_status_updated
-    ON notification_requests (tenant_id, status, updated_at DESC);
-CREATE INDEX IF NOT EXISTS idx_notification_requests_tenant_event
-    ON notification_requests (tenant_id, source_event_type, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_notification_requests_organization_status_updated
+    ON notification_requests (organization_id, status, updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_notification_requests_organization_event
+    ON notification_requests (organization_id, source_event_type, created_at DESC);
 
 CREATE TABLE IF NOT EXISTS notification_templates (
     template_id            VARCHAR(36) PRIMARY KEY,
-    tenant_id              VARCHAR(64) NOT NULL,
+    organization_id              VARCHAR(64) NOT NULL,
     source_event_type      VARCHAR(120) NOT NULL,
     channel                VARCHAR(32) NOT NULL,
     template_version       INTEGER NOT NULL DEFAULT 1,
@@ -56,13 +56,13 @@ CREATE TABLE IF NOT EXISTS notification_templates (
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS ux_notification_templates_version
-    ON notification_templates (tenant_id, source_event_type, channel, template_version);
+    ON notification_templates (organization_id, source_event_type, channel, template_version);
 CREATE INDEX IF NOT EXISTS idx_notification_templates_active
-    ON notification_templates (tenant_id, source_event_type, channel, active);
+    ON notification_templates (organization_id, source_event_type, channel, active);
 
 CREATE TABLE IF NOT EXISTS channel_policies (
     policy_id               VARCHAR(36) PRIMARY KEY,
-    tenant_id               VARCHAR(64) NOT NULL,
+    organization_id               VARCHAR(64) NOT NULL,
     source_event_type       VARCHAR(120) NOT NULL,
     primary_channel         VARCHAR(32) NOT NULL,
     fallback_channel        VARCHAR(32),
@@ -79,14 +79,14 @@ CREATE TABLE IF NOT EXISTS channel_policies (
         CHECK (max_attempts > 0 AND retry_interval_seconds >= 0)
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS ux_channel_policies_tenant_source_event
-    ON channel_policies (tenant_id, source_event_type);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_channel_policies_organization_source_event
+    ON channel_policies (organization_id, source_event_type);
 CREATE INDEX IF NOT EXISTS idx_channel_policies_active
-    ON channel_policies (tenant_id, active);
+    ON channel_policies (organization_id, active);
 
 CREATE TABLE IF NOT EXISTS notification_attempts (
     attempt_id              VARCHAR(36) PRIMARY KEY,
-    tenant_id               VARCHAR(64) NOT NULL,
+    organization_id               VARCHAR(64) NOT NULL,
     notification_id         VARCHAR(36) NOT NULL,
     attempt_number          INTEGER NOT NULL,
     result_status           VARCHAR(16) NOT NULL,
@@ -103,18 +103,18 @@ CREATE TABLE IF NOT EXISTS notification_attempts (
     CONSTRAINT ck_notification_attempts_result
         CHECK (result_status IN ('CREATED', 'SENT', 'FAILED')),
     CONSTRAINT uq_notification_attempts_number UNIQUE (notification_id, attempt_number),
-    CONSTRAINT fk_notification_attempts_request FOREIGN KEY (tenant_id, notification_id)
-        REFERENCES notification_requests (tenant_id, notification_id)
+    CONSTRAINT fk_notification_attempts_request FOREIGN KEY (organization_id, notification_id)
+        REFERENCES notification_requests (organization_id, notification_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_notification_attempts_tenant_notification
-    ON notification_attempts (tenant_id, notification_id, attempt_number ASC);
+CREATE INDEX IF NOT EXISTS idx_notification_attempts_organization_notification
+    ON notification_attempts (organization_id, notification_id, attempt_number ASC);
 CREATE INDEX IF NOT EXISTS idx_notification_attempts_provider_ref
     ON notification_attempts (provider_code, provider_ref);
 
 CREATE TABLE IF NOT EXISTS provider_callbacks (
     callback_id             VARCHAR(36) PRIMARY KEY,
-    tenant_id               VARCHAR(64) NOT NULL,
+    organization_id               VARCHAR(64) NOT NULL,
     notification_id         VARCHAR(36) NOT NULL,
     provider_code           VARCHAR(64) NOT NULL,
     provider_ref            VARCHAR(160) NOT NULL,
@@ -126,16 +126,16 @@ CREATE TABLE IF NOT EXISTS provider_callbacks (
     CONSTRAINT ck_provider_callbacks_status
         CHECK (callback_status IN ('RECEIVED', 'VALIDATED', 'REJECTED')),
     CONSTRAINT uq_provider_callbacks_dedupe UNIQUE (provider_code, provider_ref, callback_event_id),
-    CONSTRAINT fk_provider_callbacks_request FOREIGN KEY (tenant_id, notification_id)
-        REFERENCES notification_requests (tenant_id, notification_id)
+    CONSTRAINT fk_provider_callbacks_request FOREIGN KEY (organization_id, notification_id)
+        REFERENCES notification_requests (organization_id, notification_id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_provider_callbacks_notification
-    ON provider_callbacks (tenant_id, notification_id, received_at ASC);
+    ON provider_callbacks (organization_id, notification_id, received_at ASC);
 
 CREATE TABLE IF NOT EXISTS notification_audits (
     audit_id                VARCHAR(36) PRIMARY KEY,
-    tenant_id               VARCHAR(64) NOT NULL,
+    organization_id               VARCHAR(64) NOT NULL,
     actor_id                VARCHAR(100) NOT NULL,
     action_type             VARCHAR(100) NOT NULL,
     target_type             VARCHAR(80) NOT NULL,
@@ -148,12 +148,12 @@ CREATE TABLE IF NOT EXISTS notification_audits (
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS ux_notification_audits_idempotency
-    ON notification_audits (tenant_id, action_type, idempotency_key)
+    ON notification_audits (organization_id, action_type, idempotency_key)
     WHERE idempotency_key IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_notification_audits_target
-    ON notification_audits (tenant_id, target_type, target_id, created_at DESC);
+    ON notification_audits (organization_id, target_type, target_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_notification_audits_created
-    ON notification_audits (tenant_id, created_at DESC);
+    ON notification_audits (organization_id, created_at DESC);
 
 CREATE TABLE IF NOT EXISTS outbox_events (
     event_id                VARCHAR(36) PRIMARY KEY,

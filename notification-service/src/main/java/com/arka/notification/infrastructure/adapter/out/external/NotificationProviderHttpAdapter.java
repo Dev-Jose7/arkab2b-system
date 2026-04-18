@@ -43,7 +43,7 @@ public class NotificationProviderHttpAdapter implements NotificationProviderPort
                 .accept(MediaType.APPLICATION_JSON)
                 .headers(this::applyAuthHeader)
                 .bodyValue(new ProviderRequest(
-                        request.tenantId(),
+                        request.organizationId(),
                         request.providerCode(),
                         request.channel(),
                         request.destination(),
@@ -96,7 +96,7 @@ public class NotificationProviderHttpAdapter implements NotificationProviderPort
     }
 
     private record ProviderRequest(
-            String tenantId,
+            String organizationId,
             String providerCode,
             String channel,
             String destination,

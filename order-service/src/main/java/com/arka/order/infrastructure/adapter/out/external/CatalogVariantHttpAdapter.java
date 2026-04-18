@@ -5,12 +5,17 @@ import com.arka.order.application.port.out.external.CatalogVariantSnapshot;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.util.concurrent.TimeoutException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 @Component
 public class CatalogVariantHttpAdapter implements CatalogVariantPort {
@@ -21,15 +26,20 @@ public class CatalogVariantHttpAdapter implements CatalogVariantPort {
     private final String defaultCurrency;
     private final String defaultPriceType;
     private final Duration timeout;
+    private final int maxRetryAttempts;
+    private final Duration retryBackoff;
 
+    @Autowired
     public CatalogVariantHttpAdapter(
-            WebClient.Builder webClientBuilder,
-            @Value("${app.external.catalog.base-url:http://catalog-service:8082}") String baseUrl,
-            @Value("${app.external.catalog.variant-resolution-path:/api/v1/catalog/checkout/variant-resolution}") String path,
+            @Qualifier("loadBalancedWebClientBuilder") WebClient.Builder webClientBuilder,
+            @Value("${app.external.catalog.base-url:http://catalog-service}") String baseUrl,
+            @Value("${app.external.catalog.variant-resolution-path:/api/v1/internal/catalog/checkout/variant-resolution}") String path,
             @Value("${app.external.catalog.service-token:}") String serviceToken,
             @Value("${app.external.catalog.default-currency:COP}") String defaultCurrency,
             @Value("${app.external.catalog.default-price-type:BASE}") String defaultPriceType,
-            @Value("${app.external.catalog.timeout-ms:3000}") long timeoutMs) {
+            @Value("${app.external.catalog.timeout-ms:3000}") long timeoutMs,
+            @Value("${app.external.catalog.retry.max-attempts:2}") int maxRetryAttempts,
+            @Value("${app.external.catalog.retry.backoff-ms:200}") long retryBackoffMs) {
         this.webClient = webClientBuilder.baseUrl(baseUrl).build();
         this.path = path;
         this.serviceToken = serviceToken == null ? "" : serviceToken.trim();
@@ -40,17 +50,40 @@ public class CatalogVariantHttpAdapter implements CatalogVariantPort {
                 ? "BASE"
                 : defaultPriceType.trim().toUpperCase();
         this.timeout = Duration.ofMillis(Math.max(500L, timeoutMs));
+        this.maxRetryAttempts = Math.max(0, maxRetryAttempts);
+        this.retryBackoff = Duration.ofMillis(Math.max(50L, retryBackoffMs));
+    }
+
+    public CatalogVariantHttpAdapter(
+            WebClient.Builder webClientBuilder,
+            String baseUrl,
+            String path,
+            String serviceToken,
+            String defaultCurrency,
+            String defaultPriceType,
+            long timeoutMs) {
+        this(
+                webClientBuilder,
+                baseUrl,
+                path,
+                serviceToken,
+                defaultCurrency,
+                defaultPriceType,
+                timeoutMs,
+                2,
+                200L);
     }
 
     @Override
-    public Mono<CatalogVariantSnapshot> resolveVariant(String tenantId, String variantId, String sku) {
-        if (sku == null || sku.isBlank()) {
+    public Mono<CatalogVariantSnapshot> resolveVariant(String organizationId, String variantId, String sku) {
+        if (organizationId == null || organizationId.isBlank() || sku == null || sku.isBlank()) {
             return Mono.empty();
         }
         return webClient
                 .get()
                 .uri(uriBuilder -> uriBuilder
                         .path(path)
+                        .queryParam("organizationId", organizationId.trim())
                         .queryParam("sku", sku.trim())
                         .queryParam("currency", defaultCurrency)
                         .queryParam("priceType", defaultPriceType)
@@ -73,13 +106,14 @@ public class CatalogVariantHttpAdapter implements CatalogVariantPort {
                     return response
                             .bodyToMono(String.class)
                             .defaultIfEmpty("")
-                            .flatMap(body -> Mono.error(new IllegalStateException(
+                            .flatMap(body -> Mono.error(new TransientRemoteException(
                                     "Catalog variant resolution failed status="
                                             + response.statusCode().value()
                                             + " body="
                                             + body)));
                 })
-                .timeout(timeout);
+                .timeout(timeout)
+                .retryWhen(Retry.backoff(maxRetryAttempts, retryBackoff).filter(this::isRetryable));
     }
 
     private CatalogVariantSnapshot toSnapshot(JsonNode node) {
@@ -130,5 +164,17 @@ public class CatalogVariantHttpAdapter implements CatalogVariantPort {
                     "Catalog variant resolution client error. status=" + status + " sku=" + normalizedSku + " body="
                             + body);
         };
+    }
+
+    private boolean isRetryable(Throwable throwable) {
+        return throwable instanceof TimeoutException
+                || throwable instanceof WebClientRequestException
+                || throwable instanceof TransientRemoteException;
+    }
+
+    private static final class TransientRemoteException extends RuntimeException {
+        private TransientRemoteException(String message) {
+            super(message);
+        }
     }
 }

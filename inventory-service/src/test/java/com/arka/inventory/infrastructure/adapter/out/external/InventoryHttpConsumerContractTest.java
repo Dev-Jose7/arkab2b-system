@@ -30,7 +30,7 @@ class InventoryHttpConsumerContractTest {
                     "BASE",
                     3_000);
 
-            StepVerifier.create(adapter.existsSellableSku("tenant-1", "SKU-XYZ"))
+            StepVerifier.create(adapter.existsSellableSku("organization-1", "SKU-XYZ"))
                     .expectNext(true)
                     .verifyComplete();
 
@@ -45,22 +45,22 @@ class InventoryHttpConsumerContractTest {
     }
 
     @Test
-    void directoryTenantAdapterShouldRespectConsumerContract() throws Exception {
-        try (StubHttpServer server = StubHttpServer.responding(200, "{\"organizationId\":\"tenant-22\"}")) {
-            DirectoryTenantHttpAdapter adapter = new DirectoryTenantHttpAdapter(
+    void directoryOrganizationAdapterShouldRespectConsumerContract() throws Exception {
+        try (StubHttpServer server = StubHttpServer.responding(200, "{\"organizationId\":\"organization-22\"}")) {
+            DirectoryOrganizationHttpAdapter adapter = new DirectoryOrganizationHttpAdapter(
                     WebClient.builder(),
                     server.baseUrl(),
                     "/api/v1/organizations/{organizationId}",
                     "inventory-token",
                     3_000);
 
-            StepVerifier.create(adapter.tenantExists("tenant-22"))
+            StepVerifier.create(adapter.organizationExists("organization-22"))
                     .expectNext(true)
                     .verifyComplete();
 
             CapturedRequest request = server.lastRequest();
             assertThat(request.method()).isEqualTo("GET");
-            assertThat(request.path()).isEqualTo("/api/v1/organizations/tenant-22");
+            assertThat(request.path()).isEqualTo("/api/v1/organizations/organization-22");
             assertThat(request.header("Authorization")).isEqualTo("Bearer inventory-token");
         }
     }
@@ -76,7 +76,7 @@ class InventoryHttpConsumerContractTest {
                     "inventory-token",
                     3_000);
 
-            StepVerifier.create(adapter.isValidOrderReference("tenant-1", "ord-77"))
+            StepVerifier.create(adapter.isValidOrderReference("organization-1", "ord-77"))
                     .expectNext(true)
                     .verifyComplete();
 
@@ -151,4 +151,3 @@ class InventoryHttpConsumerContractTest {
         }
     }
 }
-

@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 public record ReplenishmentProjectionResult(
         String projectionId,
-        String tenantId,
+        String organizationId,
         String period,
         String sku,
         BigDecimal availableQty,

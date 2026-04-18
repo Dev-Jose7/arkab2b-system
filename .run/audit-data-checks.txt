@@ -1,0 +1,13 @@
+# notification
+notification_requests=3
+processed_events=3
+
+# reporting
+analytic_facts=3
+applied_facts=3
+processed_events=3
+checkpoints=3
+
+# order
+carts=1
+orders=0

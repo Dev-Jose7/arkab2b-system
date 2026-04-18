@@ -4,19 +4,19 @@ import java.time.Instant;
 
 public final class AnalyticFactApplied extends AbstractAnalyticFactDomainEvent {
 
-    private final String tenantId;
+    private final String organizationId;
     private final String sourceEventId;
     private final String factType;
 
-    public AnalyticFactApplied(String factId, String tenantId, String sourceEventId, String factType, Instant occurredAt) {
+    public AnalyticFactApplied(String factId, String organizationId, String sourceEventId, String factType, Instant occurredAt) {
         super("AnalyticFactApplied", factId, occurredAt);
-        this.tenantId = tenantId;
+        this.organizationId = organizationId;
         this.sourceEventId = sourceEventId;
         this.factType = factType;
     }
 
-    public String tenantId() {
-        return tenantId;
+    public String organizationId() {
+        return organizationId;
     }
 
     public String sourceEventId() {

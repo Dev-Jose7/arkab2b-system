@@ -25,7 +25,6 @@ public class OrderResultMapper {
     public CartResult toResult(Cart cart) {
         return new CartResult(
                 cart.cartId(),
-                cart.tenantId(),
                 cart.organizationId(),
                 cart.userId(),
                 cart.status().name(),
@@ -55,7 +54,6 @@ public class OrderResultMapper {
         return new CheckoutAttemptResult(
                 attempt.checkoutAttemptId(),
                 attempt.checkoutCorrelationId(),
-                attempt.tenantId(),
                 attempt.organizationId(),
                 attempt.userId(),
                 attempt.cartId(),
@@ -78,7 +76,6 @@ public class OrderResultMapper {
         return new OrderResult(
                 order.orderId(),
                 order.orderNumber(),
-                order.tenantId(),
                 order.organizationId(),
                 order.userId(),
                 order.cartId(),

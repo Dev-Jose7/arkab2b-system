@@ -6,7 +6,7 @@ import java.time.Instant;
 
 public record ReplenishmentProjection(
         String projectionId,
-        String tenantId,
+        String organizationId,
         String period,
         String sku,
         BigDecimal availableQty,

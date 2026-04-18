@@ -1,6 +1,16 @@
 spring:
   application:
     name: ${SPRING_APPLICATION_NAME:catalog-service}
+  config:
+    import: "optional:configserver:${APP_CONFIG_SERVER_URI:http://localhost:8888}"
+  cloud:
+    config:
+      enabled: ${APP_CONFIG_ENABLED:true}
+      fail-fast: ${APP_CONFIG_FAIL_FAST:false}
+      label: ${APP_CONFIG_LABEL:main}
+      discovery:
+        enabled: ${APP_CONFIG_DISCOVERY_ENABLED:false}
+        service-id: ${APP_CONFIG_DISCOVERY_SERVICE_ID:config-server}
   main:
     web-application-type: reactive
 
@@ -11,7 +21,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: ${MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE:health,info,metrics}
+        include: ${MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE:health,info,metrics,prometheus}
   endpoint:
     health:
       probes:
@@ -48,7 +58,7 @@ logging:
 springdoc:
   api-docs:
     enabled: ${SPRINGDOC_API_DOCS_ENABLED:true}
-    path: ${SPRINGDOC_API_DOCS_PATH:/v3/api-docs}
+    path: ${SPRINGDOC_API_DOCS_PATH:/v1/api-docs}
   swagger-ui:
     enabled: ${SPRINGDOC_SWAGGER_UI_ENABLED:true}
     path: ${SPRINGDOC_SWAGGER_UI_PATH:/swagger-ui.html}
@@ -70,7 +80,20 @@ app:
       enabled: ${APP_DEP_KAFKA_ENABLED:true}
   security:
     jwt:
-      public-key-path: ${APP_SECURITY_JWT_PUBLIC_KEY_PATH:classpath:keys/dev-public.pem}
+      issuer: ${APP_SECURITY_JWT_ISSUER:identity-access-service}
+      allowed-audiences: ${APP_SECURITY_JWT_ALLOWED_AUDIENCES:arka-b2b,catalog-service}
+      clock-skew-seconds: ${APP_SECURITY_JWT_CLOCK_SKEW_SECONDS:60}
+      jwks-uri: ${APP_SECURITY_JWT_JWKS_URI:http://localhost:8081/.well-known/jwks.json}
+    s2s:
+      enabled: ${APP_SECURITY_S2S_ENABLED:true}
+      client-id: ${APP_SECURITY_S2S_CLIENT_ID:${spring.application.name}}
+      client-secret: ${APP_SECURITY_S2S_CLIENT_SECRET:}
+      audience: ${APP_SECURITY_S2S_AUDIENCE:arka-b2b}
+      scopes: ${APP_SECURITY_S2S_SCOPES:catalog.read,directory.read,iam.permission.read}
+      identity-base-url: ${APP_SECURITY_S2S_IDENTITY_BASE_URL:${app.external.identity.base-url:http://identity-access-service}}
+      token-path: ${APP_SECURITY_S2S_TOKEN_PATH:/api/v1/internal/auth/service-token}
+      timeout-ms: ${APP_SECURITY_S2S_TIMEOUT_MS:2000}
+      refresh-skew-seconds: ${APP_SECURITY_S2S_REFRESH_SKEW_SECONDS:30}
   redis:
     cache:
       catalog-search-ttl-seconds: ${APP_REDIS_CACHE_CATALOG_SEARCH_TTL_SECONDS:30}
@@ -90,10 +113,10 @@ app:
       base-url: ${APP_EXTERNAL_IDENTITY_BASE_URL:http://localhost:8081}
       service-token: ${APP_EXTERNAL_IDENTITY_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
       timeout-ms: ${APP_EXTERNAL_IDENTITY_TIMEOUT_MS:3000}
-      actor-legitimacy-path: ${APP_EXTERNAL_IDENTITY_ACTOR_LEGITIMACY_PATH:/api/v1/admin/iam/users/{actorId}/permissions}
+      actor-legitimacy-path: ${APP_EXTERNAL_IDENTITY_ACTOR_LEGITIMACY_PATH:/api/v1/internal/iam/users/{actorId}/permissions}
     directory:
       base-url: ${APP_EXTERNAL_DIRECTORY_BASE_URL:http://localhost:8082}
       service-token: ${APP_EXTERNAL_DIRECTORY_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
       timeout-ms: ${APP_EXTERNAL_DIRECTORY_TIMEOUT_MS:3000}
-      country-policy-path: ${APP_EXTERNAL_DIRECTORY_COUNTRY_POLICY_PATH:}
+      country-policy-path: ${APP_EXTERNAL_DIRECTORY_COUNTRY_POLICY_PATH:/api/v1/internal/organizations/{organizationId}/country-policies/{countryCode}}
       default-currency: ${APP_EXTERNAL_DIRECTORY_DEFAULT_CURRENCY:COP}

@@ -40,7 +40,6 @@ public class OrderCommandMapper {
                 ? principal.userId()
                 : request.userId().trim();
         return new CreateCartCommand(
-                principal.tenantId(),
                 principal.organizationId(),
                 userId,
                 principal.userId(),
@@ -53,7 +52,6 @@ public class OrderCommandMapper {
             IamSecurityPrincipal principal,
             String idempotencyKey) {
         return new AdjustCartItemsCommand(
-                principal.tenantId(),
                 principal.organizationId(),
                 principal.userId(),
                 cartId,
@@ -68,7 +66,6 @@ public class OrderCommandMapper {
             IamSecurityPrincipal principal,
             String idempotencyKey) {
         return new ValidateCheckoutAvailabilityCommand(
-                principal.tenantId(),
                 principal.organizationId(),
                 principal.userId(),
                 cartId,
@@ -87,7 +84,6 @@ public class OrderCommandMapper {
                 ? principal.userId()
                 : request.userId().trim();
         return new CreateOrderFromCartCommand(
-                principal.tenantId(),
                 principal.organizationId(),
                 userId,
                 request.cartId(),
@@ -102,7 +98,6 @@ public class OrderCommandMapper {
             IamSecurityPrincipal principal,
             String idempotencyKey) {
         return new AdjustOrderBeforeCloseCommand(
-                principal.tenantId(),
                 principal.organizationId(),
                 orderId,
                 request.lines().stream().map(this::toInput).toList(),
@@ -117,7 +112,6 @@ public class OrderCommandMapper {
             IamSecurityPrincipal principal,
             String idempotencyKey) {
         return new RevalidateOrderConsistencyAfterAdjustmentCommand(
-                principal.tenantId(),
                 principal.organizationId(),
                 orderId,
                 request == null ? null : request.reason(),
@@ -131,7 +125,6 @@ public class OrderCommandMapper {
             IamSecurityPrincipal principal,
             String idempotencyKey) {
         return new CancelOrderCommand(
-                principal.tenantId(),
                 principal.organizationId(),
                 orderId,
                 request == null ? null : request.reason(),
@@ -145,7 +138,6 @@ public class OrderCommandMapper {
             IamSecurityPrincipal principal,
             String idempotencyKey) {
         return new UpdateOrderOperationalStatusCommand(
-                principal.tenantId(),
                 principal.organizationId(),
                 orderId,
                 request.targetStatus(),
@@ -160,7 +152,6 @@ public class OrderCommandMapper {
             IamSecurityPrincipal principal,
             String idempotencyKey) {
         return new RegisterManualPaymentCommand(
-                principal.tenantId(),
                 principal.organizationId(),
                 orderId,
                 request.paymentReference(),
@@ -179,7 +170,6 @@ public class OrderCommandMapper {
             IamSecurityPrincipal principal,
             String idempotencyKey) {
         return new ValidateManualPaymentCommand(
-                principal.tenantId(),
                 principal.organizationId(),
                 orderId,
                 paymentRecordId,
@@ -194,8 +184,7 @@ public class OrderCommandMapper {
             ReservationExpiredEventRequest request,
             IamSecurityPrincipal principal) {
         return new HandleReservationExpiredCommand(
-                principal.tenantId(),
-                request.organizationId(),
+                principal.organizationId(),
                 cartId,
                 request.reservationId(),
                 request.eventId(),

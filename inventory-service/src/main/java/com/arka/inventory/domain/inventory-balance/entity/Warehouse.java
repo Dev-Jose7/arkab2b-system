@@ -6,7 +6,7 @@ import java.time.Instant;
 
 public record Warehouse(
         String warehouseId,
-        String tenantId,
+        String organizationId,
         String code,
         String name,
         String countryCode,
@@ -16,7 +16,7 @@ public record Warehouse(
 
     public Warehouse {
         requireNotBlank(warehouseId, "warehouseId");
-        requireNotBlank(tenantId, "tenantId");
+        requireNotBlank(organizationId, "organizationId");
         requireNotBlank(code, "code");
         requireNotBlank(name, "name");
         requireNotBlank(countryCode, "countryCode");

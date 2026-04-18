@@ -34,7 +34,7 @@ public class CheckoutAttemptR2dbcAdapter implements CheckoutAttemptPersistencePo
     }
 
     @Override
-    public Mono<CheckoutAttempt> findByCorrelation(String tenantId, String checkoutCorrelationId) {
-        return repository.findByCorrelation(tenantId, checkoutCorrelationId).map(mapper::toDomain);
+    public Mono<CheckoutAttempt> findByCorrelation(String organizationId, String checkoutCorrelationId) {
+        return repository.findByCorrelation(organizationId, checkoutCorrelationId).map(mapper::toDomain);
     }
 }

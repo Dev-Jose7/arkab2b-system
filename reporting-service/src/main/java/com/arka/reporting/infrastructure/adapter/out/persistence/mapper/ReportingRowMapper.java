@@ -33,7 +33,7 @@ public class ReportingRowMapper {
     public AnalyticFactRow toRow(AnalyticFact fact, String period) {
         return new AnalyticFactRow(
                 fact.factId().value(),
-                fact.tenantId().value(),
+                fact.organizationId().value(),
                 fact.sourceEventId().value(),
                 fact.eventType(),
                 fact.factType().name(),
@@ -50,7 +50,7 @@ public class ReportingRowMapper {
     public AnalyticFact toDomain(AnalyticFactRow row) {
         return AnalyticFact.rehydrate(
                 FactId.of(row.factId()),
-                com.arka.reporting.domain.analyticfact.valueobject.TenantId.of(row.tenantId()),
+                com.arka.reporting.domain.analyticfact.valueobject.OrganizationId.of(row.organizationId()),
                 SourceEventId.of(row.sourceEventId()),
                 row.eventType(),
                 AnalyticFactType.valueOf(row.factType()),
@@ -66,7 +66,7 @@ public class ReportingRowMapper {
     public SalesProjection toDomain(SalesProjectionRow row) {
         return new SalesProjection(
                 row.projectionId(),
-                row.tenantId(),
+                row.organizationId(),
                 row.period(),
                 row.totalSales(),
                 row.paidAmount(),
@@ -81,7 +81,7 @@ public class ReportingRowMapper {
     public ReplenishmentProjection toDomain(ReplenishmentProjectionRow row) {
         return new ReplenishmentProjection(
                 row.projectionId(),
-                row.tenantId(),
+                row.organizationId(),
                 row.period(),
                 row.sku(),
                 row.availableQty(),
@@ -96,7 +96,7 @@ public class ReportingRowMapper {
     public OperationsKpiProjection toDomain(OperationsKpiProjectionRow row) {
         return new OperationsKpiProjection(
                 row.projectionId(),
-                row.tenantId(),
+                row.organizationId(),
                 row.period(),
                 row.kpiName(),
                 row.kpiValue(),
@@ -108,7 +108,7 @@ public class ReportingRowMapper {
     public WeeklyReportExecutionRow toRow(WeeklyReportExecution execution) {
         return new WeeklyReportExecutionRow(
                 execution.executionId().value(),
-                execution.tenantId().value(),
+                execution.organizationId().value(),
                 execution.weekId().value(),
                 execution.reportType().name(),
                 execution.status().name(),
@@ -125,7 +125,7 @@ public class ReportingRowMapper {
     public WeeklyReportExecution toDomain(WeeklyReportExecutionRow row) {
         return WeeklyReportExecution.rehydrate(
                 ExecutionId.of(row.executionId()),
-                com.arka.reporting.domain.weeklyreportexecution.valueobject.TenantId.of(row.tenantId()),
+                com.arka.reporting.domain.weeklyreportexecution.valueobject.OrganizationId.of(row.organizationId()),
                 WeekId.of(row.weekId()),
                 ReportType.valueOf(row.reportType()),
                 WeeklyReportExecutionStatus.valueOf(row.status()),
@@ -143,7 +143,7 @@ public class ReportingRowMapper {
         return new ReportArtifactRow(
                 artifact.artifactId(),
                 artifact.executionId(),
-                artifact.tenantId(),
+                artifact.organizationId(),
                 artifact.weekId(),
                 artifact.reportType(),
                 artifact.format(),
@@ -158,7 +158,7 @@ public class ReportingRowMapper {
         return new ReportArtifact(
                 row.artifactId(),
                 row.executionId(),
-                row.tenantId(),
+                row.organizationId(),
                 row.weekId(),
                 row.reportType(),
                 row.format(),
@@ -172,7 +172,7 @@ public class ReportingRowMapper {
     public ConsumerCheckpoint toDomain(ConsumerCheckpointRow row) {
         return new ConsumerCheckpoint(
                 row.checkpointId(),
-                row.tenantId(),
+                row.organizationId(),
                 row.consumerName(),
                 row.topic(),
                 row.partition() == null ? 0 : row.partition(),
@@ -185,7 +185,7 @@ public class ReportingRowMapper {
     public ReportingAuditRow toRow(ReportingAuditEntry entry) {
         return new ReportingAuditRow(
                 entry.auditId(),
-                entry.tenantId(),
+                entry.organizationId(),
                 entry.actorId(),
                 entry.actionType(),
                 entry.targetType(),
@@ -200,7 +200,7 @@ public class ReportingRowMapper {
     public ReportingAuditEntry toDomain(ReportingAuditRow row) {
         return new ReportingAuditEntry(
                 row.auditId(),
-                row.tenantId(),
+                row.organizationId(),
                 row.actorId(),
                 row.actionType(),
                 row.targetType(),

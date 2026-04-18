@@ -3,49 +3,71 @@ package com.arka.catalog.infrastructure.adapter.out.external;
 import com.arka.catalog.application.port.out.directory.RegionalPolicyContext;
 import com.arka.catalog.application.port.out.directory.RegionalPolicyContextPort;
 import java.time.Duration;
+import java.util.concurrent.TimeoutException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 @Component
 public class DirectoryRegionalPolicyContextHttpAdapter implements RegionalPolicyContextPort {
 
     private static final String DEFAULT_COUNTRY_POLICY_PATH =
-            "/api/v1/organizations/{organizationId}/country-policies/{countryCode}";
+            "/api/v1/internal/organizations/{organizationId}/country-policies/{countryCode}";
 
     private final WebClient webClient;
     private final String policyPath;
     private final String serviceToken;
     private final String defaultCurrency;
     private final Duration timeout;
+    private final int maxRetryAttempts;
+    private final Duration retryBackoff;
 
+    @Autowired
     public DirectoryRegionalPolicyContextHttpAdapter(
-            WebClient.Builder webClientBuilder,
-            @Value("${app.external.directory.base-url:http://directory-service:8080}") String baseUrl,
+            @Qualifier("loadBalancedWebClientBuilder") WebClient.Builder webClientBuilder,
+            @Value("${app.external.directory.base-url:http://directory-service}") String baseUrl,
             @Value("${app.external.directory.country-policy-path:}") String policyPath,
             @Value("${app.external.directory.service-token:}") String serviceToken,
             @Value("${app.external.directory.default-currency:COP}") String defaultCurrency,
-            @Value("${app.external.directory.timeout-ms:3000}") long timeoutMs) {
+            @Value("${app.external.directory.timeout-ms:3000}") long timeoutMs,
+            @Value("${app.external.directory.retry.max-attempts:2}") int maxRetryAttempts,
+            @Value("${app.external.directory.retry.backoff-ms:200}") long retryBackoffMs) {
         this.webClient = webClientBuilder.baseUrl(baseUrl).build();
         this.policyPath = policyPath == null || policyPath.isBlank() ? DEFAULT_COUNTRY_POLICY_PATH : policyPath;
         this.serviceToken = serviceToken == null ? "" : serviceToken.trim();
         this.defaultCurrency = defaultCurrency == null ? "COP" : defaultCurrency.trim().toUpperCase();
         this.timeout = Duration.ofMillis(Math.max(500L, timeoutMs));
+        this.maxRetryAttempts = Math.max(0, maxRetryAttempts);
+        this.retryBackoff = Duration.ofMillis(Math.max(50L, retryBackoffMs));
+    }
+
+    public DirectoryRegionalPolicyContextHttpAdapter(
+            WebClient.Builder webClientBuilder,
+            String baseUrl,
+            String policyPath,
+            String serviceToken,
+            String defaultCurrency,
+            long timeoutMs) {
+        this(webClientBuilder, baseUrl, policyPath, serviceToken, defaultCurrency, timeoutMs, 2, 200L);
     }
 
     @Override
-    public Mono<RegionalPolicyContext> resolveForTenant(String tenantId, String countryCode) {
-        String normalizedTenantId = tenantId == null ? "" : tenantId.trim();
-        if (normalizedTenantId.isBlank()) {
-            return Mono.error(new IllegalArgumentException("tenantId is required"));
+    public Mono<RegionalPolicyContext> resolveForOrganization(String organizationId, String countryCode) {
+        String normalizedOrganizationId = organizationId == null ? "" : organizationId.trim();
+        if (normalizedOrganizationId.isBlank()) {
+            return Mono.error(new IllegalArgumentException("organizationId is required"));
         }
         String normalizedCountryCode = normalizeCountry(countryCode);
         return webClient
                 .get()
-                .uri(policyPath, normalizedTenantId, normalizedCountryCode)
+                .uri(policyPath, normalizedOrganizationId, normalizedCountryCode)
                 .accept(MediaType.APPLICATION_JSON)
                 .headers(this::applyAuthHeader)
                 .exchangeToMono(response -> {
@@ -67,40 +89,41 @@ public class DirectoryRegionalPolicyContextHttpAdapter implements RegionalPolicy
                         return response
                                 .bodyToMono(String.class)
                                 .defaultIfEmpty("")
-                                .flatMap(body -> Mono.error(clientError(status, normalizedTenantId, normalizedCountryCode, body)));
+                                .flatMap(body -> Mono.error(clientError(status, normalizedOrganizationId, normalizedCountryCode, body)));
                     }
                     return response
                             .bodyToMono(String.class)
                             .defaultIfEmpty("")
-                            .flatMap(body -> Mono.error(new IllegalStateException(
+                            .flatMap(body -> Mono.error(new TransientRemoteException(
                                     "Regional policy context resolution failed status="
                                             + status
-                                            + " tenantId="
-                                            + normalizedTenantId
+                                            + " organizationId="
+                                            + normalizedOrganizationId
                                             + " countryCode="
                                             + normalizedCountryCode
                                             + " body="
                                             + body)));
                 })
-                .timeout(timeout);
+                .timeout(timeout)
+                .retryWhen(Retry.backoff(maxRetryAttempts, retryBackoff).filter(this::isRetryable));
     }
 
-    private RuntimeException clientError(int status, String tenantId, String countryCode, String body) {
+    private RuntimeException clientError(int status, String organizationId, String countryCode, String body) {
         return switch (status) {
             case 400 -> new IllegalArgumentException(
-                    "Regional policy context request rejected (400). tenantId=" + tenantId + " countryCode="
+                    "Regional policy context request rejected (400). organizationId=" + organizationId + " countryCode="
                             + countryCode + " body=" + body);
             case 401, 403 -> new SecurityException(
-                    "Regional policy context unauthorized/forbidden. status=" + status + " tenantId=" + tenantId
+                    "Regional policy context unauthorized/forbidden. status=" + status + " organizationId=" + organizationId
                             + " countryCode=" + countryCode + " body=" + body);
             case 409 -> new IllegalStateException(
-                    "Regional policy context conflict (409). tenantId=" + tenantId + " countryCode=" + countryCode
+                    "Regional policy context conflict (409). organizationId=" + organizationId + " countryCode=" + countryCode
                             + " body=" + body);
             case 422 -> new IllegalStateException(
-                    "Regional policy context semantic error (422). tenantId=" + tenantId + " countryCode="
+                    "Regional policy context semantic error (422). organizationId=" + organizationId + " countryCode="
                             + countryCode + " body=" + body);
             default -> new IllegalStateException(
-                    "Regional policy context client error. status=" + status + " tenantId=" + tenantId
+                    "Regional policy context client error. status=" + status + " organizationId=" + organizationId
                             + " countryCode=" + countryCode + " body=" + body);
         };
     }
@@ -116,6 +139,18 @@ public class DirectoryRegionalPolicyContextHttpAdapter implements RegionalPolicy
             return "CO";
         }
         return countryCode.trim().toUpperCase();
+    }
+
+    private boolean isRetryable(Throwable throwable) {
+        return throwable instanceof TimeoutException
+                || throwable instanceof WebClientRequestException
+                || throwable instanceof TransientRemoteException;
+    }
+
+    private static final class TransientRemoteException extends RuntimeException {
+        private TransientRemoteException(String message) {
+            super(message);
+        }
     }
 
     private record CountryPolicyResponse(

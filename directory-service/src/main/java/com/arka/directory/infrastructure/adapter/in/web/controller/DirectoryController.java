@@ -313,6 +313,17 @@ public class DirectoryController {
                 .map(responseMapper::toResponse);
     }
 
+    @PreAuthorize("hasRole('TRUSTED_SERVICE') and hasAnyAuthority('directory.read','directory.organization.read')")
+    @GetMapping("/internal/organizations/{organizationId}")
+    public Mono<OrganizationResponse> getOrganizationInternal(
+            @PathVariable String organizationId,
+            Authentication authentication) {
+        IamSecurityPrincipal principal = IamSecurityPrincipal.fromAuthentication(authentication);
+        return getOrganizationQueryUseCase
+                .handle(queryMapper.toGetOrganizationQuery(organizationId, principal))
+                .map(responseMapper::toResponse);
+    }
+
     @PreAuthorize("hasAuthority('directory.organization.read')")
     @GetMapping("/organizations/{organizationId}/profile")
     public Mono<OrganizationProfileResponse> getOrganizationProfile(
@@ -327,6 +338,17 @@ public class DirectoryController {
     @PreAuthorize("hasAuthority('directory.profile.read')")
     @GetMapping("/organizations/{organizationId}/contacts")
     public Flux<OrganizationContactResponse> listContacts(
+            @PathVariable String organizationId,
+            Authentication authentication) {
+        IamSecurityPrincipal principal = IamSecurityPrincipal.fromAuthentication(authentication);
+        return listOrganizationContactsQueryUseCase
+                .handle(queryMapper.toListOrganizationContactsQuery(organizationId, principal))
+                .map(responseMapper::toResponse);
+    }
+
+    @PreAuthorize("hasRole('TRUSTED_SERVICE') and hasAnyAuthority('directory.read','directory.profile.read')")
+    @GetMapping("/internal/organizations/{organizationId}/contacts")
+    public Flux<OrganizationContactResponse> listContactsInternal(
             @PathVariable String organizationId,
             Authentication authentication) {
         IamSecurityPrincipal principal = IamSecurityPrincipal.fromAuthentication(authentication);
@@ -359,6 +381,19 @@ public class DirectoryController {
                 .map(responseMapper::toResponse);
     }
 
+    @PreAuthorize("hasRole('TRUSTED_SERVICE') and hasAnyAuthority('directory.read','directory.profile.read')")
+    @GetMapping("/internal/organizations/{organizationId}/addresses/{addressId}/checkout-resolution")
+    public Mono<CheckoutAddressResolutionResponse> resolveCheckoutAddressInternal(
+            @PathVariable String organizationId,
+            @PathVariable String addressId,
+            @RequestParam String countryCode,
+            Authentication authentication) {
+        IamSecurityPrincipal principal = IamSecurityPrincipal.fromAuthentication(authentication);
+        return resolveCheckoutAddressQueryUseCase
+                .handle(queryMapper.toResolveCheckoutAddressQuery(organizationId, addressId, countryCode, principal))
+                .map(responseMapper::toResponse);
+    }
+
     @PreAuthorize("hasAuthority('directory.organization.read')")
     @GetMapping("/organizations/{organizationId}/country-policies/{countryCode}")
     public Mono<CountryPolicyResponse> getActiveCountryPolicy(
@@ -371,9 +406,38 @@ public class DirectoryController {
                 .map(responseMapper::toResponse);
     }
 
+    @PreAuthorize("hasRole('TRUSTED_SERVICE') and hasAnyAuthority('directory.read','directory.organization.read')")
+    @GetMapping("/internal/organizations/{organizationId}/country-policies/{countryCode}")
+    public Mono<CountryPolicyResponse> getActiveCountryPolicyInternal(
+            @PathVariable String organizationId,
+            @PathVariable String countryCode,
+            Authentication authentication) {
+        IamSecurityPrincipal principal = IamSecurityPrincipal.fromAuthentication(authentication);
+        return getActiveCountryPolicyQueryUseCase
+                .handle(queryMapper.toGetActiveCountryPolicyQuery(organizationId, countryCode, principal))
+                .map(responseMapper::toResponse);
+    }
+
     @PreAuthorize("hasAuthority('directory.organization.read')")
     @GetMapping("/organizations/{organizationId}/regional-context/{countryCode}")
     public Mono<OrganizationRegionalContextResponse> getRegionalContext(
+            @PathVariable String organizationId,
+            @PathVariable String countryCode,
+            Authentication authentication) {
+        IamSecurityPrincipal principal = IamSecurityPrincipal.fromAuthentication(authentication);
+        Mono<OrganizationResponse> organization = getOrganizationQueryUseCase
+                .handle(queryMapper.toGetOrganizationQuery(organizationId, principal))
+                .map(responseMapper::toResponse);
+        Mono<CountryPolicyResponse> policy = getActiveCountryPolicyQueryUseCase
+                .handle(queryMapper.toGetActiveCountryPolicyQuery(organizationId, countryCode, principal))
+                .map(responseMapper::toResponse);
+        return Mono.zip(organization, policy)
+                .map(tuple -> new OrganizationRegionalContextResponse(tuple.getT1(), tuple.getT2()));
+    }
+
+    @PreAuthorize("hasRole('TRUSTED_SERVICE') and hasAnyAuthority('directory.read','directory.organization.read')")
+    @GetMapping("/internal/organizations/{organizationId}/regional-context/{countryCode}")
+    public Mono<OrganizationRegionalContextResponse> getRegionalContextInternal(
             @PathVariable String organizationId,
             @PathVariable String countryCode,
             Authentication authentication) {

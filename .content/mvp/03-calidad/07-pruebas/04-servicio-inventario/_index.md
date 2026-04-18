@@ -11,7 +11,7 @@ Asegurar disponibilidad real, reservas con TTL, anti-sobreventa e idempotencia f
 ## Alcance de calidad del servicio
 - Flujos HTTP de stock, reservas, consultas y validacion interna de checkout.
 - Flujos async: publicacion de eventos Inventory por outbox y consumo idempotente de eventos de Catalog.
-- Reglas de seguridad: aislamiento tenant/rol, ownership de reserva/stock, auditoria operativa y trazabilidad tecnica.
+- Reglas de seguridad: aislamiento organization/rol, ownership de reserva/stock, auditoria operativa y trazabilidad tecnica.
 
 ## Fuentes de verdad usadas
 - Producto: `FR-002`, `FR-003`, `FR-004`, `NFR-004`, `NFR-005`, `NFR-006`, `NFR-009`.
@@ -19,10 +19,10 @@ Asegurar disponibilidad real, reservas con TTL, anti-sobreventa e idempotencia f
 - Arquitectura Inventory: contratos API/eventos, seguridad, datos y runtime.
 
 ## Datos de entrada comunes
-- `tenant` principal: `org-co-001`.
-- `tenant` alterno: `org-ec-001`.
+- `organization` principal: `org-co-001`.
+- `organization` alterno: `org-ec-001`.
 - actores base:
-  - `tenant_user`.
+  - `organization_user`.
   - `arka_operator`.
   - `order_service` (trusted service).
   - `system_scheduler`.
@@ -50,4 +50,4 @@ Asegurar disponibilidad real, reservas con TTL, anti-sobreventa e idempotencia f
 | Checkout sync | `POST /api/v1/internal/inventory/checkout/validate-reservations` |
 | Idempotencia | dedupe write-side en mutaciones HTTP con `idempotency_records` |
 | Integracion EDA | `Stock*`, `StockReservation*`, `SkuReconciled`, `LowStockDetected` + consumo `catalog.*` |
-| Seguridad y aislamiento | tenant/ownership, permisos por accion, trigger context en listeners/scheduler |
+| Seguridad y aislamiento | organization/ownership, permisos por accion, trigger context en listeners/scheduler |

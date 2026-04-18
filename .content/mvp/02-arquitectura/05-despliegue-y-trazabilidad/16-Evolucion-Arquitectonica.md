@@ -41,7 +41,7 @@ cerradas, partes provisionales y riesgos activos sin romper semantica.
 ## Deuda tecnica aceptada
 | ID | Deuda | Motivo | Plan de pago |
 |---|---|---|---|
-| TD-01 | tuning de rendimiento final por pais/tenant | falta telemetria de carga real | recalibrar presupuestos despues de pilotos operativos |
+| TD-01 | tuning de rendimiento final por pais/organization | falta telemetria de carga real | recalibrar presupuestos despues de pilotos operativos |
 | TD-02 | hardening avanzado de seguridad por servicio | prioridad en cierre semantico y trazabilidad | endurecimiento incremental en operacion sin romper contratos |
 | TD-03 | evolucion de reporteria avanzada | prioridad de consistencia `Core` en `MVP` | ampliar modelos analiticos por iteraciones controladas |
 | TD-04 | automatizacion mas profunda de contract testing cross-service | cobertura actual suficiente para baseline | aumentar gates y suites en ciclos siguientes |
@@ -54,7 +54,7 @@ cerradas, partes provisionales y riesgos activos sin romper semantica.
 | `inventory-service` | contencion en SKU caliente y expiracion de reservas | orden estable de lock, retry con jitter y particion de lotes |
 | `order-service` | dependencia sync en confirmacion de pedido | budgets por dependencia + fallback de degradacion funcional |
 | `notification-service` | tormenta de reintentos por proveedor externo | politicas de backoff/circuit breaker y control de cola |
-| `reporting-service` | lag de ingesta y costo de rebuild | autoscaling por lag + rebuild incremental por tenant/periodo |
+| `reporting-service` | lag de ingesta y costo de rebuild | autoscaling por lag + rebuild incremental por organization/periodo |
 
 ## Direccion razonable de evolucion
 - separar capacidad solo cuando haya nueva frontera semantica real;

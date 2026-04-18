@@ -7,7 +7,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @Table("idempotency_records")
 public record IdempotencyRecordEntity(
         @Id String idempotencyId,
-        String tenantId,
+        String organizationId,
         String operationName,
         String idempotencyKey,
         String requestHash,

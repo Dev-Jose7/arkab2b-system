@@ -35,7 +35,7 @@ public class CatalogCommandMapper {
 
     public CreateProductCommand toCommand(CreateProductRequest request, IamSecurityPrincipal principal) {
         return new CreateProductCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 request.productCode(),
                 request.name(),
@@ -48,7 +48,7 @@ public class CatalogCommandMapper {
 
     public UpdateProductCommand toCommand(String productId, UpdateProductRequest request, IamSecurityPrincipal principal) {
         return new UpdateProductCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 productId,
                 request.name(),
@@ -61,7 +61,7 @@ public class CatalogCommandMapper {
 
     public ActivateProductCommand toActivateCommand(String productId, String idempotencyKey, IamSecurityPrincipal principal) {
         return new ActivateProductCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 productId,
                 normalizeIdempotencyKey(idempotencyKey));
@@ -69,7 +69,7 @@ public class CatalogCommandMapper {
 
     public RetireProductCommand toRetireCommand(String productId, String idempotencyKey, IamSecurityPrincipal principal) {
         return new RetireProductCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 productId,
                 normalizeIdempotencyKey(idempotencyKey));
@@ -77,7 +77,7 @@ public class CatalogCommandMapper {
 
     public CreateVariantCommand toCommand(String productId, CreateVariantRequest request, IamSecurityPrincipal principal) {
         return new CreateVariantCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 productId,
                 request.sku(),
@@ -90,7 +90,7 @@ public class CatalogCommandMapper {
 
     public UpdateVariantCommand toCommand(String variantId, UpdateVariantRequest request, IamSecurityPrincipal principal) {
         return new UpdateVariantCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 variantId,
                 request.name(),
@@ -101,7 +101,7 @@ public class CatalogCommandMapper {
 
     public ChangeVariantStatusCommand toCommand(String variantId, ChangeVariantStatusRequest request, IamSecurityPrincipal principal) {
         return new ChangeVariantStatusCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 variantId,
                 request.targetStatus(),
@@ -115,7 +115,7 @@ public class CatalogCommandMapper {
             UpsertVariantAttributesRequest request,
             IamSecurityPrincipal principal) {
         return new UpsertVariantAttributesCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 variantId,
                 toVariantAttributes(request.attributes()),
@@ -124,7 +124,7 @@ public class CatalogCommandMapper {
 
     public RegisterPriceCommand toCommand(String variantId, RegisterPriceRequest request, IamSecurityPrincipal principal) {
         return new RegisterPriceCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 variantId,
                 request.amount(),
@@ -137,7 +137,7 @@ public class CatalogCommandMapper {
 
     public UpdatePriceCommand toCommand(String priceId, UpdatePriceRequest request, IamSecurityPrincipal principal) {
         return new UpdatePriceCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 priceId,
                 request.amount(),
@@ -153,7 +153,7 @@ public class CatalogCommandMapper {
             SchedulePriceActivationRequest request,
             IamSecurityPrincipal principal) {
         return new SchedulePriceActivationCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 priceId,
                 request.executeAfter(),
@@ -162,7 +162,7 @@ public class CatalogCommandMapper {
 
     public PublishCatalogOfferCommand toCommand(PublishCatalogOfferRequest request, IamSecurityPrincipal principal) {
         return new PublishCatalogOfferCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 request.productId(),
                 request.variantId(),
@@ -176,7 +176,7 @@ public class CatalogCommandMapper {
             UpdateCatalogOfferRequest request,
             IamSecurityPrincipal principal) {
         return new UpdateCatalogOfferCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 offerId,
                 request.variantId(),

@@ -1,0 +1,47 @@
+# 401 without token
+http401=401
+{"message":"Authentication is required","path":"/api/v1/carts","status":401,"error":"unauthorized"}# 403 with insufficient scope
+http403=403
+{"code":"order_access_denied","message":"Access Denied","timestamp":"2026-04-20T07:04:03.869876881Z"}# 409 idempotency conflict
+c1_http=200
+{
+  "cartId": "04ad1949-191f-4065-bfdb-85ebfb42b210",
+  "userId": "u1",
+  "organizationId": "organization-phase6"
+}
+c2_http=409
+{"code":"conflicto_idempotencia","message":"idempotency key already used with different payload","timestamp":"2026-04-20T07:04:05.154642632Z"}# purchase end-to-end
+cart_id=66900a4c-2d62-4a0a-a094-e62e92b0c402
+add_item_http=200
+{
+  "cartId": "66900a4c-2d62-4a0a-a094-e62e92b0c402",
+  "status": "ACTIVE",
+  "items_count": 1,
+  "subtotal": 37000
+}
+checkout_http=200
+{
+  "checkoutAttemptId": "0f0aa87f-5b76-44a9-97c8-52f91817ae53",
+  "validationStatus": "VALID",
+  "organizationId": "organization-phase6",
+  "cartId": "66900a4c-2d62-4a0a-a094-e62e92b0c402"
+}
+create_order_http=200
+{
+  "orderId": "2e79ad71-e09d-4de0-9f95-7c498b4dac88",
+  "status": "PENDING_APPROVAL",
+  "organizationId": "organization-phase6",
+  "totalAmount": 39800.0,
+  "financialStatus": "PENDING"
+}
+order_id=2e79ad71-e09d-4de0-9f95-7c498b4dac88
+order_404_http=404
+{"code":"order_resource_not_found","message":"order not found","timestamp":"2026-04-20T07:04:26.962190794Z"}sleep_async=30s
+# async evidence notification
+requests=5
+statuses=FAILED:5
+# async evidence reporting
+processed_events=5
+facts_by_event=CartCreated:2,CartItemsAdjusted:1,CheckoutAvailabilityValidated:1,OrderCreatedFromValidatedCart:1
+facts_applied=5
+checkpoints=3

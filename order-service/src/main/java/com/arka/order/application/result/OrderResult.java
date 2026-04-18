@@ -7,8 +7,8 @@ import java.util.List;
 public record OrderResult(
         String orderId,
         String orderNumber,
-        String tenantId,
         String organizationId,
+
         String userId,
         String cartId,
         String checkoutCorrelationId,

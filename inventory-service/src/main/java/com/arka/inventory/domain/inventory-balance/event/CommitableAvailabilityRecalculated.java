@@ -4,7 +4,7 @@ import java.time.Instant;
 
 public final class CommitableAvailabilityRecalculated extends AbstractInventoryDomainEvent {
 
-    private final String tenantId;
+    private final String organizationId;
     private final String warehouseId;
     private final String sku;
     private final int availableQty;
@@ -14,14 +14,14 @@ public final class CommitableAvailabilityRecalculated extends AbstractInventoryD
     public CommitableAvailabilityRecalculated(
             Instant occurredAt,
             String stockItemId,
-            String tenantId,
+            String organizationId,
             String warehouseId,
             String sku,
             int availableQty,
             boolean lowStock,
             String reason) {
         super("CommitableAvailabilityRecalculated", occurredAt, stockItemId, "InventoryBalance");
-        this.tenantId = tenantId;
+        this.organizationId = organizationId;
         this.warehouseId = warehouseId;
         this.sku = sku;
         this.availableQty = availableQty;
@@ -29,8 +29,8 @@ public final class CommitableAvailabilityRecalculated extends AbstractInventoryD
         this.reason = reason;
     }
 
-    public String tenantId() {
-        return tenantId;
+    public String organizationId() {
+        return organizationId;
     }
 
     public String warehouseId() {

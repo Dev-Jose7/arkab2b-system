@@ -26,7 +26,7 @@ class SecurityActorContextProviderAdapterTest {
         Jwt jwt = Jwt.withTokenValue("token")
                 .header("alg", "none")
                 .claim("sub", "actor-1")
-                .claim("tenant_id", "tenant-1")
+                .claim("organization_id", "organization-1")
                 .claim("country_code", "co")
                 .build();
 
@@ -41,7 +41,7 @@ class SecurityActorContextProviderAdapterTest {
         StepVerifier.create(contextMono)
                 .assertNext(context -> {
                     assertEquals("actor-1", context.actorId());
-                    assertEquals("tenant-1", context.tenantId());
+                    assertEquals("organization-1", context.organizationId());
                     assertEquals("CO", context.countryCode());
                     assertTrue(context.admin());
                 })

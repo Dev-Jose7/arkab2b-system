@@ -28,7 +28,7 @@ public class InventoryResponseMapper {
     public WarehouseResponse toResponse(WarehouseResult result) {
         return new WarehouseResponse(
                 result.warehouseId(),
-                result.tenantId(),
+                result.organizationId(),
                 result.warehouseCode(),
                 result.warehouseName(),
                 result.countryCode(),
@@ -40,7 +40,7 @@ public class InventoryResponseMapper {
     public StockItemResponse toResponse(StockItemResult result) {
         return new StockItemResponse(
                 result.stockItemId(),
-                result.tenantId(),
+                result.organizationId(),
                 result.warehouseId(),
                 result.sku(),
                 result.physicalQty(),
@@ -58,7 +58,7 @@ public class InventoryResponseMapper {
     public StockReservationResponse toResponse(StockReservationResult result) {
         return new StockReservationResponse(
                 result.reservationId(),
-                result.tenantId(),
+                result.organizationId(),
                 result.stockItemId(),
                 result.warehouseId(),
                 result.sku(),
@@ -75,7 +75,7 @@ public class InventoryResponseMapper {
 
     public CommitableAvailabilityResponse toResponse(CommitableAvailabilityResult result) {
         return new CommitableAvailabilityResponse(
-                result.tenantId(),
+                result.organizationId(),
                 result.warehouseId(),
                 result.sku(),
                 result.physicalQty(),
@@ -89,7 +89,7 @@ public class InventoryResponseMapper {
     public StockMovementResponse toResponse(StockMovementResult result) {
         return new StockMovementResponse(
                 result.movementId(),
-                result.tenantId(),
+                result.organizationId(),
                 result.stockItemId(),
                 result.warehouseId(),
                 result.sku(),
@@ -125,14 +125,14 @@ public class InventoryResponseMapper {
 
     public InventoryAuditResponse toResponse(InventoryAuditResult result) {
         return new InventoryAuditResponse(
-                result.tenantId(),
+                result.organizationId(),
                 result.entries().stream().map(this::toResponse).toList());
     }
 
     public InventoryAuditEntryResponse toResponse(InventoryAuditEntryResult result) {
         return new InventoryAuditEntryResponse(
                 result.auditId(),
-                result.tenantId(),
+                result.organizationId(),
                 result.actorUserId(),
                 result.actionType(),
                 result.targetType(),

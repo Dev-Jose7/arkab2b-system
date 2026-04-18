@@ -8,5 +8,5 @@ public interface StockMovementPersistencePort {
 
     Mono<StockMovement> save(StockMovement movement);
 
-    Flux<StockMovement> findByTenantAndStockItem(String tenantId, String stockItemId, int limit);
+    Flux<StockMovement> findByOrganizationAndStockItem(String organizationId, String stockItemId, int limit);
 }

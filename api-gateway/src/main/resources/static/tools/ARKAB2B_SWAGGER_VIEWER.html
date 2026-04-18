@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ArkaB2B Swagger Viewer</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #fff;
+    }
+    #swagger-ui {
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="swagger-ui"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
+  <script>
+    const serviceSpecs = {
+      iam: "/swagger/iam/v1/api-docs",
+      directory: "/swagger/directory/v1/api-docs",
+      catalog: "/swagger/catalog/v1/api-docs",
+      inventory: "/swagger/inventory/v1/api-docs",
+      order: "/swagger/order/v1/api-docs",
+      notification: "/swagger/notification/v1/api-docs",
+      reporting: "/swagger/reporting/v1/api-docs"
+    };
+
+    const params = new URLSearchParams(window.location.search);
+    const service = params.get("service") || "iam";
+    const specUrl = serviceSpecs[service] || serviceSpecs.iam;
+
+    document.title = `ArkaB2B Swagger Viewer - ${service}`;
+
+    window.ui = SwaggerUIBundle({
+      url: specUrl,
+      dom_id: "#swagger-ui",
+      deepLinking: true,
+      presets: [
+        SwaggerUIBundle.presets.apis,
+        SwaggerUIStandalonePreset
+      ],
+      plugins: [
+        SwaggerUIBundle.plugins.DownloadUrl
+      ],
+      layout: "StandaloneLayout"
+    });
+  </script>
+</body>
+</html>

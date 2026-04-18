@@ -4,5 +4,5 @@ import reactor.core.publisher.Mono;
 
 public interface CatalogVariantPort {
 
-    Mono<CatalogVariantSnapshot> resolveVariant(String tenantId, String variantId, String sku);
+    Mono<CatalogVariantSnapshot> resolveVariant(String organizationId, String variantId, String sku);
 }

@@ -11,7 +11,7 @@ url: "/mvp/operacion/seguridad-operacional/eventos-seguridad/"
 - cambios de configuracion critica
 - acceso privilegiado fuera de patron
 - rotaciones de secretos y fallas post-rotacion
-- errores de autorizacion con potencial cross-tenant
+- errores de autorizacion con potencial cross-organization
 - fallos de arranque por configuracion/secretos faltantes en contenedor
 
 ## Respuesta

@@ -2,7 +2,7 @@ package com.arka.catalog.application.port.out.security;
 
 public record ActorContext(
         String actorId,
-        String tenantId,
+        String organizationId,
         String countryCode,
         boolean admin,
         boolean trustedService) {

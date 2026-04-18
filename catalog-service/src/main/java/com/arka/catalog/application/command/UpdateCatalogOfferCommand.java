@@ -1,7 +1,7 @@
 package com.arka.catalog.application.command;
 
 public record UpdateCatalogOfferCommand(
-        String tenantId,
+        String organizationId,
         String actorId,
         String offerId,
         String variantId,

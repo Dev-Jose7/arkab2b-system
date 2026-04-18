@@ -7,6 +7,6 @@ import reactor.core.publisher.Mono;
 
 public interface ReactiveIdempotencyRecordRepository extends ReactiveCrudRepository<IdempotencyRecordRow, String> {
 
-    @Query("SELECT idempotency_id, tenant_id, operation_name, idempotency_key, request_hash, resource_type, resource_id, response_status, created_at, updated_at FROM idempotency_records WHERE tenant_id = :tenantId AND operation_name = :operationName AND idempotency_key = :idempotencyKey")
-    Mono<IdempotencyRecordRow> findByTenantOperationAndKey(String tenantId, String operationName, String idempotencyKey);
+    @Query("SELECT idempotency_id, organization_id, operation_name, idempotency_key, request_hash, resource_type, resource_id, response_status, created_at, updated_at FROM idempotency_records WHERE organization_id = :organizationId AND operation_name = :operationName AND idempotency_key = :idempotencyKey")
+    Mono<IdempotencyRecordRow> findByOrganizationOperationAndKey(String organizationId, String operationName, String idempotencyKey);
 }

@@ -5,7 +5,7 @@ import java.util.List;
 
 public record ProductResult(
         String productId,
-        String tenantId,
+        String organizationId,
         String productCode,
         String name,
         String description,

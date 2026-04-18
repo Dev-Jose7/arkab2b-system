@@ -23,7 +23,7 @@ public class ReportingCommandMapper {
 
     public RegisterAnalyticFactCommand toCommand(RegisterAnalyticFactRequest request, IamSecurityPrincipal principal) {
         return new RegisterAnalyticFactCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 request.sourceEventId(),
                 request.sourceEventType(),
@@ -36,7 +36,7 @@ public class ReportingCommandMapper {
 
     public ApplyAnalyticFactCommand toCommand(String factId, ApplyAnalyticFactRequest request, IamSecurityPrincipal principal) {
         return new ApplyAnalyticFactCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 factId,
                 request == null ? null : normalizeIdempotencyKey(request.idempotencyKey()));
@@ -44,7 +44,7 @@ public class ReportingCommandMapper {
 
     public UpdateConsumerCheckpointCommand toCommand(UpdateConsumerCheckpointRequest request, IamSecurityPrincipal principal) {
         return new UpdateConsumerCheckpointCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 request.consumerName(),
                 request.topic(),
@@ -56,7 +56,7 @@ public class ReportingCommandMapper {
 
     public RebuildProjectionCommand toCommand(RebuildProjectionRequest request, IamSecurityPrincipal principal) {
         return new RebuildProjectionCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 request.fullRebuild(),
                 request.weekId(),
@@ -67,7 +67,7 @@ public class ReportingCommandMapper {
             GenerateWeeklyReportRequest request,
             IamSecurityPrincipal principal) {
         return new GenerateWeeklySalesReportCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 request == null ? null : request.weekId(),
                 request == null ? null : request.format(),
@@ -78,7 +78,7 @@ public class ReportingCommandMapper {
             GenerateWeeklyReportRequest request,
             IamSecurityPrincipal principal) {
         return new GenerateWeeklyReplenishmentReportCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 request == null ? null : request.weekId(),
                 request == null ? null : request.format(),
@@ -90,7 +90,7 @@ public class ReportingCommandMapper {
             GenerateReportArtifactRequest request,
             IamSecurityPrincipal principal) {
         return new GenerateReportArtifactCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 executionId,
                 request == null ? null : request.weekId(),
@@ -102,7 +102,7 @@ public class ReportingCommandMapper {
 
     public ReprocessReportingDlqCommand toCommand(ReprocessReportingDlqRequest request, IamSecurityPrincipal principal) {
         return new ReprocessReportingDlqCommand(
-                principal.tenantId(),
+                principal.organizationId(),
                 principal.actorId(),
                 request.dlqEventId(),
                 request.consumerName(),

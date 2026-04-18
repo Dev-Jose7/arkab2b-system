@@ -18,7 +18,7 @@ public class DomainAnalyticFactRepositoryAdapter implements AnalyticFactReposito
     @Override
     public Mono<AnalyticFact> save(AnalyticFact fact) {
         return persistencePort
-                .findById(fact.tenantId(), fact.factId())
+                .findById(fact.organizationId(), fact.factId())
                 .flatMap(existing -> persistencePort.update(fact))
                 .switchIfEmpty(persistencePort.create(fact));
     }

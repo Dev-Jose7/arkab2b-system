@@ -125,7 +125,7 @@ public class ReportingR2dbcPersistenceAdapter
                 .insert(row)
                 .map(rowMapper::toDomain)
                 .onErrorResume(this::isDuplicate, throwable -> findBySourceEventId(
-                        com.arka.reporting.domain.analyticfact.valueobject.TenantId.of(fact.tenantId().value()),
+                        com.arka.reporting.domain.analyticfact.valueobject.OrganizationId.of(fact.organizationId().value()),
                         SourceEventId.of(fact.sourceEventId().value())));
     }
 
@@ -137,19 +137,19 @@ public class ReportingR2dbcPersistenceAdapter
 
     @Override
     public Mono<AnalyticFact> findById(
-            com.arka.reporting.domain.analyticfact.valueobject.TenantId tenantId,
+            com.arka.reporting.domain.analyticfact.valueobject.OrganizationId organizationId,
             FactId factId) {
         return analyticFactRepository
-                .findByTenantAndId(tenantId.value(), factId.value())
+                .findByOrganizationAndId(organizationId.value(), factId.value())
                 .map(rowMapper::toDomain);
     }
 
     @Override
     public Mono<AnalyticFact> findBySourceEventId(
-            com.arka.reporting.domain.analyticfact.valueobject.TenantId tenantId,
+            com.arka.reporting.domain.analyticfact.valueobject.OrganizationId organizationId,
             SourceEventId sourceEventId) {
         return analyticFactRepository
-                .findByTenantAndSourceEventId(tenantId.value(), sourceEventId.value())
+                .findByOrganizationAndSourceEventId(organizationId.value(), sourceEventId.value())
                 .map(rowMapper::toDomain);
     }
 
@@ -165,7 +165,7 @@ public class ReportingR2dbcPersistenceAdapter
                        occurred_at,
                        updated_at
                 FROM analytic_facts
-                WHERE tenant_id = :tenantId
+                WHERE organization_id = :organizationId
                   AND (:eventType IS NULL OR event_type = :eventType)
                   AND (:factType IS NULL OR fact_type = :factType)
                   AND (:period IS NULL OR period = :period)
@@ -176,7 +176,7 @@ public class ReportingR2dbcPersistenceAdapter
                 """;
 
         DatabaseClient.GenericExecuteSpec spec = databaseClient.sql(sql)
-                .bind("tenantId", filter.tenantId())
+                .bind("organizationId", filter.organizationId())
                 .bind("offset", filter.offset())
                 .bind("limit", filter.limit());
 
@@ -203,7 +203,7 @@ public class ReportingR2dbcPersistenceAdapter
         String sql = """
                 SELECT COUNT(*) AS total
                 FROM analytic_facts
-                WHERE tenant_id = :tenantId
+                WHERE organization_id = :organizationId
                   AND (:eventType IS NULL OR event_type = :eventType)
                   AND (:factType IS NULL OR fact_type = :factType)
                   AND (:period IS NULL OR period = :period)
@@ -211,7 +211,7 @@ public class ReportingR2dbcPersistenceAdapter
                 """;
 
         DatabaseClient.GenericExecuteSpec spec = databaseClient.sql(sql)
-                .bind("tenantId", filter.tenantId());
+                .bind("organizationId", filter.organizationId());
 
         spec = bindNullable(spec, "eventType", filter.eventType());
         spec = bindNullable(spec, "factType", filter.factType());
@@ -225,13 +225,13 @@ public class ReportingR2dbcPersistenceAdapter
     }
 
     @Override
-    public Flux<AnalyticFact> findAppliedByTenant(String tenantId) {
-        return analyticFactRepository.findAppliedByTenant(tenantId).map(rowMapper::toDomain);
+    public Flux<AnalyticFact> findAppliedByOrganization(String organizationId) {
+        return analyticFactRepository.findAppliedByOrganization(organizationId).map(rowMapper::toDomain);
     }
 
     @Override
     public Mono<SalesProjection> upsertSalesProjection(
-            String tenantId,
+            String organizationId,
             String period,
             BigDecimal totalSalesDelta,
             BigDecimal paidAmountDelta,
@@ -240,7 +240,7 @@ public class ReportingR2dbcPersistenceAdapter
         String sql = """
                 INSERT INTO sales_projections (
                     projection_id,
-                    tenant_id,
+                    organization_id,
                     period,
                     total_sales,
                     paid_amount,
@@ -253,7 +253,7 @@ public class ReportingR2dbcPersistenceAdapter
                 )
                 VALUES (
                     :projectionId,
-                    :tenantId,
+                    :organizationId,
                     :period,
                     :totalSales,
                     :paidAmount,
@@ -264,7 +264,7 @@ public class ReportingR2dbcPersistenceAdapter
                     :now,
                     :now
                 )
-                ON CONFLICT (tenant_id, period)
+                ON CONFLICT (organization_id, period)
                 DO UPDATE SET
                     total_sales = sales_projections.total_sales + EXCLUDED.total_sales,
                     paid_amount = sales_projections.paid_amount + EXCLUDED.paid_amount,
@@ -284,7 +284,7 @@ public class ReportingR2dbcPersistenceAdapter
         Instant now = Instant.now();
         return databaseClient.sql(sql)
                 .bind("projectionId", UUID.randomUUID().toString())
-                .bind("tenantId", tenantId)
+                .bind("organizationId", organizationId)
                 .bind("period", period)
                 .bind("totalSales", normalizeDecimal(totalSalesDelta))
                 .bind("paidAmount", normalizeDecimal(paidAmountDelta))
@@ -293,7 +293,7 @@ public class ReportingR2dbcPersistenceAdapter
                 .bind("now", now)
                 .map((row, metadata) -> new SalesProjectionRow(
                         row.get("projection_id", String.class),
-                        row.get("tenant_id", String.class),
+                        row.get("organization_id", String.class),
                         row.get("period", String.class),
                         row.get("total_sales", BigDecimal.class),
                         row.get("paid_amount", BigDecimal.class),
@@ -309,7 +309,7 @@ public class ReportingR2dbcPersistenceAdapter
 
     @Override
     public Mono<ReplenishmentProjection> upsertReplenishmentProjection(
-            String tenantId,
+            String organizationId,
             String period,
             String sku,
             BigDecimal availableQty,
@@ -319,7 +319,7 @@ public class ReportingR2dbcPersistenceAdapter
         String sql = """
                 INSERT INTO replenishment_projections (
                     projection_id,
-                    tenant_id,
+                    organization_id,
                     period,
                     sku,
                     available_qty,
@@ -332,7 +332,7 @@ public class ReportingR2dbcPersistenceAdapter
                 )
                 VALUES (
                     :projectionId,
-                    :tenantId,
+                    :organizationId,
                     :period,
                     :sku,
                     :availableQty,
@@ -343,7 +343,7 @@ public class ReportingR2dbcPersistenceAdapter
                     :now,
                     :now
                 )
-                ON CONFLICT (tenant_id, period, sku)
+                ON CONFLICT (organization_id, period, sku)
                 DO UPDATE SET
                     available_qty = EXCLUDED.available_qty,
                     reorder_point = EXCLUDED.reorder_point,
@@ -357,7 +357,7 @@ public class ReportingR2dbcPersistenceAdapter
         Instant now = Instant.now();
         return databaseClient.sql(sql)
                 .bind("projectionId", UUID.randomUUID().toString())
-                .bind("tenantId", tenantId)
+                .bind("organizationId", organizationId)
                 .bind("period", period)
                 .bind("sku", sku)
                 .bind("availableQty", normalizeDecimal(availableQty))
@@ -367,7 +367,7 @@ public class ReportingR2dbcPersistenceAdapter
                 .bind("now", now)
                 .map((row, metadata) -> new ReplenishmentProjectionRow(
                         row.get("projection_id", String.class),
-                        row.get("tenant_id", String.class),
+                        row.get("organization_id", String.class),
                         row.get("period", String.class),
                         row.get("sku", String.class),
                         row.get("available_qty", BigDecimal.class),
@@ -383,14 +383,14 @@ public class ReportingR2dbcPersistenceAdapter
 
     @Override
     public Mono<OperationsKpiProjection> upsertOperationsKpiProjection(
-            String tenantId,
+            String organizationId,
             String period,
             String kpiName,
             BigDecimal kpiValue) {
         String sql = """
                 INSERT INTO operations_kpi_projections (
                     projection_id,
-                    tenant_id,
+                    organization_id,
                     period,
                     kpi_name,
                     kpi_value,
@@ -400,7 +400,7 @@ public class ReportingR2dbcPersistenceAdapter
                 )
                 VALUES (
                     :projectionId,
-                    :tenantId,
+                    :organizationId,
                     :period,
                     :kpiName,
                     :kpiValue,
@@ -408,7 +408,7 @@ public class ReportingR2dbcPersistenceAdapter
                     :now,
                     :now
                 )
-                ON CONFLICT (tenant_id, period, kpi_name)
+                ON CONFLICT (organization_id, period, kpi_name)
                 DO UPDATE SET
                     kpi_value = EXCLUDED.kpi_value,
                     version = operations_kpi_projections.version + 1,
@@ -419,14 +419,14 @@ public class ReportingR2dbcPersistenceAdapter
         Instant now = Instant.now();
         return databaseClient.sql(sql)
                 .bind("projectionId", UUID.randomUUID().toString())
-                .bind("tenantId", tenantId)
+                .bind("organizationId", organizationId)
                 .bind("period", period)
                 .bind("kpiName", kpiName)
                 .bind("kpiValue", normalizeDecimal(kpiValue))
                 .bind("now", now)
                 .map((row, metadata) -> new OperationsKpiProjectionRow(
                         row.get("projection_id", String.class),
-                        row.get("tenant_id", String.class),
+                        row.get("organization_id", String.class),
                         row.get("period", String.class),
                         row.get("kpi_name", String.class),
                         row.get("kpi_value", BigDecimal.class),
@@ -438,29 +438,29 @@ public class ReportingR2dbcPersistenceAdapter
     }
 
     @Override
-    public Mono<SalesProjection> findSalesByPeriod(String tenantId, String period) {
-        return salesProjectionRepository.findByTenantAndPeriod(tenantId, period).map(rowMapper::toDomain);
+    public Mono<SalesProjection> findSalesByPeriod(String organizationId, String period) {
+        return salesProjectionRepository.findByOrganizationAndPeriod(organizationId, period).map(rowMapper::toDomain);
     }
 
     @Override
-    public Flux<ReplenishmentProjection> findReplenishmentByPeriod(String tenantId, String period, String sku, int offset, int limit) {
+    public Flux<ReplenishmentProjection> findReplenishmentByPeriod(String organizationId, String period, String sku, int offset, int limit) {
         return replenishmentProjectionRepository
-                .findByTenantAndPeriod(tenantId, period, emptyAsNull(sku), offset, limit)
+                .findByOrganizationAndPeriod(organizationId, period, emptyAsNull(sku), offset, limit)
                 .map(rowMapper::toDomain);
     }
 
     @Override
-    public Mono<Long> countReplenishmentByPeriod(String tenantId, String period, String sku) {
+    public Mono<Long> countReplenishmentByPeriod(String organizationId, String period, String sku) {
         String sql = """
                 SELECT COUNT(*) AS total
                 FROM replenishment_projections
-                WHERE tenant_id = :tenantId
+                WHERE organization_id = :organizationId
                   AND period = :period
                   AND (:sku IS NULL OR sku = :sku)
                 """;
 
         DatabaseClient.GenericExecuteSpec spec = databaseClient.sql(sql)
-                .bind("tenantId", tenantId)
+                .bind("organizationId", organizationId)
                 .bind("period", period);
         spec = bindNullable(spec, "sku", sku);
         return spec
@@ -470,43 +470,43 @@ public class ReportingR2dbcPersistenceAdapter
     }
 
     @Override
-    public Flux<OperationsKpiProjection> findOperationsKpisByPeriod(String tenantId, String period) {
-        return operationsKpiProjectionRepository.findByTenantAndPeriod(tenantId, period).map(rowMapper::toDomain);
+    public Flux<OperationsKpiProjection> findOperationsKpisByPeriod(String organizationId, String period) {
+        return operationsKpiProjectionRepository.findByOrganizationAndPeriod(organizationId, period).map(rowMapper::toDomain);
     }
 
     @Override
-    public Mono<Void> clearProjectionsByTenant(String tenantId) {
-        return databaseClient.sql("DELETE FROM sales_projections WHERE tenant_id = :tenantId")
-                .bind("tenantId", tenantId)
+    public Mono<Void> clearProjectionsByOrganization(String organizationId) {
+        return databaseClient.sql("DELETE FROM sales_projections WHERE organization_id = :organizationId")
+                .bind("organizationId", organizationId)
                 .fetch()
                 .rowsUpdated()
-                .then(databaseClient.sql("DELETE FROM replenishment_projections WHERE tenant_id = :tenantId")
-                        .bind("tenantId", tenantId)
+                .then(databaseClient.sql("DELETE FROM replenishment_projections WHERE organization_id = :organizationId")
+                        .bind("organizationId", organizationId)
                         .fetch()
                         .rowsUpdated()
                         .then())
-                .then(databaseClient.sql("DELETE FROM operations_kpi_projections WHERE tenant_id = :tenantId")
-                        .bind("tenantId", tenantId)
+                .then(databaseClient.sql("DELETE FROM operations_kpi_projections WHERE organization_id = :organizationId")
+                        .bind("organizationId", organizationId)
                         .fetch()
                         .rowsUpdated()
                         .then());
     }
 
     @Override
-    public Mono<Void> clearProjectionsByTenantAndPeriod(String tenantId, String period) {
-        return databaseClient.sql("DELETE FROM sales_projections WHERE tenant_id = :tenantId AND period = :period")
-                .bind("tenantId", tenantId)
+    public Mono<Void> clearProjectionsByOrganizationAndPeriod(String organizationId, String period) {
+        return databaseClient.sql("DELETE FROM sales_projections WHERE organization_id = :organizationId AND period = :period")
+                .bind("organizationId", organizationId)
                 .bind("period", period)
                 .fetch()
                 .rowsUpdated()
-                .then(databaseClient.sql("DELETE FROM replenishment_projections WHERE tenant_id = :tenantId AND period = :period")
-                        .bind("tenantId", tenantId)
+                .then(databaseClient.sql("DELETE FROM replenishment_projections WHERE organization_id = :organizationId AND period = :period")
+                        .bind("organizationId", organizationId)
                         .bind("period", period)
                         .fetch()
                         .rowsUpdated()
                         .then())
-                .then(databaseClient.sql("DELETE FROM operations_kpi_projections WHERE tenant_id = :tenantId AND period = :period")
-                        .bind("tenantId", tenantId)
+                .then(databaseClient.sql("DELETE FROM operations_kpi_projections WHERE organization_id = :organizationId AND period = :period")
+                        .bind("organizationId", organizationId)
                         .bind("period", period)
                         .fetch()
                         .rowsUpdated()
@@ -519,7 +519,7 @@ public class ReportingR2dbcPersistenceAdapter
                 .insert(rowMapper.toRow(execution))
                 .map(rowMapper::toDomain)
                 .onErrorResume(this::isDuplicate, throwable -> findByWeekAndType(
-                        com.arka.reporting.domain.weeklyreportexecution.valueobject.TenantId.of(execution.tenantId().value()),
+                        com.arka.reporting.domain.weeklyreportexecution.valueobject.OrganizationId.of(execution.organizationId().value()),
                         WeekId.of(execution.weekId().value()),
                         execution.reportType().name()));
     }
@@ -530,7 +530,7 @@ public class ReportingR2dbcPersistenceAdapter
         long nextVersion = expectedVersion + 1;
         return weeklyReportExecutionRepository
                 .updateOptimistic(
-                        execution.tenantId().value(),
+                        execution.organizationId().value(),
                         execution.executionId().value(),
                         execution.status().name(),
                         emptyAsNull(execution.errorCode()),
@@ -545,33 +545,33 @@ public class ReportingR2dbcPersistenceAdapter
                     if (rowsUpdated == null || rowsUpdated == 0) {
                         return Mono.error(new OptimisticLockingFailureException());
                     }
-                    return findById(execution.tenantId(), execution.executionId());
+                    return findById(execution.organizationId(), execution.executionId());
                 });
     }
 
     @Override
     public Mono<WeeklyReportExecution> findById(
-            com.arka.reporting.domain.weeklyreportexecution.valueobject.TenantId tenantId,
+            com.arka.reporting.domain.weeklyreportexecution.valueobject.OrganizationId organizationId,
             ExecutionId executionId) {
         return weeklyReportExecutionRepository
-                .findByTenantAndId(tenantId.value(), executionId.value())
+                .findByOrganizationAndId(organizationId.value(), executionId.value())
                 .map(rowMapper::toDomain);
     }
 
     @Override
     public Mono<WeeklyReportExecution> findByWeekAndType(
-            com.arka.reporting.domain.weeklyreportexecution.valueobject.TenantId tenantId,
+            com.arka.reporting.domain.weeklyreportexecution.valueobject.OrganizationId organizationId,
             WeekId weekId,
             String reportType) {
         return weeklyReportExecutionRepository
-                .findByTenantWeekAndType(tenantId.value(), weekId.value(), reportType)
+                .findByOrganizationWeekAndType(organizationId.value(), weekId.value(), reportType)
                 .map(rowMapper::toDomain);
     }
 
     @Override
     public Mono<Boolean> existsRunningRebuild(
-            com.arka.reporting.domain.weeklyreportexecution.valueobject.TenantId tenantId) {
-        return weeklyReportExecutionRepository.existsRunningRebuild(tenantId.value()).defaultIfEmpty(false);
+            com.arka.reporting.domain.weeklyreportexecution.valueobject.OrganizationId organizationId) {
+        return weeklyReportExecutionRepository.existsRunningRebuild(organizationId.value()).defaultIfEmpty(false);
     }
 
     @Override
@@ -583,7 +583,7 @@ public class ReportingR2dbcPersistenceAdapter
                         this::isDuplicate,
                         throwable -> reportArtifactRepository
                                 .findByUnique(
-                                        artifact.tenantId(),
+                                        artifact.organizationId(),
                                         artifact.weekId(),
                                         artifact.reportType(),
                                         artifact.format())
@@ -591,30 +591,30 @@ public class ReportingR2dbcPersistenceAdapter
     }
 
     @Override
-    public Mono<ReportArtifact> findById(String tenantId, String artifactId) {
-        return reportArtifactRepository.findByTenantAndId(tenantId, artifactId).map(rowMapper::toDomain);
+    public Mono<ReportArtifact> findById(String organizationId, String artifactId) {
+        return reportArtifactRepository.findByOrganizationAndId(organizationId, artifactId).map(rowMapper::toDomain);
     }
 
     @Override
-    public Flux<ReportArtifact> findByExecutionId(String tenantId, String executionId) {
-        return reportArtifactRepository.findByExecutionId(tenantId, executionId).map(rowMapper::toDomain);
+    public Flux<ReportArtifact> findByExecutionId(String organizationId, String executionId) {
+        return reportArtifactRepository.findByExecutionId(organizationId, executionId).map(rowMapper::toDomain);
     }
 
     @Override
-    public Flux<ReportArtifact> findByWeekAndType(String tenantId, String weekId, String reportType, int offset, int limit) {
+    public Flux<ReportArtifact> findByWeekAndType(String organizationId, String weekId, String reportType, int offset, int limit) {
         return reportArtifactRepository
-                .findByWeekAndType(tenantId, weekId, reportType, offset, limit)
+                .findByWeekAndType(organizationId, weekId, reportType, offset, limit)
                 .map(rowMapper::toDomain);
     }
 
     @Override
-    public Mono<Long> countByWeekAndType(String tenantId, String weekId, String reportType) {
-        return reportArtifactRepository.countByWeekAndType(tenantId, weekId, reportType).defaultIfEmpty(0L);
+    public Mono<Long> countByWeekAndType(String organizationId, String weekId, String reportType) {
+        return reportArtifactRepository.countByWeekAndType(organizationId, weekId, reportType).defaultIfEmpty(0L);
     }
 
     @Override
     public Mono<ConsumerCheckpoint> upsert(
-            String tenantId,
+            String organizationId,
             String consumerName,
             String topic,
             int partition,
@@ -623,7 +623,7 @@ public class ReportingR2dbcPersistenceAdapter
         String sql = """
                 INSERT INTO consumer_checkpoints (
                     checkpoint_id,
-                    tenant_id,
+                    organization_id,
                     consumer_name,
                     topic,
                     partition,
@@ -634,7 +634,7 @@ public class ReportingR2dbcPersistenceAdapter
                 )
                 VALUES (
                     :checkpointId,
-                    :tenantId,
+                    :organizationId,
                     :consumerName,
                     :topic,
                     :partition,
@@ -643,7 +643,7 @@ public class ReportingR2dbcPersistenceAdapter
                     GREATEST(:latestOffset - :currentOffset, 0),
                     :now
                 )
-                ON CONFLICT (tenant_id, consumer_name, topic, partition)
+                ON CONFLICT (organization_id, consumer_name, topic, partition)
                 DO UPDATE SET
                     current_offset = EXCLUDED.current_offset,
                     latest_offset = EXCLUDED.latest_offset,
@@ -655,7 +655,7 @@ public class ReportingR2dbcPersistenceAdapter
         Instant now = Instant.now();
         return databaseClient.sql(sql)
                 .bind("checkpointId", UUID.randomUUID().toString())
-                .bind("tenantId", tenantId)
+                .bind("organizationId", organizationId)
                 .bind("consumerName", consumerName)
                 .bind("topic", topic)
                 .bind("partition", partition)
@@ -664,7 +664,7 @@ public class ReportingR2dbcPersistenceAdapter
                 .bind("now", now)
                 .map((row, metadata) -> rowMapper.toDomain(new com.arka.reporting.infrastructure.adapter.out.persistence.entity.ConsumerCheckpointRow(
                         row.get("checkpoint_id", String.class),
-                        row.get("tenant_id", String.class),
+                        row.get("organization_id", String.class),
                         row.get("consumer_name", String.class),
                         row.get("topic", String.class),
                         row.get("partition", Integer.class),
@@ -676,18 +676,18 @@ public class ReportingR2dbcPersistenceAdapter
     }
 
     @Override
-    public Mono<Long> maxLagByTenant(String tenantId) {
-        return consumerCheckpointRepository.maxLagByTenant(tenantId).defaultIfEmpty(0L);
+    public Mono<Long> maxLagByOrganization(String organizationId) {
+        return consumerCheckpointRepository.maxLagByOrganization(organizationId).defaultIfEmpty(0L);
     }
 
     @Override
-    public Mono<ReportingMetricsProjection> metrics(String tenantId, String period) {
+    public Mono<ReportingMetricsProjection> metrics(String organizationId, String period) {
         String resolvedPeriod = emptyAsNull(period);
 
         Mono<String> periodMono = resolvedPeriod == null
                 ? databaseClient
-                        .sql("SELECT MAX(period) AS period FROM sales_projections WHERE tenant_id = :tenantId")
-                        .bind("tenantId", tenantId)
+                        .sql("SELECT MAX(period) AS period FROM sales_projections WHERE organization_id = :organizationId")
+                        .bind("organizationId", organizationId)
                         .map((row, metadata) -> {
                             String value = row.get("period", String.class);
                             return value == null ? "" : value;
@@ -699,7 +699,7 @@ public class ReportingR2dbcPersistenceAdapter
         return periodMono.flatMap(resolved -> {
             Mono<SalesProjectionRow> salesRowMono = (resolved == null || resolved.isBlank())
                     ? Mono.empty()
-                    : salesProjectionRepository.findByTenantAndPeriod(tenantId, resolved);
+                    : salesProjectionRepository.findByOrganizationAndPeriod(organizationId, resolved);
 
             Mono<BigDecimal> weeklySalesTotalMono = salesRowMono
                     .map(SalesProjectionRow::totalSales)
@@ -723,11 +723,11 @@ public class ReportingR2dbcPersistenceAdapter
                     .sql("""
                             SELECT COUNT(*) AS total
                             FROM replenishment_projections
-                            WHERE tenant_id = :tenantId
+                            WHERE organization_id = :organizationId
                               AND (:period IS NULL OR period = :period)
                               AND risk_level IN ('HIGH', 'CRITICAL')
                             """)
-                    .bind("tenantId", tenantId);
+                    .bind("organizationId", organizationId);
             riskSpec = filterPeriod == null
                     ? riskSpec.bindNull("period", String.class)
                     : riskSpec.bind("period", filterPeriod);
@@ -736,11 +736,11 @@ public class ReportingR2dbcPersistenceAdapter
                     .sql("""
                             SELECT COALESCE(AVG(kpi_value), 0) AS avg_value
                             FROM operations_kpi_projections
-                            WHERE tenant_id = :tenantId
+                            WHERE organization_id = :organizationId
                               AND (:period IS NULL OR period = :period)
                               AND kpi_name = 'notification_effectiveness'
                             """)
-                    .bind("tenantId", tenantId);
+                    .bind("organizationId", organizationId);
             notificationSpec = filterPeriod == null
                     ? notificationSpec.bindNull("period", String.class)
                     : notificationSpec.bind("period", filterPeriod);
@@ -755,7 +755,7 @@ public class ReportingR2dbcPersistenceAdapter
                     .one()
                     .defaultIfEmpty(BigDecimal.ZERO);
 
-            Mono<Long> consumerLagMono = maxLagByTenant(tenantId);
+            Mono<Long> consumerLagMono = maxLagByOrganization(organizationId);
 
             return Mono.zip(
                             weeklySalesTotalMono,
@@ -822,25 +822,25 @@ public class ReportingR2dbcPersistenceAdapter
     }
 
     @Override
-    public Mono<ReportingAuditEntry> findByIdempotency(String tenantId, String actionType, String idempotencyKey) {
+    public Mono<ReportingAuditEntry> findByIdempotency(String organizationId, String actionType, String idempotencyKey) {
         if (idempotencyKey == null || idempotencyKey.isBlank()) {
             return Mono.empty();
         }
         return reportingAuditRepository
-                .findByIdempotency(tenantId, actionType, idempotencyKey)
+                .findByIdempotency(organizationId, actionType, idempotencyKey)
                 .map(rowMapper::toDomain);
     }
 
     @Override
-    public Flux<ReportingAuditEntry> findByTarget(String tenantId, String targetType, String targetId, int offset, int limit) {
+    public Flux<ReportingAuditEntry> findByTarget(String organizationId, String targetType, String targetId, int offset, int limit) {
         return reportingAuditRepository
-                .findByTarget(tenantId, emptyAsNull(targetType), emptyAsNull(targetId), offset, limit)
+                .findByTarget(organizationId, emptyAsNull(targetType), emptyAsNull(targetId), offset, limit)
                 .map(rowMapper::toDomain);
     }
 
     @Override
-    public Mono<Long> countByTarget(String tenantId, String targetType, String targetId) {
-        return reportingAuditRepository.countByTarget(tenantId, emptyAsNull(targetType), emptyAsNull(targetId));
+    public Mono<Long> countByTarget(String organizationId, String targetType, String targetId) {
+        return reportingAuditRepository.countByTarget(organizationId, emptyAsNull(targetType), emptyAsNull(targetId));
     }
 
     private DatabaseClient.GenericExecuteSpec bindNullable(

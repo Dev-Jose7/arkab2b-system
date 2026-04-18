@@ -1,0 +1,8 @@
+service	line_coverage	branch_coverage
+identity-access-service	57.89%	36.03%
+directory-service	40.06%	31.14%
+catalog-service	29.56%	30.10%
+inventory-service	44.50%	36.15%
+order-service	35.21%	29.72%
+notification-service	54.90%	42.77%
+reporting-service	39.99%	35.81%

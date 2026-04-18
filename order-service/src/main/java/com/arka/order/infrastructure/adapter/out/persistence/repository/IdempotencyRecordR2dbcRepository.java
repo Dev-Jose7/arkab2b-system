@@ -10,9 +10,9 @@ public interface IdempotencyRecordR2dbcRepository extends ReactiveCrudRepository
     @Query("""
             SELECT *
             FROM idempotency_records
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND operation_name = :operationName
               AND idempotency_key = :idempotencyKey
             """)
-    Mono<IdempotencyRecordEntity> findByTenantOperationAndKey(String tenantId, String operationName, String idempotencyKey);
+    Mono<IdempotencyRecordEntity> findByOrganizationOperationAndKey(String organizationId, String operationName, String idempotencyKey);
 }

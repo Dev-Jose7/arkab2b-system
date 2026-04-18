@@ -12,32 +12,20 @@ import org.springframework.security.oauth2.jwt.Jwt;
 public final class IamSecurityPrincipal {
 
     private final String userId;
-    private final String tenantId;
     private final String organizationId;
     private final Set<String> roles;
 
-    public IamSecurityPrincipal(String userId, String tenantId, String organizationId, Set<String> roles) {
+    public IamSecurityPrincipal(String userId, String organizationId, Set<String> roles) {
         if (userId == null || userId.isBlank()) {
             throw new IllegalArgumentException("userId is required");
         }
-        if (tenantId == null || tenantId.isBlank()) {
-            throw new IllegalArgumentException("tenantId is required");
-        }
-        if (organizationId == null || organizationId.isBlank()) {
-            throw new IllegalArgumentException("organizationId is required");
-        }
         this.userId = userId.trim();
-        this.tenantId = tenantId.trim();
-        this.organizationId = organizationId.trim();
+        this.organizationId = organizationId == null ? "" : organizationId.trim();
         this.roles = normalizeRoles(roles);
     }
 
     public String userId() {
         return userId;
-    }
-
-    public String tenantId() {
-        return tenantId;
     }
 
     public String organizationId() {
@@ -50,6 +38,10 @@ public final class IamSecurityPrincipal {
 
     public boolean isOrderAdmin() {
         return roles.contains("ORDER_ADMIN") || roles.contains("ROLE_ORDER_ADMIN") || roles.contains("ROLE_ARKA_ADMIN");
+    }
+
+    public boolean isTrustedService() {
+        return roles.contains("TRUSTED_SERVICE") || roles.contains("ROLE_TRUSTED_SERVICE");
     }
 
     public static IamSecurityPrincipal fromAuthentication(Authentication authentication) {
@@ -65,16 +57,19 @@ public final class IamSecurityPrincipal {
         }
         if (principal instanceof Principal p) {
             String identity = p.getName();
-            return new IamSecurityPrincipal(identity, authentication.getName(), authentication.getName(), authorities(authentication.getAuthorities()));
+            return new IamSecurityPrincipal(identity, authentication.getName(), authorities(authentication.getAuthorities()));
         }
-        return new IamSecurityPrincipal(authentication.getName(), authentication.getName(), authentication.getName(), authorities(authentication.getAuthorities()));
+        return new IamSecurityPrincipal(authentication.getName(), authentication.getName(), authorities(authentication.getAuthorities()));
     }
 
     private static IamSecurityPrincipal fromJwt(Jwt jwt, Collection<? extends GrantedAuthority> authorities) {
         String subject = claimString(jwt, "sub", jwt.getSubject());
-        String tenantId = claimString(jwt, "tenant_id", claimString(jwt, "tenantId", ""));
-        String organizationId = claimString(jwt, "organization_id", claimString(jwt, "organizationId", tenantId));
-        return new IamSecurityPrincipal(subject, tenantId, organizationId, authorities(authorities));
+        String organizationId = claimString(
+                jwt,
+                "organization_id",
+                claimString(jwt, "organizationId", claimString(jwt, "organization_id", claimString(jwt, "organizationId", ""))));
+
+        return new IamSecurityPrincipal(subject, organizationId, authorities(authorities));
     }
 
     private static String claimString(Jwt jwt, String claim, String fallback) {

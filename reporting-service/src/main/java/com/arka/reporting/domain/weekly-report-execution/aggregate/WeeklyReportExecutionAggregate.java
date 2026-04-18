@@ -32,14 +32,14 @@ public final class WeeklyReportExecutionAggregate {
         if (execution.reportType() == ReportType.SALES) {
             domainEvents.add(new WeeklySalesReportGenerated(
                     execution.executionId().value(),
-                    execution.tenantId().value(),
+                    execution.organizationId().value(),
                     execution.weekId().value(),
                     locationRef,
                     now));
         } else if (execution.reportType() == ReportType.REPLENISHMENT) {
             domainEvents.add(new WeeklyReplenishmentReportGenerated(
                     execution.executionId().value(),
-                    execution.tenantId().value(),
+                    execution.organizationId().value(),
                     execution.weekId().value(),
                     locationRef,
                     now));

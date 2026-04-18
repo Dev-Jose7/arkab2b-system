@@ -15,7 +15,7 @@ import com.arka.notification.domain.notificationdispatch.exception.NotificationT
 import com.arka.notification.domain.notificationdispatch.valueobject.NotificationId;
 import com.arka.notification.domain.notificationdispatch.valueobject.NotificationKey;
 import com.arka.notification.domain.notificationdispatch.valueobject.RelevantChangeNotification;
-import com.arka.notification.domain.notificationdispatch.valueobject.TenantId;
+import com.arka.notification.domain.notificationdispatch.valueobject.OrganizationId;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +25,7 @@ class NotificationDispatchDomainModelTest {
     void shouldEmitNotificationInPendingAndCreateDomainEvent() {
         Instant now = Instant.parse("2026-04-01T00:00:00Z");
         RelevantChangeNotification change = new RelevantChangeNotification(
-                TenantId.of("tenant-demo"),
+                OrganizationId.of("organization-demo"),
                 "evt-1",
                 "order.confirmed",
                 "recipient-1",
@@ -116,7 +116,7 @@ class NotificationDispatchDomainModelTest {
     private NotificationRequest pendingRequest(Instant now) {
         return NotificationRequest.createPending(
                 NotificationId.of("noti-1"),
-                TenantId.of("tenant-demo"),
+                OrganizationId.of("organization-demo"),
                 "evt-1",
                 "order.confirmed",
                 "recipient-1",
@@ -135,7 +135,7 @@ class NotificationDispatchDomainModelTest {
     private ChannelPolicy policy() {
         return new ChannelPolicy(
                 "policy-1",
-                "tenant-demo",
+                "organization-demo",
                 "order.confirmed",
                 NotificationChannel.EMAIL,
                 NotificationChannel.SMS,

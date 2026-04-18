@@ -22,7 +22,7 @@ class InventoryBalanceDomainModelTest {
     void reserveStockFailsWhenQtyExceedsAvailable() {
         StockItem stockItem = new StockItem(
                 "stock-1",
-                "tenant-1",
+                "organization-1",
                 "wh-1",
                 "SKU-1",
                 5,
@@ -49,7 +49,7 @@ class InventoryBalanceDomainModelTest {
     void confirmReservationConsumesPhysicalAndReservedQuantities() {
         StockItem stockItem = new StockItem(
                 "stock-1",
-                "tenant-1",
+                "organization-1",
                 "wh-1",
                 "SKU-1",
                 10,
@@ -63,7 +63,7 @@ class InventoryBalanceDomainModelTest {
 
         StockReservation reservation = new StockReservation(
                 "res-1",
-                "tenant-1",
+                "organization-1",
                 "stock-1",
                 "wh-1",
                 "SKU-1",
@@ -99,7 +99,7 @@ class InventoryBalanceDomainModelTest {
                 DomainInvariantViolationException.class,
                 () -> new StockItem(
                         "stock-1",
-                        "tenant-1",
+                        "organization-1",
                         "wh-1",
                         "SKU-1",
                         1,
@@ -116,7 +116,7 @@ class InventoryBalanceDomainModelTest {
     void confirmedReservationCannotExpire() {
         StockReservation confirmed = new StockReservation(
                 "res-1",
-                "tenant-1",
+                "organization-1",
                 "stock-1",
                 "wh-1",
                 "SKU-1",
@@ -139,7 +139,7 @@ class InventoryBalanceDomainModelTest {
     void reservationExpiringExactlyAtNowCannotBeConfirmed() {
         StockReservation expiringNow = new StockReservation(
                 "res-2",
-                "tenant-1",
+                "organization-1",
                 "stock-1",
                 "wh-1",
                 "SKU-1",

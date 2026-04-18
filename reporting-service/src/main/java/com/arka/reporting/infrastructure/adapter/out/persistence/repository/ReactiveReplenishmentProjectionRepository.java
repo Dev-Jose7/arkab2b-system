@@ -10,12 +10,12 @@ public interface ReactiveReplenishmentProjectionRepository extends ReactiveCrudR
     @Query("""
             SELECT *
             FROM replenishment_projections
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND period = :period
               AND (:sku IS NULL OR sku = :sku)
             ORDER BY risk_level DESC, sku ASC
             OFFSET :offset
             LIMIT :limit
             """)
-    Flux<ReplenishmentProjectionRow> findByTenantAndPeriod(String tenantId, String period, String sku, int offset, int limit);
+    Flux<ReplenishmentProjectionRow> findByOrganizationAndPeriod(String organizationId, String period, String sku, int offset, int limit);
 }

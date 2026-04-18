@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 public class ReportingQueryMapper {
 
     public GetAnalyticFactByIdQuery toFactById(String factId, IamSecurityPrincipal principal) {
-        return new GetAnalyticFactByIdQuery(principal.tenantId(), factId);
+        return new GetAnalyticFactByIdQuery(principal.organizationId(), factId);
     }
 
     public SearchAnalyticFactsQuery toFactSearch(
@@ -30,7 +30,7 @@ public class ReportingQueryMapper {
         int safePage = page == null ? 0 : Math.max(page, 0);
         int safeSize = size == null ? 20 : Math.max(size, 1);
         return new SearchAnalyticFactsQuery(
-                principal.tenantId(),
+                principal.organizationId(),
                 eventType,
                 factType,
                 period,
@@ -40,7 +40,7 @@ public class ReportingQueryMapper {
     }
 
     public GetWeeklySalesProjectionQuery toSalesProjection(String period, IamSecurityPrincipal principal) {
-        return new GetWeeklySalesProjectionQuery(principal.tenantId(), period);
+        return new GetWeeklySalesProjectionQuery(principal.organizationId(), period);
     }
 
     public GetWeeklyReplenishmentProjectionQuery toReplenishmentProjection(
@@ -51,19 +51,19 @@ public class ReportingQueryMapper {
             IamSecurityPrincipal principal) {
         int safePage = page == null ? 0 : Math.max(page, 0);
         int safeSize = size == null ? 20 : Math.max(size, 1);
-        return new GetWeeklyReplenishmentProjectionQuery(principal.tenantId(), period, sku, safePage, safeSize);
+        return new GetWeeklyReplenishmentProjectionQuery(principal.organizationId(), period, sku, safePage, safeSize);
     }
 
     public GetOperationsKpiQuery toKpiQuery(String period, IamSecurityPrincipal principal) {
-        return new GetOperationsKpiQuery(principal.tenantId(), period);
+        return new GetOperationsKpiQuery(principal.organizationId(), period);
     }
 
     public GetWeeklyExecutionQuery toExecutionById(String executionId, IamSecurityPrincipal principal) {
-        return new GetWeeklyExecutionQuery(principal.tenantId(), executionId, null, null);
+        return new GetWeeklyExecutionQuery(principal.organizationId(), executionId, null, null);
     }
 
     public GetWeeklyExecutionQuery toExecutionByWeekAndType(String weekId, String reportType, IamSecurityPrincipal principal) {
-        return new GetWeeklyExecutionQuery(principal.tenantId(), null, weekId, reportType);
+        return new GetWeeklyExecutionQuery(principal.organizationId(), null, weekId, reportType);
     }
 
     public ListReportArtifactsQuery toArtifacts(
@@ -74,11 +74,11 @@ public class ReportingQueryMapper {
             IamSecurityPrincipal principal) {
         int safePage = page == null ? 0 : Math.max(page, 0);
         int safeSize = size == null ? 20 : Math.max(size, 1);
-        return new ListReportArtifactsQuery(principal.tenantId(), weekId, reportType, safePage, safeSize);
+        return new ListReportArtifactsQuery(principal.organizationId(), weekId, reportType, safePage, safeSize);
     }
 
     public GetReportingMetricsQuery toMetricsQuery(String period, IamSecurityPrincipal principal) {
-        return new GetReportingMetricsQuery(principal.tenantId(), period);
+        return new GetReportingMetricsQuery(principal.organizationId(), period);
     }
 
     public GetReportingAuditQuery toAuditQuery(
@@ -89,6 +89,6 @@ public class ReportingQueryMapper {
             IamSecurityPrincipal principal) {
         int safePage = page == null ? 0 : Math.max(page, 0);
         int safeSize = size == null ? 20 : Math.max(size, 1);
-        return new GetReportingAuditQuery(principal.tenantId(), targetType, targetId, safePage, safeSize);
+        return new GetReportingAuditQuery(principal.organizationId(), targetType, targetId, safePage, safeSize);
     }
 }

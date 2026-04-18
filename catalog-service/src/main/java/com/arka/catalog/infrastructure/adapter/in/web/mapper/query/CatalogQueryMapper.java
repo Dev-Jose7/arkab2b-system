@@ -16,11 +16,11 @@ import org.springframework.stereotype.Component;
 public class CatalogQueryMapper {
 
     public GetProductByIdQuery toGetProductByIdQuery(String productId, IamSecurityPrincipal principal) {
-        return new GetProductByIdQuery(principal.tenantId(), productId);
+        return new GetProductByIdQuery(principal.organizationId(), productId);
     }
 
     public GetProductDetailQuery toGetProductDetailQuery(String productId, Instant at, IamSecurityPrincipal principal) {
-        return new GetProductDetailQuery(principal.tenantId(), productId, at);
+        return new GetProductDetailQuery(principal.organizationId(), productId, at);
     }
 
     public SearchCatalogQuery toSearchCatalogQuery(
@@ -35,7 +35,7 @@ public class CatalogQueryMapper {
         int safePage = page == null ? 0 : Math.max(page, 0);
         int safeSize = size == null ? 20 : Math.max(size, 1);
         return new SearchCatalogQuery(
-                principal.tenantId(),
+                principal.organizationId(),
                 text,
                 brandId,
                 categoryId,
@@ -46,7 +46,7 @@ public class CatalogQueryMapper {
     }
 
     public ListVariantsByProductQuery toListVariantsByProductQuery(String productId, IamSecurityPrincipal principal) {
-        return new ListVariantsByProductQuery(principal.tenantId(), productId);
+        return new ListVariantsByProductQuery(principal.organizationId(), productId);
     }
 
     public ResolveVariantForCheckoutQuery toResolveVariantForCheckoutQuery(
@@ -56,7 +56,21 @@ public class CatalogQueryMapper {
             Instant at,
             IamSecurityPrincipal principal) {
         return new ResolveVariantForCheckoutQuery(
-                principal.tenantId(),
+                principal.organizationId(),
+                sku,
+                currency,
+                priceType,
+                at);
+    }
+
+    public ResolveVariantForCheckoutQuery toResolveVariantForCheckoutQuery(
+            String organizationId,
+            String sku,
+            String currency,
+            String priceType,
+            Instant at) {
+        return new ResolveVariantForCheckoutQuery(
+                organizationId,
                 sku,
                 currency,
                 priceType,
@@ -69,7 +83,7 @@ public class CatalogQueryMapper {
             String priceType,
             Instant at,
             IamSecurityPrincipal principal) {
-        return new ResolveCurrentPriceQuery(principal.tenantId(), variantId, currency, priceType, at);
+        return new ResolveCurrentPriceQuery(principal.organizationId(), variantId, currency, priceType, at);
     }
 
     public GetPriceTimelineQuery toGetPriceTimelineQuery(
@@ -77,7 +91,7 @@ public class CatalogQueryMapper {
             String currency,
             String priceType,
             IamSecurityPrincipal principal) {
-        return new GetPriceTimelineQuery(principal.tenantId(), variantId, currency, priceType);
+        return new GetPriceTimelineQuery(principal.organizationId(), variantId, currency, priceType);
     }
 
     public GetCatalogAuditQuery toGetCatalogAuditQuery(
@@ -88,6 +102,6 @@ public class CatalogQueryMapper {
             IamSecurityPrincipal principal) {
         int safePage = page == null ? 0 : Math.max(page, 0);
         int safeSize = size == null ? 20 : Math.max(size, 1);
-        return new GetCatalogAuditQuery(principal.tenantId(), targetType, targetId, safePage, safeSize);
+        return new GetCatalogAuditQuery(principal.organizationId(), targetType, targetId, safePage, safeSize);
     }
 }

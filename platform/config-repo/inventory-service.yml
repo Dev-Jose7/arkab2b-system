@@ -1,0 +1,60 @@
+server:
+  port: ${SERVER_PORT:8084}
+
+app:
+  kafka:
+    topics:
+      stock-updated: ${APP_KAFKA_TOPIC_STOCK_UPDATED:inventory.stock-updated.v1}
+      commitable-availability-recalculated: ${APP_KAFKA_TOPIC_COMMITABLE_AVAILABILITY_RECALCULATED:inventory.commitable-availability-recalculated.v1}
+      inventory-mutation: ${APP_KAFKA_TOPIC_INVENTORY_MUTATION:inventory.mutation.v1}
+  outbox:
+    relay:
+      enabled: ${APP_OUTBOX_RELAY_ENABLED:true}
+      batch-size: ${APP_OUTBOX_RELAY_BATCH_SIZE:200}
+      poll-interval-ms: ${APP_OUTBOX_RELAY_POLL_INTERVAL_MS:2000}
+      max-retries: ${APP_OUTBOX_RELAY_MAX_RETRIES:3}
+  security:
+    jwt:
+      issuer: ${APP_SECURITY_JWT_ISSUER:identity-access-service}
+      allowed-audiences: ${APP_SECURITY_JWT_ALLOWED_AUDIENCES:arka-b2b,inventory-service}
+      jwks-uri: ${APP_SECURITY_JWT_JWKS_URI:http://localhost:8081/.well-known/jwks.json}
+    s2s:
+      client-id: ${APP_SECURITY_S2S_CLIENT_ID:inventory-service}
+      client-secret: ${APP_SECURITY_S2S_CLIENT_SECRET:${APP_S2S_SECRET_INVENTORY:inventory-service-secret}}
+      audience: ${APP_SECURITY_S2S_AUDIENCE:arka-b2b}
+      scopes: ${APP_SECURITY_S2S_SCOPES:inventory.read,inventory.reserve,catalog.read,directory.read,order.read,iam.permission.read}
+      identity-base-url: ${APP_SECURITY_S2S_IDENTITY_BASE_URL:http://identity-access-service}
+      token-path: ${APP_SECURITY_S2S_TOKEN_PATH:/api/v1/internal/auth/service-token}
+  external:
+    identity:
+      base-url: ${APP_EXTERNAL_IDENTITY_BASE_URL:http://identity-access-service}
+      service-token: ${APP_EXTERNAL_IDENTITY_SERVICE_TOKEN:}
+      timeout-ms: ${APP_EXTERNAL_IDENTITY_TIMEOUT_MS:3000}
+      actor-legitimacy-path: ${APP_EXTERNAL_IDENTITY_ACTOR_LEGITIMACY_PATH:/api/v1/internal/iam/users/{actorId}/permissions}
+    catalog:
+      base-url: ${APP_EXTERNAL_CATALOG_BASE_URL:http://catalog-service}
+      service-token: ${APP_EXTERNAL_CATALOG_SERVICE_TOKEN:}
+      timeout-ms: ${APP_EXTERNAL_CATALOG_TIMEOUT_MS:3000}
+      retry:
+        max-attempts: ${APP_EXTERNAL_CATALOG_RETRY_MAX_ATTEMPTS:2}
+        backoff-ms: ${APP_EXTERNAL_CATALOG_RETRY_BACKOFF_MS:200}
+      variant-resolution-path: ${APP_EXTERNAL_CATALOG_VARIANT_RESOLUTION_PATH:/api/v1/internal/catalog/checkout/variant-resolution}
+      default-currency: ${APP_EXTERNAL_CATALOG_DEFAULT_CURRENCY:COP}
+      default-price-type: ${APP_EXTERNAL_CATALOG_DEFAULT_PRICE_TYPE:BASE}
+    order:
+      base-url: ${APP_EXTERNAL_ORDER_BASE_URL:http://order-service}
+      service-token: ${APP_EXTERNAL_ORDER_SERVICE_TOKEN:}
+      timeout-ms: ${APP_EXTERNAL_ORDER_TIMEOUT_MS:3000}
+      retry:
+        max-attempts: ${APP_EXTERNAL_ORDER_RETRY_MAX_ATTEMPTS:2}
+        backoff-ms: ${APP_EXTERNAL_ORDER_RETRY_BACKOFF_MS:200}
+      cart-path: ${APP_EXTERNAL_ORDER_CART_PATH:/api/v1/internal/carts/{cartId}/organization-context}
+      order-path: ${APP_EXTERNAL_ORDER_ORDER_PATH:/api/v1/internal/orders/{orderId}/organization-context}
+    directory:
+      base-url: ${APP_EXTERNAL_DIRECTORY_BASE_URL:http://directory-service}
+      service-token: ${APP_EXTERNAL_DIRECTORY_SERVICE_TOKEN:}
+      timeout-ms: ${APP_EXTERNAL_DIRECTORY_TIMEOUT_MS:3000}
+      retry:
+        max-attempts: ${APP_EXTERNAL_DIRECTORY_RETRY_MAX_ATTEMPTS:2}
+        backoff-ms: ${APP_EXTERNAL_DIRECTORY_RETRY_BACKOFF_MS:200}
+      organization-path: ${APP_EXTERNAL_DIRECTORY_ORGANIZATION_PATH:/api/v1/internal/organizations/{organizationId}}

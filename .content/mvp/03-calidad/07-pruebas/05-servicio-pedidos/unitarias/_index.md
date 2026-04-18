@@ -37,8 +37,8 @@ Validar invariantes del dominio de pedidos, politicas de transicion y reglas de 
 | ORD-UT-010 | referencia de pago duplicada no duplica efecto | pago previo con misma referencia | registrar pago | error/rechazo `pago_duplicado` | FR-010, RN-PAY-02, D-PAY-01 |
 | ORD-UT-011 | estado de pago deriva de pagos aplicados | pagos parciales/acumulados | recalcular estado | `PENDING/PARTIALLY_PAID/PAID/OVERPAID_REVIEW` correcto | I-PAY-01, D-ORD-02 |
 | ORD-UT-012 | sin politica pais vigente no confirma checkout | country policy ausente/no vigente | confirmar checkout | error `configuracion_pais_no_disponible` | FR-011, I-LOC-01 |
-| ORD-UT-013 | acceso cruzado bloqueado | actor tenant A sobre pedido tenant B | validar ownership | error `acceso_cruzado_detectado` | NFR-005, I-ACC-02 |
-| ORD-UT-014 | comando mutante sin tenant invalido | comando sin `tenantId` | validar policy | rechazo por aislamiento | NFR-005, D-CROSS-01 |
+| ORD-UT-013 | acceso cruzado bloqueado | actor organization A sobre pedido organization B | validar ownership | error `acceso_cruzado_detectado` | NFR-005, I-ACC-02 |
+| ORD-UT-014 | comando mutante sin organization invalido | comando sin `organizationId` | validar policy | rechazo por aislamiento | NFR-005, D-CROSS-01 |
 | ORD-UT-015 | cart abandonado detectado por umbral | carrito inactivo > threshold | evaluar scheduler | marca abandono y emite evento | FR-008 |
 
 ## Criterio de exito unitario

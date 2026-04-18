@@ -8,7 +8,7 @@ import com.arka.notification.domain.notificationdispatch.enumtype.NotificationCh
 import com.arka.notification.domain.notificationdispatch.valueobject.AttemptId;
 import com.arka.notification.domain.notificationdispatch.valueobject.NotificationId;
 import com.arka.notification.domain.notificationdispatch.valueobject.NotificationKey;
-import com.arka.notification.domain.notificationdispatch.valueobject.TenantId;
+import com.arka.notification.domain.notificationdispatch.valueobject.OrganizationId;
 import com.arka.notification.infrastructure.adapter.out.persistence.mapper.NotificationRowMapper;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ class NotificationRowMapperTest {
         Instant now = Instant.parse("2026-04-05T10:00:00Z");
         NotificationRequest request = NotificationRequest.createPending(
                 NotificationId.of("noti-1"),
-                TenantId.of("tenant-demo"),
+                OrganizationId.of("organization-demo"),
                 "evt-1",
                 "order.confirmed",
                 "recipient-1",
@@ -40,7 +40,7 @@ class NotificationRowMapperTest {
         NotificationRequest mapped = mapper.toDomain(mapper.toRow(request));
 
         assertEquals(request.notificationId().value(), mapped.notificationId().value());
-        assertEquals(request.tenantId().value(), mapped.tenantId().value());
+        assertEquals(request.organizationId().value(), mapped.organizationId().value());
         assertEquals(request.status(), mapped.status());
         assertEquals(request.notificationKey().value(), mapped.notificationKey().value());
     }
@@ -57,7 +57,7 @@ class NotificationRowMapperTest {
                 now);
         attempt.markSent("provider-ref-1", 100L, "{\"status\":\"sent\"}");
 
-        NotificationAttempt mapped = mapper.toDomain(mapper.toRow(attempt, "tenant-demo"));
+        NotificationAttempt mapped = mapper.toDomain(mapper.toRow(attempt, "organization-demo"));
 
         assertEquals("att-1", mapped.attemptId().value());
         assertEquals("SENT", mapped.resultStatus().name());

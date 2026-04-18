@@ -6,7 +6,7 @@ import reactor.core.publisher.Mono;
 
 public interface NotificationTemplatePolicyPersistencePort {
 
-    Mono<NotificationTemplate> findActiveTemplate(String tenantId, String sourceEventType, String channel);
+    Mono<NotificationTemplate> findActiveTemplate(String organizationId, String sourceEventType, String channel);
 
-    Mono<ChannelPolicy> findActivePolicy(String tenantId, String sourceEventType);
+    Mono<ChannelPolicy> findActivePolicy(String organizationId, String sourceEventType);
 }

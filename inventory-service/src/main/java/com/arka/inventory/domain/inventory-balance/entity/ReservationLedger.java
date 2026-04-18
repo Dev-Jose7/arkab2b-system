@@ -5,7 +5,7 @@ import java.time.Instant;
 
 public record ReservationLedger(
         String ledgerId,
-        String tenantId,
+        String organizationId,
         String reservationId,
         String entryType,
         int qty,
@@ -14,7 +14,7 @@ public record ReservationLedger(
 
     public ReservationLedger {
         requireNotBlank(ledgerId, "ledgerId");
-        requireNotBlank(tenantId, "tenantId");
+        requireNotBlank(organizationId, "organizationId");
         requireNotBlank(reservationId, "reservationId");
         requireNotBlank(entryType, "entryType");
         if (qty <= 0) {

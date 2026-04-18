@@ -3,7 +3,7 @@ package com.arka.catalog.application.command;
 import java.time.Instant;
 
 public record ChangeVariantStatusCommand(
-        String tenantId,
+        String organizationId,
         String actorId,
         String variantId,
         String targetStatus,

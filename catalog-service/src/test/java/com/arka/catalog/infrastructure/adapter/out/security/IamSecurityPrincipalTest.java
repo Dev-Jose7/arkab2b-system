@@ -15,7 +15,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 class IamSecurityPrincipalTest {
 
     @Test
-    void shouldExtractActorTenantCountryAndRolesFromJwtAuthentication() {
+    void shouldExtractActorOrganizationCountryAndRolesFromJwtAuthentication() {
         Jwt jwt = new Jwt(
                 "token-value",
                 Instant.parse("2026-04-01T00:00:00Z"),
@@ -23,7 +23,7 @@ class IamSecurityPrincipalTest {
                 Map.of("alg", "RS256"),
                 Map.of(
                         "sub", "actor-1",
-                        "organization_id", "tenant-demo",
+                        "organization_id", "organization-demo",
                         "country_code", "co"));
 
         var auth = new UsernamePasswordAuthenticationToken(
@@ -34,7 +34,7 @@ class IamSecurityPrincipalTest {
         IamSecurityPrincipal principal = IamSecurityPrincipal.fromAuthentication(auth);
 
         assertEquals("actor-1", principal.actorId());
-        assertEquals("tenant-demo", principal.tenantId());
+        assertEquals("organization-demo", principal.organizationId());
         assertEquals("CO", principal.countryCode());
         assertTrue(principal.isCatalogAdmin());
     }

@@ -8,9 +8,9 @@ import reactor.core.publisher.Mono;
 
 public interface ReactiveProductTagRepository extends ReactiveCrudRepository<ProductTagRow, String> {
 
-    @Query("SELECT * FROM product_tags WHERE tenant_id = :tenantId AND product_id = :productId ORDER BY created_at")
-    Flux<ProductTagRow> findByTenantAndProduct(String tenantId, String productId);
+    @Query("SELECT * FROM product_tags WHERE organization_id = :organizationId AND product_id = :productId ORDER BY created_at")
+    Flux<ProductTagRow> findByOrganizationAndProduct(String organizationId, String productId);
 
-    @Query("DELETE FROM product_tags WHERE tenant_id = :tenantId AND product_id = :productId")
-    Mono<Integer> deleteByTenantAndProduct(String tenantId, String productId);
+    @Query("DELETE FROM product_tags WHERE organization_id = :organizationId AND product_id = :productId")
+    Mono<Integer> deleteByOrganizationAndProduct(String organizationId, String productId);
 }

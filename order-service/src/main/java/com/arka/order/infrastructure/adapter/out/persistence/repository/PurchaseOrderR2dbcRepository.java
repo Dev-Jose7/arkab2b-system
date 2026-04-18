@@ -12,26 +12,40 @@ public interface PurchaseOrderR2dbcRepository extends ReactiveCrudRepository<Pur
     @Query("""
             SELECT *
             FROM purchase_orders
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND order_id = :orderId
             """)
-    Mono<PurchaseOrderEntity> findByTenantAndOrderId(String tenantId, String orderId);
+    Mono<PurchaseOrderEntity> findByOrganizationAndOrderId(String organizationId, String orderId);
+
+    @Query("""
+            SELECT organization_id
+            FROM purchase_orders
+            WHERE order_id = :orderId
+            """)
+    Mono<String> findOrganizationIdByOrderId(String orderId);
 
     @Query("""
             SELECT *
             FROM purchase_orders
-            WHERE tenant_id = :tenantId
+            WHERE order_id = :orderId
+            """)
+    Mono<PurchaseOrderEntity> findContextByOrderId(String orderId);
+
+    @Query("""
+            SELECT *
+            FROM purchase_orders
+            WHERE organization_id = :organizationId
               AND checkout_correlation_id = :checkoutCorrelationId
             """)
-    Mono<PurchaseOrderEntity> findByCheckoutCorrelation(String tenantId, String checkoutCorrelationId);
+    Mono<PurchaseOrderEntity> findByCheckoutCorrelation(String organizationId, String checkoutCorrelationId);
 
     @Query("""
             SELECT COUNT(1) > 0
             FROM purchase_orders
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND checkout_correlation_id = :checkoutCorrelationId
             """)
-    Mono<Boolean> existsByCheckoutCorrelation(String tenantId, String checkoutCorrelationId);
+    Mono<Boolean> existsByCheckoutCorrelation(String organizationId, String checkoutCorrelationId);
 
     @Modifying
     @Query("""
@@ -42,12 +56,12 @@ public interface PurchaseOrderR2dbcRepository extends ReactiveCrudRepository<Pur
                    total_amount = :totalAmount,
                    version = :nextVersion,
                    updated_at = :updatedAt
-             WHERE tenant_id = :tenantId
+             WHERE organization_id = :organizationId
                AND order_id = :orderId
                AND version = :expectedVersion
             """)
     Mono<Integer> updateWithExpectedVersion(
-            String tenantId,
+            String organizationId,
             String orderId,
             String status,
             String paymentStatus,

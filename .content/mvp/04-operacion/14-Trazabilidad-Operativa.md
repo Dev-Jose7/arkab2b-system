@@ -26,7 +26,7 @@ operativa verificable.
 | NFR-003 disponibilidad | servicio sin respuesta / 5xx alto | indisponibilidad core | 01-Caida-de-Servicio / 11-Rollback-de-Release | incidente + retorno de salud |
 | NFR-001 latencia | checkout degradado | perdida de conversion | 04-Checkout-Degradado | metricas de latencia y exito |
 | NFR-004 consistencia stock | reserva inconsistente | sobreventa o bloqueo indebido | 05-Reserva-Inconsistente | reconciliacion de reservas |
-| NFR-005 aislamiento tenant | errores authz anormales | incidente cross-tenant | 03-Fallos-de-Autenticacion | auditoria + trazas de aislamiento |
+| NFR-005 aislamiento organization | errores authz anormales | incidente cross-organization | 03-Fallos-de-Autenticacion | auditoria + trazas de aislamiento |
 | NFR-011 regionalizacion | `configuracion_pais_no_disponible` alta | bloqueo por pais | 09-Configuracion-Pais-No-Disponible | politica vigente aplicada |
 | NFR-006/NFR-007 trazabilidad | metadata incompleta | baja auditabilidad operativa | 02-Aumento-de-Errores-5xx | cobertura de metadata en logs/eventos |
 

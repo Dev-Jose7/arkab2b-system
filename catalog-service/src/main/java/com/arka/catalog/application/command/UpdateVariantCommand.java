@@ -1,7 +1,7 @@
 package com.arka.catalog.application.command;
 
 public record UpdateVariantCommand(
-        String tenantId,
+        String organizationId,
         String actorId,
         String variantId,
         String name,

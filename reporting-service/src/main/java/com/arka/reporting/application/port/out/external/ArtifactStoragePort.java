@@ -5,7 +5,7 @@ import reactor.core.publisher.Mono;
 public interface ArtifactStoragePort {
 
     Mono<StoredArtifact> store(
-            String tenantId,
+            String organizationId,
             String weekId,
             String reportType,
             String format,

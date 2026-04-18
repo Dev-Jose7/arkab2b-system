@@ -4,7 +4,7 @@ import java.time.Instant;
 
 public final class RelevantChangeNotificationEmitted extends AbstractNotificationDomainEvent {
 
-    private final String tenantId;
+    private final String organizationId;
     private final String sourceEventId;
     private final String sourceEventType;
     private final String recipientRef;
@@ -12,7 +12,7 @@ public final class RelevantChangeNotificationEmitted extends AbstractNotificatio
 
     public RelevantChangeNotificationEmitted(
             String notificationId,
-            String tenantId,
+            String organizationId,
             String sourceEventId,
             String sourceEventType,
             String recipientRef,
@@ -23,15 +23,15 @@ public final class RelevantChangeNotificationEmitted extends AbstractNotificatio
                 "NotificationDispatch",
                 notificationId,
                 occurredAt);
-        this.tenantId = tenantId;
+        this.organizationId = organizationId;
         this.sourceEventId = sourceEventId;
         this.sourceEventType = sourceEventType;
         this.recipientRef = recipientRef;
         this.channel = channel;
     }
 
-    public String tenantId() {
-        return tenantId;
+    public String organizationId() {
+        return organizationId;
     }
 
     public String sourceEventId() {

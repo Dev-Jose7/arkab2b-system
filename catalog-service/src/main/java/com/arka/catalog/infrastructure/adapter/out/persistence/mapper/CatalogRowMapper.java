@@ -15,7 +15,7 @@ import com.arka.catalog.domain.catalogoffer.enumtype.VariantStatus;
 import com.arka.catalog.domain.catalogoffer.valueobject.Money;
 import com.arka.catalog.domain.catalogoffer.valueobject.PriceId;
 import com.arka.catalog.domain.catalogoffer.valueobject.ProductId;
-import com.arka.catalog.domain.catalogoffer.valueobject.TenantId;
+import com.arka.catalog.domain.catalogoffer.valueobject.OrganizationId;
 import com.arka.catalog.domain.catalogoffer.valueobject.TimeWindow;
 import com.arka.catalog.domain.catalogoffer.valueobject.VariantId;
 import com.arka.catalog.infrastructure.adapter.out.persistence.entity.CatalogAuditRow;
@@ -35,7 +35,7 @@ public class CatalogRowMapper {
     public ProductRow toRow(Product product) {
         return new ProductRow(
                 product.productId().value(),
-                product.tenantId().value(),
+                product.organizationId().value(),
                 product.productCode(),
                 product.name(),
                 product.description(),
@@ -48,7 +48,7 @@ public class CatalogRowMapper {
 
     public Product toDomain(ProductRow row) {
         return Product.rehydrate(
-                TenantId.of(row.tenantId()),
+                OrganizationId.of(row.organizationId()),
                 ProductId.of(row.productId()),
                 row.productCode(),
                 row.productName(),
@@ -60,10 +60,10 @@ public class CatalogRowMapper {
                 row.updatedAt());
     }
 
-    public ProductTagRow toRow(String tenantId, String productId, ProductTag tag, Instant now) {
+    public ProductTagRow toRow(String organizationId, String productId, ProductTag tag, Instant now) {
         return new ProductTagRow(
                 UUID.randomUUID().toString(),
-                tenantId,
+                organizationId,
                 productId,
                 tag.tagCode(),
                 tag.tagValue(),
@@ -78,7 +78,7 @@ public class CatalogRowMapper {
     public VariantRow toRow(Variant variant) {
         return new VariantRow(
                 variant.variantId().value(),
-                variant.tenantId().value(),
+                variant.organizationId().value(),
                 variant.productId().value(),
                 variant.sku(),
                 variant.name(),
@@ -93,7 +93,7 @@ public class CatalogRowMapper {
 
     public Variant toDomain(VariantRow row) {
         return Variant.rehydrate(
-                TenantId.of(row.tenantId()),
+                OrganizationId.of(row.organizationId()),
                 VariantId.of(row.variantId()),
                 ProductId.of(row.productId()),
                 row.sku(),
@@ -107,10 +107,10 @@ public class CatalogRowMapper {
                 row.updatedAt());
     }
 
-    public VariantAttributeRow toRow(String tenantId, String variantId, VariantAttribute attribute, Instant now) {
+    public VariantAttributeRow toRow(String organizationId, String variantId, VariantAttribute attribute, Instant now) {
         return new VariantAttributeRow(
                 UUID.randomUUID().toString(),
-                tenantId,
+                organizationId,
                 variantId,
                 attribute.attributeCode(),
                 attribute.value(),
@@ -126,7 +126,7 @@ public class CatalogRowMapper {
     public PriceRow toRow(Price price) {
         return new PriceRow(
                 price.priceId().value(),
-                price.tenantId().value(),
+                price.organizationId().value(),
                 price.variantId().value(),
                 price.priceType().name(),
                 price.money().currency(),
@@ -140,7 +140,7 @@ public class CatalogRowMapper {
 
     public Price toDomain(PriceRow row) {
         return Price.rehydrate(
-                TenantId.of(row.tenantId()),
+                OrganizationId.of(row.organizationId()),
                 PriceId.of(row.priceId()),
                 VariantId.of(row.variantId()),
                 PriceType.valueOf(row.priceType()),
@@ -154,7 +154,7 @@ public class CatalogRowMapper {
     public PriceScheduleRow toRow(PriceSchedule schedule) {
         return new PriceScheduleRow(
                 schedule.scheduleId(),
-                schedule.tenantId(),
+                schedule.organizationId(),
                 schedule.priceId(),
                 schedule.executeAfter(),
                 schedule.jobStatus().name(),
@@ -166,7 +166,7 @@ public class CatalogRowMapper {
     public PriceSchedule toDomain(PriceScheduleRow row) {
         return new PriceSchedule(
                 row.scheduleId(),
-                row.tenantId(),
+                row.organizationId(),
                 row.priceId(),
                 row.executeAfter(),
                 PriceScheduleJobStatus.valueOf(row.jobStatus()),
@@ -178,7 +178,7 @@ public class CatalogRowMapper {
     public CatalogAuditRow toRow(CatalogAuditEntry entry) {
         return new CatalogAuditRow(
                 entry.auditId(),
-                entry.tenantId(),
+                entry.organizationId(),
                 entry.actorId(),
                 entry.actionType(),
                 entry.targetType(),
@@ -193,7 +193,7 @@ public class CatalogRowMapper {
     public CatalogAuditEntry toDomain(CatalogAuditRow row) {
         return new CatalogAuditEntry(
                 row.auditId(),
-                row.tenantId(),
+                row.organizationId(),
                 row.actorId(),
                 row.actionType(),
                 row.targetType(),

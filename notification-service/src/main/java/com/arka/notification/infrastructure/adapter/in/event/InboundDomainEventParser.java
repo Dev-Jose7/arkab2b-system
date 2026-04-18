@@ -29,7 +29,6 @@ public class InboundDomainEventParser {
             String eventType = firstNonBlank(root, data, "eventType", "event_type", "mutationType", "mutation_type", "type");
             String aggregateType = firstNonBlank(root, data, "aggregateType", "aggregate_type", "targetType", "target_type");
             String aggregateId = firstNonBlank(root, data, "aggregateId", "aggregate_id", "targetId", "target_id");
-            String tenantId = firstNonBlank(root, data, "tenantId", "tenant_id");
             String organizationId = firstNonBlank(root, data, "organizationId", "organization_id");
             String actorId = firstNonBlank(root, data, "actorId", "actor_id", "actorUserId", "actor_user_id", "userId", "user_id");
             String traceId = firstNonBlank(root, data, "traceId", "trace_id");
@@ -41,9 +40,7 @@ public class InboundDomainEventParser {
                 eventId = UUID.nameUUIDFromBytes(seed.getBytes(StandardCharsets.UTF_8)).toString();
             }
 
-            if (organizationId == null || organizationId.isBlank()) {
-                organizationId = firstNonBlank(root, data, "recipientRef");
-            }
+            organizationId = firstNonBlankLiteral(organizationId, organizationId, firstNonBlank(root, data, "recipientRef"));
 
             String payloadJson = objectMapper.writeValueAsString(data);
             return new ParsedInboundDomainEvent(
@@ -51,7 +48,6 @@ public class InboundDomainEventParser {
                     eventType,
                     aggregateType,
                     aggregateId,
-                    tenantId,
                     organizationId,
                     actorId,
                     traceId,
@@ -90,6 +86,18 @@ public class InboundDomainEventParser {
         return null;
     }
 
+    private String firstNonBlankLiteral(String... values) {
+        if (values == null) {
+            return null;
+        }
+        for (String value : values) {
+            if (value != null && !value.isBlank()) {
+                return value.trim();
+            }
+        }
+        return null;
+    }
+
     private Instant parseInstant(String value) {
         if (value == null || value.isBlank()) {
             return null;
@@ -106,8 +114,8 @@ public class InboundDomainEventParser {
             String eventType,
             String aggregateType,
             String aggregateId,
-            String tenantId,
             String organizationId,
+
             String actorId,
             String traceId,
             String correlationId,

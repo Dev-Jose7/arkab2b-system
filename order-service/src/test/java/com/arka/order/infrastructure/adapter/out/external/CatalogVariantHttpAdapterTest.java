@@ -20,7 +20,7 @@ class CatalogVariantHttpAdapterTest {
                 HttpStatus.OK,
                 "{\"variantId\":\"v-1\",\"sku\":\"SKU-1\",\"amount\":\"100.00\",\"currency\":\"COP\"}");
 
-        StepVerifier.create(adapter.resolveVariant("tenant-1", null, "SKU-1"))
+        StepVerifier.create(adapter.resolveVariant("organization-1", null, "SKU-1"))
                 .assertNext(result -> {
                     assertEquals("v-1", result.variantId());
                     assertEquals("SKU-1", result.sku());
@@ -33,14 +33,14 @@ class CatalogVariantHttpAdapterTest {
     void shouldReturnEmptyWhenStatusIs404() {
         CatalogVariantHttpAdapter adapter = adapterFor(HttpStatus.NOT_FOUND, "{\"error\":\"not-found\"}");
 
-        StepVerifier.create(adapter.resolveVariant("tenant-1", null, "SKU-1")).verifyComplete();
+        StepVerifier.create(adapter.resolveVariant("organization-1", null, "SKU-1")).verifyComplete();
     }
 
     @Test
     void shouldFailWhenStatusIs400() {
         CatalogVariantHttpAdapter adapter = adapterFor(HttpStatus.BAD_REQUEST, "{\"error\":\"bad-request\"}");
 
-        StepVerifier.create(adapter.resolveVariant("tenant-1", null, "SKU-1"))
+        StepVerifier.create(adapter.resolveVariant("organization-1", null, "SKU-1"))
                 .expectError(IllegalArgumentException.class)
                 .verify();
     }
@@ -49,7 +49,7 @@ class CatalogVariantHttpAdapterTest {
     void shouldFailWhenStatusIs401() {
         CatalogVariantHttpAdapter adapter = adapterFor(HttpStatus.UNAUTHORIZED, "{\"error\":\"unauthorized\"}");
 
-        StepVerifier.create(adapter.resolveVariant("tenant-1", null, "SKU-1"))
+        StepVerifier.create(adapter.resolveVariant("organization-1", null, "SKU-1"))
                 .expectError(SecurityException.class)
                 .verify();
     }
@@ -58,7 +58,7 @@ class CatalogVariantHttpAdapterTest {
     void shouldFailWhenStatusIs403() {
         CatalogVariantHttpAdapter adapter = adapterFor(HttpStatus.FORBIDDEN, "{\"error\":\"forbidden\"}");
 
-        StepVerifier.create(adapter.resolveVariant("tenant-1", null, "SKU-1"))
+        StepVerifier.create(adapter.resolveVariant("organization-1", null, "SKU-1"))
                 .expectError(SecurityException.class)
                 .verify();
     }
@@ -67,7 +67,7 @@ class CatalogVariantHttpAdapterTest {
     void shouldFailWhenStatusIs409() {
         CatalogVariantHttpAdapter adapter = adapterFor(HttpStatus.CONFLICT, "{\"error\":\"conflict\"}");
 
-        StepVerifier.create(adapter.resolveVariant("tenant-1", null, "SKU-1"))
+        StepVerifier.create(adapter.resolveVariant("organization-1", null, "SKU-1"))
                 .expectError(IllegalStateException.class)
                 .verify();
     }
@@ -76,7 +76,7 @@ class CatalogVariantHttpAdapterTest {
     void shouldFailWhenStatusIs422() {
         CatalogVariantHttpAdapter adapter = adapterFor(HttpStatus.UNPROCESSABLE_ENTITY, "{\"error\":\"unprocessable\"}");
 
-        StepVerifier.create(adapter.resolveVariant("tenant-1", null, "SKU-1"))
+        StepVerifier.create(adapter.resolveVariant("organization-1", null, "SKU-1"))
                 .expectError(IllegalStateException.class)
                 .verify();
     }
@@ -85,7 +85,7 @@ class CatalogVariantHttpAdapterTest {
     void shouldFailWhenStatusIs5xx() {
         CatalogVariantHttpAdapter adapter = adapterFor(HttpStatus.INTERNAL_SERVER_ERROR, "{\"error\":\"boom\"}");
 
-        StepVerifier.create(adapter.resolveVariant("tenant-1", null, "SKU-1"))
+        StepVerifier.create(adapter.resolveVariant("organization-1", null, "SKU-1"))
                 .expectError(IllegalStateException.class)
                 .verify();
     }

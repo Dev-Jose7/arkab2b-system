@@ -11,6 +11,7 @@ import com.arka.notification.application.port.in.EmitRelevantChangeNotificationC
 import com.arka.notification.application.result.NotificationResult;
 import com.arka.notification.infrastructure.adapter.out.external.OrderContextLookupHttpAdapter;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Instant;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.ObjectProvider;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -31,6 +33,9 @@ class OrderEventConsumerContractCompatibilityTest {
     @Mock
     private OrderContextLookupHttpAdapter orderContextLookupHttpAdapter;
 
+    @Mock
+    private ObjectProvider<MeterRegistry> meterRegistryProvider;
+
     private OrderDomainEventKafkaConsumer consumer;
 
     @BeforeEach
@@ -40,6 +45,7 @@ class OrderEventConsumerContractCompatibilityTest {
                 emitUseCase,
                 parser,
                 orderContextLookupHttpAdapter,
+                meterRegistryProvider,
                 "notification-kafka-consumer",
                 "EMAIL",
                 8_000,
@@ -55,8 +61,7 @@ class OrderEventConsumerContractCompatibilityTest {
                   "eventVersion":"v1",
                   "aggregateType":"Order",
                   "aggregateId":"ord-1",
-                  "tenantId":"tenant-1",
-                  "organizationId":"org-1",
+                  "organizationId":"organization-1",
                   "actorId":"user-1",
                   "traceId":"trace-1",
                   "correlationId":"corr-1",
@@ -76,8 +81,8 @@ class OrderEventConsumerContractCompatibilityTest {
         verify(orderContextLookupHttpAdapter, never()).resolveByOrderId(any());
 
         EmitRelevantChangeNotificationCommand command = captor.getValue();
-        assertThat(command.tenantId()).isEqualTo("tenant-1");
-        assertThat(command.recipientRef()).isEqualTo("org-1");
+        assertThat(command.organizationId()).isEqualTo("organization-1");
+        assertThat(command.recipientRef()).isEqualTo("organization-1");
         assertThat(command.sourceEventId()).isEqualTo("evt-order-1");
         assertThat(command.sourceEventType()).isEqualTo("OrderCreatedFromValidatedCart");
         assertThat(command.traceId()).isEqualTo("trace-1");
@@ -88,7 +93,7 @@ class OrderEventConsumerContractCompatibilityTest {
     }
 
     @Test
-    void shouldConsumeCartEventPayloadAndResolveTenantContextWhenMissing() {
+    void shouldConsumeCartEventPayloadAndResolveOrganizationContextWhenMissing() {
         String payload = """
                 {
                   "eventId":"evt-cart-2",
@@ -104,7 +109,7 @@ class OrderEventConsumerContractCompatibilityTest {
                 """;
         ConsumerRecord<String, String> record = new ConsumerRecord<>("order.cart.events.v1", 1, 22L, "cart-2", payload);
         when(orderContextLookupHttpAdapter.resolveByCartId("cart-2"))
-                .thenReturn(Mono.just(new OrderContextLookupHttpAdapter.OrderContext("tenant-cart", "org-cart", "actor-cart")));
+                .thenReturn(Mono.just(new OrderContextLookupHttpAdapter.OrderContext("organization-cart", "actor-cart")));
         when(emitUseCase.handle(any())).thenReturn(Mono.just(notification("noti-2")));
 
         StepVerifier.create(consumer.consume(record)).verifyComplete();
@@ -114,8 +119,8 @@ class OrderEventConsumerContractCompatibilityTest {
         verify(emitUseCase).handle(captor.capture());
 
         EmitRelevantChangeNotificationCommand command = captor.getValue();
-        assertThat(command.tenantId()).isEqualTo("tenant-cart");
-        assertThat(command.recipientRef()).isEqualTo("org-cart");
+        assertThat(command.organizationId()).isEqualTo("organization-cart");
+        assertThat(command.recipientRef()).isEqualTo("organization-cart");
         assertThat(command.actorId()).isEqualTo("user-cart");
         assertThat(command.sourceEventType()).isEqualTo("CartCreated");
     }
@@ -123,7 +128,7 @@ class OrderEventConsumerContractCompatibilityTest {
     private NotificationResult notification(String notificationId) {
         return new NotificationResult(
                 notificationId,
-                "tenant-1",
+                "organization-1",
                 "evt",
                 "OrderCreatedFromValidatedCart",
                 "org-1",

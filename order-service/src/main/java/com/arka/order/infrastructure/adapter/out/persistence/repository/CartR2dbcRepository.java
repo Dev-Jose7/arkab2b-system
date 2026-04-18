@@ -12,22 +12,36 @@ public interface CartR2dbcRepository extends ReactiveCrudRepository<CartEntity, 
     @Query("""
             SELECT *
             FROM carts
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND cart_id = :cartId
             """)
-    Mono<CartEntity> findByTenantAndCartId(String tenantId, String cartId);
+    Mono<CartEntity> findByOrganizationAndCartId(String organizationId, String cartId);
+
+    @Query("""
+            SELECT organization_id
+            FROM carts
+            WHERE cart_id = :cartId
+            """)
+    Mono<String> findOrganizationIdByCartId(String cartId);
 
     @Query("""
             SELECT *
             FROM carts
-            WHERE tenant_id = :tenantId
+            WHERE cart_id = :cartId
+            """)
+    Mono<CartEntity> findContextByCartId(String cartId);
+
+    @Query("""
+            SELECT *
+            FROM carts
+            WHERE organization_id = :organizationId
               AND organization_id = :organizationId
               AND user_id = :userId
               AND status IN ('ACTIVE', 'CHECKOUT_IN_PROGRESS')
             ORDER BY created_at DESC
             LIMIT 1
             """)
-    Mono<CartEntity> findActiveByTenantOrganizationUser(String tenantId, String organizationId, String userId);
+    Mono<CartEntity> findActiveByOrganizationUser(String organizationId, String userId);
 
     @Modifying
     @Query("""
@@ -35,12 +49,12 @@ public interface CartR2dbcRepository extends ReactiveCrudRepository<CartEntity, 
                SET status = :status,
                    version = :nextVersion,
                    updated_at = :updatedAt
-             WHERE tenant_id = :tenantId
+             WHERE organization_id = :organizationId
                AND cart_id = :cartId
                AND version = :expectedVersion
             """)
     Mono<Integer> updateWithExpectedVersion(
-            String tenantId,
+            String organizationId,
             String cartId,
             String status,
             long nextVersion,

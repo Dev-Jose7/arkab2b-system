@@ -7,8 +7,8 @@ import org.springframework.data.relational.core.mapping.Table;
 @Table("carts")
 public record CartEntity(
         @Id String cartId,
-        String tenantId,
         String organizationId,
+
         String userId,
         String status,
         long version,

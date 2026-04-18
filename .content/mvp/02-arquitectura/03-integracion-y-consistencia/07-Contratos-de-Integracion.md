@@ -14,7 +14,7 @@ ownership semantico y evitando mezcla de verdades.
 |---|---|
 | versionado explicito | APIs por major (`/api/v1`) y eventos por `eventVersion` + compatibilidad backward en cambios no breaking |
 | idempotencia en mutaciones | mutaciones HTTP con `Idempotency-Key`; consumidores de eventos con dedupe por `eventId + consumerRef` |
-| envelope canonico de eventos | `eventId`, `eventType`, `eventVersion`, `occurredAt`, `producer`, `tenantId`, `traceId`, `correlationId`, `payload` |
+| envelope canonico de eventos | `eventId`, `eventType`, `eventVersion`, `occurredAt`, `producer`, `organizationId`, `traceId`, `correlationId`, `payload` |
 | entrega asincrona confiable | productores con `outbox`; consumidores con retry/backoff y `DLQ` para no recuperables |
 | contrato semantico primero | los contratos publican significado de negocio; no se exponen estructuras internas de tablas |
 
@@ -36,7 +36,7 @@ ownership semantico y evitando mezcla de verdades.
 | `inventory-service` | stock actualizado, reserva/confirmacion/liberacion, disponibilidad recalculada | cambios de oferta desde `catalog` para reconciliacion de SKU | `stockId` / `reservationId` / `sku` |
 | `order-service` | carrito, pedido, estado operativo y pago manual actualizado | oferta de `catalog`, disponibilidad de `inventory`, politica regional de `directory` | `orderId` / `cartId` |
 | `notification-service` | notificacion emitida, entrega registrada, entrega fallida/descartada | cambios relevantes publicados por `order` e `inventory` | `notificationId` |
-| `reporting-service` | reporte semanal generado y estado de actualizacion de snapshot | hechos de `Core` y `notification` | `tenantId:weekId:reportType` |
+| `reporting-service` | reporte semanal generado y estado de actualizacion de snapshot | hechos de `Core` y `notification` | `organizationId:weekId:reportType` |
 
 ## Contratos que soportan ejecucion de comandos de dominio
 | Comando de dominio | Servicio handler | Contratos sync requeridos | Evento(s) de salida | Consumidores esperados |

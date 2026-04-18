@@ -8,7 +8,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @Table("stock_items")
 public record StockItemRow(
         @Id @Column("stock_item_id") String stockItemId,
-        @Column("tenant_id") String tenantId,
+        @Column("organization_id") String organizationId,
         @Column("warehouse_id") String warehouseId,
         @Column("sku") String sku,
         @Column("physical_qty") Integer physicalQty,

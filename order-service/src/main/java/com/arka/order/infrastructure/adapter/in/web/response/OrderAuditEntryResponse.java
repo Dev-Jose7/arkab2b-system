@@ -4,7 +4,6 @@ import java.time.Instant;
 
 public record OrderAuditEntryResponse(
         String auditId,
-        String tenantId,
         String organizationId,
         String actorUserId,
         String actionType,

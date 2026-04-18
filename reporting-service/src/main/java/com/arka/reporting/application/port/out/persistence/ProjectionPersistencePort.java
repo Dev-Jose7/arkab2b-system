@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 public interface ProjectionPersistencePort {
 
     Mono<SalesProjection> upsertSalesProjection(
-            String tenantId,
+            String organizationId,
             String period,
             java.math.BigDecimal totalSalesDelta,
             java.math.BigDecimal paidAmountDelta,
@@ -17,7 +17,7 @@ public interface ProjectionPersistencePort {
             long confirmedOrdersDelta);
 
     Mono<ReplenishmentProjection> upsertReplenishmentProjection(
-            String tenantId,
+            String organizationId,
             String period,
             String sku,
             java.math.BigDecimal availableQty,
@@ -26,20 +26,20 @@ public interface ProjectionPersistencePort {
             String riskLevel);
 
     Mono<OperationsKpiProjection> upsertOperationsKpiProjection(
-            String tenantId,
+            String organizationId,
             String period,
             String kpiName,
             java.math.BigDecimal kpiValue);
 
-    Mono<SalesProjection> findSalesByPeriod(String tenantId, String period);
+    Mono<SalesProjection> findSalesByPeriod(String organizationId, String period);
 
-    Flux<ReplenishmentProjection> findReplenishmentByPeriod(String tenantId, String period, String sku, int offset, int limit);
+    Flux<ReplenishmentProjection> findReplenishmentByPeriod(String organizationId, String period, String sku, int offset, int limit);
 
-    Mono<Long> countReplenishmentByPeriod(String tenantId, String period, String sku);
+    Mono<Long> countReplenishmentByPeriod(String organizationId, String period, String sku);
 
-    Flux<OperationsKpiProjection> findOperationsKpisByPeriod(String tenantId, String period);
+    Flux<OperationsKpiProjection> findOperationsKpisByPeriod(String organizationId, String period);
 
-    Mono<Void> clearProjectionsByTenant(String tenantId);
+    Mono<Void> clearProjectionsByOrganization(String organizationId);
 
-    Mono<Void> clearProjectionsByTenantAndPeriod(String tenantId, String period);
+    Mono<Void> clearProjectionsByOrganizationAndPeriod(String organizationId, String period);
 }

@@ -203,25 +203,24 @@ public class OrderApplicationService implements
     @Override
     @Transactional
     public Mono<CartResult> handle(CreateCartCommand command) {
-        String tenantId = normalizeRequired(command.tenantId(), "tenantId");
         String organizationId = normalizeRequired(command.organizationId(), "organizationId");
+
         String userId = normalizeRequired(command.userId(), "userId");
         String actorUserId = normalizeRequired(command.actorUserId(), "actorUserId");
         String operationName = "CreateCart";
         String requestHash = IdempotencySupport.sha256(String.valueOf(command));
 
-        return ensureActorAccess(tenantId, organizationId, actorUserId, false)
+        return ensureActorAccess(organizationId, actorUserId, false)
                 .then(executeIdempotent(
-                        tenantId,
+                        organizationId,
                         operationName,
                         command.idempotencyKey(),
                         requestHash,
-                        record -> loadCartResult(tenantId, record.resourceId()),
-                        () -> cartPersistencePort.findActiveByTenantOrganizationUser(tenantId, organizationId, userId)
+                        record -> loadCartResult(organizationId, record.resourceId()),
+                        () -> cartPersistencePort.findActiveByOrganizationUser(organizationId, userId)
                                 .switchIfEmpty(Mono.defer(() -> cartPersistencePort
-                                        .save(Cart.create(tenantId, organizationId, userId, now()))))
+                                        .save(Cart.create(organizationId, userId, now()))))
                                 .flatMap(cart -> registerMutation(
-                                                tenantId,
                                                 organizationId,
                                                 actorUserId,
                                                 operationName,
@@ -237,8 +236,8 @@ public class OrderApplicationService implements
     @Override
     @Transactional
     public Mono<CartResult> handle(AdjustCartItemsCommand command) {
-        String tenantId = normalizeRequired(command.tenantId(), "tenantId");
         String organizationId = normalizeRequired(command.organizationId(), "organizationId");
+
         String userId = normalizeRequired(command.userId(), "userId");
         String cartId = normalizeRequired(command.cartId(), "cartId");
         String actorUserId = normalizeRequired(command.actorUserId(), "actorUserId");
@@ -250,23 +249,22 @@ public class OrderApplicationService implements
         String operationName = "AdjustCartItems";
         String requestHash = IdempotencySupport.sha256(String.valueOf(command));
 
-        return ensureActorAccess(tenantId, organizationId, actorUserId, false)
+        return ensureActorAccess(organizationId, actorUserId, false)
                 .then(executeIdempotent(
-                        tenantId,
+                        organizationId,
                         operationName,
                         command.idempotencyKey(),
                         requestHash,
-                        record -> loadCartResult(tenantId, record.resourceId()),
+                        record -> loadCartResult(organizationId, record.resourceId()),
                         () -> updateCartWithRetry(
-                                        tenantId,
+                                        organizationId,
                                         cartId,
                                         MAX_OPTIMISTIC_RETRIES,
                                         current -> {
-                                            cartPolicyService.ensureOwnership(current, tenantId, organizationId, userId);
-                                            return applyCartMutations(current, items.iterator(), tenantId, now());
+                                            cartPolicyService.ensureOwnership(current, organizationId, userId);
+                                            return applyCartMutations(current, items.iterator(), organizationId, now());
                                         })
                                 .flatMap(updated -> registerMutation(
-                                                tenantId,
                                                 organizationId,
                                                 actorUserId,
                                                 operationName,
@@ -282,8 +280,8 @@ public class OrderApplicationService implements
     @Override
     @Transactional
     public Mono<CheckoutAttemptResult> handle(ValidateCheckoutAvailabilityCommand command) {
-        String tenantId = normalizeRequired(command.tenantId(), "tenantId");
         String organizationId = normalizeRequired(command.organizationId(), "organizationId");
+
         String userId = normalizeRequired(command.userId(), "userId");
         String cartId = normalizeRequired(command.cartId(), "cartId");
         String correlationId = normalizeRequired(command.checkoutCorrelationId(), "checkoutCorrelationId");
@@ -294,15 +292,14 @@ public class OrderApplicationService implements
         String operationName = "ValidateCheckoutAvailability";
         String requestHash = IdempotencySupport.sha256(String.valueOf(command));
 
-        return ensureActorAccess(tenantId, organizationId, actorUserId, false)
+        return ensureActorAccess(organizationId, actorUserId, false)
                 .then(executeIdempotent(
-                        tenantId,
+                        organizationId,
                         operationName,
                         command.idempotencyKey(),
                         requestHash,
-                        record -> loadCheckoutAttemptResult(tenantId, record.resourceId()),
+                        record -> loadCheckoutAttemptResult(organizationId, record.resourceId()),
                         () -> validateCheckoutWithRetry(
-                                        tenantId,
                                         organizationId,
                                         userId,
                                         cartId,
@@ -314,7 +311,6 @@ public class OrderApplicationService implements
                                         .flatMap(savedAttempt -> checkoutAttemptCachePort
                                                 .put(resultMapper.toResult(savedAttempt))
                                                 .then(registerMutation(
-                                                        tenantId,
                                                         organizationId,
                                                         actorUserId,
                                                         operationName,
@@ -331,8 +327,8 @@ public class OrderApplicationService implements
     @Override
     @Transactional
     public Mono<OrderResult> handle(CreateOrderFromCartCommand command) {
-        String tenantId = normalizeRequired(command.tenantId(), "tenantId");
         String organizationId = normalizeRequired(command.organizationId(), "organizationId");
+
         String userId = normalizeRequired(command.userId(), "userId");
         String cartId = normalizeRequired(command.cartId(), "cartId");
         String correlationId = normalizeRequired(command.checkoutCorrelationId(), "checkoutCorrelationId");
@@ -341,17 +337,16 @@ public class OrderApplicationService implements
         String operationName = "CreateOrderFromCart";
         String requestHash = IdempotencySupport.sha256(String.valueOf(command));
 
-        return ensureActorAccess(tenantId, organizationId, actorUserId, false)
+        return ensureActorAccess(organizationId, actorUserId, false)
                 .then(executeIdempotent(
-                        tenantId,
+                        organizationId,
                         operationName,
                         command.idempotencyKey(),
                         requestHash,
-                        record -> loadOrderResult(tenantId, record.resourceId()),
-                        () -> purchaseOrderPersistencePort.findByCheckoutCorrelation(tenantId, correlationId)
+                        record -> loadOrderResult(organizationId, record.resourceId()),
+                        () -> purchaseOrderPersistencePort.findByCheckoutCorrelation(organizationId, correlationId)
                                 .flatMap(existing -> Mono.just(resultMapper.toResult(existing)))
                                 .switchIfEmpty(Mono.defer(() -> createOrderFromValidatedCheckout(
-                                        tenantId,
                                         organizationId,
                                         userId,
                                         cartId,
@@ -364,8 +359,8 @@ public class OrderApplicationService implements
     @Override
     @Transactional
     public Mono<OrderResult> handle(AdjustOrderBeforeCloseCommand command) {
-        String tenantId = normalizeRequired(command.tenantId(), "tenantId");
         String organizationId = normalizeRequired(command.organizationId(), "organizationId");
+
         String orderId = normalizeRequired(command.orderId(), "orderId");
         String actorUserId = normalizeRequired(command.actorUserId(), "actorUserId");
         List<AdjustOrderLineInput> lines = command.lines() == null ? List.of() : command.lines();
@@ -376,24 +371,23 @@ public class OrderApplicationService implements
         String operationName = "AdjustOrderBeforeClose";
         String requestHash = IdempotencySupport.sha256(String.valueOf(command));
 
-        return ensureActorAccess(tenantId, organizationId, actorUserId, false)
+        return ensureActorAccess(organizationId, actorUserId, false)
                 .then(executeIdempotent(
-                        tenantId,
+                        organizationId,
                         operationName,
                         command.idempotencyKey(),
                         requestHash,
-                        record -> loadOrderResult(tenantId, record.resourceId()),
+                        record -> loadOrderResult(organizationId, record.resourceId()),
                         () -> updateOrderWithRetry(
-                                        tenantId,
+                                        organizationId,
                                         orderId,
                                         MAX_OPTIMISTIC_RETRIES,
                                         current -> {
-                                            orderPolicyService.ensureOwnership(current, tenantId, organizationId);
+                                            orderPolicyService.ensureOwnership(current, organizationId);
                                             return toAdjustedOrderLines(current, lines, now())
                                                     .map(adjusted -> current.adjustBeforeClose(adjusted, now()));
                                         })
                                 .flatMap(updated -> registerMutation(
-                                                tenantId,
                                                 organizationId,
                                                 actorUserId,
                                                 operationName,
@@ -409,31 +403,30 @@ public class OrderApplicationService implements
     @Override
     @Transactional
     public Mono<OrderResult> handle(RevalidateOrderConsistencyAfterAdjustmentCommand command) {
-        String tenantId = normalizeRequired(command.tenantId(), "tenantId");
         String organizationId = normalizeRequired(command.organizationId(), "organizationId");
+
         String orderId = normalizeRequired(command.orderId(), "orderId");
         String actorUserId = normalizeRequired(command.actorUserId(), "actorUserId");
 
         String operationName = "RevalidateOrderConsistencyAfterAdjustment";
         String requestHash = IdempotencySupport.sha256(String.valueOf(command));
 
-        return ensureActorAccess(tenantId, organizationId, actorUserId, false)
+        return ensureActorAccess(organizationId, actorUserId, false)
                 .then(executeIdempotent(
-                        tenantId,
+                        organizationId,
                         operationName,
                         command.idempotencyKey(),
                         requestHash,
-                        record -> loadOrderResult(tenantId, record.resourceId()),
+                        record -> loadOrderResult(organizationId, record.resourceId()),
                         () -> updateOrderWithRetry(
-                                        tenantId,
+                                        organizationId,
                                         orderId,
                                         MAX_OPTIMISTIC_RETRIES,
                                         current -> {
-                                            orderPolicyService.ensureOwnership(current, tenantId, organizationId);
+                                            orderPolicyService.ensureOwnership(current, organizationId);
                                             return Mono.just(current.revalidateConsistencyAfterAdjustment(now()));
                                         })
                                 .flatMap(updated -> registerMutation(
-                                                tenantId,
                                                 organizationId,
                                                 actorUserId,
                                                 operationName,
@@ -449,23 +442,22 @@ public class OrderApplicationService implements
     @Override
     @Transactional
     public Mono<OrderResult> handle(CancelOrderCommand command) {
-        String tenantId = normalizeRequired(command.tenantId(), "tenantId");
         String organizationId = normalizeRequired(command.organizationId(), "organizationId");
+
         String orderId = normalizeRequired(command.orderId(), "orderId");
         String actorUserId = normalizeRequired(command.actorUserId(), "actorUserId");
 
         String operationName = "CancelOrder";
         String requestHash = IdempotencySupport.sha256(String.valueOf(command));
 
-        return ensureActorAccess(tenantId, organizationId, actorUserId, false)
+        return ensureActorAccess(organizationId, actorUserId, false)
                 .then(executeIdempotent(
-                        tenantId,
+                        organizationId,
                         operationName,
                         command.idempotencyKey(),
                         requestHash,
-                        record -> loadOrderResult(tenantId, record.resourceId()),
+                        record -> loadOrderResult(organizationId, record.resourceId()),
                         () -> transitionOrderStatus(
-                                tenantId,
                                 organizationId,
                                 orderId,
                                 OrderStatus.CANCELLED,
@@ -478,8 +470,8 @@ public class OrderApplicationService implements
     @Override
     @Transactional
     public Mono<OrderResult> handle(UpdateOrderOperationalStatusCommand command) {
-        String tenantId = normalizeRequired(command.tenantId(), "tenantId");
         String organizationId = normalizeRequired(command.organizationId(), "organizationId");
+
         String orderId = normalizeRequired(command.orderId(), "orderId");
         String actorUserId = normalizeRequired(command.actorUserId(), "actorUserId");
         OrderStatus targetStatus = parseOrderStatus(command.targetStatus());
@@ -488,15 +480,14 @@ public class OrderApplicationService implements
         String operationName = "UpdateOrderOperationalStatus";
         String requestHash = IdempotencySupport.sha256(String.valueOf(command));
 
-        return ensureActorAccess(tenantId, organizationId, actorUserId, true)
+        return ensureActorAccess(organizationId, actorUserId, true)
                 .then(executeIdempotent(
-                        tenantId,
+                        organizationId,
                         operationName,
                         command.idempotencyKey(),
                         requestHash,
-                        record -> loadOrderResult(tenantId, record.resourceId()),
+                        record -> loadOrderResult(organizationId, record.resourceId()),
                         () -> transitionOrderStatus(
-                                tenantId,
                                 organizationId,
                                 orderId,
                                 targetStatus,
@@ -509,27 +500,27 @@ public class OrderApplicationService implements
     @Override
     @Transactional
     public Mono<OrderResult> handle(RegisterManualPaymentCommand command) {
-        String tenantId = normalizeRequired(command.tenantId(), "tenantId");
         String organizationId = normalizeRequired(command.organizationId(), "organizationId");
+
         String orderId = normalizeRequired(command.orderId(), "orderId");
         String actorUserId = normalizeRequired(command.actorUserId(), "actorUserId");
 
         String operationName = "RegisterManualPayment";
         String requestHash = IdempotencySupport.sha256(String.valueOf(command));
 
-        return ensureActorAccess(tenantId, organizationId, actorUserId, true)
+        return ensureActorAccess(organizationId, actorUserId, true)
                 .then(executeIdempotent(
-                        tenantId,
+                        organizationId,
                         operationName,
                         command.idempotencyKey(),
                         requestHash,
-                        record -> loadOrderResult(tenantId, record.resourceId()),
+                        record -> loadOrderResult(organizationId, record.resourceId()),
                         () -> updateOrderWithRetry(
-                                        tenantId,
+                                        organizationId,
                                         orderId,
                                         MAX_OPTIMISTIC_RETRIES,
                                         current -> {
-                                            orderPolicyService.ensureOwnership(current, tenantId, organizationId);
+                                            orderPolicyService.ensureOwnership(current, organizationId);
                                             return Mono.just(current.registerManualPayment(
                                                     normalizeRequired(command.paymentReference(), "paymentReference"),
                                                     command.amount(),
@@ -539,7 +530,6 @@ public class OrderApplicationService implements
                                                     now()));
                                         })
                                 .flatMap(updated -> registerMutation(
-                                                tenantId,
                                                 organizationId,
                                                 actorUserId,
                                                 operationName,
@@ -555,8 +545,8 @@ public class OrderApplicationService implements
     @Override
     @Transactional
     public Mono<OrderResult> handle(ValidateManualPaymentCommand command) {
-        String tenantId = normalizeRequired(command.tenantId(), "tenantId");
         String organizationId = normalizeRequired(command.organizationId(), "organizationId");
+
         String orderId = normalizeRequired(command.orderId(), "orderId");
         String paymentRecordId = normalizeRequired(command.paymentRecordId(), "paymentRecordId");
         String actorUserId = normalizeRequired(command.actorUserId(), "actorUserId");
@@ -569,23 +559,22 @@ public class OrderApplicationService implements
         String operationName = "ValidateManualPayment";
         String requestHash = IdempotencySupport.sha256(String.valueOf(command));
 
-        return ensureActorAccess(tenantId, organizationId, actorUserId, true)
+        return ensureActorAccess(organizationId, actorUserId, true)
                 .then(executeIdempotent(
-                        tenantId,
+                        organizationId,
                         operationName,
                         command.idempotencyKey(),
                         requestHash,
-                        record -> loadOrderResult(tenantId, record.resourceId()),
+                        record -> loadOrderResult(organizationId, record.resourceId()),
                         () -> updateOrderWithRetry(
-                                        tenantId,
+                                        organizationId,
                                         orderId,
                                         MAX_OPTIMISTIC_RETRIES,
                                         current -> {
-                                            orderPolicyService.ensureOwnership(current, tenantId, organizationId);
+                                            orderPolicyService.ensureOwnership(current, organizationId);
                                             return Mono.just(current.updateManualPaymentStatus(paymentRecordId, targetStatus, now()));
                                         })
                                 .flatMap(updated -> registerMutation(
-                                                tenantId,
                                                 organizationId,
                                                 actorUserId,
                                                 operationName,
@@ -603,21 +592,21 @@ public class OrderApplicationService implements
     @Override
     @Transactional
     public Mono<CartResult> handle(HandleReservationExpiredCommand command) {
-        String tenantId = normalizeRequired(command.tenantId(), "tenantId");
         String organizationId = normalizeRequired(command.organizationId(), "organizationId");
+
         String cartId = normalizeRequired(command.cartId(), "cartId");
         String reservationId = normalizeRequired(command.reservationId(), "reservationId");
         String eventId = normalizeRequired(command.eventId(), "eventId");
         String actorUserId = normalizeRequired(command.actorUserId(), "actorUserId");
 
-        return ensureActorAccess(tenantId, organizationId, actorUserId, true)
+        return ensureActorAccess(organizationId, actorUserId, true)
                 .then(processedEventPersistencePort.existsByEventAndConsumer(eventId, RESERVATION_EXPIRED_CONSUMER))
                 .flatMap(alreadyProcessed -> {
                     if (alreadyProcessed) {
-                        return loadCartResult(tenantId, cartId);
+                        return loadCartResult(organizationId, cartId);
                     }
                     return updateCartWithRetry(
-                                    tenantId,
+                                    organizationId,
                                     cartId,
                                     MAX_OPTIMISTIC_RETRIES,
                                     current -> {
@@ -634,7 +623,6 @@ public class OrderApplicationService implements
                                     })
                             .flatMap(updated -> processedEventPersistencePort.registerProcessed(eventId, RESERVATION_EXPIRED_CONSUMER)
                                     .then(registerMutation(
-                                            tenantId,
                                             organizationId,
                                             actorUserId,
                                             "HandleReservationExpired",
@@ -648,26 +636,26 @@ public class OrderApplicationService implements
 
     @Override
     public Mono<CartResult> handle(GetActiveCartQuery query) {
-        String tenantId = normalizeRequired(query.tenantId(), "tenantId");
         String organizationId = normalizeRequired(query.organizationId(), "organizationId");
+
         String userId = normalizeRequired(query.userId(), "userId");
         String actorUserId = normalizeRequired(query.actorUserId(), "actorUserId");
 
-        return ensureActorAccess(tenantId, organizationId, actorUserId, false)
-                .then(cartPersistencePort.findActiveByTenantOrganizationUser(tenantId, organizationId, userId)
+        return ensureActorAccess(organizationId, actorUserId, false)
+                .then(cartPersistencePort.findActiveByOrganizationUser(organizationId, userId)
                         .switchIfEmpty(Mono.error(new OrderNotFoundException("active cart not found")))
                         .map(resultMapper::toResult));
     }
 
     @Override
     public Mono<CartResult> handle(GetCartQuery query) {
-        String tenantId = normalizeRequired(query.tenantId(), "tenantId");
         String organizationId = normalizeRequired(query.organizationId(), "organizationId");
+
         String cartId = normalizeRequired(query.cartId(), "cartId");
         String actorUserId = normalizeRequired(query.actorUserId(), "actorUserId");
 
-        return ensureActorAccess(tenantId, organizationId, actorUserId, false)
-                .then(loadCart(tenantId, cartId))
+        return ensureActorAccess(organizationId, actorUserId, false)
+                .then(loadCart(organizationId, cartId))
                 .flatMap(cart -> {
                     if (!cart.organizationId().equals(organizationId)) {
                         return Mono.error(new OperationNotPermittedException("organization isolation violated for cart"));
@@ -678,14 +666,14 @@ public class OrderApplicationService implements
 
     @Override
     public Mono<CheckoutAttemptResult> handle(GetCheckoutAttemptByCorrelationQuery query) {
-        String tenantId = normalizeRequired(query.tenantId(), "tenantId");
         String organizationId = normalizeRequired(query.organizationId(), "organizationId");
+
         String correlationId = normalizeRequired(query.checkoutCorrelationId(), "checkoutCorrelationId");
         String actorUserId = normalizeRequired(query.actorUserId(), "actorUserId");
 
-        return ensureActorAccess(tenantId, organizationId, actorUserId, false)
-                .then(checkoutAttemptCachePort.findByCorrelation(tenantId, correlationId)
-                        .switchIfEmpty(checkoutAttemptPersistencePort.findByCorrelation(tenantId, correlationId)
+        return ensureActorAccess(organizationId, actorUserId, false)
+                .then(checkoutAttemptCachePort.findByCorrelation(organizationId, correlationId)
+                        .switchIfEmpty(checkoutAttemptPersistencePort.findByCorrelation(organizationId, correlationId)
                                 .switchIfEmpty(Mono.error(new OrderNotFoundException("checkout attempt not found")))
                                 .map(resultMapper::toResult)
                                 .flatMap(result -> checkoutAttemptCachePort.put(result).thenReturn(result))))
@@ -699,32 +687,31 @@ public class OrderApplicationService implements
 
     @Override
     public Mono<OrderResult> handle(GetOrderQuery query) {
-        String tenantId = normalizeRequired(query.tenantId(), "tenantId");
         String organizationId = normalizeRequired(query.organizationId(), "organizationId");
+
         String orderId = normalizeRequired(query.orderId(), "orderId");
         String actorUserId = normalizeRequired(query.actorUserId(), "actorUserId");
 
-        return ensureActorAccess(tenantId, organizationId, actorUserId, false)
-                .then(loadOrder(tenantId, orderId))
+        return ensureActorAccess(organizationId, actorUserId, false)
+                .then(loadOrder(organizationId, orderId))
                 .flatMap(order -> {
-                    orderPolicyService.ensureOwnership(order, tenantId, organizationId);
+                    orderPolicyService.ensureOwnership(order, organizationId);
                     return Mono.just(resultMapper.toResult(order));
                 });
     }
 
     @Override
     public Flux<OrderSummaryResult> handle(ListOrdersQuery query) {
-        String tenantId = normalizeRequired(query.tenantId(), "tenantId");
         String organizationId = normalizeRequired(query.organizationId(), "organizationId");
+
         String actorUserId = normalizeRequired(query.actorUserId(), "actorUserId");
         String status = query.status() == null || query.status().isBlank()
                 ? null
                 : parseOrderStatus(query.status()).name();
         int limit = query.limit() == null ? 100 : requirePositive(query.limit(), "limit");
 
-        return ensureActorAccess(tenantId, organizationId, actorUserId, true)
-                .thenMany(purchaseOrderPersistencePort.listByTenantOrganizationStatus(
-                                tenantId,
+        return ensureActorAccess(organizationId, actorUserId, true)
+                .thenMany(purchaseOrderPersistencePort.listByOrganizationStatus(
                                 organizationId,
                                 status,
                                 query.createdFrom(),
@@ -735,70 +722,70 @@ public class OrderApplicationService implements
 
     @Override
     public Flux<OrderStatusHistoryResult> handle(GetOrderTimelineQuery query) {
-        String tenantId = normalizeRequired(query.tenantId(), "tenantId");
         String organizationId = normalizeRequired(query.organizationId(), "organizationId");
+
         String orderId = normalizeRequired(query.orderId(), "orderId");
         String actorUserId = normalizeRequired(query.actorUserId(), "actorUserId");
 
-        return ensureActorAccess(tenantId, organizationId, actorUserId, false)
-                .then(loadOrder(tenantId, orderId)
-                        .doOnNext(order -> orderPolicyService.ensureOwnership(order, tenantId, organizationId)))
-                .thenMany(orderStatusHistoryPersistencePort.findByOrder(tenantId, orderId)
+        return ensureActorAccess(organizationId, actorUserId, false)
+                .then(loadOrder(organizationId, orderId)
+                        .doOnNext(order -> orderPolicyService.ensureOwnership(order, organizationId)))
+                .thenMany(orderStatusHistoryPersistencePort.findByOrder(organizationId, orderId)
                         .map(resultMapper::toResult));
     }
 
     @Override
     public Mono<OrderFinancialStatusResult> handle(GetOrderFinancialStatusQuery query) {
-        String tenantId = normalizeRequired(query.tenantId(), "tenantId");
         String organizationId = normalizeRequired(query.organizationId(), "organizationId");
+
         String orderId = normalizeRequired(query.orderId(), "orderId");
         String actorUserId = normalizeRequired(query.actorUserId(), "actorUserId");
 
-        return ensureActorAccess(tenantId, organizationId, actorUserId, false)
-                .then(loadOrder(tenantId, orderId))
+        return ensureActorAccess(organizationId, actorUserId, false)
+                .then(loadOrder(organizationId, orderId))
                 .flatMap(order -> {
-                    orderPolicyService.ensureOwnership(order, tenantId, organizationId);
+                    orderPolicyService.ensureOwnership(order, organizationId);
                     return Mono.just(resultMapper.toFinancialStatusResult(order));
                 });
     }
 
     @Override
     public Flux<ManualPaymentResult> handle(ListOrderPaymentsQuery query) {
-        String tenantId = normalizeRequired(query.tenantId(), "tenantId");
         String organizationId = normalizeRequired(query.organizationId(), "organizationId");
+
         String orderId = normalizeRequired(query.orderId(), "orderId");
         String actorUserId = normalizeRequired(query.actorUserId(), "actorUserId");
 
-        return ensureActorAccess(tenantId, organizationId, actorUserId, false)
-                .then(loadOrder(tenantId, orderId)
-                        .doOnNext(order -> orderPolicyService.ensureOwnership(order, tenantId, organizationId)))
+        return ensureActorAccess(organizationId, actorUserId, false)
+                .then(loadOrder(organizationId, orderId)
+                        .doOnNext(order -> orderPolicyService.ensureOwnership(order, organizationId)))
                 .flatMapMany(order -> Flux.fromIterable(order.payments()).map(resultMapper::toResult));
     }
 
     @Override
     public Mono<OrderAuditResult> handle(GetOrderAuditQuery query) {
-        String tenantId = normalizeRequired(query.tenantId(), "tenantId");
         String organizationId = normalizeRequired(query.organizationId(), "organizationId");
+
         String orderId = normalizeRequired(query.orderId(), "orderId");
         int limit = query.limit() == null ? 100 : requirePositive(query.limit(), "limit");
         String actorUserId = normalizeRequired(query.actorUserId(), "actorUserId");
 
-        return ensureActorAccess(tenantId, organizationId, actorUserId, true)
-                .then(orderAuditPort.findByOrder(tenantId, organizationId, orderId, limit).collectList())
-                .map(entries -> new OrderAuditResult(tenantId, organizationId, orderId, entries));
+        return ensureActorAccess(organizationId, actorUserId, true)
+                .then(orderAuditPort.findByOrder(organizationId, orderId, limit).collectList())
+                .map(entries -> new OrderAuditResult(organizationId, orderId, entries));
     }
 
     @Override
     public Mono<OrderAmountsResult> handle(CalculateOrderAmountsQuery query) {
-        String tenantId = normalizeRequired(query.tenantId(), "tenantId");
         String organizationId = normalizeRequired(query.organizationId(), "organizationId");
+
         String orderId = normalizeRequired(query.orderId(), "orderId");
         String actorUserId = normalizeRequired(query.actorUserId(), "actorUserId");
 
-        return ensureActorAccess(tenantId, organizationId, actorUserId, false)
-                .then(loadOrder(tenantId, orderId))
+        return ensureActorAccess(organizationId, actorUserId, false)
+                .then(loadOrder(organizationId, orderId))
                 .flatMap(order -> {
-                    orderPolicyService.ensureOwnership(order, tenantId, organizationId);
+                    orderPolicyService.ensureOwnership(order, organizationId);
                     BigDecimal paid = order.paidAmount();
                     BigDecimal pending = order.totalAmount().subtract(paid);
                     if (pending.signum() < 0) {
@@ -814,17 +801,17 @@ public class OrderApplicationService implements
     }
 
     private Mono<OrderResult> createOrderFromValidatedCheckout(
-            String tenantId,
             String organizationId,
+
             String userId,
             String cartId,
             String checkoutCorrelationId,
             String actorUserId) {
-        return loadCart(tenantId, cartId)
+        return loadCart(organizationId, cartId)
                 .flatMap(cart -> {
-                    cartPolicyService.ensureOwnership(cart, tenantId, organizationId, userId);
+                    cartPolicyService.ensureOwnership(cart, organizationId, userId);
                     cart.ensureAllItemsHaveConfirmedReservation();
-                    return checkoutAttemptPersistencePort.findByCorrelation(tenantId, checkoutCorrelationId)
+                    return checkoutAttemptPersistencePort.findByCorrelation(organizationId, checkoutCorrelationId)
                             .switchIfEmpty(Mono.error(new OrderValidationException("validated checkout not found")))
                             .flatMap(attempt -> {
                                 if (!attempt.cartId().equals(cart.cartId())) {
@@ -836,7 +823,6 @@ public class OrderApplicationService implements
                                 return toOrderLinesFromCart(cart, now())
                                         .flatMap(lines -> {
                                             Order order = Order.createFromValidatedCart(
-                                                    tenantId,
                                                     organizationId,
                                                     userId,
                                                     cart.cartId(),
@@ -859,7 +845,6 @@ public class OrderApplicationService implements
                                                                                 "cart changed while creating order; retry request")))
                                                                 .then(saveStatusHistory(savedOrder, null, savedOrder.status(), "created-from-validated-cart", actorUserId))
                                                                 .then(registerMutation(
-                                                                        tenantId,
                                                                         organizationId,
                                                                         actorUserId,
                                                                         "CreateOrderFromCart",
@@ -876,14 +861,13 @@ public class OrderApplicationService implements
     }
 
     private Mono<OrderResult> transitionOrderStatus(
-            String tenantId,
             String organizationId,
+
             String orderId,
             OrderStatus targetStatus,
             String reason,
             String actorUserId) {
         return transitionOrderStatusWithRetry(
-                        tenantId,
                         organizationId,
                         orderId,
                         targetStatus,
@@ -896,7 +880,6 @@ public class OrderApplicationService implements
                                 reason,
                                 actorUserId)
                         .then(registerMutation(
-                                tenantId,
                                 organizationId,
                                 actorUserId,
                                 "UpdateOrderOperationalStatus",
@@ -908,15 +891,15 @@ public class OrderApplicationService implements
     }
 
     private Mono<OrderTransitionState> transitionOrderStatusWithRetry(
-            String tenantId,
             String organizationId,
+
             String orderId,
             OrderStatus targetStatus,
             String reason,
             int retriesLeft) {
-        return loadOrder(tenantId, orderId)
+        return loadOrder(organizationId, orderId)
                 .flatMap(current -> {
-                    orderPolicyService.ensureOwnership(current, tenantId, organizationId);
+                    orderPolicyService.ensureOwnership(current, organizationId);
                     Order updated = current.updateOperationalStatus(targetStatus, reason, now());
                     return purchaseOrderPersistencePort.updateWithExpectedVersion(updated, current.version())
                             .flatMap(success -> {
@@ -928,7 +911,6 @@ public class OrderApplicationService implements
                                             "order changed concurrently while transitioning status; retry request"));
                                 }
                                 return transitionOrderStatusWithRetry(
-                                        tenantId,
                                         organizationId,
                                         orderId,
                                         targetStatus,
@@ -939,24 +921,23 @@ public class OrderApplicationService implements
     }
 
     private Mono<CartMutationState> validateCheckoutWithRetry(
-            String tenantId,
             String organizationId,
+
             String userId,
             String cartId,
             String checkoutCorrelationId,
             String addressId,
             String countryCode,
             int retriesLeft) {
-        return loadCart(tenantId, cartId)
+        return loadCart(organizationId, cartId)
                 .flatMap(current -> {
-                    cartPolicyService.ensureOwnership(current, tenantId, organizationId, userId);
+                    cartPolicyService.ensureOwnership(current, organizationId, userId);
                     if (current.items().isEmpty()) {
                         return Mono.error(new OrderValidationException("cart must contain at least one item"));
                     }
 
-                    return collectCheckoutRejectionReasons(tenantId, current)
+                    return collectCheckoutRejectionReasons(organizationId, current)
                             .flatMap(reasons -> directoryCheckoutPort.resolveCheckoutContext(
-                                            tenantId,
                                             organizationId,
                                             addressId,
                                             countryCode)
@@ -981,7 +962,6 @@ public class OrderApplicationService implements
                                         Cart updatedCart = current.markCheckoutValidated(validatedCheckout, now());
                                         CheckoutAttempt checkoutAttempt = new CheckoutAttempt(
                                                 UUID.randomUUID().toString(),
-                                                tenantId,
                                                 organizationId,
                                                 userId,
                                                 cartId,
@@ -1003,7 +983,6 @@ public class OrderApplicationService implements
                                                                     "cart changed during checkout validation; retry request"));
                                                         }
                                                         return validateCheckoutWithRetry(
-                                                                tenantId,
                                                                 organizationId,
                                                                 userId,
                                                                 cartId,
@@ -1018,20 +997,20 @@ public class OrderApplicationService implements
                 });
     }
 
-    private Mono<List<String>> collectCheckoutRejectionReasons(String tenantId, Cart cart) {
+    private Mono<List<String>> collectCheckoutRejectionReasons(String organizationId, Cart cart) {
         return Flux.fromIterable(cart.items())
-                .concatMap(item -> collectItemCheckoutIssues(tenantId, item))
+                .concatMap(item -> collectItemCheckoutIssues(organizationId, item))
                 .collectList();
     }
 
-    private Mono<String> collectItemCheckoutIssues(String tenantId, CartItem item) {
-        return catalogVariantPort.resolveVariant(tenantId, item.variantId(), item.sku())
+    private Mono<String> collectItemCheckoutIssues(String organizationId, CartItem item) {
+        return catalogVariantPort.resolveVariant(organizationId, item.variantId(), item.sku())
                 .flatMap(snapshot -> {
                     if (!snapshot.sellable()) {
                         return Mono.just("oferta_no_vendible:" + item.sku());
                     }
                     return inventoryReservationPort.validateReservation(
-                                    tenantId,
+                                    organizationId,
                                     item.reservationId(),
                                     item.sku(),
                                     item.qty())
@@ -1060,13 +1039,12 @@ public class OrderApplicationService implements
 
     private Mono<List<OrderLine>> toOrderLinesFromCart(Cart cart, Instant now) {
         return Flux.fromIterable(cart.items())
-                .concatMap(item -> catalogVariantPort.resolveVariant(cart.tenantId(), item.variantId(), item.sku())
+                .concatMap(item -> catalogVariantPort.resolveVariant(cart.organizationId(), item.variantId(), item.sku())
                         .switchIfEmpty(Mono.error(new OrderValidationException("variant not found for cart item " + item.sku())))
-                        .flatMap(snapshot -> validateReservationForLine(cart.tenantId(), item, snapshot)
+                        .flatMap(snapshot -> validateReservationForLine(cart.organizationId(), item, snapshot)
                                 .map(validation -> new OrderLine(
                                         UUID.randomUUID().toString(),
                                         "PENDING_ORDER_ID",
-                                        cart.tenantId(),
                                         cart.organizationId(),
                                         item.variantId(),
                                         item.sku(),
@@ -1082,13 +1060,13 @@ public class OrderApplicationService implements
     }
 
     private Mono<InventoryReservationValidation> validateReservationForLine(
-            String tenantId,
+            String organizationId,
             CartItem item,
             CatalogVariantSnapshot snapshot) {
         if (!snapshot.sellable()) {
             return Mono.error(new OrderValidationException("variant is not sellable for sku " + item.sku()));
         }
-        return inventoryReservationPort.validateReservation(tenantId, item.reservationId(), item.sku(), item.qty())
+        return inventoryReservationPort.validateReservation(organizationId, item.reservationId(), item.sku(), item.qty())
                 .flatMap(validation -> {
                     if (!validation.reservationConfirmed() || !validation.commitableAvailable()) {
                         return Mono.error(new OrderValidationException("reservation is not valid for sku " + item.sku()));
@@ -1105,14 +1083,14 @@ public class OrderApplicationService implements
                     int qty = requirePositive(line.qty(), "qty");
                     String reservationId = normalizeRequired(line.reservationId(), "reservationId");
 
-                    return catalogVariantPort.resolveVariant(order.tenantId(), variantId, sku)
+                    return catalogVariantPort.resolveVariant(order.organizationId(), variantId, sku)
                             .switchIfEmpty(Mono.error(new OrderValidationException("variant not found for sku " + sku)))
                             .flatMap(snapshot -> {
                                 BigDecimal unitPrice = line.unitPrice() == null ? snapshot.unitPrice() : line.unitPrice();
                                 String currency = line.currency() == null || line.currency().isBlank()
                                         ? snapshot.currency()
                                         : line.currency().toUpperCase(Locale.ROOT);
-                                return inventoryReservationPort.validateReservation(order.tenantId(), reservationId, sku, qty)
+                                return inventoryReservationPort.validateReservation(order.organizationId(), reservationId, sku, qty)
                                         .flatMap(validation -> {
                                             if (!validation.reservationConfirmed() || !validation.commitableAvailable()) {
                                                 return Mono.error(new OrderValidationException(
@@ -1123,7 +1101,6 @@ public class OrderApplicationService implements
                                                             ? UUID.randomUUID().toString()
                                                             : line.orderLineId().trim(),
                                                     order.orderId(),
-                                                    order.tenantId(),
                                                     order.organizationId(),
                                                     variantId,
                                                     sku,
@@ -1144,20 +1121,20 @@ public class OrderApplicationService implements
     private Mono<Cart> applyCartMutations(
             Cart cart,
             Iterator<AdjustCartItemInput> iterator,
-            String tenantId,
+            String organizationId,
             Instant changedAt) {
         if (!iterator.hasNext()) {
             return Mono.just(cart);
         }
         AdjustCartItemInput input = iterator.next();
-        return applySingleCartMutation(cart, input, tenantId, changedAt)
-                .flatMap(next -> applyCartMutations(next, iterator, tenantId, changedAt));
+        return applySingleCartMutation(cart, input, organizationId, changedAt)
+                .flatMap(next -> applyCartMutations(next, iterator, organizationId, changedAt));
     }
 
     private Mono<Cart> applySingleCartMutation(
             Cart cart,
             AdjustCartItemInput input,
-            String tenantId,
+            String organizationId,
             Instant changedAt) {
         String operation = normalizeOptional(input.operation(), "UPSERT").toUpperCase(Locale.ROOT);
         if ("REMOVE".equals(operation)) {
@@ -1168,7 +1145,7 @@ public class OrderApplicationService implements
         int qty = requirePositive(input.qty(), "qty");
         String reservationId = normalizeRequired(input.reservationId(), "reservationId");
 
-        return catalogVariantPort.resolveVariant(tenantId, variantId, sku)
+        return catalogVariantPort.resolveVariant(organizationId, variantId, sku)
                 .switchIfEmpty(Mono.error(new OrderValidationException("variant not found for sku " + sku)))
                 .flatMap(snapshot -> {
                     if (!snapshot.sellable()) {
@@ -1179,7 +1156,7 @@ public class OrderApplicationService implements
                             ? snapshot.currency()
                             : input.currency().toUpperCase(Locale.ROOT);
 
-                    return inventoryReservationPort.validateReservation(tenantId, reservationId, sku, qty)
+                    return inventoryReservationPort.validateReservation(organizationId, reservationId, sku, qty)
                             .flatMap(validation -> {
                                 if (!validation.reservationConfirmed() || !validation.commitableAvailable()) {
                                     return Mono.error(new OrderValidationException("reservation is not valid for sku " + sku));
@@ -1199,11 +1176,11 @@ public class OrderApplicationService implements
     }
 
     private Mono<Cart> updateCartWithRetry(
-            String tenantId,
+            String organizationId,
             String cartId,
             int retriesLeft,
             Function<Cart, Mono<Cart>> mutator) {
-        return loadCart(tenantId, cartId)
+        return loadCart(organizationId, cartId)
                 .flatMap(current -> mutator.apply(current)
                         .flatMap(updated -> cartPersistencePort.updateWithExpectedVersion(updated, current.version())
                                 .flatMap(success -> {
@@ -1214,16 +1191,16 @@ public class OrderApplicationService implements
                                         return Mono.error(new OrderConflictException(
                                                 "cart changed concurrently; retry request"));
                                     }
-                                    return updateCartWithRetry(tenantId, cartId, retriesLeft - 1, mutator);
+                                    return updateCartWithRetry(organizationId, cartId, retriesLeft - 1, mutator);
                                 })));
     }
 
     private Mono<Order> updateOrderWithRetry(
-            String tenantId,
+            String organizationId,
             String orderId,
             int retriesLeft,
             Function<Order, Mono<Order>> mutator) {
-        return loadOrder(tenantId, orderId)
+        return loadOrder(organizationId, orderId)
                 .flatMap(current -> mutator.apply(current)
                         .flatMap(updated -> purchaseOrderPersistencePort.updateWithExpectedVersion(updated, current.version())
                                 .flatMap(success -> {
@@ -1234,7 +1211,7 @@ public class OrderApplicationService implements
                                         return Mono.error(new OrderConflictException(
                                                 "order changed concurrently; retry request"));
                                     }
-                                    return updateOrderWithRetry(tenantId, orderId, retriesLeft - 1, mutator);
+                                    return updateOrderWithRetry(organizationId, orderId, retriesLeft - 1, mutator);
                                 })));
     }
 
@@ -1247,7 +1224,7 @@ public class OrderApplicationService implements
         OrderStatusHistory history = new OrderStatusHistory(
                 UUID.randomUUID().toString(),
                 order.orderId(),
-                order.tenantId(),
+                order.organizationId(),
                 actorUserId,
                 fromStatus,
                 toStatus,
@@ -1257,13 +1234,16 @@ public class OrderApplicationService implements
     }
 
     private Mono<Void> ensureActorAccess(
-            String tenantId,
             String organizationId,
+
             String actorUserId,
             boolean requiresOrderAdmin) {
         return actorContextProviderPort.currentActor()
                 .flatMap(context -> {
-                    validateActorContext(context, tenantId, organizationId, actorUserId, requiresOrderAdmin);
+                    validateActorContext(context, organizationId, actorUserId, requiresOrderAdmin);
+                    if (context.trustedService()) {
+                        return Mono.empty();
+                    }
                     return actorLegitimacyPort.isLegitimate(actorUserId)
                             .flatMap(legitimate -> legitimate
                                     ? Mono.empty()
@@ -1273,12 +1253,15 @@ public class OrderApplicationService implements
 
     private void validateActorContext(
             ActorContext context,
-            String tenantId,
             String organizationId,
+
             String actorUserId,
             boolean requiresOrderAdmin) {
-        if (!tenantId.equals(context.tenantId())) {
-            throw new OperationNotPermittedException("tenant isolation violated");
+        if (context.trustedService()) {
+            return;
+        }
+        if (!organizationId.equals(context.organizationId())) {
+            throw new OperationNotPermittedException("organization isolation violated");
         }
         if (!organizationId.equals(context.organizationId())) {
             throw new OperationNotPermittedException("organization isolation violated");
@@ -1292,33 +1275,33 @@ public class OrderApplicationService implements
         }
     }
 
-    private Mono<Cart> loadCart(String tenantId, String cartId) {
-        return cartPersistencePort.findById(tenantId, cartId)
+    private Mono<Cart> loadCart(String organizationId, String cartId) {
+        return cartPersistencePort.findById(organizationId, cartId)
                 .switchIfEmpty(Mono.error(new OrderNotFoundException("cart not found")));
     }
 
-    private Mono<CartResult> loadCartResult(String tenantId, String cartId) {
-        return loadCart(tenantId, cartId).map(resultMapper::toResult);
+    private Mono<CartResult> loadCartResult(String organizationId, String cartId) {
+        return loadCart(organizationId, cartId).map(resultMapper::toResult);
     }
 
-    private Mono<CheckoutAttemptResult> loadCheckoutAttemptResult(String tenantId, String checkoutCorrelationId) {
-        return checkoutAttemptPersistencePort.findByCorrelation(tenantId, checkoutCorrelationId)
+    private Mono<CheckoutAttemptResult> loadCheckoutAttemptResult(String organizationId, String checkoutCorrelationId) {
+        return checkoutAttemptPersistencePort.findByCorrelation(organizationId, checkoutCorrelationId)
                 .switchIfEmpty(Mono.error(new OrderNotFoundException("checkout attempt not found")))
                 .map(resultMapper::toResult);
     }
 
-    private Mono<Order> loadOrder(String tenantId, String orderId) {
-        return purchaseOrderPersistencePort.findById(tenantId, orderId)
+    private Mono<Order> loadOrder(String organizationId, String orderId) {
+        return purchaseOrderPersistencePort.findById(organizationId, orderId)
                 .switchIfEmpty(Mono.error(new OrderNotFoundException("order not found")));
     }
 
-    private Mono<OrderResult> loadOrderResult(String tenantId, String orderId) {
-        return loadOrder(tenantId, orderId).map(resultMapper::toResult);
+    private Mono<OrderResult> loadOrderResult(String organizationId, String orderId) {
+        return loadOrder(organizationId, orderId).map(resultMapper::toResult);
     }
 
     private Mono<Void> registerMutation(
-            String tenantId,
             String organizationId,
+
             String actorUserId,
             String actionType,
             String targetType,
@@ -1326,7 +1309,6 @@ public class OrderApplicationService implements
             String payload,
             List<DomainEvent> domainEvents) {
         return orderAuditPort.record(
-                        tenantId,
                         organizationId,
                         actorUserId,
                         actionType,
@@ -1338,7 +1320,7 @@ public class OrderApplicationService implements
     }
 
     private <T> Mono<T> executeIdempotent(
-            String tenantId,
+            String organizationId,
             String operationName,
             String idempotencyKey,
             String requestHash,
@@ -1349,7 +1331,7 @@ public class OrderApplicationService implements
         String normalizedKey = IdempotencySupport.normalizeKey(idempotencyKey);
 
         return idempotencyRecordPersistencePort
-                .findByTenantOperationAndKey(tenantId, operationName, normalizedKey)
+                .findByOrganizationOperationAndKey(organizationId, operationName, normalizedKey)
                 .flatMap(existing -> {
                     if (!existing.requestHash().equals(requestHash)) {
                         return Mono.error(new IdempotencyConflictException(
@@ -1362,7 +1344,7 @@ public class OrderApplicationService implements
                         .flatMap(result -> idempotencyRecordPersistencePort
                                 .save(new IdempotencyRecord(
                                         UUID.randomUUID().toString(),
-                                        tenantId,
+                                        organizationId,
                                         operationName,
                                         normalizedKey,
                                         requestHash,

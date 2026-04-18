@@ -45,8 +45,8 @@ class RedisCommitableAvailabilityCacheAdapterTest {
                 new RedisCommitableAvailabilityCacheAdapter(redisTemplate, objectMapper, meterRegistryProvider, 300);
 
         CommitableAvailabilityResult result =
-                new CommitableAvailabilityResult("tenant-1", "wh-1", "sku-1", 10, 3, 7, 2, 1, false);
-        String key = "inventory:availability:tenant-1:wh-1:SKU-1";
+                new CommitableAvailabilityResult("organization-1", "wh-1", "sku-1", 10, 3, 7, 2, 1, false);
+        String key = "inventory:availability:organization-1:wh-1:SKU-1";
 
         when(valueOperations.set(eq(key), any(String.class), eq(Duration.ofSeconds(300))))
                 .thenReturn(Mono.just(Boolean.TRUE));
@@ -58,9 +58,9 @@ class RedisCommitableAvailabilityCacheAdapterTest {
 
         when(valueOperations.get(key)).thenReturn(Mono.just(payloadCaptor.getValue()));
 
-        StepVerifier.create(adapter.find("tenant-1", "wh-1", "sku-1"))
+        StepVerifier.create(adapter.find("organization-1", "wh-1", "sku-1"))
                 .assertNext(found -> {
-                    assertEquals("tenant-1", found.tenantId());
+                    assertEquals("organization-1", found.organizationId());
                     assertEquals("wh-1", found.warehouseId());
                     assertEquals("sku-1", found.sku());
                     assertEquals(7, found.availableQty());
@@ -74,12 +74,12 @@ class RedisCommitableAvailabilityCacheAdapterTest {
         SimpleMeterRegistry meterRegistry = new SimpleMeterRegistry();
         when(meterRegistryProvider.getIfAvailable()).thenReturn(meterRegistry);
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-        when(valueOperations.get("inventory:availability:tenant-1:wh-1:SKU-1")).thenReturn(Mono.empty());
+        when(valueOperations.get("inventory:availability:organization-1:wh-1:SKU-1")).thenReturn(Mono.empty());
 
         RedisCommitableAvailabilityCacheAdapter adapter =
                 new RedisCommitableAvailabilityCacheAdapter(redisTemplate, objectMapper, meterRegistryProvider, 300);
 
-        StepVerifier.create(adapter.find("tenant-1", "wh-1", "sku-1")).verifyComplete();
+        StepVerifier.create(adapter.find("organization-1", "wh-1", "sku-1")).verifyComplete();
     }
 
     @Test
@@ -88,13 +88,13 @@ class RedisCommitableAvailabilityCacheAdapterTest {
         SimpleMeterRegistry meterRegistry = new SimpleMeterRegistry();
         when(meterRegistryProvider.getIfAvailable()).thenReturn(meterRegistry);
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-        when(valueOperations.get("inventory:availability:tenant-1:wh-1:SKU-1"))
+        when(valueOperations.get("inventory:availability:organization-1:wh-1:SKU-1"))
                 .thenReturn(Mono.error(new RuntimeException("redis-down")));
 
         RedisCommitableAvailabilityCacheAdapter adapter =
                 new RedisCommitableAvailabilityCacheAdapter(redisTemplate, objectMapper, meterRegistryProvider, 300);
 
-        StepVerifier.create(adapter.find("tenant-1", "wh-1", "sku-1")).verifyComplete();
+        StepVerifier.create(adapter.find("organization-1", "wh-1", "sku-1")).verifyComplete();
 
         assertEquals(
                 1.0,

@@ -18,7 +18,7 @@ public class InventoryResultMapper {
     public WarehouseResult toResult(Warehouse warehouse) {
         return new WarehouseResult(
                 warehouse.warehouseId(),
-                warehouse.tenantId(),
+                warehouse.organizationId(),
                 warehouse.code(),
                 warehouse.name(),
                 warehouse.countryCode(),
@@ -30,7 +30,7 @@ public class InventoryResultMapper {
     public StockItemResult toResult(StockItem stockItem) {
         return new StockItemResult(
                 stockItem.stockItemId(),
-                stockItem.tenantId(),
+                stockItem.organizationId(),
                 stockItem.warehouseId(),
                 stockItem.sku(),
                 stockItem.physicalQty(),
@@ -48,7 +48,7 @@ public class InventoryResultMapper {
     public StockReservationResult toResult(StockReservation reservation) {
         return new StockReservationResult(
                 reservation.reservationId(),
-                reservation.tenantId(),
+                reservation.organizationId(),
                 reservation.stockItemId(),
                 reservation.warehouseId(),
                 reservation.sku(),
@@ -65,7 +65,7 @@ public class InventoryResultMapper {
 
     public CommitableAvailabilityResult toResult(CommitableAvailability availability) {
         return new CommitableAvailabilityResult(
-                availability.tenantId(),
+                availability.organizationId(),
                 availability.warehouseId(),
                 availability.sku(),
                 availability.physicalQty(),
@@ -79,7 +79,7 @@ public class InventoryResultMapper {
     public StockMovementResult toResult(StockMovement movement) {
         return new StockMovementResult(
                 movement.movementId(),
-                movement.tenantId(),
+                movement.organizationId(),
                 movement.stockItemId(),
                 movement.warehouseId(),
                 movement.sku(),

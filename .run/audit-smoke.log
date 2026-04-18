@@ -1,0 +1,14 @@
+==> Smoke check: control-plane readiness
+SMOKE-OK   config-server: readiness 200
+SMOKE-OK   eureka-server: readiness 200
+SMOKE-OK   api-gateway: readiness 200
+==> Smoke check: service readiness
+SMOKE-OK   identity-access-service: readiness 200
+SMOKE-OK   directory-service: readiness 200
+SMOKE-OK   catalog-service: readiness 200
+SMOKE-OK   inventory-service: readiness 200
+SMOKE-OK   order-service: readiness 200
+SMOKE-OK   notification-service: readiness 200
+SMOKE-OK   reporting-service: readiness 200
+==> Smoke check: prometheus exposure
+SMOKE-FAIL api-gateway: prometheus 401 (http://localhost:8080/actuator/prometheus)

@@ -6,7 +6,7 @@ url: "/mvp/operacion/runbooks/fallos-autenticacion/"
 ---
 
 ## Proposito
-Restaurar autenticacion/autorizacion sin degradar aislamiento tenant.
+Restaurar autenticacion/autorizacion sin degradar aislamiento organization.
 
 ## Senal de entrada
 - Incremento de 401/403 anomalo.

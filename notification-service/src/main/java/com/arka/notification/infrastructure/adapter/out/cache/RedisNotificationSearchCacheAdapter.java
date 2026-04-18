@@ -59,11 +59,11 @@ public class RedisNotificationSearchCacheAdapter implements NotificationSearchCa
     }
 
     @Override
-    public Mono<Void> evictTenant(String tenantId) {
-        if (tenantId == null || tenantId.isBlank()) {
+    public Mono<Void> evictOrganization(String organizationId) {
+        if (organizationId == null || organizationId.isBlank()) {
             return Mono.empty();
         }
-        String pattern = tenantId + "::*";
+        String pattern = organizationId + "::*";
         ScanOptions options = ScanOptions.scanOptions().match(pattern).count(500).build();
         return redisTemplate.scan(options)
                 .collectList()

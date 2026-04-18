@@ -4,12 +4,17 @@ import com.arka.order.application.port.out.directory.DirectoryCheckoutContext;
 import com.arka.order.application.port.out.directory.DirectoryCheckoutPort;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.time.Duration;
+import java.util.concurrent.TimeoutException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 @Component
 public class DirectoryCheckoutHttpAdapter implements DirectoryCheckoutPort {
@@ -18,23 +23,39 @@ public class DirectoryCheckoutHttpAdapter implements DirectoryCheckoutPort {
     private final String path;
     private final String serviceToken;
     private final Duration timeout;
+    private final int maxRetryAttempts;
+    private final Duration retryBackoff;
 
+    @Autowired
     public DirectoryCheckoutHttpAdapter(
-            WebClient.Builder webClientBuilder,
-            @Value("${app.external.directory.base-url:http://directory-service:8080}") String baseUrl,
-            @Value("${app.external.directory.checkout-resolution-path:/api/v1/organizations/{organizationId}/addresses/{addressId}/checkout-resolution}") String path,
+            @Qualifier("loadBalancedWebClientBuilder") WebClient.Builder webClientBuilder,
+            @Value("${app.external.directory.base-url:http://directory-service}") String baseUrl,
+            @Value("${app.external.directory.checkout-resolution-path:/api/v1/internal/organizations/{organizationId}/addresses/{addressId}/checkout-resolution}") String path,
             @Value("${app.external.directory.service-token:}") String serviceToken,
-            @Value("${app.external.directory.timeout-ms:3000}") long timeoutMs) {
+            @Value("${app.external.directory.timeout-ms:3000}") long timeoutMs,
+            @Value("${app.external.directory.retry.max-attempts:2}") int maxRetryAttempts,
+            @Value("${app.external.directory.retry.backoff-ms:200}") long retryBackoffMs) {
         this.webClient = webClientBuilder.baseUrl(baseUrl).build();
         this.path = path;
         this.serviceToken = serviceToken == null ? "" : serviceToken.trim();
         this.timeout = Duration.ofMillis(Math.max(500L, timeoutMs));
+        this.maxRetryAttempts = Math.max(0, maxRetryAttempts);
+        this.retryBackoff = Duration.ofMillis(Math.max(50L, retryBackoffMs));
+    }
+
+    public DirectoryCheckoutHttpAdapter(
+            WebClient.Builder webClientBuilder,
+            String baseUrl,
+            String path,
+            String serviceToken,
+            long timeoutMs) {
+        this(webClientBuilder, baseUrl, path, serviceToken, timeoutMs, 2, 200L);
     }
 
     @Override
     public Mono<DirectoryCheckoutContext> resolveCheckoutContext(
-            String tenantId,
             String organizationId,
+
             String addressId,
             String countryCode) {
         if (organizationId == null || organizationId.isBlank() || addressId == null || addressId.isBlank()) {
@@ -73,7 +94,7 @@ public class DirectoryCheckoutHttpAdapter implements DirectoryCheckoutPort {
                     return response
                             .bodyToMono(String.class)
                             .defaultIfEmpty("")
-                            .flatMap(body -> Mono.error(new IllegalStateException(
+                            .flatMap(body -> Mono.error(new TransientRemoteException(
                                     "Directory checkout resolution failed status="
                                             + status
                                             + " organizationId="
@@ -85,7 +106,8 @@ public class DirectoryCheckoutHttpAdapter implements DirectoryCheckoutPort {
                                             + " body="
                                             + body)));
                 })
-                .timeout(timeout);
+                .timeout(timeout)
+                .retryWhen(Retry.backoff(maxRetryAttempts, retryBackoff).filter(this::isRetryable));
     }
 
     private RuntimeException clientError(
@@ -194,6 +216,18 @@ public class DirectoryCheckoutHttpAdapter implements DirectoryCheckoutPort {
     private void applyAuthHeader(HttpHeaders headers) {
         if (!serviceToken.isBlank()) {
             headers.setBearerAuth(serviceToken);
+        }
+    }
+
+    private boolean isRetryable(Throwable throwable) {
+        return throwable instanceof TimeoutException
+                || throwable instanceof WebClientRequestException
+                || throwable instanceof TransientRemoteException;
+    }
+
+    private static final class TransientRemoteException extends RuntimeException {
+        private TransientRemoteException(String message) {
+            super(message);
         }
     }
 }

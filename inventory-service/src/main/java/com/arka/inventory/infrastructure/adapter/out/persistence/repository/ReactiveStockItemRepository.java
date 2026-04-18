@@ -11,20 +11,20 @@ import reactor.core.publisher.Mono;
 
 public interface ReactiveStockItemRepository extends ReactiveCrudRepository<StockItemRow, String> {
 
-    @Query("SELECT EXISTS(SELECT 1 FROM stock_items WHERE tenant_id = :tenantId AND warehouse_id = :warehouseId AND UPPER(sku) = UPPER(:sku))")
-    Mono<Boolean> existsByTenantWarehouseSku(String tenantId, String warehouseId, String sku);
+    @Query("SELECT EXISTS(SELECT 1 FROM stock_items WHERE organization_id = :organizationId AND warehouse_id = :warehouseId AND UPPER(sku) = UPPER(:sku))")
+    Mono<Boolean> existsByOrganizationWarehouseSku(String organizationId, String warehouseId, String sku);
 
-    @Query("SELECT stock_item_id, tenant_id, warehouse_id, sku, physical_qty, reserved_qty, reorder_point, safety_stock, status, version, created_at, updated_at FROM stock_items WHERE tenant_id = :tenantId AND stock_item_id = :stockItemId")
-    Mono<StockItemRow> findByTenantAndId(String tenantId, String stockItemId);
+    @Query("SELECT stock_item_id, organization_id, warehouse_id, sku, physical_qty, reserved_qty, reorder_point, safety_stock, status, version, created_at, updated_at FROM stock_items WHERE organization_id = :organizationId AND stock_item_id = :stockItemId")
+    Mono<StockItemRow> findByOrganizationAndId(String organizationId, String stockItemId);
 
-    @Query("SELECT stock_item_id, tenant_id, warehouse_id, sku, physical_qty, reserved_qty, reorder_point, safety_stock, status, version, created_at, updated_at FROM stock_items WHERE tenant_id = :tenantId AND warehouse_id = :warehouseId AND UPPER(sku) = UPPER(:sku)")
-    Mono<StockItemRow> findByTenantWarehouseSku(String tenantId, String warehouseId, String sku);
+    @Query("SELECT stock_item_id, organization_id, warehouse_id, sku, physical_qty, reserved_qty, reorder_point, safety_stock, status, version, created_at, updated_at FROM stock_items WHERE organization_id = :organizationId AND warehouse_id = :warehouseId AND UPPER(sku) = UPPER(:sku)")
+    Mono<StockItemRow> findByOrganizationWarehouseSku(String organizationId, String warehouseId, String sku);
 
-    @Query("SELECT stock_item_id, tenant_id, warehouse_id, sku, physical_qty, reserved_qty, reorder_point, safety_stock, status, version, created_at, updated_at FROM stock_items WHERE tenant_id = :tenantId AND warehouse_id = :warehouseId ORDER BY sku")
-    Flux<StockItemRow> findByTenantAndWarehouse(String tenantId, String warehouseId);
+    @Query("SELECT stock_item_id, organization_id, warehouse_id, sku, physical_qty, reserved_qty, reorder_point, safety_stock, status, version, created_at, updated_at FROM stock_items WHERE organization_id = :organizationId AND warehouse_id = :warehouseId ORDER BY sku")
+    Flux<StockItemRow> findByOrganizationAndWarehouse(String organizationId, String warehouseId);
 
-    @Query("SELECT stock_item_id, tenant_id, warehouse_id, sku, physical_qty, reserved_qty, reorder_point, safety_stock, status, version, created_at, updated_at FROM stock_items WHERE tenant_id = :tenantId AND warehouse_id = :warehouseId AND (physical_qty - reserved_qty) <= reorder_point ORDER BY (physical_qty - reserved_qty) ASC")
-    Flux<StockItemRow> findLowStockByTenantAndWarehouse(String tenantId, String warehouseId);
+    @Query("SELECT stock_item_id, organization_id, warehouse_id, sku, physical_qty, reserved_qty, reorder_point, safety_stock, status, version, created_at, updated_at FROM stock_items WHERE organization_id = :organizationId AND warehouse_id = :warehouseId AND (physical_qty - reserved_qty) <= reorder_point ORDER BY (physical_qty - reserved_qty) ASC")
+    Flux<StockItemRow> findLowStockByOrganizationAndWarehouse(String organizationId, String warehouseId);
 
     @Modifying
     @Query("""
@@ -36,12 +36,12 @@ public interface ReactiveStockItemRepository extends ReactiveCrudRepository<Stoc
                 status = :status,
                 version = :newVersion,
                 updated_at = :updatedAt
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND stock_item_id = :stockItemId
               AND version = :expectedVersion
             """)
     Mono<Integer> updateWithExpectedVersion(
-            @Param("tenantId") String tenantId,
+            @Param("organizationId") String organizationId,
             @Param("stockItemId") String stockItemId,
             @Param("physicalQty") Integer physicalQty,
             @Param("reservedQty") Integer reservedQty,

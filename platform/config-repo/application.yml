@@ -1,0 +1,59 @@
+spring:
+  cloud:
+    discovery:
+      enabled: true
+  kafka:
+    listener:
+      observation-enabled: ${SPRING_KAFKA_LISTENER_OBSERVATION_ENABLED:true}
+    template:
+      observation-enabled: ${SPRING_KAFKA_TEMPLATE_OBSERVATION_ENABLED:true}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ${MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE:health,info,metrics,prometheus}
+  endpoint:
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      system: ${MANAGEMENT_METRICS_TAG_SYSTEM:arkab2b}
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
+          client:
+            requests: true
+  tracing:
+    sampling:
+      probability: ${MANAGEMENT_TRACING_SAMPLING_PROBABILITY:1.0}
+
+logging:
+  pattern:
+    console: ${LOG_PATTERN_CONSOLE:%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [%thread] [%X{traceId:-}/%X{correlationId:-}] %logger{36} - %msg%n}
+
+eureka:
+  client:
+    enabled: ${APP_EUREKA_ENABLED:true}
+    register-with-eureka: ${APP_EUREKA_REGISTER_WITH_EUREKA:true}
+    fetch-registry: ${APP_EUREKA_FETCH_REGISTRY:true}
+    service-url:
+      defaultZone: ${APP_EUREKA_DEFAULT_ZONE:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: false
+    instance-id: ${spring.application.name}:${server.port}
+    metadata-map:
+      platform: arkab2b
+
+app:
+  observability:
+    trace-id-header: ${APP_OBSERVABILITY_TRACE_ID_HEADER:X-Trace-Id}
+    correlation-id-header: ${APP_OBSERVABILITY_CORRELATION_ID_HEADER:X-Correlation-Id}
+    include-security-context-in-logs: ${APP_OBSERVABILITY_INCLUDE_SECURITY_CONTEXT_IN_LOGS:true}
+  security:
+    jwt:
+      issuer: ${APP_SECURITY_JWT_ISSUER:identity-access-service}
+      jwks-uri: ${APP_SECURITY_JWT_JWKS_URI:http://localhost:8081/.well-known/jwks.json}

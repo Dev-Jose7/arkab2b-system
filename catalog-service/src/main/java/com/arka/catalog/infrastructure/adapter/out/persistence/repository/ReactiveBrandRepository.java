@@ -10,9 +10,9 @@ public interface ReactiveBrandRepository extends ReactiveCrudRepository<BrandRow
     @Query("""
             SELECT *
             FROM brands
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND brand_id = :brandId
               AND status = 'ACTIVE'
             """)
-    Mono<BrandRow> findActive(String tenantId, String brandId);
+    Mono<BrandRow> findActive(String organizationId, String brandId);
 }

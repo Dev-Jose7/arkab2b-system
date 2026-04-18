@@ -32,14 +32,14 @@ public class CartR2dbcAdapter implements CartPersistencePort {
     }
 
     @Override
-    public Mono<Cart> findById(String tenantId, String cartId) {
-        return cartRepository.findByTenantAndCartId(tenantId, cartId)
+    public Mono<Cart> findById(String organizationId, String cartId) {
+        return cartRepository.findByOrganizationAndCartId(organizationId, cartId)
                 .flatMap(this::toDomain);
     }
 
     @Override
-    public Mono<Cart> findActiveByTenantOrganizationUser(String tenantId, String organizationId, String userId) {
-        return cartRepository.findActiveByTenantOrganizationUser(tenantId, organizationId, userId)
+    public Mono<Cart> findActiveByOrganizationUser(String organizationId, String userId) {
+        return cartRepository.findActiveByOrganizationUser(organizationId, userId)
                 .flatMap(this::toDomain);
     }
 
@@ -57,7 +57,7 @@ public class CartR2dbcAdapter implements CartPersistencePort {
     public Mono<Boolean> updateWithExpectedVersion(Cart cart, long expectedVersion) {
         return cartRepository
                 .updateWithExpectedVersion(
-                        cart.tenantId(),
+                        cart.organizationId(),
                         cart.cartId(),
                         cart.status().name(),
                         cart.version(),

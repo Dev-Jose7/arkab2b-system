@@ -26,7 +26,7 @@ public class InventoryRowMapper {
     public Warehouse toDomain(WarehouseRow row) {
         return new Warehouse(
                 row.warehouseId(),
-                row.tenantId(),
+                row.organizationId(),
                 row.warehouseCode(),
                 row.warehouseName(),
                 row.countryCode(),
@@ -38,7 +38,7 @@ public class InventoryRowMapper {
     public WarehouseRow toRow(Warehouse warehouse) {
         return new WarehouseRow(
                 warehouse.warehouseId(),
-                warehouse.tenantId(),
+                warehouse.organizationId(),
                 warehouse.code(),
                 warehouse.name(),
                 warehouse.countryCode(),
@@ -50,7 +50,7 @@ public class InventoryRowMapper {
     public StockItem toDomain(StockItemRow row) {
         return new StockItem(
                 row.stockItemId(),
-                row.tenantId(),
+                row.organizationId(),
                 row.warehouseId(),
                 row.sku(),
                 row.physicalQty(),
@@ -66,7 +66,7 @@ public class InventoryRowMapper {
     public StockItemRow toRow(StockItem stockItem) {
         return new StockItemRow(
                 stockItem.stockItemId(),
-                stockItem.tenantId(),
+                stockItem.organizationId(),
                 stockItem.warehouseId(),
                 stockItem.sku(),
                 stockItem.physicalQty(),
@@ -82,7 +82,7 @@ public class InventoryRowMapper {
     public StockReservation toDomain(StockReservationRow row) {
         return new StockReservation(
                 row.reservationId(),
-                row.tenantId(),
+                row.organizationId(),
                 row.stockItemId(),
                 row.warehouseId(),
                 row.sku(),
@@ -100,7 +100,7 @@ public class InventoryRowMapper {
     public StockReservationRow toRow(StockReservation reservation) {
         return new StockReservationRow(
                 reservation.reservationId(),
-                reservation.tenantId(),
+                reservation.organizationId(),
                 reservation.stockItemId(),
                 reservation.warehouseId(),
                 reservation.sku(),
@@ -118,7 +118,7 @@ public class InventoryRowMapper {
     public StockMovement toDomain(StockMovementRow row) {
         return new StockMovement(
                 row.movementId(),
-                row.tenantId(),
+                row.organizationId(),
                 row.stockItemId(),
                 row.warehouseId(),
                 row.sku(),
@@ -134,7 +134,7 @@ public class InventoryRowMapper {
     public StockMovementRow toRow(StockMovement movement) {
         return new StockMovementRow(
                 movement.movementId(),
-                movement.tenantId(),
+                movement.organizationId(),
                 movement.stockItemId(),
                 movement.warehouseId(),
                 movement.sku(),
@@ -150,7 +150,7 @@ public class InventoryRowMapper {
     public ReservationLedger toDomain(ReservationLedgerRow row) {
         return new ReservationLedger(
                 row.ledgerId(),
-                row.tenantId(),
+                row.organizationId(),
                 row.reservationId(),
                 row.entryType(),
                 row.qty(),
@@ -161,7 +161,7 @@ public class InventoryRowMapper {
     public ReservationLedgerRow toRow(ReservationLedger ledger) {
         return new ReservationLedgerRow(
                 ledger.ledgerId(),
-                ledger.tenantId(),
+                ledger.organizationId(),
                 ledger.reservationId(),
                 ledger.entryType(),
                 ledger.qty(),
@@ -172,7 +172,7 @@ public class InventoryRowMapper {
     public IdempotencyRecord toDomain(IdempotencyRecordRow row) {
         return new IdempotencyRecord(
                 row.idempotencyId(),
-                row.tenantId(),
+                row.organizationId(),
                 row.operationName(),
                 row.idempotencyKey(),
                 row.requestHash(),
@@ -186,7 +186,7 @@ public class InventoryRowMapper {
     public IdempotencyRecordRow toRow(IdempotencyRecord record) {
         return new IdempotencyRecordRow(
                 record.idempotencyId(),
-                record.tenantId(),
+                record.organizationId(),
                 record.operationName(),
                 record.idempotencyKey(),
                 record.requestHash(),
@@ -200,7 +200,7 @@ public class InventoryRowMapper {
     public InventoryAudit toDomain(InventoryAuditRow row) {
         return new InventoryAudit(
                 row.auditId(),
-                row.tenantId(),
+                row.organizationId(),
                 row.actorUserId(),
                 row.actionType(),
                 row.targetType(),
@@ -213,7 +213,7 @@ public class InventoryRowMapper {
     public InventoryAuditRow toRow(InventoryAudit audit) {
         return new InventoryAuditRow(
                 audit.auditId(),
-                audit.tenantId(),
+                audit.organizationId(),
                 audit.actorUserId(),
                 audit.actionType(),
                 audit.targetType(),

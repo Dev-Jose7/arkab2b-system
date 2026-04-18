@@ -15,7 +15,7 @@ Definir modos de degradacion aceptables del MVP sin romper reglas core.
 - procesamiento asincrono diferido de reprocesos no criticos
 
 ## Modos no permitidos
-- bypass de aislamiento tenant
+- bypass de aislamiento organization
 - fallback global implicito para regionalizacion
 - omision de auditoria en operaciones criticas
 - desactivar controles de integridad de reservas/pedidos

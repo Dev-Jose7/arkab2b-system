@@ -4,7 +4,7 @@ import com.arka.notification.domain.notificationdispatch.enumtype.NotificationCh
 
 public record NotificationTemplate(
         String templateId,
-        String tenantId,
+        String organizationId,
         String sourceEventType,
         NotificationChannel channel,
         String subjectTemplate,

@@ -5,7 +5,7 @@ import java.time.Instant;
 
 public record ProviderCallback(
         String callbackId,
-        String tenantId,
+        String organizationId,
         String notificationId,
         String providerCode,
         String providerRef,

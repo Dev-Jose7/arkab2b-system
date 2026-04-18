@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 public record OperationsKpiResult(
         String projectionId,
-        String tenantId,
+        String organizationId,
         String period,
         String kpiName,
         BigDecimal kpiValue) {

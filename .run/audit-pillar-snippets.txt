@@ -1,0 +1,767 @@
+## PRODUCTO
+.content/mvp/00-producto/00-adjuntos/01-proyecto-java-backend-reto-v2.md:46:- Optimizar la gestión de compras
+.content/mvp/00-producto/00-adjuntos/01-proyecto-java-backend-reto-v2.md:107:- Flujos asociados a órdenes de compra
+.content/mvp/00-producto/01-estrategica/_index.md:15:- Que es ArkaB2B como producto.
+.content/mvp/00-producto/01-estrategica/_index.md:30:- Contexto de uso: actores, journeys y supuestos de partida.
+.content/mvp/00-producto/_index.md:13:El pilar de Producto define el resultado de negocio que ArkaB2B debe lograr en el ciclo <code>MVP</code>, partiendo del problema real, los objetivos del sistema y el contexto de uso que justifica cada decision funcional.
+.content/mvp/00-producto/05-direccion/01-Prioridades-del-MVP-Roadmap-Inmediato.md:16:| 1 | legitimidad operativa y aislamiento |
+.content/mvp/00-producto/05-direccion/01-Prioridades-del-MVP-Roadmap-Inmediato.md:27:| Areas de foco inmediato | Legitimidad de actor y aislamiento por organizacion; Catalogo vendible y stock confiable; Checkout, pedido y pago manual; Parametros por pais; Trazabilidad y observabilidad minima |
+.content/mvp/00-producto/05-direccion/01-Prioridades-del-MVP-Roadmap-Inmediato.md:40:| 1 | legitimidad operativa y aislamiento | FR-009, NFR-005, NFR-006, NFR-007 |
+.content/mvp/00-producto/05-direccion/01-Prioridades-del-MVP-Roadmap-Inmediato.md:49:| Legitimidad de actor y aislamiento por organizacion | definir y asegurar restriccion operacional desde el inicio mediante capacidad transversal |
+.content/mvp/00-producto/03-definicion-funcional/02-Requisitos-Funcionales.md:19:| FR-001 | `Consultar catalogo vendible` | CUF01 | El sistema debe permitir al comprador B2B consultar la oferta comercial disponible para compra. |
+.content/mvp/00-producto/03-definicion-funcional/02-Requisitos-Funcionales.md:21:| FR-003 | `Consultar disponibilidad comprometible` | CUF02 | El sistema debe informar la disponibilidad aplicable antes de la confirmacion de compra. |
+.content/mvp/00-producto/03-definicion-funcional/02-Requisitos-Funcionales.md:23:| FR-005 | `Gestionar carrito de compra` | CUF03 | El sistema debe permitir crear y mantener un carrito de compra antes de la generacion del pedido. |
+.content/mvp/00-producto/03-definicion-funcional/02-Requisitos-Funcionales.md:29:| FR-011 | `Consultar estado del pedido` | CUF06 | El sistema debe permitir al comprador B2B consultar el estado vigente de su pedido. |
+.content/mvp/00-producto/03-definicion-funcional/02-Requisitos-Funcionales.md:46:| FR-028 | `Aplicar reglas regionales en la operacion` | CUF17 | El sistema debe ejecutar comportamiento condicionado por la politica regional vigente, sin alterar el flujo core de compra B2B. |
+.content/mvp/00-producto/03-definicion-funcional/02-Requisitos-Funcionales.md:52:| CUF02 `Consultar disponibilidad antes de confirmar compra` | FR-003, FR-004 |
+.content/mvp/00-producto/03-definicion-funcional/02-Requisitos-Funcionales.md:53:| CUF03 `Gestionar carrito de compra` | FR-005, FR-006 |
+.content/mvp/00-producto/00-adjuntos/03-backlog-java-backend-arka.md:13:Su objetivo es garantizar que la empresa pueda gestionar eficientemente su inventario, órdenes de compra y ventas, optimizando así sus operaciones.
+.content/mvp/00-producto/00-adjuntos/03-backlog-java-backend-arka.md:25:**Para que** los clientes puedan comprarlos
+.content/mvp/00-producto/00-adjuntos/03-backlog-java-backend-arka.md:70:##### HU4 - Registrar una orden de compra
+.content/mvp/00-producto/00-adjuntos/03-backlog-java-backend-arka.md:73:**Quiero** poder registrar una orden de compra con múltiples productos  
+.content/mvp/00-producto/00-adjuntos/03-backlog-java-backend-arka.md:84:##### HU5 - Modificar una orden de compra
+.content/mvp/00-producto/00-adjuntos/03-backlog-java-backend-arka.md:183:- Carritos de compras
+.content/mvp/00-producto/00-adjuntos/03-backlog-java-backend-arka.md:279:import org.springframework.beans.factory.annotation.Value;
+.content/mvp/00-producto/00-adjuntos/03-backlog-java-backend-arka.md:284:import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+.content/mvp/00-producto/00-adjuntos/03-backlog-java-backend-arka.md:287:import javax.persistence.EntityManagerFactory;
+.content/mvp/00-producto/00-adjuntos/03-backlog-java-backend-arka.md:316:    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+.content/mvp/00-producto/00-adjuntos/03-backlog-java-backend-arka.md:317:        LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
+.content/mvp/00-producto/00-adjuntos/03-backlog-java-backend-arka.md:318:        factoryBean.setDataSource(dataSource());
+.content/mvp/00-producto/00-adjuntos/03-backlog-java-backend-arka.md:319:        factoryBean.setPackagesToScan("com.arka.model");
+.content/mvp/00-producto/00-adjuntos/03-backlog-java-backend-arka.md:320:        factoryBean.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+.content/mvp/00-producto/00-adjuntos/03-backlog-java-backend-arka.md:321:        return factoryBean;
+.content/mvp/00-producto/00-adjuntos/03-backlog-java-backend-arka.md:325:    public JpaTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
+.content/mvp/00-producto/00-adjuntos/03-backlog-java-backend-arka.md:326:        return new JpaTransactionManager(entityManagerFactory);
+.content/mvp/00-producto/06-Transicion-a-Dominio.md:28:| 5       | actores del sistema                                    | `02-contexto-de-uso/01-Actores-del-Sistema.md`               |
+.content/mvp/00-producto/06-Transicion-a-Dominio.md:58:controlada, verificable y alineada con el stack documental de ArkaB2B.
+.content/mvp/00-producto/00-adjuntos/02-proyecto-arka.md:47:Gestión del carrito de compras:
+.content/mvp/00-producto/00-adjuntos/02-proyecto-arka.md:75:- Generación automática de órdenes de compra
+.content/mvp/00-producto/00-adjuntos/02-proyecto-arka.md:159:Finalizar proceso de compra y notificaciones.
+.content/mvp/00-producto/00-adjuntos/02-proyecto-arka.md:211:Refactorización general.
+.content/mvp/00-producto/00-adjuntos/02-proyecto-arka.md:213:- Aplicar estrategias de refactor
+.content/mvp/00-producto/00-adjuntos/02-proyecto-arka.md:221:Diseñar sistema para proveedores y órdenes de compra.
+.content/mvp/00-producto/03-definicion-funcional/01-Casos-de-Uso-Funcionales.md:17:| CUF01 | `Consultar catálogo vendible` | EN01, EN02 | Comprador B2B | Explorar la oferta disponible para compra | El actor identifica productos y variantes que pueden ser considerados para compra |
+.content/mvp/00-producto/03-definicion-funcional/01-Casos-de-Uso-Funcionales.md:18:| CUF02 | `Consultar disponibilidad antes de confirmar compra` | EN01, EN02 | Comprador B2B | Validar si la oferta seleccionada puede ser comprometida comercialmente | El actor decide con información confiable antes de confirmar |
+.content/mvp/00-producto/03-definicion-funcional/01-Casos-de-Uso-Funcionales.md:19:| CUF03 | `Gestionar carrito de compra` | EN01 | Comprador B2B | Consolidar una intención de compra antes del pedido | El actor reúne y ajusta los productos que desea comprar |
+.content/mvp/00-producto/03-definicion-funcional/01-Casos-de-Uso-Funcionales.md:20:| CUF04 | `Crear pedido a partir del carrito` | EN01, EN02 | Comprador B2B | Formalizar una compra | El sistema registra un pedido trazable a partir de una intención validada |
+.content/mvp/00-producto/03-definicion-funcional/01-Casos-de-Uso-Funcionales.md:21:| CUF05 | `Ajustar pedido antes de cierre` | EN02 | Comprador B2B / Operación comercial | Corregir o modificar el pedido dentro de la ventana permitida | El pedido puede corregirse sin romper consistencia operacional |
+.content/mvp/00-producto/03-definicion-funcional/01-Casos-de-Uso-Funcionales.md:22:| CUF06 | `Consultar estado del pedido` | EN03 | Comprador B2B | Conocer el estado vigente del pedido | El actor obtiene visibilidad clara del estado actual del pedido |
+.content/mvp/00-producto/03-definicion-funcional/01-Casos-de-Uso-Funcionales.md:26:| CUF10 | `Emitir notificación por cambio relevante` | EN06 | Sistema / Operación Arka | Informar cambios importantes del ciclo comercial | Los actores reciben comunicacion oportuna sin reemplazar consulta de estado ni historial |
+.content/mvp/00-producto/03-definicion-funcional/01-Casos-de-Uso-Funcionales.md:27:| CUF11 | `Consultar historial de cambios relevantes` | EN03, EN04, EN06 | Comprador B2B / Operación Arka | Revisar trazabilidad cronologica de cambios ocurridos sobre el pedido | El actor accede a evidencia verificable del cambio ya ocurrido |
+.content/mvp/00-producto/03-definicion-funcional/01-Casos-de-Uso-Funcionales.md:39:| EN01 `Compra B2B confiable con validación de disponibilidad` | CUF01, CUF02, CUF03, CUF04 |
+.content/mvp/00-producto/02-contexto-de-uso/_index.md:16:- Que resultado espera cada actor al usar el sistema.
+.content/mvp/00-producto/02-contexto-de-uso/_index.md:22:| Actores del sistema | identifica actores de negocio/operacion, su rol, interes y relacion con el producto |
+.content/mvp/00-producto/02-contexto-de-uso/_index.md:23:| Escenarios de negocio | define escenarios de alto nivel, actores, valor, recorrido de negocio e intencion/resultados |
+.content/mvp/00-producto/02-contexto-de-uso/_index.md:29:- Semantica inicial: consolidar terminos que aparecen en actores y journeys.
+.content/mvp/00-producto/02-contexto-de-uso/_index.md:34:implementacion; su funcion es describir uso real, intencion del actor y marco
+.content/mvp/00-producto/01-estrategica/03-Objetivos-del-Sistema.md:15:| M1 | Habilitar autogestion B2B | Adopcion digital B2B                                      | organizaciones con >=1 pedido digital en 14 dias >= 12 en 60 dias |
+.content/mvp/00-producto/01-estrategica/03-Objetivos-del-Sistema.md:25:| La compra digital se vuelve canal util y recurrente | sube la adopcion de pedidos digitales por organizacion |
+.content/mvp/00-producto/01-estrategica/03-Objetivos-del-Sistema.md:34:| Negocio | aumentar adopcion digital B2B en el canal recurrente |
+.content/mvp/00-producto/03-definicion-funcional/03-Requisitos-No-Funcionales.md:10:problema de negocio, los actores del sistema, los escenarios de negocio, los
+.content/mvp/00-producto/03-definicion-funcional/03-Requisitos-No-Funcionales.md:19:| NFR-001 | `Tiempo de respuesta de APIs core` | el flujo de lectura y escritura del catalogo, carrito y pedido | problema de negocio, objetivos del sistema, escenarios de negocio | `Compra B2B confiable con validacion de disponibilidad`; `Confirmacion de pedido con promesa comercial protegida`; consultar catalogo, validar disponibilidad, crear pedido |
+.content/mvp/00-producto/03-definicion-funcional/03-Requisitos-No-Funcionales.md:22:| NFR-004 | `Confiabilidad de disponibilidad comercial` | la coherencia entre stock, reserva y promesa de venta | problema de negocio, escenarios de negocio, supuestos base | `Compra B2B confiable con validacion de disponibilidad`; `Confirmacion de pedido con promesa comercial protegida`; validar disponibilidad, confirmar pedido |
+.content/mvp/00-producto/03-definicion-funcional/03-Requisitos-No-Funcionales.md:23:| NFR-005 | `Aislamiento por organizacion y legitimidad de actor` | quien puede ver y operar informacion dentro del sistema | actores del sistema, supuestos base, objetivos del sistema | operacion por organizacion, legitimidad de actor consumida como capacidad transversal, seguimiento por cuenta |
+.content/mvp/00-producto/03-definicion-funcional/03-Requisitos-No-Funcionales.md:24:| NFR-006 | `Trazabilidad de cambios criticos` | el registro verificable de stock, pedido, pago y estados | problema de negocio, actores del sistema, escenarios de negocio | `Registro y control trazable del pago manual`; `Seguimiento visible del estado del pedido`; `Seguimiento operativo interno del ciclo del pedido` |
+.content/mvp/00-producto/03-definicion-funcional/03-Requisitos-No-Funcionales.md:26:| NFR-008 | `Escalamiento en picos de demanda` | el comportamiento del sistema bajo carga alta o variable | contexto operativo / crecimiento esperado, objetivos del sistema | compra B2B, validacion de disponibilidad, reporte semanal |
+.content/mvp/00-producto/01-estrategica/04-Alcance-No-Alcance.md:17:- condiciones operativas de legitimidad de actor y aislamiento por organizacion
+.content/mvp/00-producto/01-estrategica/04-Alcance-No-Alcance.md:34:| flujo core de catalogo, disponibilidad, pedido y legitimidad operativa de actor | automatizaciones complejas y hardening enterprise |
+.content/mvp/00-producto/01-estrategica/02-Problema-de-Negocio.md:13:Arka atiende clientes B2B de alto volumen y hoy combina procesos manuales con
+.content/mvp/00-producto/01-estrategica/02-Problema-de-Negocio.md:23:| validaciones manuales de disponibilidad        | comprador B2B y operacion comercial | retrasa la conversion y eleva el costo operativo    |
+.content/mvp/00-producto/01-estrategica/02-Problema-de-Negocio.md:24:| stock no sincronizado con la promesa comercial | comprador, inventario y despacho    | genera sobreventa y reprocesos                      |
+.content/mvp/00-producto/01-estrategica/02-Problema-de-Negocio.md:25:| baja visibilidad del estado del pedido         | comprador B2B y operacion Arka      | aumenta consultas manuales y tiempos muertos        |
+.content/mvp/00-producto/01-estrategica/02-Problema-de-Negocio.md:30:- afecta conversion y recompra porque la compra digital no es suficientemente
+.content/mvp/00-producto/01-estrategica/02-Problema-de-Negocio.md:39:Resolver este problema permite convertir el canal digital B2B en una via util de
+.content/mvp/00-producto/02-contexto-de-uso/01-Actores-del-Sistema.md:5:url: "/mvp/producto/actores-del-sistema/"
+.content/mvp/00-producto/02-contexto-de-uso/01-Actores-del-Sistema.md:15:| Comprador B2B recurrente | realiza compra y seguimiento | comprar por volumen con disponibilidad confiable y estado visible | usuario principal del flujo comercial digital (carrito, pedido y seguimiento) |
+.content/mvp/00-producto/02-contexto-de-uso/01-Actores-del-Sistema.md:16:| Administrador de cuenta B2B | administra la operacion de su organizacion | asegurar segregacion de datos, uso permitido y operacion correcta para su organizacion | responsable de gobernar el uso del producto dentro de su organizacion |
+.content/mvp/00-producto/02-contexto-de-uso/01-Actores-del-Sistema.md:17:| Operador Arka (comercial/operaciones) | gestiona pedidos, stock y pagos manuales | mantener continuidad operativa y resolver incidencias | actor interno que mantiene el control operativo del ciclo comercial |
+.content/mvp/00-producto/02-contexto-de-uso/01-Actores-del-Sistema.md:19:| Coordinador de despacho | consulta estado y preparacion operativa del pedido | alinear el avance comercial con la atencion posterior | actor interno que conecta el estado comercial con la ejecucion operativa posterior |
+.content/mvp/00-producto/02-contexto-de-uso/01-Actores-del-Sistema.md:29:## Lectura de actores para el modelado posterior
+.content/mvp/00-producto/02-contexto-de-uso/01-Actores-del-Sistema.md:30:Los actores anteriores no describen pantallas ni perfiles UI aislados. Describen
+.content/mvp/00-producto/02-contexto-de-uso/03-Supuestos-y-Decisiones-Base.md:16:| Supuesto       | el `MVP` prioriza confiabilidad del flujo de compra sobre amplitud funcional                 | se favorece estabilidad del core antes que expansion de features   |
+.content/mvp/00-producto/02-contexto-de-uso/03-Supuestos-y-Decisiones-Base.md:26:| Decision congelada     | no se reabre la semantica core de carrito, checkout, pedido, pago manual, stock, reserva, catalogo vendible ni aislamiento organizacional por legitimidad de actor | dominio y arquitectura deben consumir esa verdad sin reinventarla |
+.content/mvp/00-producto/02-contexto-de-uso/03-Supuestos-y-Decisiones-Base.md:29:| Restriccion de partida | aislamiento por organizacion y legitimidad de actor en toda mutacion                                                                                         | impide operaciones cruzadas entre organizaciones                  |
+.content/mvp/00-producto/02-contexto-de-uso/03-Supuestos-y-Decisiones-Base.md:38:| segregacion de datos por organizacion en toda consulta y mutacion            | el aislamiento por organizacion y legitimidad de actor es parte del baseline |
+.content/mvp/00-producto/01-estrategica/01-Resumen-del-Producto.md:15:| ¿Que es el sistema?                         | ArkaB2B es un sistema digital para operacion comercial B2B con foco en compra recurrente, consulta operativa y seguimiento comercial sobre catalogo, inventario y pedido. |
+.content/mvp/00-producto/01-estrategica/01-Resumen-del-Producto.md:16:| ¿Cual es su proposito general?              | Resolver fricciones operativas del canal B2B habilitando una autogestion confiable y trazable para compradores y equipos internos de operacion. |
+.content/mvp/00-producto/01-estrategica/01-Resumen-del-Producto.md:17:| ¿Que tipo de producto se esta construyendo? | En `MVP`, se construye un backend de autogestion B2B. El frontend queda a cargo de un proveedor externo, y este pilar define la verdad funcional y operativa que ese backend debe sostener. |
+.content/mvp/00-producto/01-estrategica/01-Resumen-del-Producto.md:22:| Comprador B2B recurrente | comprar por volumen con disponibilidad confiable | menos friccion para convertir catalogo en pedido |
+.content/mvp/00-producto/01-estrategica/01-Resumen-del-Producto.md:23:| Administrador de cuenta B2B | operar en nombre de su organizacion bajo condiciones de legitimidad y aislamiento | gestion ordenada del uso del producto y del contexto comercial |
+.content/mvp/00-producto/01-estrategica/01-Resumen-del-Producto.md:30:| Compra digital con menor friccion | el comprador puede autogestionar carrito, pedido y seguimiento sin depender del canal manual para todo |
+.content/mvp/00-producto/02-contexto-de-uso/02-Escenarios-de-Negocio.md:10:Describir las situaciones de negocio de alto nivel mediante las cuales los actores obtienen valor del producto en el ciclo MVP.
+.content/mvp/00-producto/02-contexto-de-uso/02-Escenarios-de-Negocio.md:15:- un actor principal,
+.content/mvp/00-producto/02-contexto-de-uso/02-Escenarios-de-Negocio.md:26:| EN01 | `Compra B2B confiable con validación de disponibilidad`      | Comprador B2B                       | Confirmar una compra con información confiable de oferta y disponibilidad | La compra se realiza sin depender de validaciones manuales informales y sin comprometer stock inexistente |
+.content/mvp/00-producto/02-contexto-de-uso/02-Escenarios-de-Negocio.md:27:| EN02 | `Confirmación de pedido con promesa comercial protegida`     | Comprador B2B / Operación comercial | Formalizar un pedido cuya disponibilidad ya fue validada                  | El sistema protege la promesa comercial y reduce sobreventa y reprocesos                                  |
+.content/mvp/00-producto/02-contexto-de-uso/02-Escenarios-de-Negocio.md:28:| EN03 | `Seguimiento visible del estado del pedido`                  | Comprador B2B                       | Consultar el estado vigente y entendible del pedido sin depender de seguimiento manual | El comprador obtiene visibilidad clara del estado actual del pedido                                       |
+.content/mvp/00-producto/02-contexto-de-uso/02-Escenarios-de-Negocio.md:31:| EN06 | `Coordinación de cambios relevantes mediante notificaciones` | Comprador B2B / Operación Arka      | Recibir comunicación oportuna ante cambios relevantes del ciclo comercial | Los actores se mantienen informados sin reemplazar la consulta de estado ni el historial verificable      |
+.content/mvp/00-producto/02-contexto-de-uso/02-Escenarios-de-Negocio.md:59:| Qué son | Son situaciones reales de negocio donde un actor quiere lograr algo y obtener un resultado de valor. |
+.content/mvp/00-producto/04-semantica-inicial/01-Glosario-Preliminar.md:25:| Organizacion | Cliente B2B con identidad comercial propia dentro del sistema. | "El pedido pertenece a la organizacion ORG-001." | Si | Define frontera de operacion y aislamiento por contexto organizacional. |
+.content/mvp/00-producto/04-semantica-inicial/01-Glosario-Preliminar.md:26:| Comprador B2B | Persona legitimada y asociada a una organizacion que participa en el ciclo comercial de compra. | "El comprador B2B confirma el pedido." | Si | Participa en la validacion, confirmacion y seguimiento de la compra. |
+.content/mvp/00-producto/04-semantica-inicial/01-Glosario-Preliminar.md:27:| Legitimidad de actor (capacidad transversal) | Condicion de uso permitido del sistema validada por una capacidad tecnica externa al dominio de negocio. | "La operacion se ejecuta con actor legitimado." | Si | Condiciona acceso operativo y aislamiento sin modelar un dominio interno de IAM. |
+.content/mvp/00-producto/04-semantica-inicial/01-Glosario-Preliminar.md:33:| Carrito | Intencion de compra editable previa a confirmar pedido. | "El carrito contiene 5 lineas." | Si | Intencion de compra previa al pedido con reglas de evolucion. |
+.content/mvp/00-producto/04-semantica-inicial/01-Glosario-Preliminar.md:35:| Pedido | Entidad de compra creada desde carrito que se materializa en `PENDING_APPROVAL` y evoluciona por estados contractuales del MVP (`PENDING_APPROVAL`, `CONFIRMED`, `CANCELLED`); `CREATED` es interno y los estados de fulfillment quedan reservados. | "Pedido ARKA-CO-2026-000184 en estado PENDING_APPROVAL." | Si | Centro del flujo transaccional y ciclo de estados del MVP. |
+.content/mvp/00-producto/04-semantica-inicial/01-Glosario-Preliminar.md:45:| Comprador B2B | usuario global, usuario libre |
+.content/mvp/00-producto/04-semantica-inicial/01-Glosario-Preliminar.md:46:| Legitimidad de actor | admin total, permiso libre, rol de negocio |
+.content/mvp/00-producto/04-semantica-inicial/01-Glosario-Preliminar.md:58:| Reporte de abastecimiento | reporte de compras suelto |
+
+## DOMINIO
+.content/mvp/01-dominio/_index.md:14:Su salida organiza eventos, comandos, actores/reglas/politicas, agregados, contextos delimitados, lenguaje, conceptos, contratos, trazabilidad y evolucion, dejando una base estable para que Arquitectura disene sin reinterpretacion arbitraria. La interfaz metodologica de esta salida se documenta en <a href="/mvp/dominio/transicion-a-arquitectura/">Transicion a Arquitectura</a>.
+.content/mvp/01-dominio/02-consolidacion-del-modelo/01-Lenguaje-Ubicuo.md:16:| `Organizacion` (`Organization`) | unidad empresarial que opera en ArkaB2B | `directorio` (`directory`) | `Cuenta` (`Account`) de capacidad transversal |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/01-Lenguaje-Ubicuo.md:25:| `Pedido` (`Order`) | compromiso comercial creado desde carrito validado | `pedidos` (`order`) | reserva de inventario |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/01-Lenguaje-Ubicuo.md:26:| `Estado de pedido` (`OrderStatus`) | etapa visible y operativa del ciclo del pedido | `pedidos` (`order`) | estado de entrega de notificacion |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/01-Lenguaje-Ubicuo.md:29:| `Historial de cambios` (`OrderChangeHistory`) | lectura derivada cronologica de cambios relevantes del pedido | `pedidos` (`order`) | log tecnico de infraestructura |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/01-Lenguaje-Ubicuo.md:30:| `Notificacion de cambio relevante` (`RelevantChangeNotification`) | comunicacion derivada de hecho confirmado | `notificaciones` (`notification`) | comando de negocio de nucleo |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/01-Lenguaje-Ubicuo.md:31:| `Registro de entrega` (`NotificationDelivery`) | resultado trazable de una comunicacion emitida | `notificaciones` (`notification`) | estado comercial del pedido |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/01-Lenguaje-Ubicuo.md:35:## Lenguaje publicado por contexto delimitado (`bounded context`)
+.content/mvp/01-dominio/02-consolidacion-del-modelo/01-Lenguaje-Ubicuo.md:36:| Contexto delimitado (`bounded context`) | Lenguaje que publica | Lenguaje que consume |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/01-Lenguaje-Ubicuo.md:38:| `directorio` (`directory`) | `Organizacion` (`Organization`), `PoliticaPorPais` (`CountryPolicy`) | legitimidad de actor desde `identidad-acceso` (`identity-access`) |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/01-Lenguaje-Ubicuo.md:41:| `pedidos` (`order`) | `Carrito` (`Cart`), `CheckoutValidado` (`ValidatedCheckout`), `Pedido` (`Order`), `EstadoDePedido` (`OrderStatus`), `PagoManual` (`ManualPayment`), `EstadoFinanciero` (`FinancialStatus`), `HistorialDeCambios` (`OrderChangeHistory`) | `PoliticaPorPais` (`CountryPolicy`), `OfertaDeCatalogo` (`CatalogOffer`), `DisponibilidadComprometible` (`CommitableAvailability`), legitimidad de actor |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/01-Lenguaje-Ubicuo.md:42:| `notificaciones` (`notification`) | `NotificacionDeCambioRelevante` (`RelevantChangeNotification`), `EntregaDeNotificacion` (`NotificationDelivery`) | hechos relevantes de `pedidos` (`order`) |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/_index.md:23:| Lenguaje ubicuo | fija vocabulario oficial por contexto y frontera de uso |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/_index.md:25:| Contratos de integracion | formaliza colaboracion semantica entre contextos y capacidades externas |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/02-Conceptos.md:16:| `Organizacion` (`Organization`) | `directorio` (`directory`) | unidad empresarial que compra y opera en ArkaB2B | delimita aislamiento de datos y decisiones | no equivale a `Cuenta` (`Account`) |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/02-Conceptos.md:25:| `Pedido` (`Order`) | `pedidos` (`order`) | compromiso comercial trazable | concentra verdad transaccional del ciclo comercial | no es reserva ni notificacion |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/02-Conceptos.md:26:| `EstadoDePedido` (`OrderStatus`) | `pedidos` (`order`) | etapa visible y operativa del pedido | habilita seguimiento para comprador y operacion | no es estado de entrega de mensaje |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/02-Conceptos.md:27:| `PagoManual` (`ManualPayment`) | `pedidos` (`order`) | registro manual de pago como parte del ciclo del pedido | cierra trazabilidad financiera del MVP sin pasarela dentro de la misma frontera de consistencia de `Pedido` (`Order`) | no es conciliacion automatica |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/02-Conceptos.md:28:| `NotificacionDeCambioRelevante` (`RelevantChangeNotification`) | `notificaciones` (`notification`) | comunicacion derivada de un cambio confirmado | reduce friccion de seguimiento manual | no muta estado de nucleo |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/02-Conceptos.md:35:| `Compra confiable` | `OfertaDeCatalogo` (`CatalogOffer`) -> `DisponibilidadComprometible` (`CommitableAvailability`) -> `Carrito` (`Cart`) -> `CheckoutValidado` (`ValidatedCheckout`) -> `Pedido` (`Order`) | transforma consulta en compromiso comercial con promesa protegida |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/02-Conceptos.md:36:| `Seguimiento trazable` | `Pedido` (`Order`) -> `EstadoDePedido` (`OrderStatus`) -> `NotificacionDeCambioRelevante` (`RelevantChangeNotification`) | hace visible el ciclo del pedido para actor externo e interno |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/02-Conceptos.md:37:| `Control financiero MVP` | `Pedido` (`Order`) -> `PagoManual` (`ManualPayment`) | mantiene el estado financiero como verdad del pedido, no como agregado separado |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/02-Conceptos.md:39:| `Regionalizacion` | `Organizacion` (`Organization`) -> `PoliticaPorPais` (`CountryPolicy`) | condiciona la operacion por pais sin bifurcar el modelo de nucleo |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/02-Conceptos.md:44:| `Organizacion` (`Organization`) con `Cuenta` (`Account`) | `Organizacion` (`Organization`) es dominio de negocio; `Cuenta` (`Account`) es capacidad transversal |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/02-Conceptos.md:46:| `Carrito` (`Cart`) con `Pedido` (`Order`) | carrito expresa intencion; pedido expresa compromiso |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/02-Conceptos.md:47:| `EstadoDePedido` (`OrderStatus`) con `EntregaDeNotificacion` (`NotificationDelivery`) | uno es ciclo comercial; el otro es resultado de comunicacion |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/_index.md:26:5. fronteras semanticas en contextos delimitados (`bounded contexts`).
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/_index.md:35:| Contextos delimitados (`bounded contexts`) | identifica propiedad semantica y limites entre contextos |
+.content/mvp/01-dominio/03-Transicion-a-Arquitectura.md:29:| 5 | contextos delimitados (`bounded contexts`) y clasificacion de subdominios | `01-descubrimiento-del-dominio/05-Bounded-Contexts.md` |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/04-Trazabilidad.md:10:verificable por que existe cada evento, comando, regla, agregado y contexto
+.content/mvp/01-dominio/02-consolidacion-del-modelo/04-Trazabilidad.md:11:delimitado (`bounded context`).
+.content/mvp/01-dominio/02-consolidacion-del-modelo/04-Trazabilidad.md:17:| 2 | escenarios de negocio (`EN01`..`EN08`) | hechos de negocio y relaciones entre contextos |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/04-Trazabilidad.md:18:| 3 | casos de uso funcionales (`CUF01`..`CUF17`) | comandos y colaboraciones entre contextos |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/04-Trazabilidad.md:21:| 6 | dominio consolidado | lenguaje, conceptos, agregados, contextos delimitados (`bounded contexts`), evolucion |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/04-Trazabilidad.md:29:| soporte manual para seguimiento y pagos | `PagoManualRegistrado` (`ManualPaymentRegistered`) + `EstadoFinancieroDePedidoActualizado` (`OrderFinancialStatusUpdated`) | `pedidos` (`order`) |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/04-Trazabilidad.md:32:## Escenario -> eventos -> comandos -> contextos
+.content/mvp/01-dominio/02-consolidacion-del-modelo/04-Trazabilidad.md:36:| `EN02` Confirmacion con promesa protegida | `PedidoCreadoDesdeCarritoValidado` (`OrderCreatedFromValidatedCart`), `PedidoAjustadoAntesDeCierre` (`OrderAdjustedBeforeClose`), `ConsistenciaDePedidoRevalidada` (`OrderConsistencyRevalidated`) | `CrearPedidoDesdeCarrito` (`CreateOrderFromCart`), `AjustarPedidoAntesDeCierre` (`AdjustOrderBeforeClose`), `RevalidarConsistenciaDePedidoTrasAjuste` (`RevalidateOrderConsistencyAfterAdjustment`) | `pedidos` (`order`), `inventario` (`inventory`) |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/04-Trazabilidad.md:37:| `EN03` Seguimiento visible | `PedidoCreadoDesdeCarritoValidado` (`OrderCreatedFromValidatedCart`), `EstadoOperativoDePedidoActualizado` (`OrderOperationalStatusUpdated`) | consulta derivada de estado vigente (sin comando de mutacion adicional) | `pedidos` (`order`) |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/04-Trazabilidad.md:38:| `EN04` Seguimiento operativo interno | `EstadoOperativoDePedidoActualizado` (`OrderOperationalStatusUpdated`) | `ActualizarEstadoOperativoDePedido` (`UpdateOrderOperationalStatus`) | `pedidos` (`order`) |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/04-Trazabilidad.md:39:| `EN05` Control de pago manual | `PagoManualRegistrado` (`ManualPaymentRegistered`), `EstadoFinancieroDePedidoActualizado` (`OrderFinancialStatusUpdated`) | `RegistrarPagoManual` (`RegisterManualPayment`) | `pedidos` (`order`) |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/04-Trazabilidad.md:40:| `EN06` Coordinacion por notificaciones | `NotificacionDeCambioRelevanteEmitida` (`RelevantChangeNotificationEmitted`), `EntregaDeNotificacionRegistrada` (`NotificationDeliveryRecorded`) | `EmitirNotificacionDeCambioRelevante` (`EmitRelevantChangeNotification`), `RegistrarEntregaDeNotificacion` (`RecordNotificationDelivery`) | `notificaciones` (`notification`) |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/04-Trazabilidad.md:48:| `FR-003`..`FR-004` | `ValidarDisponibilidadEnCheckout` (`ValidateCheckoutAvailability`) -> `DisponibilidadDeCheckoutValidada` (`CheckoutAvailabilityValidated`) | `Pedido` (`Order`), `BalanceDeInventario` (`InventoryBalance`) / `pedidos` (`order`), `inventario` (`inventory`) |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/04-Trazabilidad.md:50:| `FR-007`..`FR-010` | `CrearPedidoDesdeCarrito` (`CreateOrderFromCart`), `AjustarPedidoAntesDeCierre` (`AdjustOrderBeforeClose`), `RevalidarConsistenciaDePedidoTrasAjuste` (`RevalidateOrderConsistencyAfterAdjustment`) | `Pedido` (`Order`) / `pedidos` (`order`) |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/04-Trazabilidad.md:51:| `FR-011`..`FR-014`, `FR-020` | `ActualizarEstadoOperativoDePedido` (`UpdateOrderOperationalStatus`) + lecturas derivadas de estado/historial | `Pedido` (`Order`) / `pedidos` (`order`) |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/04-Trazabilidad.md:52:| `FR-015`..`FR-017` | `RegistrarPagoManual` (`RegisterManualPayment`) -> eventos financieros de pedido | `Pedido` (`Order`) / `pedidos` (`order`) |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/04-Trazabilidad.md:53:| `FR-018`..`FR-019` | `EmitirNotificacionDeCambioRelevante` (`EmitRelevantChangeNotification`), `RegistrarEntregaDeNotificacion` (`RecordNotificationDelivery`) | `DespachoDeNotificacion` (`NotificationDispatch`) / `notificaciones` (`notification`) |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/04-Trazabilidad.md:78:| `PagoManual` (`ManualPayment`) dentro de `Pedido` (`Order`) | FR-015..FR-017 trazan sobre el mismo agregado transaccional |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/03-Actores-Reglas-y-Politicas.md:19:| `Comprador B2B` | ejecuta el flujo comercial digital | `CrearCarrito` (`CreateCart`), `AjustarItemsDeCarrito` (`AdjustCartItems`), `CrearPedidoDesdeCarrito` (`CreateOrderFromCart`), `AjustarPedidoAntesDeCierre` (`AdjustOrderBeforeClose`) | convierte intencion de compra en pedido trazable |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/03-Actores-Reglas-y-Politicas.md:20:| `Administrador de cuenta B2B` | gobierna operacion de su organizacion | participa en condiciones de aislamiento y resolucion de contexto organizacional para comandos de compra y consulta | evita operaciones fuera de organizacion |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/03-Actores-Reglas-y-Politicas.md:21:| `Operacion Arka` | controla avance operativo y financiero | `ActualizarEstadoOperativoDePedido` (`UpdateOrderOperationalStatus`), `RegistrarPagoManual` (`RegisterManualPayment`), `ActualizarStockOperativo` (`UpdateOperationalStock`), `ConfigurarPoliticaRegional` (`ConfigureRegionalPolicy`) | asegura continuidad operativa y evidencia verificable |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/03-Actores-Reglas-y-Politicas.md:22:| `Sistema` | ejecuta coordinacion y consolidacion automatizada | `AplicarPoliticaRegionalEnOperacion` (`ApplyRegionalPolicyToOperation`), `ValidarDisponibilidadEnCheckout` (`ValidateCheckoutAvailability`), `RecalcularDisponibilidadComprometible` (`RecalculateCommitableAvailability`), `EmitirNotificacionDeCambioRelevante` (`EmitRelevantChangeNotification`), `GenerarReporteSemanalDeVentas` (`GenerateWeeklySalesReport`), `GenerarReporteSemanalDeReposicion` (`GenerateWeeklyReplenishmentReport`) | sostiene coherencia del flujo y salida operativa periodica |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/03-Actores-Reglas-y-Politicas.md:28:| `Aislamiento obligatorio de operaciones de negocio por organizacion operante` | NFR-005, supuestos y decisiones base | comandos de compra, seguimiento y pago | ninguna mutacion o consulta de negocio opera fuera del contexto organizacional resuelto |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/03-Actores-Reglas-y-Politicas.md:29:| `Coherencia obligatoria entre promesa comercial y disponibilidad comprometible` | FR-003, FR-004, FR-023, FR-024, NFR-004 | `ValidarDisponibilidadEnCheckout` (`ValidateCheckoutAvailability`), `CrearPedidoDesdeCarrito` (`CreateOrderFromCart`), `RecalcularDisponibilidadComprometible` (`RecalculateCommitableAvailability`) | ningun pedido se formaliza si la disponibilidad comprometible no respalda la promesa comercial |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/03-Actores-Reglas-y-Politicas.md:30:| `Trazabilidad verificable obligatoria del pedido durante todo su ciclo operativo` | FR-008, FR-012, FR-014, FR-020, NFR-006 | `CrearPedidoDesdeCarrito` (`CreateOrderFromCart`), `ActualizarEstadoOperativoDePedido` (`UpdateOrderOperationalStatus`) | todo cambio operativo confirmado del pedido deja trazabilidad verificable y consultable |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/03-Actores-Reglas-y-Politicas.md:37:| `Comunicacion derivada de hechos confirmados sin mutacion de la verdad transaccional del nucleo` | FR-018, FR-019, alcance/no alcance | `EmitirNotificacionDeCambioRelevante` (`EmitRelevantChangeNotification`), `RegistrarEntregaDeNotificacion` (`RecordNotificationDelivery`) | la notificacion comunica hechos del negocio ya ocurridos, pero no modifica la verdad transaccional del nucleo |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/03-Actores-Reglas-y-Politicas.md:44:| `PoliticaDeValidacionDeCheckout` (`CheckoutValidationPolicy`) | oferta vendible, disponibilidad, contexto organizacional | si un carrito puede formalizarse como pedido | habilita o bloquea creacion de pedido |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/03-Actores-Reglas-y-Politicas.md:45:| `PoliticaDeVentanaDeAjusteDePedido` (`OrderAdjustmentWindowPolicy`) | pedido y estado operativo | si un pedido puede ajustarse antes de cierre | evita ajustes fuera de ventana valida |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/03-Actores-Reglas-y-Politicas.md:48:| `PoliticaDeEmisionDeNotificacion` (`NotificationEmissionPolicy`) | cambios relevantes y plan de envio | cuando notificar, a quien y bajo que control de duplicidad | reduce ruido operativo y mantiene trazabilidad |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/03-Actores-Reglas-y-Politicas.md:54:| `Compra B2B confiable` | contexto organizacional resuelto + aislamiento organizacional + oferta vendible + disponibilidad comprometible | pedido creado sin sobreventa |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/03-Actores-Reglas-y-Politicas.md:61:La asignacion de estas reglas y politicas a `contextos delimitados`
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/03-Actores-Reglas-y-Politicas.md:62:(`bounded contexts`) se define en la seccion 5.
+.content/mvp/01-dominio/02-consolidacion-del-modelo/03-Contratos-de-Integracion.md:11:Formalizar como se conectan los `contextos delimitados` (`bounded contexts`)
+.content/mvp/01-dominio/02-consolidacion-del-modelo/03-Contratos-de-Integracion.md:15:## Contratos semanticos entre contextos delimitados (`bounded contexts`)
+.content/mvp/01-dominio/02-consolidacion-del-modelo/03-Contratos-de-Integracion.md:25:## Publicacion y consumo de eventos por contexto
+.content/mvp/01-dominio/02-consolidacion-del-modelo/03-Contratos-de-Integracion.md:31:| `pedidos` (`order`) | `CarritoCreado` (`CartCreated`), `ItemsDeCarritoAjustados` (`CartItemsAdjusted`), `DisponibilidadDeCheckoutValidada` (`CheckoutAvailabilityValidated`), `PedidoCreadoDesdeCarritoValidado` (`OrderCreatedFromValidatedCart`), `EstadoOperativoDePedidoActualizado` (`OrderOperationalStatusUpdated`), `PagoManualRegistrado` (`ManualPaymentRegistered`), `EstadoFinancieroDePedidoActualizado` (`OrderFinancialStatusUpdated`) | politica regional, oferta publicada, disponibilidad comprometible |
+.content/mvp/01-dominio/02-consolidacion-del-modelo/03-Contratos-de-Integracion.md:32:| `notificaciones` (`notification`) | `NotificacionDeCambioRelevanteEmitida` (`RelevantChangeNotificationEmitted`), `EntregaDeNotificacionRegistrada` (`NotificationDeliveryRecorded`) | cambios relevantes de `pedidos` (`order`) |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/04-Agregados.md:15:| `ContextoDeOrganizacion` (`OrganizationContext`) | estado operativo de organizacion y relacion con actor habilitado | una operacion solo existe para una organizacion valida y activa | `ConfigurarPoliticaRegional` (`ConfigureRegionalPolicy`) (en colaboracion), validaciones de aislamiento para comandos de nucleo | `PoliticaRegionalConfigurada` (`RegionalPolicyConfigured`) (en colaboracion con `PoliticaPorPais` (`CountryPolicy`)) | legitimidad de actor de capacidad transversal, stock, precio, estado de pedido | `organizationId`, `accountId` |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/04-Agregados.md:16:| `PoliticaPorPais` (`CountryPolicy`) | configuracion regional aplicable por pais | existe una politica vigente por organizacion y pais para operaciones criticas | `ConfigurarPoliticaRegional` (`ConfigureRegionalPolicy`), `AplicarPoliticaRegionalEnOperacion` (`ApplyRegionalPolicyToOperation`) | `PoliticaRegionalConfigurada` (`RegionalPolicyConfigured`), `PoliticaRegionalAplicadaEnOperacion` (`RegionalPolicyAppliedInOperation`) | logica de carrito/pedido/stock | `organizationId`, `countryCode`, `policyVersion` |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/04-Agregados.md:18:| `BalanceDeInventario` (`InventoryBalance`) | stock operativo, reserva y disponibilidad comprometible | no se publica promesa comercial inconsistente con stock y reservas vigentes | `ActualizarStockOperativo` (`UpdateOperationalStock`), `RecalcularDisponibilidadComprometible` (`RecalculateCommitableAvailability`) | `StockActualizado` (`StockUpdated`), `DisponibilidadComprometibleRecalculada` (`CommitableAvailabilityRecalculated`) | pricing, estado comercial del pedido | `variantId`, `warehouseId`, `organizationId` |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/04-Agregados.md:19:| `Carrito` (`Cart`) | intencion de compra editable previa a confirmacion | carrito existe bajo aislamiento organizacional y actor habilitado | `CrearCarrito` (`CreateCart`), `AjustarItemsDeCarrito` (`AdjustCartItems`) | `CarritoCreado` (`CartCreated`), `ItemsDeCarritoAjustados` (`CartItemsAdjusted`) | definicion de oferta y disponibilidad externas | `cartId`, `organizationId`, `accountId` |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/04-Agregados.md:20:| `Pedido` (`Order`) | formalizacion del compromiso comercial, su ciclo de estado y pago manual MVP | pedido nace solo desde carrito validado, evoluciona por transiciones permitidas y no admite actualizacion financiera sin registro manual valido | `ValidarDisponibilidadEnCheckout` (`ValidateCheckoutAvailability`), `CrearPedidoDesdeCarrito` (`CreateOrderFromCart`), `AjustarPedidoAntesDeCierre` (`AdjustOrderBeforeClose`), `RevalidarConsistenciaDePedidoTrasAjuste` (`RevalidateOrderConsistencyAfterAdjustment`), `ActualizarEstadoOperativoDePedido` (`UpdateOrderOperationalStatus`), `RegistrarPagoManual` (`RegisterManualPayment`) | `DisponibilidadDeCheckoutValidada` (`CheckoutAvailabilityValidated`), `PedidoCreadoDesdeCarritoValidado` (`OrderCreatedFromValidatedCart`), `PedidoAjustadoAntesDeCierre` (`OrderAdjustedBeforeClose`), `ConsistenciaDePedidoRevalidada` (`OrderConsistencyRevalidated`), `EstadoOperativoDePedidoActualizado` (`OrderOperationalStatusUpdated`), `PagoManualRegistrado` (`ManualPaymentRegistered`), `EstadoFinancieroDePedidoActualizado` (`OrderFinancialStatusUpdated`) | mutaciones de stock, reglas regionales externas y entrega de notificaciones | `orderId`, `cartId`, `organizationId`, `accountId` |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/04-Agregados.md:21:| `DespachoDeNotificacion` (`NotificationDispatch`) | emision y registro de entrega de notificaciones derivadas | una entrega registrada siempre se asocia a cambio relevante confirmado | `EmitirNotificacionDeCambioRelevante` (`EmitRelevantChangeNotification`), `RegistrarEntregaDeNotificacion` (`RecordNotificationDelivery`) | `NotificacionDeCambioRelevanteEmitida` (`RelevantChangeNotificationEmitted`), `EntregaDeNotificacionRegistrada` (`NotificationDeliveryRecorded`) | verdad transaccional principal de compra, stock y pedido | `notificationId`, `orderId` |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/04-Agregados.md:26:| `PagoManual` (`ManualPayment`) | vive dentro del agregado `Pedido` (`Order`) | comparte ciclo de vida, invariantes y consistencia financiera con el pedido; no justifica agregado transaccional separado en `MVP` |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/04-Agregados.md:39:La asignacion de estos agregados a `contextos delimitados` (`bounded contexts`)
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/05-Bounded-Contexts.md:5:url: "/mvp/dominio/bounded-contexts/"
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/05-Bounded-Contexts.md:8:  - "/mvp/dominio/mapa-de-contexto/"
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/05-Bounded-Contexts.md:9:  - "/mvp/dominio/mapa-contexto/"
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/05-Bounded-Contexts.md:10:  - "/mvp/dominio/contextos-delimitados/"
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/05-Bounded-Contexts.md:11:  - "/mvp/dominio/contextos-delimitados/identidad-acceso/"
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/05-Bounded-Contexts.md:12:  - "/mvp/dominio/contextos-delimitados/directorio/"
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/05-Bounded-Contexts.md:13:  - "/mvp/dominio/contextos-delimitados/catalogo/"
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/05-Bounded-Contexts.md:14:  - "/mvp/dominio/contextos-delimitados/inventario/"
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/05-Bounded-Contexts.md:15:  - "/mvp/dominio/contextos-delimitados/pedidos/"
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/05-Bounded-Contexts.md:16:  - "/mvp/dominio/contextos-delimitados/notificaciones/"
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/05-Bounded-Contexts.md:17:  - "/mvp/dominio/contextos-delimitados/reporteria/"
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/05-Bounded-Contexts.md:30:que contextos existen, que verdad posee cada uno y como se relacionan.
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/05-Bounded-Contexts.md:42:| `directorio` (`directory`) | `Nucleo` (`Core`) | configuracion regional y contexto organizacional de operacion | `Organizacion` (`Organization`), `PoliticaPorPais` (`CountryPolicy`) | politica regional vigente por organizacion/pais | oferta comercial, stock, ciclo transaccional de pedido |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/05-Bounded-Contexts.md:45:| `pedidos` (`order`) | `Nucleo` (`Core`) | carrito, checkout, pedido, estado operativo y pago manual | `Carrito` (`Cart`), `Pedido` (`Order`), `EstadoDePedido` (`OrderStatus`), `PagoManual` (`ManualPayment`) | compromiso comercial y estado transaccional del pedido | propiedad semantica de oferta, stock y politica regional |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/05-Bounded-Contexts.md:46:| `notificaciones` (`notification`) | `Generico` (`Generic`) | comunicacion derivada por cambios relevantes confirmados | `NotificacionDeCambioRelevante` (`RelevantChangeNotification`), `EntregaDeNotificacion` (`NotificationDelivery`) | salida de comunicacion emitida/entregada | mutacion transaccional de contextos de nucleo |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/05-Bounded-Contexts.md:49:## Relaciones de contexto
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/02-Comandos.md:24:| CMD-09 | `ValidarDisponibilidadEnCheckout` (`ValidateCheckoutAvailability`) | Sistema | EN01, EN02, CUF02, FR-004 | validar si la compra puede comprometerse | oferta vendible + disponibilidad comprometible + contexto organizacional valido | `DisponibilidadDeCheckoutValidada` (`CheckoutAvailabilityValidated`) |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/02-Comandos.md:25:| CMD-10 | `CrearPedidoDesdeCarrito` (`CreateOrderFromCart`) | Comprador B2B / Sistema | EN01, EN02, CUF04, FR-007, FR-008 | formalizar pedido desde carrito validado | checkout aprobado y consistencia vigente | `PedidoCreadoDesdeCarritoValidado` (`OrderCreatedFromValidatedCart`) |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/02-Comandos.md:26:| CMD-11 | `AjustarPedidoAntesDeCierre` (`AdjustOrderBeforeClose`) | Comprador B2B / Operacion comercial | EN02, CUF05, FR-009 | corregir pedido dentro de ventana permitida | pedido ajustable segun estado y ventana | `PedidoAjustadoAntesDeCierre` (`OrderAdjustedBeforeClose`) |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/02-Comandos.md:27:| CMD-12 | `RevalidarConsistenciaDePedidoTrasAjuste` (`RevalidateOrderConsistencyAfterAdjustment`) | Sistema | EN02, CUF05, FR-010 | asegurar consistencia posterior al ajuste | ajuste aplicado y fuentes de validacion disponibles | `ConsistenciaDePedidoRevalidada` (`OrderConsistencyRevalidated`) |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/02-Comandos.md:28:| CMD-13 | `ActualizarEstadoOperativoDePedido` (`UpdateOrderOperationalStatus`) | Operacion Arka | EN04, CUF07, FR-013, FR-014 | reflejar avance operativo real del pedido | transicion de estado permitida | `EstadoOperativoDePedidoActualizado` (`OrderOperationalStatusUpdated`) |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/02-Comandos.md:29:| CMD-14 | `RegistrarPagoManual` (`RegisterManualPayment`) | Operacion comercial / financiera | EN05, CUF08, CUF09, FR-015, FR-016, FR-017 | registrar pago manual y su impacto financiero | pedido existente, referencia valida y evidencia trazable | `PagoManualRegistrado` (`ManualPaymentRegistered`), `EstadoFinancieroDePedidoActualizado` (`OrderFinancialStatusUpdated`) |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/02-Comandos.md:30:| CMD-15 | `EmitirNotificacionDeCambioRelevante` (`EmitRelevantChangeNotification`) | Sistema | EN06, CUF10, FR-018 | informar cambio relevante a actores interesados | evento de negocio relevante confirmado | `NotificacionDeCambioRelevanteEmitida` (`RelevantChangeNotificationEmitted`) |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/02-Comandos.md:31:| CMD-16 | `RegistrarEntregaDeNotificacion` (`RecordNotificationDelivery`) | Sistema | EN06, CUF10, FR-019 | registrar resultado de envio | intento de entrega ejecutado | `EntregaDeNotificacionRegistrada` (`NotificationDeliveryRecorded`) |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/02-Comandos.md:49:La asignacion de comandos a `contextos delimitados` (`bounded contexts`) se
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/01-Eventos-de-Dominio.md:26:| EV-10 | `PedidoCreadoDesdeCarritoValidado` (`OrderCreatedFromValidatedCart`) | EN01, EN02 | CUF04, FR-007 | la intencion validada se formaliza como pedido |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/01-Eventos-de-Dominio.md:27:| EV-12 | `PedidoAjustadoAntesDeCierre` (`OrderAdjustedBeforeClose`) | EN02 | CUF05, FR-009 | se modifica pedido dentro de ventana permitida |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/01-Eventos-de-Dominio.md:28:| EV-13 | `ConsistenciaDePedidoRevalidada` (`OrderConsistencyRevalidated`) | EN02 | CUF05, FR-010 | se valida consistencia despues de ajuste |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/01-Eventos-de-Dominio.md:29:| EV-14 | `EstadoOperativoDePedidoActualizado` (`OrderOperationalStatusUpdated`) | EN04 | CUF07, FR-013, FR-014 | cambia el estado operativo del pedido |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/01-Eventos-de-Dominio.md:31:| EV-18 | `EstadoFinancieroDePedidoActualizado` (`OrderFinancialStatusUpdated`) | EN05 | CUF09, FR-017 | cambia estado financiero del pedido |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/01-Eventos-de-Dominio.md:32:| EV-19 | `NotificacionDeCambioRelevanteEmitida` (`RelevantChangeNotificationEmitted`) | EN06 | CUF10, FR-018 | se emite notificacion por cambio relevante |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/01-Eventos-de-Dominio.md:33:| EV-20 | `EntregaDeNotificacionRegistrada` (`NotificationDeliveryRecorded`) | EN06 | CUF10, FR-019 | queda trazado el resultado de entrega de notificacion |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/01-Eventos-de-Dominio.md:46:| validaciones manuales de disponibilidad | `DisponibilidadDeCheckoutValidada` (`CheckoutAvailabilityValidated`), `DisponibilidadComprometibleRecalculada` (`CommitableAvailabilityRecalculated`), `PedidoCreadoDesdeCarritoValidado` (`OrderCreatedFromValidatedCart`) |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/01-Eventos-de-Dominio.md:47:| stock no sincronizado con promesa comercial | `StockActualizado` (`StockUpdated`), `DisponibilidadComprometibleRecalculada` (`CommitableAvailabilityRecalculated`), `ConsistenciaDePedidoRevalidada` (`OrderConsistencyRevalidated`) |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/01-Eventos-de-Dominio.md:48:| baja visibilidad del estado del pedido | `PedidoCreadoDesdeCarritoValidado` (`OrderCreatedFromValidatedCart`), `EstadoOperativoDePedidoActualizado` (`OrderOperationalStatusUpdated`) |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/01-Eventos-de-Dominio.md:49:| soporte manual para seguimiento y pagos | `PagoManualRegistrado` (`ManualPaymentRegistered`), `EstadoFinancieroDePedidoActualizado` (`OrderFinancialStatusUpdated`) |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/01-Eventos-de-Dominio.md:55:| `TrazaDePedidoRegistrada` (`OrderTraceRegistered`) | queda como evidencia derivada de `PedidoCreadoDesdeCarritoValidado` (`OrderCreatedFromValidatedCart`) |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/01-Eventos-de-Dominio.md:56:| `VisibilidadDePedidoActualizada` (`OrderVisibilityUpdated`) | queda como lectura derivada para consulta de estado vigente |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/01-Eventos-de-Dominio.md:58:| `HistorialDeCambiosDePedidoRegistrado` (`OrderChangeHistoryRecorded`) | queda como lectura derivada de cambios operativos confirmados |
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/01-Eventos-de-Dominio.md:61:La delimitacion semantica, propiedad por contexto y clasificacion de subdominio
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/01-Eventos-de-Dominio.md:62:de estos eventos se formaliza recien en la seccion 5 `contextos delimitados`
+.content/mvp/01-dominio/01-descubrimiento-del-dominio/01-Eventos-de-Dominio.md:63:(`bounded contexts`).
+
+## ARQUITECTURA
+.content/mvp/02-arquitectura/05-despliegue-y-trazabilidad/16-Evolucion-Arquitectonica.md:19:| estrategia `sync`/`async` con `outbox`, dedupe y `DLQ` | cerrada |
+.content/mvp/02-arquitectura/05-despliegue-y-trazabilidad/16-Evolucion-Arquitectonica.md:35:| R-02 | backlog de broker o lag de consumidores | atraso en `notification` y `reporting` | particionado, autoscaling de consumidores, monitoreo `outbox.pending` y `DLQ` |
+.content/mvp/02-arquitectura/05-despliegue-y-trazabilidad/16-Evolucion-Arquitectonica.md:44:| TD-01 | tuning de rendimiento final por pais/organization | falta telemetria de carga real | recalibrar presupuestos despues de pilotos operativos |
+.content/mvp/02-arquitectura/05-despliegue-y-trazabilidad/16-Evolucion-Arquitectonica.md:57:| `reporting-service` | lag de ingesta y costo de rebuild | autoscaling por lag + rebuild incremental por organization/periodo |
+.content/mvp/02-arquitectura/05-despliegue-y-trazabilidad/14-Decisiones-Arquitectonicas-ADR.md:19:| ADR-002 | proteger invariantes criticas y desacoplar side effects derivados | integracion combinada `sync`/`async` con `outbox` y dedupe | solo `sync`, solo `async`, publicacion directa sin `outbox` | mayor complejidad de consistencia eventual y operacion de broker | camino critico `Core` consistente y salida derivada desacoplada (`notification`/`reporting`) | secciones 07, 08, 09, 15 |
+.content/mvp/02-arquitectura/03-integracion-y-consistencia/_index.md:22:| Consistencia, transacciones y manejo de eventos | formaliza limites transaccionales, outbox/dedupe y fallos de propagacion |
+.content/mvp/02-arquitectura/05-despliegue-y-trazabilidad/13-Vista-de-Despliegue.md:88:| `api-gateway` | servicio de borde |
+.content/mvp/02-arquitectura/01-traduccion-del-dominio/01-Principios-Arquitectonicos.md:36:| outbox + dedupe | integracion asincrona | productores publican hechos confiables y consumidores toleran duplicados |
+.content/mvp/02-arquitectura/01-traduccion-del-dominio/01-Principios-Arquitectonicos.md:37:| metadatos de trazabilidad | observabilidad y auditoria | `traceId`, `correlationId`, `organizationId` y actor efectivo en mutaciones criticas |
+.content/mvp/02-arquitectura/01-traduccion-del-dominio/01-Principios-Arquitectonicos.md:60:| intento de acceso cross-organization | rechazo inmediato en borde/servicio owner + auditoria obligatoria |
+.content/mvp/02-arquitectura/01-traduccion-del-dominio/01-Principios-Arquitectonicos.md:61:| backlog de broker y reproceso | outbox en productores, dedupe en consumidores y `DLQ` con runbook |
+.content/mvp/02-arquitectura/04-realizacion-tecnica/11-Capacidades-Transversales-y-Dependencias-Externas.md:15:| `identity-access` | autenticacion/autorizacion y legitimidad de actor | borde (`api-gateway`) y servicios de negocio |
+.content/mvp/02-arquitectura/04-realizacion-tecnica/11-Capacidades-Transversales-y-Dependencias-Externas.md:16:| `api-gateway` | control de borde, ruteo y enforcement tecnico inicial | todos los servicios HTTP |
+.content/mvp/02-arquitectura/04-realizacion-tecnica/12-Seguridad-Arquitectonica.md:36:| borde (`api-gateway`) | valida token, firma, expiracion, `iss`, `aud` y condiciones tecnicas de acceso |
+.content/mvp/02-arquitectura/04-realizacion-tecnica/12-Seguridad-Arquitectonica.md:37:| gateways internos m2m | autentican scopes tecnicos para operaciones internas (`notification`/`reporting` ops) |
+.content/mvp/02-arquitectura/04-realizacion-tecnica/12-Seguridad-Arquitectonica.md:39:| eventos/listeners | usan `TriggerContext` tecnico + dedupe + validacion de organization antes de mutar estado |
+.content/mvp/02-arquitectura/04-realizacion-tecnica/12-Seguridad-Arquitectonica.md:47:| metadata obligatoria | `organizationId`, actor efectivo, `traceId` y `correlationId` en comandos/eventos |
+.content/mvp/02-arquitectura/04-realizacion-tecnica/12-Seguridad-Arquitectonica.md:48:| rechazo de cruce de organization | `403 acceso_cruzado_detectado` + evidencia obligatoria en auditoria |
+.content/mvp/02-arquitectura/04-realizacion-tecnica/12-Seguridad-Arquitectonica.md:58:| `reporting-service` (`Generic`) | read-only por organization owner, scope `reporting.ops` para rebuild/generate, URLs firmadas para artefactos | frontera entre datos derivados multi-contexto y consultas operativas | artefactos exportados, payload derivado de hechos |
+.content/mvp/02-arquitectura/04-realizacion-tecnica/12-Seguridad-Arquitectonica.md:63:| contrato de evento | validar `eventType`, `eventVersion`, `organizationId`, `traceId`, `correlationId` antes de procesar |
+.content/mvp/02-arquitectura/04-realizacion-tecnica/12-Seguridad-Arquitectonica.md:67:| salida a broker | publicar por `outbox` en transaccion local del contexto owner |
+.content/mvp/02-arquitectura/04-realizacion-tecnica/12-Seguridad-Arquitectonica.md:81:| intento de acceso cross-organization | rechazo inmediato y auditoria trazable |
+.content/mvp/02-arquitectura/03-integracion-y-consistencia/07-Contratos-de-Integracion.md:17:| envelope canonico de eventos | `eventId`, `eventType`, `eventVersion`, `occurredAt`, `producer`, `organizationId`, `traceId`, `correlationId`, `payload` |
+.content/mvp/02-arquitectura/03-integracion-y-consistencia/07-Contratos-de-Integracion.md:18:| entrega asincrona confiable | productores con `outbox`; consumidores con retry/backoff y `DLQ` para no recuperables |
+.content/mvp/02-arquitectura/03-integracion-y-consistencia/07-Contratos-de-Integracion.md:24:| `directory-service` | `organizations`, `operational-country-settings`, `checkout-address-validations` | `ConfigurarPoliticaRegional`, `AplicarPoliticaRegionalEnOperacion` | `order` y `reporting` dependen de politica regional vigente; sin politica se bloquea operacion sensible |
+.content/mvp/02-arquitectura/03-integracion-y-consistencia/07-Contratos-de-Integracion.md:34:| `directory-service` | cambios de politica regional y contexto organizacional | n/a en camino funcional principal del `MVP` | `organizationId` / `organizationId:countryCode` |
+.content/mvp/02-arquitectura/03-integracion-y-consistencia/07-Contratos-de-Integracion.md:39:| `reporting-service` | reporte semanal generado y estado de actualizacion de snapshot | hechos de `Core` y `notification` | `organizationId:weekId:reportType` |
+.content/mvp/02-arquitectura/03-integracion-y-consistencia/07-Contratos-de-Integracion.md:66:| `order` -> `directory` | sync | `organizationId`, `countryCode`, version de politica aplicable | estructuras internas de perfiles/contactos no requeridas |
+.content/mvp/02-arquitectura/04-realizacion-tecnica/10-Persistencia-y-Gestion-de-Datos.md:24:| `directory-service` | `organization`, `organization_country_policy`, `organization_contact`, `address` | politica activa unica por `organizationId+countryCode`; default de direccion/contacto unico por tipo activo | contexto organizacional y politica regional vigente | resumen organizacional y hechos regionales |
+.content/mvp/02-arquitectura/04-realizacion-tecnica/10-Persistencia-y-Gestion-de-Datos.md:25:| `catalog-service` | `product`, `variant`, `price`, `variant_attribute` | SKU unico por organization; precio vigente resoluble sin traslape temporal | oferta vendible y precio de catalogo | vistas de catalogo consultable |
+.content/mvp/02-arquitectura/04-realizacion-tecnica/10-Persistencia-y-Gestion-de-Datos.md:29:| `reporting-service` (`Generic`) | `analytic_fact`, `sales_projection`, `replenishment_projection`, `weekly_report_execution`, `report_artifact` | dedupe por `sourceEventId`; unicidad por `organization+week+reportType` en ejecucion semanal | snapshots y proyecciones derivadas | reportes semanales y KPI de lectura |
+.content/mvp/02-arquitectura/04-realizacion-tecnica/10-Persistencia-y-Gestion-de-Datos.md:34:| `directory-service` | `organization`, `organization_country_policy`, `organization_contact`, `address`, `directory_audit`, `outbox_event`, `processed_event` | `ux_country_policy_active` (politica activa unica), `ux_org_contact_primary`, `ux_address_default_by_type`, `idx_country_policy_resolution`, `ux_processed_event_consumer` | `directory_audit` mensual si crece; `outbox` 30 dias; `processed_event` 30-60 dias |
+.content/mvp/02-arquitectura/04-realizacion-tecnica/10-Persistencia-y-Gestion-de-Datos.md:35:| `catalog-service` | `products`, `variants`, `prices`, `price_schedules`, `catalog_audits`, `outbox_events`, `processed_events` | `ux_variants_organization_sku`, indice de precio vigente por `variant+effective_from`, indice de facetas `attribute_code+normalized_value`, `idx_outbox_pending_occurred` | auditoria extendida; `outbox` 30 dias; crecimiento controlado de atributos |
+.content/mvp/02-arquitectura/04-realizacion-tecnica/10-Persistencia-y-Gestion-de-Datos.md:36:| `inventory-service` | `stock_items`, `stock_reservations`, `stock_movements`, `idempotency_records`, `inventory_audit`, `outbox_event`, `processed_event` | checks de no-negativo/consistencia reservada, indice de contencion `organization+warehouse+sku`, dedupe por idempotency key, `ux_processed_event_consumer` | `stock_movement` particion temporal; `processed_event` corto para dedupe |
+.content/mvp/02-arquitectura/04-realizacion-tecnica/10-Persistencia-y-Gestion-de-Datos.md:37:| `order-service` | `carts`, `cart_items`, `checkout_attempts`, `purchase_orders`, `order_lines`, `payment_records`, `order_status_history`, `order_audit`, `idempotency_records`, `outbox_event` | unicidad de `checkout_correlation_id` por organization, idempotencia por `organization+operation+key`, indices por estado de pedido y fecha, historial ordenado por `occurred_at` | `order_status_history` y `order_audit` con archivado mensual |
+.content/mvp/02-arquitectura/04-realizacion-tecnica/10-Persistencia-y-Gestion-de-Datos.md:38:| `notification-service` (`Generic`) | `notification_requests`, `notification_attempts`, `provider_callbacks`, `notification_audits`, `channel_policies`, `outbox_events`, `processed_events` | `ux_requests_organization_notification_key`, `ux_attempts_notification_number`, dedupe de callback `provider+providerRef+callbackEventId`, `idx_outbox_status_occurred` | `notification_attempts` mensual; callbacks 6 meses; auditoria 24 meses |
+.content/mvp/02-arquitectura/04-realizacion-tecnica/10-Persistencia-y-Gestion-de-Datos.md:39:| `reporting-service` (`Generic`) | `analytic_facts`, `sales_projections`, `replenishment_projections`, `operations_kpi_projections`, `weekly_report_executions`, `report_artifacts`, `consumer_checkpoints`, `outbox_events`, `processed_events` | `ux_facts_organization_source_event`, `ux_sales_organization_period`, `ux_supply_organization_period_sku`, `ux_weekly_exec_organization_week_type`, `ux_artifacts_organization_week_type_format` | `analytic_facts` particion mensual; artifacts 12 meses; `processed_events` 60 dias |
+.content/mvp/02-arquitectura/03-integracion-y-consistencia/09-Consistencia-Transacciones-y-Manejo-de-Eventos.md:35:| publicacion | `outbox` transaccional en productores de eventos |
+.content/mvp/02-arquitectura/03-integracion-y-consistencia/09-Consistencia-Transacciones-y-Manejo-de-Eventos.md:47:| broker degradado | preservar transaccion local y drenar outbox cuando se recupere |
+.content/mvp/02-arquitectura/02-estructura-del-sistema/06-Componentes-por-Contexto-o-Servicio.md:52:| `directory-service` | Resuelve contexto organizacional y politica regional con capa de aplicacion orientada a comandos, politicas de aislamiento, repositorios propios y publicacion de hechos por outbox. | <a href="#" class="R-tree-diagram-link" data-diagram-source="diagram-components-directory-service" data-diagram-title="Componentes - directory-service" onclick="window.R_openMermaidStoredDiagram && window.R_openMermaidStoredDiagram('diagram-components-directory-service','Componentes - directory-service'); return false;">Ver diagrama</a> |
+.content/mvp/02-arquitectura/02-estructura-del-sistema/06-Componentes-por-Contexto-o-Servicio.md:55:| `order-service` | Orquesta carrito, checkout, pedido y pago manual; integra validaciones `Core` sincronas y preserva trazabilidad con repositorios propios y outbox. | <a href="#" class="R-tree-diagram-link" data-diagram-source="diagram-components-order-service" data-diagram-title="Componentes - order-service" onclick="window.R_openMermaidStoredDiagram && window.R_openMermaidStoredDiagram('diagram-components-order-service','Componentes - order-service'); return false;">Ver diagrama</a> |
+.content/mvp/02-arquitectura/02-estructura-del-sistema/06-Componentes-por-Contexto-o-Servicio.md:299:| Arquitectura interna (`C4` L3 equivalente) | `OrganizationPolicyController` -> `ConfigureRegionalPolicyHandler` / `ApplyRegionalPolicyToOperationHandler` -> `OrganizationContext`, `CountryPolicy`, `OrganizationIsolationPolicy` -> `OrganizationRepository`, `CountryPolicyRepository`, `DirectoryAuditRepository`, `OutboxPersistenceAdapter`, `KafkaDomainEventPublisherAdapter` |
+.content/mvp/02-arquitectura/02-estructura-del-sistema/06-Componentes-por-Contexto-o-Servicio.md:300:| Componentes principales | resolucion de contexto organizacional, resolucion de politica regional vigente, validacion de aislamiento por organizacion, relay de outbox |
+.content/mvp/02-arquitectura/02-estructura-del-sistema/06-Componentes-por-Contexto-o-Servicio.md:301:| Flujo critico de ejecucion | `AplicarPoliticaRegionalEnOperacion` resuelve politica vigente por `organizationId+countryCode`, valida vigencia/version y retorna snapshot consumible por `order` y `reporting` |
+.content/mvp/02-arquitectura/02-estructura-del-sistema/06-Componentes-por-Contexto-o-Servicio.md:303:| Persistencia dominante | `organization`, `organization_country_policy`, `directory_audit`, `outbox_event`, `processed_event` |
+.content/mvp/02-arquitectura/02-estructura-del-sistema/06-Componentes-por-Contexto-o-Servicio.md:305:| Presupuesto base de rendimiento | `p95` lectura de politica regional <= `120 ms`; `p95` validacion de contexto <= `180 ms`; outbox `commit -> ack` <= `2.0 s` |
+.content/mvp/02-arquitectura/02-estructura-del-sistema/06-Componentes-por-Contexto-o-Servicio.md:314:| Persistencia dominante | `product`, `variant`, `price`, `variant_attribute`, `catalog_audit`, `outbox_event`, `processed_event` |
+.content/mvp/02-arquitectura/02-estructura-del-sistema/06-Componentes-por-Contexto-o-Servicio.md:315:| Consideraciones de seguridad | RBAC de operacion comercial para mutaciones, controles de idempotencia en cambios masivos de precio, validacion de `organization` en query y write |
+.content/mvp/02-arquitectura/02-estructura-del-sistema/06-Componentes-por-Contexto-o-Servicio.md:316:| Presupuesto base de rendimiento | `p95` resolve variant <= `180 ms`; `p95` search <= `320 ms`; upsert de precio <= `350 ms`; outbox publish <= `250 ms` |
+.content/mvp/02-arquitectura/02-estructura-del-sistema/06-Componentes-por-Contexto-o-Servicio.md:325:| Persistencia dominante | `stock_item`, `stock_reservation`, `stock_movement`, `idempotency_record`, `inventory_audit`, `outbox_event`, `processed_event` |
+.content/mvp/02-arquitectura/02-estructura-del-sistema/06-Componentes-por-Contexto-o-Servicio.md:326:| Consideraciones de seguridad | permisos granulares para ajustes de stock, uso exclusivo de identidad tecnica para confirmaciones de checkout, bloqueo de acceso cruzado por organization |
+.content/mvp/02-arquitectura/02-estructura-del-sistema/06-Componentes-por-Contexto-o-Servicio.md:327:| Presupuesto base de rendimiento | `p95` crear reserva <= `120 ms`; `p95` confirmar reserva <= `150 ms`; `p95` disponibilidad <= `80 ms`; publish outbox <= `250 ms` |
+.content/mvp/02-arquitectura/02-estructura-del-sistema/06-Componentes-por-Contexto-o-Servicio.md:332:| Arquitectura interna (`C4` L3 equivalente) | `Cart/Checkout/OrderController` -> handlers de carrito, checkout, pedido y pago manual -> `Cart`, `Order`, `ManualPayment` + politicas de checkout -> repositorios de carrito/pedido/pago/historial + clientes `directory`, `catalog`, `inventory` + outbox |
+.content/mvp/02-arquitectura/02-estructura-del-sistema/06-Componentes-por-Contexto-o-Servicio.md:336:| Persistencia dominante | `cart`, `cart_item`, `checkout_attempt`, `purchase_order`, `order_line`, `payment_record`, `order_status_history`, `order_audit`, `idempotency_record`, `outbox_event` |
+.content/mvp/02-arquitectura/02-estructura-del-sistema/06-Componentes-por-Contexto-o-Servicio.md:343:| Arquitectura interna (`C4` L3 equivalente) | listeners de eventos `Core`/controlador interno -> `EmitRelevantChangeNotificationHandler` / `RecordNotificationDeliveryHandler` -> `NotificationDispatch`, `RetryPolicy`, `RoutingPolicy` -> repositorios de solicitud/intento/callback/auditoria + cliente de proveedor + outbox |
+.content/mvp/02-arquitectura/02-estructura-del-sistema/06-Componentes-por-Contexto-o-Servicio.md:347:| Persistencia dominante | `notification_request`, `notification_attempt`, `provider_callback`, `notification_audit`, `outbox_event`, `processed_event` |
+.content/mvp/02-arquitectura/02-estructura-del-sistema/06-Componentes-por-Contexto-o-Servicio.md:354:| Arquitectura interna (`C4` L3 equivalente) | listeners de eventos + API read-only + API interna de jobs -> `GenerateWeeklySalesReportHandler` / `GenerateWeeklyReplenishmentReportHandler` y handlers de ingesta -> `ProjectionPolicy`, `FactDedupPolicy` -> repositorios de hechos/proyecciones/artefactos/checkpoints + outbox |
+.content/mvp/02-arquitectura/02-estructura-del-sistema/06-Componentes-por-Contexto-o-Servicio.md:356:| Flujo critico de ejecucion | `GenerarReporteSemanalDeVentas` consolida snapshot semanal por organization, persiste metadata de artefacto y publica `WeeklySalesReportGenerated` |
+.content/mvp/02-arquitectura/02-estructura-del-sistema/06-Componentes-por-Contexto-o-Servicio.md:358:| Persistencia dominante | `analytic_fact`, `sales_projection`, `replenishment_projection`, `operations_kpi_projection`, `weekly_report_execution`, `report_artifact`, `consumer_checkpoint`, `outbox_event`, `processed_event` |
+.content/mvp/02-arquitectura/02-estructura-del-sistema/06-Componentes-por-Contexto-o-Servicio.md:359:| Consideraciones de seguridad | consulta y artefactos siempre filtrados por organization owner, ops internas solo con scope `reporting.ops`, validacion de schema/version en eventos consumidos |
+.content/mvp/02-arquitectura/03-integracion-y-consistencia/08-Interacciones-Sincronas-y-Asincronas.md:29:| validacion de legitimidad de actor en borde | `api-gateway/services -> identity-access` (por token/caches/politica) | control de acceso transversal previo a ejecutar comando |
+.content/mvp/02-arquitectura/03-integracion-y-consistencia/08-Interacciones-Sincronas-y-Asincronas.md:75:| actualizacion de oferta con propagacion | `catalog` muta oferta/precio -> registra outbox -> publica evento -> `order`/`inventory`/`reporting` actualizan lectura local | oferta coherente en consumidores sin compartir base de datos |
+.content/mvp/02-arquitectura/02-estructura-del-sistema/05-Contenedores.md:65:| `api-gateway` | borde | n/a | entrada unica HTTP, validaciones tecnicas de borde y ruteo |
+.content/mvp/02-arquitectura/02-estructura-del-sistema/05-Contenedores.md:86:| `api-gateway` y servicios | `identity-access` | sync/bridge | legitimidad de actor en flujo HTTP |
+
+## CALIDAD
+.content/mvp/03-calidad/06-Evidencias/_index.md:5:url: "/mvp/calidad/evidencias/"
+.content/mvp/03-calidad/06-Evidencias/_index.md:9:Consolidar el paquete de certificacion minima del baseline `MVP`, separando diseno de pruebas, ejecucion real y validacion con evidencia.
+.content/mvp/03-calidad/06-Evidencias/_index.md:21:- La certificacion minima del baseline se declara cuando exista evidencia real en los artefactos definidos en esta seccion.
+.content/mvp/03-calidad/06-Evidencias/02-Matriz-de-Resultados-Esperados.md:5:url: "/mvp/calidad/evidencias/matriz-resultados-esperados/"
+.content/mvp/03-calidad/06-Evidencias/02-Matriz-de-Resultados-Esperados.md:23:| ORD-DIR-IT | FR-004, FR-011, NFR-011 | `order-service`, `directory-service` | Integracion | Listo para implementar | request/response + evidencia de politica regional | bloqueo con `configuracion_pais_no_disponible` cuando aplique | Si |
+.content/mvp/03-calidad/06-Evidencias/02-Matriz-de-Resultados-Esperados.md:26:| E2E-CORE-HAPPY | FR-004, FR-005, FR-010 | `order`, `inventory`, `catalog`, `directory` | E2E | Listo para implementar | traza completa + evidencia API/DB/eventos | compra feliz en flujo core sin desviaciones semanticas | Si |
+.content/mvp/03-calidad/06-Evidencias/02-Matriz-de-Resultados-Esperados.md:29:| NFR-ORGANIZATION-ISO | NFR-005, D-CROSS-01 | servicios core | Integracion/E2E no funcional | Listo para implementar | evidencias cross-organization negativas + auditoria | cero acceso cruzado en mutaciones core | Si |
+.content/mvp/03-calidad/06-Evidencias/02-Matriz-de-Resultados-Esperados.md:31:| NFR-CONTRACT-V1 | NFR-009 | todos | Integracion | Listo para implementar | reportes de contract tests producer/consumer | sin breaking no versionado en API/eventos `v1` | Si |
+.content/mvp/03-calidad/06-Evidencias/02-Matriz-de-Resultados-Esperados.md:32:| TECH-DOCKER-BUILD | NFR-009 | todos | Integracion tecnica | Listo para implementar | evidencia de build de imagen por servicio + arranque tecnico | imagen construye y arranca con config externa, sin secretos embebidos | Si |
+.content/mvp/03-calidad/06-Evidencias/02-Matriz-de-Resultados-Esperados.md:33:| TECH-COMPOSE-SMOKE | NFR-003, NFR-007, NFR-009 | stack core + dependencias de integracion | Integracion tecnica/E2E smoke | Listo para implementar | evidencia de `docker compose` up + health/smoke + telemetria minima | stack reproducible disponible para pruebas de integracion | Si |
+.content/mvp/03-calidad/06-Evidencias/02-Matriz-de-Resultados-Esperados.md:38:| NFR-RETENCION-FINA | NFR-010 | IAM/Directory/Reporting (foco) | Integracion/Operacional | Listo para implementar | evidencia de retencion/anonimizado/borrado | politicas minimas aplicadas por tipo de dato | No |
+.content/mvp/03-calidad/06-Evidencias/02-Matriz-de-Resultados-Esperados.md:42:- El cambio de estado a `Ejecutado` o `Validado con evidencia` requiere registro en:
+.content/mvp/03-calidad/06-Evidencias/02-Matriz-de-Resultados-Esperados.md:43:  - [Registro de Ejecuciones](/mvp/calidad/evidencias/registro-ejecuciones/)
+.content/mvp/03-calidad/06-Evidencias/02-Matriz-de-Resultados-Esperados.md:44:  - [Acta de Certificacion Minima](/mvp/calidad/evidencias/acta-certificacion-minima/)
+.content/mvp/03-calidad/06-Evidencias/03-Registro-de-Ejecuciones.md:5:url: "/mvp/calidad/evidencias/registro-ejecuciones/"
+.content/mvp/03-calidad/06-Evidencias/03-Registro-de-Ejecuciones.md:13:- Cada ejecucion debe enlazar evidencia verificable.
+.content/mvp/03-calidad/06-Evidencias/03-Registro-de-Ejecuciones.md:25:- evidencia de runner o pipeline disponible;
+.content/mvp/03-calidad/06-Evidencias/03-Registro-de-Ejecuciones.md:26:- evidencia tecnica adjunta (logs, reportes, trazas, consultas);
+.content/mvp/03-calidad/06-Evidencias/03-Registro-de-Ejecuciones.md:28:- relacion con gate aplicable y matriz de resultados esperados.
+.content/mvp/03-calidad/06-Evidencias/05-Acta-de-Certificacion-Minima.md:5:url: "/mvp/calidad/evidencias/acta-certificacion-minima/"
+.content/mvp/03-calidad/06-Evidencias/05-Acta-de-Certificacion-Minima.md:9:Formalizar el criterio para declarar el baseline `MVP` certificado minimamente, sin confundirlo con certificacion completa de produccion.
+.content/mvp/03-calidad/06-Evidencias/05-Acta-de-Certificacion-Minima.md:13:- consistencia del pilar de calidad (diseno, mapeo, gates y evidencia);
+.content/mvp/03-calidad/06-Evidencias/05-Acta-de-Certificacion-Minima.md:14:- ejecucion del paquete minimo critico definido en [Plan de Certificacion Minima](/mvp/calidad/evidencias/baseline-certification-plan/);
+.content/mvp/03-calidad/06-Evidencias/05-Acta-de-Certificacion-Minima.md:15:- evidencia verificable y trazable para los casos incluidos en la matriz minima.
+.content/mvp/03-calidad/06-Evidencias/05-Acta-de-Certificacion-Minima.md:23:- [Matriz de Resultados Esperados](/mvp/calidad/evidencias/matriz-resultados-esperados/) actualizada para release candidato.
+.content/mvp/03-calidad/06-Evidencias/05-Acta-de-Certificacion-Minima.md:24:- [Registro de Ejecuciones](/mvp/calidad/evidencias/registro-ejecuciones/) con corridas reales del paquete minimo.
+.content/mvp/03-calidad/06-Evidencias/05-Acta-de-Certificacion-Minima.md:25:- [Desviaciones y Aceptaciones](/mvp/calidad/evidencias/desviaciones-aceptaciones/) actualizado.
+.content/mvp/03-calidad/06-Evidencias/05-Acta-de-Certificacion-Minima.md:32:| `Certificada minimamente` | paquete minimo ejecutado con evidencia y sin `P0/P1` abiertos |
+.content/mvp/03-calidad/06-Evidencias/05-Acta-de-Certificacion-Minima.md:33:| `Certificacion condicionada` | existe evidencia parcial con desviaciones `P2/P3` aceptadas y time-boxed |
+.content/mvp/03-calidad/06-Evidencias/05-Acta-de-Certificacion-Minima.md:34:| `No certificada` | falta evidencia minima o existen bloqueos `P0/P1` |
+.content/mvp/03-calidad/06-Evidencias/05-Acta-de-Certificacion-Minima.md:40:- el paquete minimo, matriz y reglas de evidencia estan definidos;
+.content/mvp/03-calidad/06-Evidencias/05-Acta-de-Certificacion-Minima.md:41:- la certificacion final depende de adjuntar corridas reales y evidencias del release candidato.
+.content/mvp/03-calidad/06-Evidencias/05-Acta-de-Certificacion-Minima.md:50:- Referencias de evidencia:
+.content/mvp/03-calidad/06-Evidencias/04-Desviaciones-y-Aceptaciones.md:5:url: "/mvp/calidad/evidencias/desviaciones-aceptaciones/"
+.content/mvp/03-calidad/06-Evidencias/01-Baseline-Certification-Plan.md:5:url: "/mvp/calidad/evidencias/baseline-certification-plan/"
+.content/mvp/03-calidad/06-Evidencias/01-Baseline-Certification-Plan.md:19:Se exige evidencia de al menos una suite critica por cada servicio:
+.content/mvp/03-calidad/06-Evidencias/01-Baseline-Certification-Plan.md:45:- stack reproducible de integracion con `docker compose` para smoke multi-servicio;
+.content/mvp/03-calidad/06-Evidencias/01-Baseline-Certification-Plan.md:58:- existe evidencia verificable por suite minima;
+.content/mvp/03-calidad/_index.md:7:Pilar de calidad para ArkaB2B en `MVP`: establece la estrategia de verificacion del baseline mediante mapeo de pruebas, convenciones de ejecucion, compuertas de calidad y un modelo trazable de cobertura y evidencia.
+.content/mvp/03-calidad/_index.md:9:El contenido separa de forma explicita diseno, implementacion, ejecucion y validacion con evidencia, y permite sostener una certificacion minima honesta y auditable sin reabrir decisiones de producto, dominio ni arquitectura.
+.content/mvp/03-calidad/02-Mapeo-de-Pruebas.md:9:Trazar de forma verificable los requisitos e invariantes del ciclo contra escenarios de prueba concretos, separando diseno, implementacion, ejecucion y validacion con evidencia.
+.content/mvp/03-calidad/02-Mapeo-de-Pruebas.md:17:- `Validado con evidencia`: resultado ejecutado, evidencia referenciada y aprobada en gate.
+.content/mvp/03-calidad/02-Mapeo-de-Pruebas.md:21:- La certificacion operativa (`Ejecutado` / `Validado con evidencia`) depende de corridas y evidencias de release.
+.content/mvp/03-calidad/02-Mapeo-de-Pruebas.md:26:  - [Plan de Certificacion Minima](/mvp/calidad/evidencias/baseline-certification-plan/)
+.content/mvp/03-calidad/02-Mapeo-de-Pruebas.md:27:  - [Matriz de Resultados Esperados](/mvp/calidad/evidencias/matriz-resultados-esperados/)
+.content/mvp/03-calidad/02-Mapeo-de-Pruebas.md:34:| FR-003 + RN-REP-01 + I-REP-01 | calculo de abastecimiento semanal con datos de inventario y ventas | E2E | `reporting-service`, `inventory-service` | [Reporteria E2E](/mvp/calidad/pruebas/servicio-reporteria/e2e/) (`REP-E2E-001..018`) | `WeeklyReportGenerated` + artefacto de reporte + trazabilidad de fuentes | Listo para implementar |
+.content/mvp/03-calidad/02-Mapeo-de-Pruebas.md:35:| FR-004 + RN-ORD-01 + I-ORD-01 | checkout valido crea pedido en `PENDING_APPROVAL` | E2E | `order-service`, `inventory-service` | [Pedidos E2E](/mvp/calidad/pruebas/servicio-pedidos/e2e/) (`ORD-E2E-001..014`) | respuesta API + `OrderCreated` + persistencia en `purchase_order`/outbox | Listo para implementar |
+.content/mvp/03-calidad/02-Mapeo-de-Pruebas.md:37:| FR-006 + RN-NOTI-01 + I-NOTI-01 | `OrderConfirmed` dispara solicitud de notificacion no bloqueante | E2E | `order-service`, `notification-service` | [Notificaciones E2E](/mvp/calidad/pruebas/servicio-notificaciones/e2e/) (`NOTI-E2E-001..014`) | `OrderConfirmed` + `NotificationRequested` + core consistente | Listo para implementar |
+.content/mvp/03-calidad/02-Mapeo-de-Pruebas.md:38:| FR-007 + RN-REP-01 + I-REP-01 | generacion de reporte semanal sin mutacion de core transaccional | E2E | `reporting-service` | [Reporteria E2E](/mvp/calidad/pruebas/servicio-reporteria/e2e/) (`REP-E2E-001..018`) | `WeeklyReportGenerated` + evidencia read-only sobre core | Listo para implementar |
+.content/mvp/03-calidad/02-Mapeo-de-Pruebas.md:42:| FR-011 + RN-LOC-01 + I-LOC-01 | operacion critica sin politica por `countryCode` se bloquea | E2E | `directory-service`, `order-service`, `reporting-service` | [Directorio E2E](/mvp/calidad/pruebas/servicio-directorio/e2e/) (`DIR-E2E-001..012`) | error `configuracion_pais_no_disponible` + auditoria de bloqueo | Listo para implementar |
+.content/mvp/03-calidad/02-Mapeo-de-Pruebas.md:46:| NFR-002 | generacion de reporte semanal <= 15 min | E2E no funcional | `reporting-service` | [Reporteria E2E](/mvp/calidad/pruebas/servicio-reporteria/e2e/) (`REP-E2E-001..018`) | duracion de corrida semanal por `organization+week+type` | Listo para implementar |
+.content/mvp/03-calidad/02-Mapeo-de-Pruebas.md:48:| NFR-004 | sobreventa semanal <= 1.0% | Integracion + E2E | `inventory-service`, `order-service` | [Inventario Integracion](/mvp/calidad/pruebas/servicio-inventario/integracion/) + [Pedidos E2E](/mvp/calidad/pruebas/servicio-pedidos/e2e/) | metrica de sobreventa semanal + incidentes asociados | Listo para implementar |
+.content/mvp/03-calidad/02-Mapeo-de-Pruebas.md:49:| NFR-005 + D-CROSS-01 | toda mutacion persiste `organizationId` y respeta aislamiento | Integracion | Todos los servicios core | [Pruebas por servicio](/mvp/calidad/pruebas/) (suites de integracion) | evidencia DB + respuestas sin fuga cross-organization | Listo para implementar |
+.content/mvp/03-calidad/02-Mapeo-de-Pruebas.md:51:| NFR-007 | observabilidad operacional minima en mutaciones y consumo async (incluye retry/DLQ instrumentado) | Integracion | `notification-service`, `order-service` | [Notificaciones Integracion](/mvp/calidad/pruebas/servicio-notificaciones/integracion/) (`NOTI-IT-001..028`) | `traceId` en respuestas mutantes + alertas/metricas + evidencia de retry/DLQ | Listo para implementar |
+.content/mvp/03-calidad/02-Mapeo-de-Pruebas.md:53:| NFR-009 | compatibilidad de contratos v1 (API/eventos) sin breaking no versionado | Integracion | Todos los servicios | [Puertas de Calidad - Gate 1/Gate 2](/mvp/calidad/puertas-calidad/) + suites de contratos por servicio | resultados de contract tests producer/consumer | Listo para implementar |
+.content/mvp/03-calidad/02-Mapeo-de-Pruebas.md:55:| NFR-003 + NFR-007 | arranque reproducible de stack de integracion (mecanismo multi-contenedor) | Integracion tecnica + smoke | servicios core + dependencias compartidas | [Puertas de Calidad - Gate 2](/mvp/calidad/puertas-calidad/) | evidencia de stack levantado + health/smoke + telemetria minima | Listo para implementar |
+.content/mvp/03-calidad/02-Mapeo-de-Pruebas.md:56:| NFR-010 | politica de retencion y borrado/anonimizacion por tipo de dato | Integracion + Operacional | Todos los servicios (foco IAM/Directory/Reporting) | [Notas de Cobertura](/mvp/calidad/notas-cobertura/) + suites de integracion | evidencia de retencion/masking/borrado con trazabilidad | Listo para implementar |
+.content/mvp/03-calidad/02-Mapeo-de-Pruebas.md:57:| NFR-011 + RN-LOC-01 | operacion regional sin fallback global implicito | E2E + Operacional | `directory-service`, `order-service`, `reporting-service` | [Directorio E2E](/mvp/calidad/pruebas/servicio-directorio/e2e/) + [Puertas de Calidad - Gate 4](/mvp/calidad/puertas-calidad/) | salidas consistentes por `countryCode` + bloqueos auditados | Listo para implementar |
+.content/mvp/03-calidad/01-Estrategia-de-Pruebas.md:92:Contratos de eventos (fuente de verdad para consumer/producer contract tests):
+.content/mvp/03-calidad/01-Estrategia-de-Pruebas.md:152:- Finalmente `P3` como cierre incremental sin bloquear gates.
+.content/mvp/03-calidad/01-Estrategia-de-Pruebas.md:171:- `local/dev/qa` de integracion y smoke multi-servicio.
+.content/mvp/03-calidad/01-Estrategia-de-Pruebas.md:181:- existe modelo formal de evidencia trazable.
+.content/mvp/03-calidad/01-Estrategia-de-Pruebas.md:186:- hay evidencia verificable asociada,
+.content/mvp/03-calidad/01-Estrategia-de-Pruebas.md:187:- la evidencia fue evaluada y aprobada en el gate aplicable.
+.content/mvp/03-calidad/01-Estrategia-de-Pruebas.md:192:- [Modelo de Evidencia](/mvp/calidad/modelo-evidencia/)
+.content/mvp/03-calidad/01-Estrategia-de-Pruebas.md:199:- taxonomia de estados unificada y sin sobredeclaracion de evidencia;
+.content/mvp/03-calidad/01-Estrategia-de-Pruebas.md:200:- puertas de calidad y criterios de bloqueo/desbloqueo definidos;
+.content/mvp/03-calidad/01-Estrategia-de-Pruebas.md:201:- modelo de evidencia auditable y registro de corridas preparado.
+.content/mvp/03-calidad/01-Estrategia-de-Pruebas.md:204:Para declarar el baseline listo para cierre integral antes de `04-operacion`, se exige un paquete minimo de suites criticas y evidencia asociada, sin implicar certificacion total de produccion.
+.content/mvp/03-calidad/01-Estrategia-de-Pruebas.md:207:- [Evidencias y Certificacion Minima](/mvp/calidad/evidencias/)
+.content/mvp/03-calidad/01-Estrategia-de-Pruebas.md:208:- [Plan de Certificacion Minima](/mvp/calidad/evidencias/baseline-certification-plan/)
+.content/mvp/03-calidad/01-Estrategia-de-Pruebas.md:209:- [Matriz de Resultados Esperados](/mvp/calidad/evidencias/matriz-resultados-esperados/)
+.content/mvp/03-calidad/01-Estrategia-de-Pruebas.md:210:- [Acta de Certificacion Minima](/mvp/calidad/evidencias/acta-certificacion-minima/)
+.content/mvp/03-calidad/01-Estrategia-de-Pruebas.md:214:- 2026-03-28: se explicita separacion entre baseline documental de pruebas y baseline de certificacion con evidencia.
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:5:url: "/mvp/calidad/modelo-evidencia/"
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:9:Definir un modelo unico y auditable para registrar evidencia de pruebas y habilitar trazabilidad entre caso, corrida, gate y estado final.
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:11:## 1) Ubicacion de evidencia
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:12:Estructura recomendada para almacenar evidencia por ciclo/release:
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:13:`content/mvp/03-calidad/06-Evidencias/artefactos/<release>/<gate>/<servicio>/`
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:17:- `<gate>`: `gate-1-pr`, `gate-2-integracion`, `gate-3-e2e`, `gate-4-no-funcional`.
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:21:- [Evidencias y Certificacion Minima](/mvp/calidad/evidencias/)
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:22:- [Registro de Ejecuciones](/mvp/calidad/evidencias/registro-ejecuciones/)
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:23:- [Acta de Certificacion Minima](/mvp/calidad/evidencias/acta-certificacion-minima/)
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:26:Nombre canonico de evidencia:
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:27:`<fechaUTC>_<release>_<gate>_<servicio>_<suite>_<resultado>.md`
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:30:`2026-03-28T19-40Z_mvp-r1_gate-2-integracion_order-service_integracion_ok.md`
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:33:- `*.json` para resultados de test runner,
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:38:## 3) Metadatos minimos por evidencia
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:39:Toda evidencia debe incluir:
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:41:- `gate`;
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:60:### 4.2 Para marcar `Validado con evidencia`
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:61:Un escenario puede pasar a `Validado con evidencia` solo si:
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:63:- la evidencia cumple metadatos minimos,
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:64:- el gate aplicable queda aprobado,
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:67:## 5) Relacion entre caso, corrida y evidencia
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:73:- toda afirmacion de certificacion debe enlazar al menos una evidencia concreta.
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:74:- sin evidencia enlazada, el estado maximo permitido es `Implementado`.
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:77:- Gate 1: evidencia de lint, unitarias y contract checks.
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:78:- Gate 2: evidencia de integracion, DB, seguridad, organization y trazabilidad.
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:79:- Gate 3: evidencia E2E por flujo critico.
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:80:- Gate 4: evidencia no funcional (performance, disponibilidad, resiliencia, regionalizacion, seguridad operacional).
+.content/mvp/03-calidad/06-Modelo-de-Evidencia.md:86:- 2026-03-28: se define modelo formal de evidencia para separar diseno, ejecucion y certificacion en `03-calidad`.
+.content/mvp/03-calidad/07-pruebas/05-servicio-pedidos/_index.md:33:- Carpetas `unitarias`, `integracion` y `e2e` cubren escenarios `P1` y `P2` de Order.
+.content/mvp/03-calidad/03-Convenciones-de-Prueba.md:17:- `Validado con evidencia`: ejecucion evaluada y aprobada en gate con evidencia verificable.
+.content/mvp/03-calidad/03-Convenciones-de-Prueba.md:19:Regla: no usar `Validado` sin el sufijo `con evidencia` ni sin referencia de evidencia.
+.content/mvp/03-calidad/03-Convenciones-de-Prueba.md:30:- `e2e_order_notification_orderConfirmed_disparaNotificacionNoBloqueante`
+.content/mvp/03-calidad/03-Convenciones-de-Prueba.md:48:- `Then` debe incluir al menos una evidencia de negocio y una tecnica.
+.content/mvp/03-calidad/03-Convenciones-de-Prueba.md:55:- `tests/<servicio>/<nivel>/fixtures/`
+.content/mvp/03-calidad/03-Convenciones-de-Prueba.md:81:Todo comando mutante probado en integracion/e2e debe incluir verificacion de idempotencia.
+.content/mvp/03-calidad/03-Convenciones-de-Prueba.md:93:## 6) Reglas para tests async/eventos
+.content/mvp/03-calidad/03-Convenciones-de-Prueba.md:113:  - evidencia en DLQ + auditoria operacional.
+.content/mvp/03-calidad/03-Convenciones-de-Prueba.md:143:Toda prueba de integracion/e2e sobre mutaciones o consumo de eventos debe verificar propagacion de trazabilidad.
+.content/mvp/03-calidad/03-Convenciones-de-Prueba.md:155:Se considera `Validado con evidencia` cuando:
+.content/mvp/03-calidad/03-Convenciones-de-Prueba.md:156:- la corrida ejecutada referencia evidencia verificable,
+.content/mvp/03-calidad/03-Convenciones-de-Prueba.md:157:- la evidencia queda aprobada en el gate aplicable.
+.content/mvp/03-calidad/03-Convenciones-de-Prueba.md:159:## 9) Relacion caso-corrida-evidencia
+.content/mvp/03-calidad/03-Convenciones-de-Prueba.md:166:- [Modelo de Evidencia](/mvp/calidad/modelo-evidencia/)
+.content/mvp/03-calidad/03-Convenciones-de-Prueba.md:167:- [Registro de Ejecuciones](/mvp/calidad/evidencias/registro-ejecuciones/)
+.content/mvp/03-calidad/03-Convenciones-de-Prueba.md:172:- Observable: evidencia tecnica y de negocio verificable.
+.content/mvp/03-calidad/03-Convenciones-de-Prueba.md:177:- 2026-03-28: se normaliza taxonomia de estados y criterios de `Ejecutado`/`Validado con evidencia`.
+.content/mvp/03-calidad/05-Notas-de-Cobertura.md:9:Definir el modelo de cobertura de `MVP` priorizando evidencia funcional y semantica (dominio/contratos/flujos), no solo porcentaje de lineas.
+.content/mvp/03-calidad/05-Notas-de-Cobertura.md:30:- contract tests de API/eventos por servicio.
+.content/mvp/03-calidad/05-Notas-de-Cobertura.md:40:- evidencia de build/arranque por servicio;
+.content/mvp/03-calidad/05-Notas-de-Cobertura.md:41:- evidencia de smoke de stack de integracion.
+.content/mvp/03-calidad/05-Notas-de-Cobertura.md:63:- `Cobertura certificada`: porcentaje de escenarios en estado `Validado con evidencia`.
+.content/mvp/03-calidad/05-Notas-de-Cobertura.md:64:- `Cobertura de contratos`: porcentaje de endpoints/eventos versionados con contract tests.
+.content/mvp/03-calidad/05-Notas-de-Cobertura.md:68:- `Cobertura de lineas` (auxiliar): indicador secundario, nunca criterio unico de cierre.
+.content/mvp/03-calidad/05-Notas-de-Cobertura.md:77:| Integracion | >= 80% de contratos API/eventos activos con casos disenados | por release: cobertura de contratos impactados en gate |
+.content/mvp/03-calidad/05-Notas-de-Cobertura.md:80:Nota: los minimos de certificacion dependen de ejecuciones reales y evidencia, no se infieren por diseno.
+.content/mvp/03-calidad/05-Notas-de-Cobertura.md:104:| EXC-001 | pruebas E2E de canales externos reales de notificacion | proveedor externo fuera del baseline tecnico local | bajo para `MVP` | dobles de canal + contract tests + smoke controlado | Aceptada en baseline |
+.content/mvp/03-calidad/05-Notas-de-Cobertura.md:119:| Cobertura implementada | Variable por servicio/release; no inferida documentalmente | suites por servicio + [Registro de Ejecuciones](/mvp/calidad/evidencias/registro-ejecuciones/) |
+.content/mvp/03-calidad/05-Notas-de-Cobertura.md:120:| Cobertura ejecutada | Pendiente de corridas reales por release candidato | [Registro de Ejecuciones](/mvp/calidad/evidencias/registro-ejecuciones/) |
+.content/mvp/03-calidad/05-Notas-de-Cobertura.md:121:| Cobertura validada con evidencia | Pendiente de aprobacion de gates por release | [Acta de Certificacion Minima](/mvp/calidad/evidencias/acta-certificacion-minima/) |
+.content/mvp/03-calidad/05-Notas-de-Cobertura.md:122:| Cobertura incluida en certificacion minima | Definida como paquete critico representativo | [Plan de Certificacion Minima](/mvp/calidad/evidencias/baseline-certification-plan/) |
+.content/mvp/03-calidad/05-Notas-de-Cobertura.md:123:| Cobertura diferida a releases/hardening | No funcional profundo y operacion avanzada | [Desviaciones y Aceptaciones](/mvp/calidad/evidencias/desviaciones-aceptaciones/) |
+.content/mvp/03-calidad/05-Notas-de-Cobertura.md:133:- la evidencia cumple el modelo del pilar,
+.content/mvp/03-calidad/05-Notas-de-Cobertura.md:134:- los gates aplicables quedan aprobados.
+.content/mvp/03-calidad/05-Notas-de-Cobertura.md:139:- [Modelo de Evidencia](/mvp/calidad/modelo-evidencia/)
+.content/mvp/03-calidad/05-Notas-de-Cobertura.md:143:- 2026-03-28: se separa cobertura documental de certificacion operacional con evidencia.
+.content/mvp/03-calidad/07-pruebas/07-servicio-reporteria/_index.md:31:- Carpetas `unitarias`, `integracion` y `e2e` cubren escenarios `P1` y `P2` del servicio.
+.content/mvp/03-calidad/07-pruebas/07-servicio-reporteria/_index.md:61:- evidencia de DB: `analytic_facts`, `sales_projections`, `replenishment_projections`, `operations_kpi_projections`, `weekly_report_executions`, `report_artifacts`, `reporting_audits`, `outbox_events`, `processed_events`.
+.content/mvp/03-calidad/07-pruebas/07-servicio-reporteria/_index.md:62:- evidencia de observabilidad: logs y traces con `traceId/correlationId` por flujo.
+.content/mvp/03-calidad/07-pruebas/06-servicio-notificaciones/_index.md:34:- Carpetas `unitarias`, `integracion` y `e2e` cubren escenarios `P1` y `P2` de Notification.
+.content/mvp/03-calidad/07-pruebas/05-servicio-pedidos/unitarias/_index.md:45:- Escenarios `ORD-UT-001..015` en estado `Disenado` o superior, segun corrida y evidencia.
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:9:Definir las compuertas de calidad de `MVP` para controlar promocion de cambios desde PR hasta evaluacion no funcional, sin sobreactuar certificacion cuando no exista evidencia.
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:22:- Cumplir un gate requiere corrida ejecutada + evidencia verificable.
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:23:- Si no hay evidencia, el estado maximo permitido es `Implementado`.
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:24:- Solo se usa `Validado con evidencia` cuando hay aprobacion explicita del gate.
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:27:Referencia: [Modelo de Evidencia](/mvp/calidad/modelo-evidencia/)
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:32:- Paquete minimo definido en [Plan de Certificacion Minima](/mvp/calidad/evidencias/baseline-certification-plan/) ejecutado para el release candidato.
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:33:- Resultados trazados en [Matriz de Resultados Esperados](/mvp/calidad/evidencias/matriz-resultados-esperados/).
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:34:- Corridas reales registradas en [Registro de Ejecuciones](/mvp/calidad/evidencias/registro-ejecuciones/).
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:35:- Desviaciones y aceptaciones documentadas en [Desviaciones y Aceptaciones](/mvp/calidad/evidencias/desviaciones-aceptaciones/).
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:36:- Emision de [Acta de Certificacion Minima](/mvp/calidad/evidencias/acta-certificacion-minima/) con estado final.
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:39:- `Aprobado`: paquete minimo ejecutado con evidencia suficiente y sin defectos `P0/P1` abiertos.
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:40:- `Condicionado`: existe evidencia parcial o desviaciones `P2/P3` aceptadas time-boxed.
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:41:- `No aprobado`: falta evidencia minima o existen bloqueos `P0/P1`.
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:58:- reporte de contract checks;
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:59:- evidencia de build de artefacto y arranque tecnico basico;
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:73:  - `organizationId` presente en mutaciones y evidencia.
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:81:- evidencia de DB/outbox/processed_event cuando aplique;
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:82:- evidencia de stack de integracion (servicios/dependencias) y smoke;
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:83:- evidencia de trazabilidad (`traceId`, `correlationId`).
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:111:| NFR-006 | mutaciones criticas | `qa`/`staging` | >= 99% con `actorId/organizationId/fechaOperacion` | por release | evidencia de auditoria y logs estructurados |
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:114:| NFR-009 | APIs/eventos `v1` | `qa`/`staging` | sin breaking no versionado | por PR/release | resultados de contract tests producer/consumer |
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:115:| NFR-010 | retencion, anonimizado y borrado | `qa`/`staging` + controles operativos | solicitudes <= 30 dias; politica aplicada por tipo de dato | por release + mensual | evidencia de jobs/reglas + auditoria |
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:140:- `P0`: bloquea inmediatamente cualquier gate.
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:149:- re-ejecucion del gate afectado conforme;
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:150:- evidencia anexada en trazabilidad de calidad.
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:161:- 2026-03-28: se establecen compuertas formales de calidad para PR, integracion, E2E y no funcional con criterio de bloqueo/desbloqueo por severidad.
+.content/mvp/03-calidad/04-Puertas-de-Calidad.md:162:- 2026-03-28: se agrega matriz operativa no funcional y regla estricta de certificacion con evidencia.
+.content/mvp/03-calidad/07-pruebas/02-servicio-directorio/_index.md:34:- Carpetas `unitarias`, `integracion` y `e2e` cubren escenarios criticos `P1` y `P2` de Directory.
+.content/mvp/03-calidad/07-pruebas/01-servicio-identidad-acceso/_index.md:33:- Carpetas `unitarias`, `integracion` y `e2e` cubren escenarios criticos `P1` y `P2` del servicio.
+.content/mvp/03-calidad/07-pruebas/01-servicio-identidad-acceso/_index.md:41:- Se valida evidencia tecnica por flujo: `auth_audit`, `outbox_event`, `processed_event`, logs estructurados con `traceId/correlationId`.
+.content/mvp/03-calidad/07-pruebas/07-servicio-reporteria/e2e/_index.md:5:url: "/mvp/calidad/pruebas/servicio-reporteria/e2e/"
+.content/mvp/03-calidad/07-pruebas/07-servicio-reporteria/e2e/_index.md:40:- Escenarios `REP-E2E-001..018` disenados para ejecucion reproducible; el estado final requiere corrida y evidencia.
+.content/mvp/03-calidad/07-pruebas/07-servicio-reporteria/e2e/_index.md:45:- reporte por escenario con estado (`Implementado`/`Ejecutado`/`Validado con evidencia`).
+.content/mvp/03-calidad/07-pruebas/01-servicio-identidad-acceso/unitarias/_index.md:48:- Escenarios `IAM-UT-001..014` en estado `Disenado` o superior, segun corrida y evidencia.
+.content/mvp/03-calidad/07-pruebas/06-servicio-notificaciones/integracion/_index.md:56:- Dedupe, retry, DLQ y reproceso disenados para verificarse con evidencia persistida durante la corrida.
+.content/mvp/03-calidad/07-pruebas/06-servicio-notificaciones/unitarias/_index.md:44:- Escenarios `NOTI-UT-001..015` en estado `Disenado` o superior, segun corrida y evidencia.
+.content/mvp/03-calidad/07-pruebas/02-servicio-directorio/unitarias/_index.md:45:- Escenarios `DIR-UT-001..015` en estado `Disenado` o superior, segun corrida y evidencia.
+.content/mvp/03-calidad/07-pruebas/02-servicio-directorio/e2e/_index.md:5:url: "/mvp/calidad/pruebas/servicio-directorio/e2e/"
+.content/mvp/03-calidad/07-pruebas/02-servicio-directorio/e2e/_index.md:34:- Escenarios `DIR-E2E-001..012` disenados para ejecucion reproducible; el estado final requiere corrida y evidencia.
+.content/mvp/03-calidad/07-pruebas/02-servicio-directorio/e2e/_index.md:39:- Reporte por escenario con estado (`Implementado`/`Ejecutado`/`Validado con evidencia`).
+.content/mvp/03-calidad/07-pruebas/03-servicio-catalogo/_index.md:32:- Carpetas `unitarias`, `integracion` y `e2e` cubren escenarios `P1` y `P2` de Catalog.
+.content/mvp/03-calidad/07-pruebas/05-servicio-pedidos/e2e/_index.md:5:url: "/mvp/calidad/pruebas/servicio-pedidos/e2e/"
+.content/mvp/03-calidad/07-pruebas/05-servicio-pedidos/e2e/_index.md:37:- Escenarios `ORD-E2E-001..014` disenados para ejecucion reproducible; el estado final requiere corrida y evidencia.
+.content/mvp/03-calidad/07-pruebas/05-servicio-pedidos/e2e/_index.md:42:- Reporte por escenario con estado (`Implementado`/`Ejecutado`/`Validado con evidencia`).
+.content/mvp/03-calidad/07-pruebas/07-servicio-reporteria/unitarias/_index.md:49:- Escenarios `REP-UT-001..018` en estado `Disenado` o superior, segun corrida y evidencia.
+.content/mvp/03-calidad/07-pruebas/01-servicio-identidad-acceso/integracion/_index.md:39:| IAM-IT-016 | retry y DLQ en evento no recuperable | error no retryable | mensaje a DLQ + evidencia operativa | NFR-007, arquitectura-eventos IAM |
+.content/mvp/03-calidad/07-pruebas/01-servicio-identidad-acceso/integracion/_index.md:41:| IAM-IT-018 | retencion minima de auditoria y eventos tecnicos | politicas aplicadas por tipo de dato | evidencia de job/consulta de retencion | NFR-010 |
+.content/mvp/03-calidad/07-pruebas/01-servicio-identidad-acceso/integracion/_index.md:45:- Dedupe, idempotencia y outbox disenados para verificarse con evidencia persistida.
+.content/mvp/03-calidad/07-pruebas/_index.md:13:- `e2e`: flujo critico real, errores de negocio y seguridad organization/rol.
+.content/mvp/03-calidad/07-pruebas/02-servicio-directorio/integracion/_index.md:52:- Outbox, dedupe y auditoria disenados para verificarse con evidencia persistida durante la corrida.
+.content/mvp/03-calidad/07-pruebas/06-servicio-notificaciones/e2e/_index.md:5:url: "/mvp/calidad/pruebas/servicio-notificaciones/e2e/"
+.content/mvp/03-calidad/07-pruebas/06-servicio-notificaciones/e2e/_index.md:36:- Escenarios `NOTI-E2E-001..014` disenados para ejecucion reproducible; el estado final requiere corrida y evidencia.
+.content/mvp/03-calidad/07-pruebas/06-servicio-notificaciones/e2e/_index.md:41:- Reporte por escenario con estado (`Implementado`/`Ejecutado`/`Validado con evidencia`).
+.content/mvp/03-calidad/07-pruebas/01-servicio-identidad-acceso/e2e/_index.md:5:url: "/mvp/calidad/pruebas/servicio-identidad-acceso/e2e/"
+.content/mvp/03-calidad/07-pruebas/01-servicio-identidad-acceso/e2e/_index.md:37:- Escenarios `IAM-E2E-001..009`, `011` y `012` disenados para ejecucion reproducible; el estado final requiere corrida y evidencia.
+.content/mvp/03-calidad/07-pruebas/01-servicio-identidad-acceso/e2e/_index.md:42:- Reporte de ejecucion con IDs de escenario y estado (`Implementado`/`Ejecutado`/`Validado con evidencia`).
+.content/mvp/03-calidad/07-pruebas/04-servicio-inventario/_index.md:33:- Carpetas `unitarias`, `integracion` y `e2e` cubren escenarios `P1` y `P2` de Inventory.
+.content/mvp/03-calidad/07-pruebas/03-servicio-catalogo/unitarias/_index.md:44:- Escenarios `CAT-UT-001..015` en estado `Disenado` o superior, segun corrida y evidencia.
+.content/mvp/03-calidad/07-pruebas/05-servicio-pedidos/integracion/_index.md:54:| ORD-IT-030 | consistencia de contratos eventos | producer contract tests `Order*`/`Cart*` | payload y topicos `v1` conformes en corrida | NFR-009 |
+.content/mvp/03-calidad/07-pruebas/05-servicio-pedidos/integracion/_index.md:58:- Integraciones sync y async disenadas para verificarse con evidencia persistida en corrida.
+.content/mvp/03-calidad/07-pruebas/04-servicio-inventario/e2e/_index.md:5:url: "/mvp/calidad/pruebas/servicio-inventario/e2e/"
+.content/mvp/03-calidad/07-pruebas/04-servicio-inventario/e2e/_index.md:36:- Escenarios `INV-E2E-001..014` disenados para ejecucion reproducible; el estado final requiere corrida y evidencia.
+.content/mvp/03-calidad/07-pruebas/04-servicio-inventario/e2e/_index.md:41:- Reporte por escenario con estado (`Implementado`/`Ejecutado`/`Validado con evidencia`).
+.content/mvp/03-calidad/07-pruebas/04-servicio-inventario/unitarias/_index.md:45:- Escenarios `INV-UT-001..015` en estado `Disenado` o superior, segun corrida y evidencia.
+.content/mvp/03-calidad/07-pruebas/03-servicio-catalogo/e2e/_index.md:5:url: "/mvp/calidad/pruebas/servicio-catalogo/e2e/"
+.content/mvp/03-calidad/07-pruebas/03-servicio-catalogo/e2e/_index.md:34:- Escenarios `CAT-E2E-001..012` disenados para ejecucion reproducible; el estado final requiere corrida y evidencia.
+.content/mvp/03-calidad/07-pruebas/03-servicio-catalogo/e2e/_index.md:39:- Reporte por escenario con estado (`Implementado`/`Ejecutado`/`Validado con evidencia`).
+.content/mvp/03-calidad/07-pruebas/04-servicio-inventario/integracion/_index.md:55:- Idempotencia HTTP (`idempotency_records`) y dedupe async (`processed_events`) disenados para verificarse con evidencia persistida durante la corrida.
+.content/mvp/03-calidad/07-pruebas/03-servicio-catalogo/integracion/_index.md:45:| CAT-IT-022 | retry y DLQ en evento no recuperable | payload incompatible/no legitimo | clasificacion no-retryable + DLQ + evidencia | NFR-006 |
+.content/mvp/03-calidad/07-pruebas/03-servicio-catalogo/integracion/_index.md:52:- Dedupe/outbox/idempotencia disenados para verificarse con evidencia persistida durante la corrida.
+
+## OPERACION
+.content/mvp/04-operacion/01-Estrategia-Operativa.md:18:- gestion de incidentes, respuesta y recuperacion;
+.content/mvp/04-operacion/01-Estrategia-Operativa.md:19:- operacion del broker, DLQ y reprocesos;
+.content/mvp/04-operacion/01-Estrategia-Operativa.md:20:- gestion segura de configuracion y secretos.
+.content/mvp/04-operacion/01-Estrategia-Operativa.md:26:- automatizacion avanzada de incidentes y capacity planning maduro.
+.content/mvp/04-operacion/01-Estrategia-Operativa.md:35:  con `configuracion_pais_no_disponible` y auditoria.
+.content/mvp/04-operacion/01-Estrategia-Operativa.md:38:- Edge y seguridad: `api-gateway-service`, `identity-access-service`.
+.content/mvp/04-operacion/01-Estrategia-Operativa.md:43:  PostgreSQL por servicio, stack de observabilidad, gestor de secretos.
+.content/mvp/04-operacion/01-Estrategia-Operativa.md:55:- alertas y runbooks cubren flujos criticos;
+.content/mvp/04-operacion/01-Estrategia-Operativa.md:56:- incidentes se gestionan con severidad, escalamiento y evidencia;
+.content/mvp/04-operacion/01-Estrategia-Operativa.md:63:- Salida operativa: runbooks, criterios de promocion, trazabilidad operativa
+.content/mvp/04-operacion/14-Trazabilidad-Operativa.md:15:| NFR disponibilidad | continuidad de flujo core | runbooks de caida/5xx/rollback | registro de incidente + metricas |
+.content/mvp/04-operacion/14-Trazabilidad-Operativa.md:16:| NFR trazabilidad | correlacion extremo a extremo | logs/trazas con traceId+correlationId | dashboard + trazas por incidente |
+.content/mvp/04-operacion/14-Trazabilidad-Operativa.md:17:| NFR seguridad | controles minimos operativos | accesos, secretos, eventos seguridad | auditoria de acceso/rotacion |
+.content/mvp/04-operacion/14-Trazabilidad-Operativa.md:19:| Arquitectura eventos | broker+DLQ+idempotencia | operacion de lag/reintentos/reproceso | reporte DLQ y reproceso |
+.content/mvp/04-operacion/14-Trazabilidad-Operativa.md:20:| Empaquetado reproducible | imagen versionada por servicio + stack de integracion reproducible | promocion por version de imagen + smoke de stack multi-contenedor en local/dev/qa | evidencia de build/arranque/promocion |
+.content/mvp/04-operacion/14-Trazabilidad-Operativa.md:23:## Cadena operativa NFR -> alerta -> riesgo -> runbook
+.content/mvp/04-operacion/14-Trazabilidad-Operativa.md:26:| NFR-003 disponibilidad | servicio sin respuesta / 5xx alto | indisponibilidad core | 01-Caida-de-Servicio / 11-Rollback-de-Release | incidente + retorno de salud |
+.content/mvp/04-operacion/14-Trazabilidad-Operativa.md:29:| NFR-005 aislamiento organization | errores authz anormales | incidente cross-organization | 03-Fallos-de-Autenticacion | auditoria + trazas de aislamiento |
+.content/mvp/04-operacion/14-Trazabilidad-Operativa.md:30:| NFR-011 regionalizacion | `configuracion_pais_no_disponible` alta | bloqueo por pais | 09-Configuracion-Pais-No-Disponible | politica vigente aplicada |
+.content/mvp/04-operacion/14-Trazabilidad-Operativa.md:36:| 1 | que alerta se disparo | [06-SLI-SLO-y-Alertas](/mvp/operacion/sli-slo-alertas/) |
+.content/mvp/04-operacion/14-Trazabilidad-Operativa.md:38:| 3 | que procedimiento ejecutar | [Runbooks](/mvp/operacion/runbooks/) |
+.content/mvp/04-operacion/14-Trazabilidad-Operativa.md:39:| 4 | que evidencia guardar | [08-Incidentes/04-Registro-de-Incidentes](/mvp/operacion/incidentes/registro-incidentes/) |
+.content/mvp/04-operacion/09-Eventos-y-DLQ/_index.md:2:title: "9. Eventos y DLQ"
+.content/mvp/04-operacion/09-Eventos-y-DLQ/_index.md:7:Operacion del bus de eventos, control de `DLQ`, reprocesos, lag de
+.content/mvp/04-operacion/09-Eventos-y-DLQ/02-DLQ-y-Reprocesos.md:2:title: "DLQ y Reprocesos"
+.content/mvp/04-operacion/09-Eventos-y-DLQ/02-DLQ-y-Reprocesos.md:3:linkTitle: "9.2 DLQ y Reprocesos"
+.content/mvp/04-operacion/09-Eventos-y-DLQ/02-DLQ-y-Reprocesos.md:9:Definir cuando enviar mensajes a DLQ y como reprocesarlos sin romper
+.content/mvp/04-operacion/09-Eventos-y-DLQ/02-DLQ-y-Reprocesos.md:12:## Criterios de enrutamiento a DLQ
+.content/mvp/04-operacion/09-Eventos-y-DLQ/02-DLQ-y-Reprocesos.md:24:1. Congelar nuevas promociones si el incidente es activo.
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:2:title: "SLI, SLO y Alertas"
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:3:linkTitle: "6. SLI/SLO y Alertas"
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:5:url: "/mvp/operacion/sli-slo-alertas/"
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:10:objetivos de servicio y alertas accionables.
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:15:- Regla de calculo: usar ventanas completas; incidentes en curso no se excluyen.
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:19:## SLI/SLO iniciales del MVP (operativos)
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:20:| Capacidad | Servicios fuente | Senal / calculo | SLO inicial | Ventana | Alerta | Runbook |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:22:| Disponibilidad backend core (NFR-003) | gateway + IAM + directory + catalog + inventory + order | `1 - (errores no controlados + caidas) / total requests core` | >= 99.5% | mensual (06:00-22:00) | critica | [Caida de Servicio](/mvp/operacion/runbooks/caida-servicio/) |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:23:| Latencia flujo core (NFR-001) | order/inventory/catalog/directory | p95 por endpoints criticos de login, checkout, reserva, creacion pedido | lectura <= 800 ms, mutacion <= 1500 ms | diario + por release | media/alta | [Checkout Degradado](/mvp/operacion/runbooks/checkout-degradado/) |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:24:| Autenticacion estable | IAM + gateway | tasa 401/403 anomala sobre baseline por ruta protegida | sin crecimiento sostenido fuera de umbral operacional | 15m/1h | alta/critica | [Fallos de Autenticacion](/mvp/operacion/runbooks/fallos-autenticacion/) |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:25:| Consistencia de reservas (NFR-004) | inventory + order | casos de reserva inconsistente / total reservas de ventana | <= 1.0% semanal | semanal | alta | [Reserva Inconsistente](/mvp/operacion/runbooks/reserva-inconsistente/) |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:26:| Salud de procesamiento de eventos | broker + consumidores core | lag por consumer group + ratio de reintentos | lag y retry dentro de baseline de servicio | 5m/30m | alta | [Consumidor Atascado](/mvp/operacion/runbooks/consumidor-atascado/) |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:27:| Control de DLQ | broker + servicios consumidores | crecimiento neto de DLQ por topico en ventana | sin crecimiento sostenido no explicado | 15m/1h | alta | [Crecimiento de DLQ](/mvp/operacion/runbooks/crecimiento-dlq/) |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:28:| Regionalizacion sin fallback (NFR-011) | directory + order + reporting | conteo de `configuracion_pais_no_disponible` por countryCode | 100% operaciones criticas con politica vigente | por release + diario | alta | [Configuracion Pais No Disponible](/mvp/operacion/runbooks/configuracion-pais-no-disponible/) |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:29:| Aislamiento organization (NFR-005) | todos los servicios mutantes | incidentes cross-organization confirmados | 0 criticos/mes | mensual | critica | [Fallos de Autenticacion](/mvp/operacion/runbooks/fallos-autenticacion/) |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:30:| Entrega de notificaciones no bloqueantes | notification-service | `failed`/`discarded` sobre `requested` por canal | dentro de umbral operacional del canal | diario | media | [Reporting Atrasado](/mvp/operacion/runbooks/reporting-atrasado/) |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:31:| Trazabilidad de mutaciones (NFR-006/NFR-007) | todos los servicios mutantes | porcentaje de respuestas/eventos con `traceId` y metadata obligatoria | >= 99% metadata completa; `traceId` en 100% mutaciones | por release | media | [Aumento de Errores 5xx](/mvp/operacion/runbooks/aumento-errores-5xx/) |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:33:## Politica de alertas
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:37:| Alta | error-rate elevado sostenido, crecimiento rapido de DLQ, lag alto de consumidor core | <= 20 min | on-call + equipo servicio |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:41:## Mapa alerta -> runbook
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:44:| Servicio sin respuesta | [Caida de Servicio](/mvp/operacion/runbooks/caida-servicio/) |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:45:| `5xx` sobre umbral | [Aumento de Errores 5xx](/mvp/operacion/runbooks/aumento-errores-5xx/) |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:46:| fallos authn/authz | [Fallos de Autenticacion](/mvp/operacion/runbooks/fallos-autenticacion/) |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:47:| checkout degradado | [Checkout Degradado](/mvp/operacion/runbooks/checkout-degradado/) |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:48:| inconsistencia de reservas | [Reserva Inconsistente](/mvp/operacion/runbooks/reserva-inconsistente/) |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:49:| DLQ en crecimiento | [Crecimiento de DLQ](/mvp/operacion/runbooks/crecimiento-dlq/) |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:50:| lag de consumidor | [Consumidor Atascado](/mvp/operacion/runbooks/consumidor-atascado/) |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:51:| reporting atrasado | [Reporting Atrasado](/mvp/operacion/runbooks/reporting-atrasado/) |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:52:| `configuracion_pais_no_disponible` alta | [Configuracion Pais No Disponible](/mvp/operacion/runbooks/configuracion-pais-no-disponible/) |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:53:| compromiso de secreto | [Rotacion Urgente de Secretos](/mvp/operacion/runbooks/rotacion-urgente-secretos/) |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:55:## Mapa operativo alerta -> riesgo -> evidencia
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:58:| servicio sin respuesta | indisponibilidad de flujo core | incidente + capturas de salud + trazas de error |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:60:| DLQ creciente | atraso de procesamiento y deriva de consistencia | conteo de DLQ por topico + lote reprocesado |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:66:- Ambientes `dev/qa` se usan para tendencia y pre-alerta, no para SLO final.
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:68:- Ajustes de umbral no modifican la semantica del SLO comprometido.
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:71:- Umbrales se ajustan por telemetria real sin romper SLO baseline.
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:73:- Ninguna calibracion puede ocultar incidentes `P0/P1`.
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:75:## Checklist rapido de respuesta a alertas
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:78:| 1. confirmar alerta | descartar falso positivo y delimitar alcance |
+.content/mvp/04-operacion/06-SLI-SLO-y-Alertas.md:80:| 3. ejecutar runbook | contener y recuperar con procedimiento estandar |
+.content/mvp/04-operacion/09-Eventos-y-DLQ/01-Operacion-del-Broker.md:14:- Monitorear lag por consumer group y particion.
+.content/mvp/04-operacion/09-Eventos-y-DLQ/01-Operacion-del-Broker.md:15:- Monitorear ratio de retries y entradas a DLQ.
+.content/mvp/04-operacion/09-Eventos-y-DLQ/01-Operacion-del-Broker.md:27:  retry/DLQ sin rollback transaccional indebido.
+.content/mvp/04-operacion/09-Eventos-y-DLQ/01-Operacion-del-Broker.md:32:- En fallo no recuperable: enrutar a DLQ y registrar evidencia.
+.content/mvp/04-operacion/08-Incidentes/_index.md:4:url: "/mvp/operacion/incidentes/"
+.content/mvp/04-operacion/08-Incidentes/_index.md:7:Marco de gestion de incidentes para `MVP`: severidades, escalamiento,
+.content/mvp/04-operacion/09-Eventos-y-DLQ/03-Lag-Reintentos-e-Idempotencia.md:5:url: "/mvp/operacion/eventos-dlq/lag-reintentos-idempotencia/"
+.content/mvp/04-operacion/09-Eventos-y-DLQ/03-Lag-Reintentos-e-Idempotencia.md:13:- `consumer_lag` por grupo/topico.
+.content/mvp/04-operacion/09-Eventos-y-DLQ/03-Lag-Reintentos-e-Idempotencia.md:21:- Escalar a DLQ cuando supere umbral de intentos.
+.content/mvp/04-operacion/09-Eventos-y-DLQ/03-Lag-Reintentos-e-Idempotencia.md:28:## Acciones ante lag alto
+.content/mvp/04-operacion/09-Eventos-y-DLQ/03-Lag-Reintentos-e-Idempotencia.md:31:3. Ajustar paralelismo/lote segun runbook.
+.content/mvp/04-operacion/08-Incidentes/04-Registro-de-Incidentes.md:5:url: "/mvp/operacion/incidentes/registro-incidentes/"
+.content/mvp/04-operacion/08-Incidentes/04-Registro-de-Incidentes.md:12:| fechaInicio / fechaFin | ventana del incidente |
+.content/mvp/04-operacion/08-Incidentes/04-Registro-de-Incidentes.md:16:| deteccion | alerta/reporte que lo disparo |
+.content/mvp/04-operacion/08-Incidentes/04-Registro-de-Incidentes.md:19:| runbookUsado | referencia al runbook aplicado |
+.content/mvp/04-operacion/07-Runbooks/09-Configuracion-Pais-No-Disponible.md:5:url: "/mvp/operacion/runbooks/configuracion-pais-no-disponible/"
+.content/mvp/04-operacion/07-Runbooks/09-Configuracion-Pais-No-Disponible.md:9:Gestionar bloqueos operativos por ausencia de configuracion regional vigente.
+.content/mvp/04-operacion/07-Runbooks/09-Configuracion-Pais-No-Disponible.md:12:- Error canonico configuracion_pais_no_disponible.
+.content/mvp/04-operacion/07-Runbooks/09-Configuracion-Pais-No-Disponible.md:19:| error en multiples paises tras cambio | posible falla de propagacion/configuracion global |
+.content/mvp/04-operacion/07-Runbooks/09-Configuracion-Pais-No-Disponible.md:20:| error solo en un organization | configuracion organizacional incompleta |
+.content/mvp/04-operacion/07-Runbooks/09-Configuracion-Pais-No-Disponible.md:29:## Regla de interpretacion HTTP del incidente
+.content/mvp/04-operacion/07-Runbooks/09-Configuracion-Pais-No-Disponible.md:30:- `404 configuracion_pais_no_disponible`: ausencia del recurso tecnico al
+.content/mvp/04-operacion/07-Runbooks/09-Configuracion-Pais-No-Disponible.md:32:- `409 configuracion_pais_no_disponible`: bloqueo de operacion de negocio en
+.content/mvp/04-operacion/07-Runbooks/09-Configuracion-Pais-No-Disponible.md:53:- Publicar configuracion regional valida.
+.content/mvp/04-operacion/07-Runbooks/09-Configuracion-Pais-No-Disponible.md:54:- Verificar propagacion de configuracion en servicios.
+.content/mvp/04-operacion/07-Runbooks/09-Configuracion-Pais-No-Disponible.md:63:| vigencia politica | configuracion regional activa y auditada |
+.content/mvp/04-operacion/07-Runbooks/09-Configuracion-Pais-No-Disponible.md:72:- version de configuracion aplicada
+.content/mvp/04-operacion/08-Incidentes/03-Comunicacion-y-Postmortem.md:5:url: "/mvp/operacion/incidentes/comunicacion-postmortem/"
+.content/mvp/04-operacion/08-Incidentes/03-Comunicacion-y-Postmortem.md:8:## Comunicacion durante incidente
+.content/mvp/04-operacion/08-Incidentes/03-Comunicacion-y-Postmortem.md:9:- Abrir canal unico de incidente con timestamp de hitos.
+.content/mvp/04-operacion/13-Riesgos-Operacionales.md:11:| Caida de servicio core | release/configuracion defectuosa | indisponibilidad de flujo | healthchecks rojos | rollback + recuperacion guiada | 01-Caida-de-Servicio | activo | baseline |
+.content/mvp/04-operacion/13-Riesgos-Operacionales.md:12:| Error 5xx alto | dependencia degradada | fallas transaccionales | error-rate creciente | contencion + fix/rollback | 02-Aumento-de-Errores-5xx | activo | baseline |
+.content/mvp/04-operacion/13-Riesgos-Operacionales.md:13:| DLQ creciente | incompatibilidad de contrato | atraso y perdida de frescura | cola DLQ ascendente | reproceso controlado | 06-Crecimiento-de-DLQ | activo | baseline |
+.content/mvp/04-operacion/13-Riesgos-Operacionales.md:14:| Configuracion pais ausente | cambio incompleto de politica regional | bloqueo de operacion por pais | error configuracion_pais_no_disponible | publicar politica valida | 09-Configuracion-Pais-No-Disponible | activo | baseline |
+.content/mvp/04-operacion/13-Riesgos-Operacionales.md:15:| Exposicion de secreto | manejo inseguro | compromiso de seguridad | alerta de acceso anomalo | rotacion urgente | 10-Rotacion-Urgente-de-Secretos | activo | baseline |
+.content/mvp/04-operacion/13-Riesgos-Operacionales.md:23:| DLQ creciente | crecimiento DLQ | Sev 2 | conteo por topico + causa clasificada + lote reprocesado |
+.content/mvp/04-operacion/13-Riesgos-Operacionales.md:25:| Exposicion de secreto | compromiso de secreto | Sev 1 seguridad | secreto rotado + evidencia post-rotacion |
+.content/mvp/04-operacion/13-Riesgos-Operacionales.md:28:- alerta principal controlada en ventana operativa acordada;
+.content/mvp/04-operacion/13-Riesgos-Operacionales.md:29:- runbook ejecutado y documentado;
+.content/mvp/04-operacion/13-Riesgos-Operacionales.md:30:- evidencia minima registrada en incidente o bitacora operativa.
+.content/mvp/04-operacion/08-Incidentes/02-Severidades-y-Escalamiento.md:5:url: "/mvp/operacion/incidentes/severidades-escalamiento/"
+.content/mvp/04-operacion/11-Seguridad-Operacional/_index.md:7:Controles operativos de seguridad: accesos, secretos, eventos de seguridad,
+.content/mvp/04-operacion/09-Eventos-y-DLQ/04-Trazabilidad-de-Eventos.md:23:- evidencia de DLQ/replay cuando aplique;
+.content/mvp/04-operacion/09-Eventos-y-DLQ/04-Trazabilidad-de-Eventos.md:26:## Uso en incidentes
+.content/mvp/04-operacion/09-Eventos-y-DLQ/04-Trazabilidad-de-Eventos.md:27:- Todo incidente async debe incluir al menos un `eventId` ancla.
+.content/mvp/04-operacion/10-Continuidad-y-Recuperacion/02-Restore-y-Recuperacion.md:16:- Toda restauracion en `prod` debe abrir incidente y registro de evidencia.
+.content/mvp/04-operacion/10-Continuidad-y-Recuperacion/02-Restore-y-Recuperacion.md:28:| Base de datos de servicio core | restore al punto validado + reconexion de servicio | health + smoke funcional del caso critico |
+.content/mvp/04-operacion/10-Continuidad-y-Recuperacion/02-Restore-y-Recuperacion.md:29:| Broker degradado | restaurar conectividad de productores/consumidores + controlar offsets | lag decreciente + DLQ estable |
+.content/mvp/04-operacion/10-Continuidad-y-Recuperacion/02-Restore-y-Recuperacion.md:30:| Configuracion critica perdida | reponer version aprobada de configuracion/secreto | cese de errores asociados y auditoria de cambio |
+.content/mvp/04-operacion/10-Continuidad-y-Recuperacion/02-Restore-y-Recuperacion.md:39:- sin alertas criticas activas relacionadas al incidente;
+.content/mvp/04-operacion/10-Continuidad-y-Recuperacion/02-Restore-y-Recuperacion.md:40:- evidencia completa adjunta al registro del incidente.
+.content/mvp/04-operacion/07-Runbooks/_index.md:4:url: "/mvp/operacion/runbooks/"
+.content/mvp/04-operacion/07-Runbooks/_index.md:7:Runbooks operativos de `MVP` para incidentes y degradaciones del flujo
+.content/mvp/04-operacion/07-Runbooks/_index.md:8:core. Cada runbook define entrada, contencion, recuperacion, verificacion,
+.content/mvp/04-operacion/07-Runbooks/_index.md:11:Regla transversal para incidentes de runtime:
+.content/mvp/04-operacion/07-Runbooks/_index.md:12:- verificar salud de servicio, version de imagen desplegada y configuracion
+.content/mvp/04-operacion/07-Runbooks/_index.md:15:  incidente sobre stack `docker compose` antes de cerrar.
+.content/mvp/04-operacion/11-Seguridad-Operacional/02-Secretos-y-Rotacion.md:5:url: "/mvp/operacion/seguridad-operacional/secretos-rotacion/"
+.content/mvp/04-operacion/11-Seguridad-Operacional/02-Secretos-y-Rotacion.md:9:- secretos gestionados por entorno en canal oficial de secretos.
+.content/mvp/04-operacion/11-Seguridad-Operacional/02-Secretos-y-Rotacion.md:10:- prohibido hardcodear secretos en codigo o repositorio documental.
+.content/mvp/04-operacion/11-Seguridad-Operacional/02-Secretos-y-Rotacion.md:11:- cambios de secretos con auditoria y doble validacion operativa.
+.content/mvp/04-operacion/11-Seguridad-Operacional/02-Secretos-y-Rotacion.md:12:- secretos inyectados al runtime por entorno; nunca embebidos en imagen Docker.
+.content/mvp/04-operacion/11-Seguridad-Operacional/02-Secretos-y-Rotacion.md:15:- rotacion planificada periodica para secretos criticos.
+.content/mvp/04-operacion/11-Seguridad-Operacional/02-Secretos-y-Rotacion.md:16:- rotacion urgente via runbook ante compromiso.
+.content/mvp/04-operacion/11-Seguridad-Operacional/02-Secretos-y-Rotacion.md:19:## Tipos de secretos operativos
+.content/mvp/04-operacion/11-Seguridad-Operacional/02-Secretos-y-Rotacion.md:23:- observabilidad (ingesta de metricas/trazas si aplica);
+.content/mvp/04-operacion/11-Seguridad-Operacional/02-Secretos-y-Rotacion.md:27:- sospecha de exposicion por incidente de seguridad;
+.content/mvp/04-operacion/11-Seguridad-Operacional/02-Secretos-y-Rotacion.md:29:- fuga potencial por error de configuracion.
+.content/mvp/04-operacion/11-Seguridad-Operacional/02-Secretos-y-Rotacion.md:35:4. Confirmar que secreto revocado no siga en uso.
+.content/mvp/04-operacion/11-Seguridad-Operacional/02-Secretos-y-Rotacion.md:40:- identificador de secreto
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:10:compatibilidad contractual y capacidad de rollback.
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:20:  solo configuracion por entorno).
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:25:| Servicio aislado | un servicio, sin cambio breaking | trazabilidad FR/NFR, Gate aplicable, smoke en `dev/qa`, rollback definido |
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:26:| Coordinado | varios servicios con dependencia de contrato/evento | matriz de compatibilidad, ventana de convivencia, orden de despliegue, rollback conjunto |
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:27:| Emergencia | remediacion de incidente activo | incidente abierto, autorizacion explicita, smoke minimo obligatorio, postmortem posterior |
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:28:| Configuracion critica | parametros/secrets/regional | evidencia de validacion en ambiente previo, ventana controlada, plan de reversion |
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:34:- Plan de rollback documentado para codigo, configuracion y datos.
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:42:| Pre-deploy | gates de calidad, contratos/eventos, plan de rollback, imagen versionada | no desplegar y devolver a correccion |
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:43:| Deploy | despliegue completado desde imagen objetivo y health tecnico inicial | detener avance y evaluar rollback |
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:44:| Post-deploy temprano | smoke funcional + observabilidad + eventos | activar mitigacion/rollback segun severidad |
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:45:| Cierre de release | evidencia archivada + decision de estabilidad | abrir incidente o cerrar release |
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:63:| Salud tecnica | confirmar disponibilidad (`/health`, readiness) | dashboard de salud + probes |
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:66:| Eventos | detectar lag/DLQ anomalo | panel broker + consumidores |
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:72:| falla de healthcheck sostenida | rollback inmediato |
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:73:| smoke funcional falla en flujo core | rollback o fix forward en ventana corta controlada |
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:74:| DLQ/lag anomalo tras cambio de evento | pausar promocion y corregir compatibilidad |
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:75:| aumento authn/authz tras cambio de seguridad | activar runbook de autenticacion y evaluar rollback |
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:77:## Estrategia de imagenes y rollback
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:81:| promocion | misma imagen entre `dev -> qa -> prod`, con configuracion por entorno |
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:82:| rollback | reversion a imagen estable anterior (o configuracion previa) |
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:88:| imagen versionada del servicio (`tag`/`digest`) | promocion y rollback reproducible |
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:90:| definicion de variables por entorno | inyeccion de config en `dev/qa/prod` |
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:91:| definicion de stack `docker compose` (cuando aplique) | smoke e integracion reproducible en local/dev/qa |
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:97:| Esquema DB | migraciones forward-safe y plan de rollback de datos |
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:99:| Seguridad/secretos | rotacion sin downtime o con degradacion controlada y reversible |
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:112:- Acciones: detener promocion, revertir version/configuracion,
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:113:  estabilizar estado y registrar incidente.
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:117:  se ejecuta rollback obligatorio.
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:118:- Para releases con artefacto versionado, rollback preferente por version/tag
+.content/mvp/04-operacion/04-Estrategia-de-Releases-y-Deployments.md:129:- [Runbook Rollback de Release](/mvp/operacion/runbooks/rollback-release/)
+.content/mvp/04-operacion/11-Seguridad-Operacional/04-Datos-Sensibles-en-Logs.md:19:- secretos
+.content/mvp/04-operacion/11-Seguridad-Operacional/04-Datos-Sensibles-en-Logs.md:33:- evidencia de revision en incidentes de seguridad y postmortems aplicables.
+.content/mvp/04-operacion/10-Continuidad-y-Recuperacion/04-Orden-de-Recuperacion.md:9:1. identity-access-service y api-gateway-service
+.content/mvp/04-operacion/10-Continuidad-y-Recuperacion/04-Orden-de-Recuperacion.md:23:| 1 | gateway + IAM | red/plataforma base | restablecer acceso autenticado |
+.content/mvp/04-operacion/10-Continuidad-y-Recuperacion/04-Orden-de-Recuperacion.md:33:- Validar lag y DLQ antes de declarar etapa cerrada.
+.content/mvp/04-operacion/10-Continuidad-y-Recuperacion/04-Orden-de-Recuperacion.md:35:## Escenario especial: configuracion regional
+.content/mvp/04-operacion/10-Continuidad-y-Recuperacion/04-Orden-de-Recuperacion.md:37:  configuracion antes de reabrir checkout por `countryCode`.
+.content/mvp/04-operacion/10-Continuidad-y-Recuperacion/04-Orden-de-Recuperacion.md:42:- healthcheck verde;
+.content/mvp/04-operacion/10-Continuidad-y-Recuperacion/04-Orden-de-Recuperacion.md:45:- registro de evidencia en incidente activo.
+.content/mvp/04-operacion/05-Observabilidad.md:5:url: "/mvp/operacion/observabilidad/"
+.content/mvp/04-operacion/05-Observabilidad.md:10:correlacionar incidentes y acelerar recuperacion.
+.content/mvp/04-operacion/05-Observabilidad.md:18:## Campos minimos de observabilidad
+.content/mvp/04-operacion/05-Observabilidad.md:28:- Broker y consumidores (lag, retries, DLQ size).
+.content/mvp/04-operacion/05-Observabilidad.md:30:- Reporting (lag de ingestion, duracion de job semanal).
+.content/mvp/04-operacion/05-Observabilidad.md:39:| Notificacion | `NotificationRequested/Sent/Failed`, retries, DLQ por canal |
+.content/mvp/04-operacion/05-Observabilidad.md:40:| Reporting semanal | tiempo de consolidacion, lag de consumidor, errores de proyeccion |
+.content/mvp/04-operacion/05-Observabilidad.md:41:| Regionalizacion | tasa de `configuracion_pais_no_disponible` y trazabilidad de bloqueos |
+.content/mvp/04-operacion/05-Observabilidad.md:43:## Reglas de datos sensibles en observabilidad
+.content/mvp/04-operacion/05-Observabilidad.md:48:## Relacion con eventos y DLQ
+.content/mvp/04-operacion/05-Observabilidad.md:49:- Toda alerta de lag o DLQ debe enlazar un runbook de respuesta.
+.content/mvp/04-operacion/05-Observabilidad.md:54:- [SLI, SLO y Alertas](/mvp/operacion/sli-slo-alertas/)
+.content/mvp/04-operacion/05-Observabilidad.md:55:- [Eventos y DLQ](/mvp/operacion/eventos-dlq/)
+.content/mvp/04-operacion/05-Observabilidad.md:56:- [Runbooks](/mvp/operacion/runbooks/)
+.content/mvp/04-operacion/07-Runbooks/06-Crecimiento-de-DLQ.md:2:title: "Crecimiento de DLQ"
+.content/mvp/04-operacion/07-Runbooks/06-Crecimiento-de-DLQ.md:3:linkTitle: "6. Crecimiento de DLQ"
+.content/mvp/04-operacion/07-Runbooks/06-Crecimiento-de-DLQ.md:5:url: "/mvp/operacion/runbooks/crecimiento-dlq/"
+.content/mvp/04-operacion/07-Runbooks/06-Crecimiento-de-DLQ.md:9:Controlar aumento anormal de mensajes en DLQ sin perder trazabilidad.
+.content/mvp/04-operacion/07-Runbooks/06-Crecimiento-de-DLQ.md:12:- Alerta de crecimiento sostenido de DLQ.
+.content/mvp/04-operacion/07-Runbooks/06-Crecimiento-de-DLQ.md:18:| DLQ creciendo en topico core (order/inventory) | Sev 1/Sev 2 alta |
+.content/mvp/04-operacion/07-Runbooks/06-Crecimiento-de-DLQ.md:19:| DLQ creciendo en topico derivado (reporting/notification) | Sev 2/Sev 3 |
+.content/mvp/04-operacion/07-Runbooks/06-Crecimiento-de-DLQ.md:43:- Confirmar salida progresiva de DLQ.
+.content/mvp/04-operacion/07-Runbooks/06-Crecimiento-de-DLQ.md:46:- tendencia de DLQ decreciente en dos ventanas consecutivas;
+.content/mvp/04-operacion/07-Runbooks/06-Crecimiento-de-DLQ.md:48:- lag de consumidor en retorno a baseline.
+.content/mvp/04-operacion/07-Runbooks/06-Crecimiento-de-DLQ.md:51:- DLQ estable o decreciente.
+.content/mvp/04-operacion/07-Runbooks/06-Crecimiento-de-DLQ.md:58:- conteo DLQ por topico
+.content/mvp/04-operacion/07-Runbooks/06-Crecimiento-de-DLQ.md:64:- 09-Eventos-y-DLQ/02-DLQ-y-Reprocesos
+.content/mvp/04-operacion/07-Runbooks/06-Crecimiento-de-DLQ.md:65:- 09-Eventos-y-DLQ/03-Lag-Reintentos-e-Idempotencia
+.content/mvp/04-operacion/08-Incidentes/01-Gestion-de-Incidentes.md:5:url: "/mvp/operacion/incidentes/gestion-incidentes/"
+.content/mvp/04-operacion/08-Incidentes/01-Gestion-de-Incidentes.md:10:incidentes operativos en MVP.
+.content/mvp/04-operacion/08-Incidentes/01-Gestion-de-Incidentes.md:12:## Definicion de incidente
+.content/mvp/04-operacion/08-Incidentes/01-Gestion-de-Incidentes.md:17:1. Deteccion por alerta, reporte o monitoreo.
+.content/mvp/04-operacion/08-Incidentes/01-Gestion-de-Incidentes.md:27:- Plataforma/SRE: soporte de infraestructura y observabilidad.
+.content/mvp/04-operacion/08-Incidentes/01-Gestion-de-Incidentes.md:31:- Todo incidente en prod abre registro operativo.
+.content/mvp/04-operacion/08-Incidentes/01-Gestion-de-Incidentes.md:33:- No se promueven releases durante incidente Sev 1/Sev 2 abierto.
+.content/mvp/04-operacion/07-Runbooks/08-Reporting-Atrasado.md:5:url: "/mvp/operacion/runbooks/reporting-atrasado/"
+.content/mvp/04-operacion/07-Runbooks/08-Reporting-Atrasado.md:44:- 06-SLI-SLO-y-Alertas
+.content/mvp/04-operacion/11-Seguridad-Operacional/03-Eventos-de-Seguridad.md:11:- cambios de configuracion critica
+.content/mvp/04-operacion/11-Seguridad-Operacional/03-Eventos-de-Seguridad.md:13:- rotaciones de secretos y fallas post-rotacion
+.content/mvp/04-operacion/11-Seguridad-Operacional/03-Eventos-de-Seguridad.md:15:- fallos de arranque por configuracion/secretos faltantes en contenedor
+.content/mvp/04-operacion/11-Seguridad-Operacional/03-Eventos-de-Seguridad.md:19:- abrir incidente cuando corresponda
+.content/mvp/04-operacion/11-Seguridad-Operacional/03-Eventos-de-Seguridad.md:23:- logs estructurados de gateway e IAM;
+.content/mvp/04-operacion/11-Seguridad-Operacional/03-Eventos-de-Seguridad.md:36:- escalar como incidente de seguridad si hay bloqueo generalizado de acceso.
+.content/mvp/04-operacion/02-Modelo-de-Ambientes.md:16:| `dev` | integracion temprana de cambios por servicio | devs + QA tecnico | media | mezcla de dependencias compartidas y emuladas controladas | sinteticos anonimizados | logs estructurados + metricas base + trazas de mutaciones | no validar SLO finales ni decisiones de capacidad |
+.content/mvp/04-operacion/02-Modelo-de-Ambientes.md:17:| `qa` | validacion funcional y certificacion minima de release candidate | QA + owners tecnicos | alta | mayormente reales de stack objetivo, con datos de prueba | anonimizados y datasets controlados | dashboards por servicio + alertas de smoke + trazas e2e | no usar para operacion comercial ni decisiones de negocio final |
+.content/mvp/04-operacion/02-Modelo-de-Ambientes.md:18:| `prod` | operacion real del MVP | operaciones + soporte + negocio | muy alta | reales sobre plataforma objetivo `AWS` | productivos bajo politica de privacidad | observabilidad completa, alertas activas, auditoria operativa | cambios solo por pipeline, gates y ventanas controladas |
+.content/mvp/04-operacion/02-Modelo-de-Ambientes.md:23:| `local` | stack de integracion reproducible (mecanismo multi-contenedor) con servicios + dependencias locales |
+.content/mvp/04-operacion/02-Modelo-de-Ambientes.md:24:| `dev` | ejecucion reproducible por artefacto versionado de servicio y stack de integracion para smoke |
+.content/mvp/04-operacion/02-Modelo-de-Ambientes.md:25:| `qa` | artefacto versionado por servicio; stack de integracion permitido para pruebas controladas |
+.content/mvp/04-operacion/02-Modelo-de-Ambientes.md:37:| `qa` | validacion de release candidate y migraciones aprobadas | cambios ad-hoc directos sin pipeline, rotacion manual no trazada de secretos |
+.content/mvp/04-operacion/02-Modelo-de-Ambientes.md:38:| `prod` | releases aprobados, cambios de emergencia con incidente abierto y evidencia | cambios manuales fuera de pipeline, activacion de capacidades fuera de baseline |
+.content/mvp/04-operacion/02-Modelo-de-Ambientes.md:47:- `prod` requiere llaves/secretos exclusivos por entorno, sin reutilizacion con
+.content/mvp/04-operacion/02-Modelo-de-Ambientes.md:49:- Todo artefacto de servicio debe recibir configuracion por entorno y no contener
+.content/mvp/04-operacion/02-Modelo-de-Ambientes.md:50:  secretos embebidos.
+.content/mvp/04-operacion/02-Modelo-de-Ambientes.md:58:| `prod` | aprobacion de promocion, runbooks vigentes, alertas activas y plan de rollback | estabilidad post-deploy sin alertas criticas en ventana inicial |
+.content/mvp/04-operacion/02-Modelo-de-Ambientes.md:65:- Cambios en secretos, eventos o configuracion regional requieren checklist
+.content/mvp/04-operacion/02-Modelo-de-Ambientes.md:68:  variando solo configuracion por entorno.
+.content/mvp/04-operacion/02-Modelo-de-Ambientes.md:73:| `local` | smoke local ejecutado, sin secretos reales, trazabilidad de cambio registrada |
+.content/mvp/04-operacion/02-Modelo-de-Ambientes.md:74:| `dev` | salud de servicio, pruebas del cambio, sin alertas tecnicas abiertas por el cambio |
+.content/mvp/04-operacion/02-Modelo-de-Ambientes.md:76:| `prod` | estabilidad en ventana inicial, alertas criticas en verde, evidencia de despliegue archivada |
+.content/mvp/04-operacion/02-Modelo-de-Ambientes.md:78:## Flujo alerta -> incidente -> evidencia por ambiente
+.content/mvp/04-operacion/02-Modelo-de-Ambientes.md:79:| Ambiente | Disparador de incidente | Evidencia minima esperada |
+.content/mvp/04-operacion/02-Modelo-de-Ambientes.md:83:| `prod` | alerta alta/critica de SLI/SLO | registro de incidente, metricas, runbook aplicado y cierre |
+.content/mvp/04-operacion/07-Runbooks/04-Checkout-Degradado.md:5:url: "/mvp/operacion/runbooks/checkout-degradado/"
+.content/mvp/04-operacion/07-Runbooks/04-Checkout-Degradado.md:18:| validacion regional | `configuracion_pais_no_disponible` | bloqueo por pais |
+.content/mvp/04-operacion/07-Runbooks/04-Checkout-Degradado.md:36:| fallo tras release reciente | evaluar rollback del servicio involucrado |
+.content/mvp/04-operacion/07-Runbooks/04-Checkout-Degradado.md:37:| falla aparece solo en entorno compose de integracion | revisar dependencias levantadas y configuracion de stack local/dev/qa |
+.content/mvp/04-operacion/07-Runbooks/04-Checkout-Degradado.md:53:- Checkout feliz ejecuta dentro de SLO base.
+.content/mvp/04-operacion/07-Runbooks/04-Checkout-Degradado.md:74:- 06-SLI-SLO-y-Alertas
+.content/mvp/04-operacion/11-Seguridad-Operacional/01-Accesos-Operativos.md:16:- revocar accesos temporales al cierre de incidente/cambio.
+.content/mvp/04-operacion/11-Seguridad-Operacional/01-Accesos-Operativos.md:32:- Servicios operan con cuentas de servicio y secretos dedicados.
+.content/mvp/04-operacion/10-Continuidad-y-Recuperacion/01-Estrategia-de-Continuidad.md:19:- `identity-access-service` y `api-gateway-service` para acceso al sistema.
+.content/mvp/04-operacion/10-Continuidad-y-Recuperacion/01-Estrategia-de-Continuidad.md:20:- `directory-service` para configuracion organizacional/regional.
+.content/mvp/04-operacion/10-Continuidad-y-Recuperacion/01-Estrategia-de-Continuidad.md:29:- falla en configuracion regional critica
+.content/mvp/04-operacion/10-Continuidad-y-Recuperacion/01-Estrategia-de-Continuidad.md:31:- perdida parcial de configuracion operativa/secretos
+.content/mvp/04-operacion/10-Continuidad-y-Recuperacion/01-Estrategia-de-Continuidad.md:38:| Configuracion | ausencia de politica regional o parametro critico | bloquear de forma auditable y restaurar configuracion valida |
+.content/mvp/04-operacion/10-Continuidad-y-Recuperacion/01-Estrategia-de-Continuidad.md:43:- Eventos: publicacion/consumo reanudado sin crecimiento sostenido de DLQ.
+.content/mvp/04-operacion/10-Continuidad-y-Recuperacion/01-Estrategia-de-Continuidad.md:48:- incidente con timeline y decisiones.
+.content/mvp/04-operacion/10-Continuidad-y-Recuperacion/03-Degradacion-Controlada.md:27:| lag de consumidores | pausar reproceso masivo y priorizar topicos core | evitar crecimiento sostenido de DLQ |
+.content/mvp/04-operacion/10-Continuidad-y-Recuperacion/03-Degradacion-Controlada.md:32:- Activacion: alerta de severidad alta/critica con impacto confirmado.
+.content/mvp/04-operacion/07-Runbooks/01-Caida-de-Servicio.md:5:url: "/mvp/operacion/runbooks/caida-servicio/"
+.content/mvp/04-operacion/07-Runbooks/01-Caida-de-Servicio.md:20:| health inestable sin impacto funcional | Sev 3 |

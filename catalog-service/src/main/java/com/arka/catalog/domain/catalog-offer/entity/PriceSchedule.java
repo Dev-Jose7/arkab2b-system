@@ -6,7 +6,7 @@ import java.time.Instant;
 
 public record PriceSchedule(
         String scheduleId,
-        String tenantId,
+        String organizationId,
         String priceId,
         Instant executeAfter,
         PriceScheduleJobStatus jobStatus,
@@ -18,8 +18,8 @@ public record PriceSchedule(
         if (scheduleId == null || scheduleId.isBlank()) {
             throw new DomainInvariantViolationException("price_schedule_invalido", "scheduleId es obligatorio");
         }
-        if (tenantId == null || tenantId.isBlank()) {
-            throw new DomainInvariantViolationException("tenant_requerido", "tenantId es obligatorio");
+        if (organizationId == null || organizationId.isBlank()) {
+            throw new DomainInvariantViolationException("organization_requerida", "organizationId es obligatorio");
         }
         if (priceId == null || priceId.isBlank()) {
             throw new DomainInvariantViolationException("price_schedule_invalido", "priceId es obligatorio");

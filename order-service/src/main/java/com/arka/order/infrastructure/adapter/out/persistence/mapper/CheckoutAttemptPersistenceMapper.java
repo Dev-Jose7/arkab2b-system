@@ -21,7 +21,6 @@ public class CheckoutAttemptPersistenceMapper {
     public CheckoutAttemptEntity toEntity(CheckoutAttempt attempt) {
         return new CheckoutAttemptEntity(
                 attempt.checkoutAttemptId(),
-                attempt.tenantId(),
                 attempt.organizationId(),
                 attempt.userId(),
                 attempt.cartId(),
@@ -39,7 +38,6 @@ public class CheckoutAttemptPersistenceMapper {
     public CheckoutAttempt toDomain(CheckoutAttemptEntity entity) {
         return new CheckoutAttempt(
                 entity.checkoutAttemptId(),
-                entity.tenantId(),
                 entity.organizationId(),
                 entity.userId(),
                 entity.cartId(),

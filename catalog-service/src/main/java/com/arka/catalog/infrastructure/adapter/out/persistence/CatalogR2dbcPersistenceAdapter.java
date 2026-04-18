@@ -26,7 +26,7 @@ import com.arka.catalog.domain.catalogoffer.enumtype.PriceType;
 import com.arka.catalog.domain.catalogoffer.valueobject.OfferId;
 import com.arka.catalog.domain.catalogoffer.valueobject.PriceId;
 import com.arka.catalog.domain.catalogoffer.valueobject.ProductId;
-import com.arka.catalog.domain.catalogoffer.valueobject.TenantId;
+import com.arka.catalog.domain.catalogoffer.valueobject.OrganizationId;
 import com.arka.catalog.domain.catalogoffer.valueobject.VariantId;
 import com.arka.catalog.domain.shared.event.DomainEvent;
 import com.arka.catalog.infrastructure.adapter.out.persistence.entity.CatalogAuditRow;
@@ -112,19 +112,19 @@ public class CatalogR2dbcPersistenceAdapter
     }
 
     @Override
-    public Mono<Boolean> isBrandActive(String tenantId, String brandId) {
-        return brandRepository.findActive(tenantId, brandId).hasElement();
+    public Mono<Boolean> isBrandActive(String organizationId, String brandId) {
+        return brandRepository.findActive(organizationId, brandId).hasElement();
     }
 
     @Override
-    public Mono<Boolean> isCategoryActive(String tenantId, String categoryId) {
-        return categoryRepository.findActive(tenantId, categoryId).hasElement();
+    public Mono<Boolean> isCategoryActive(String organizationId, String categoryId) {
+        return categoryRepository.findActive(organizationId, categoryId).hasElement();
     }
 
     @Override
     public Mono<Product> create(Product product, Iterable<ProductTag> tags) {
         return entityTemplate.insert(rowMapper.toRow(product))
-                .then(replaceProductTags(product.tenantId().value(), product.productId().value(), tags))
+                .then(replaceProductTags(product.organizationId().value(), product.productId().value(), tags))
                 .thenReturn(product);
     }
 
@@ -132,29 +132,29 @@ public class CatalogR2dbcPersistenceAdapter
     public Mono<Product> update(Product product, Iterable<ProductTag> tags) {
         Mono<Void> tagsUpdate = tags == null
                 ? Mono.empty()
-                : replaceProductTags(product.tenantId().value(), product.productId().value(), tags);
+                : replaceProductTags(product.organizationId().value(), product.productId().value(), tags);
         return productRepository.save(rowMapper.toRow(product)).then(tagsUpdate).thenReturn(product);
     }
 
     @Override
-    public Mono<Product> findById(TenantId tenantId, ProductId productId) {
-        return productRepository.findByTenantAndId(tenantId.value(), productId.value()).map(rowMapper::toDomain);
+    public Mono<Product> findById(OrganizationId organizationId, ProductId productId) {
+        return productRepository.findByOrganizationAndId(organizationId.value(), productId.value()).map(rowMapper::toDomain);
     }
 
     @Override
-    public Mono<Boolean> existsByProductCode(TenantId tenantId, String productCode, String excludingProductId) {
-        return productRepository.existsByProductCode(tenantId.value(), productCode, excludingProductId).defaultIfEmpty(false);
+    public Mono<Boolean> existsByProductCode(OrganizationId organizationId, String productCode, String excludingProductId) {
+        return productRepository.existsByProductCode(organizationId.value(), productCode, excludingProductId).defaultIfEmpty(false);
     }
 
     @Override
-    public Flux<ProductTag> findTags(TenantId tenantId, ProductId productId) {
-        return productTagRepository.findByTenantAndProduct(tenantId.value(), productId.value()).map(rowMapper::toDomain);
+    public Flux<ProductTag> findTags(OrganizationId organizationId, ProductId productId) {
+        return productTagRepository.findByOrganizationAndProduct(organizationId.value(), productId.value()).map(rowMapper::toDomain);
     }
 
     @Override
     public Mono<Variant> create(Variant variant, Iterable<VariantAttribute> attributes) {
         return entityTemplate.insert(rowMapper.toRow(variant))
-                .then(replaceVariantAttributes(variant.tenantId().value(), variant.variantId().value(), attributes))
+                .then(replaceVariantAttributes(variant.organizationId().value(), variant.variantId().value(), attributes))
                 .thenReturn(variant);
     }
 
@@ -164,35 +164,35 @@ public class CatalogR2dbcPersistenceAdapter
     }
 
     @Override
-    public Mono<Variant> findById(TenantId tenantId, VariantId variantId) {
-        return variantRepository.findByTenantAndId(tenantId.value(), variantId.value()).map(rowMapper::toDomain);
+    public Mono<Variant> findById(OrganizationId organizationId, VariantId variantId) {
+        return variantRepository.findByOrganizationAndId(organizationId.value(), variantId.value()).map(rowMapper::toDomain);
     }
 
     @Override
-    public Mono<Variant> findBySku(TenantId tenantId, String sku) {
-        return variantRepository.findByTenantAndSku(tenantId.value(), sku).map(rowMapper::toDomain);
+    public Mono<Variant> findBySku(OrganizationId organizationId, String sku) {
+        return variantRepository.findByOrganizationAndSku(organizationId.value(), sku).map(rowMapper::toDomain);
     }
 
     @Override
-    public Flux<Variant> findByProductId(TenantId tenantId, ProductId productId) {
-        return variantRepository.findByTenantAndProduct(tenantId.value(), productId.value()).map(rowMapper::toDomain);
+    public Flux<Variant> findByProductId(OrganizationId organizationId, ProductId productId) {
+        return variantRepository.findByOrganizationAndProduct(organizationId.value(), productId.value()).map(rowMapper::toDomain);
     }
 
     @Override
-    public Flux<VariantAttribute> findAttributes(TenantId tenantId, VariantId variantId) {
+    public Flux<VariantAttribute> findAttributes(OrganizationId organizationId, VariantId variantId) {
         return variantAttributeRepository
-                .findByTenantAndVariant(tenantId.value(), variantId.value())
+                .findByOrganizationAndVariant(organizationId.value(), variantId.value())
                 .map(rowMapper::toDomain);
     }
 
     @Override
-    public Mono<Void> replaceAttributes(TenantId tenantId, VariantId variantId, Iterable<VariantAttribute> attributes) {
-        return replaceVariantAttributes(tenantId.value(), variantId.value(), attributes);
+    public Mono<Void> replaceAttributes(OrganizationId organizationId, VariantId variantId, Iterable<VariantAttribute> attributes) {
+        return replaceVariantAttributes(organizationId.value(), variantId.value(), attributes);
     }
 
     @Override
-    public Mono<Boolean> existsSellableSku(TenantId tenantId, String sku, String excludingVariantId) {
-        return variantRepository.existsSellableSku(tenantId.value(), sku, excludingVariantId).defaultIfEmpty(false);
+    public Mono<Boolean> existsSellableSku(OrganizationId organizationId, String sku, String excludingVariantId) {
+        return variantRepository.existsSellableSku(organizationId.value(), sku, excludingVariantId).defaultIfEmpty(false);
     }
 
     @Override
@@ -206,21 +206,21 @@ public class CatalogR2dbcPersistenceAdapter
     }
 
     @Override
-    public Mono<Price> findById(TenantId tenantId, PriceId priceId) {
-        return priceRepository.findByTenantAndId(tenantId.value(), priceId.value()).map(rowMapper::toDomain);
+    public Mono<Price> findById(OrganizationId organizationId, PriceId priceId) {
+        return priceRepository.findByOrganizationAndId(organizationId.value(), priceId.value()).map(rowMapper::toDomain);
     }
 
     @Override
-    public Flux<Price> findTimeline(TenantId tenantId, VariantId variantId, String currency, PriceType priceType) {
+    public Flux<Price> findTimeline(OrganizationId organizationId, VariantId variantId, String currency, PriceType priceType) {
         return priceRepository
-                .findTimeline(tenantId.value(), variantId.value(), currency, priceType.name())
+                .findTimeline(organizationId.value(), variantId.value(), currency, priceType.name())
                 .map(rowMapper::toDomain);
     }
 
     @Override
-    public Mono<Price> resolveActive(TenantId tenantId, VariantId variantId, String currency, PriceType priceType, Instant at) {
+    public Mono<Price> resolveActive(OrganizationId organizationId, VariantId variantId, String currency, PriceType priceType, Instant at) {
         return priceRepository
-                .resolveActive(tenantId.value(), variantId.value(), currency, priceType.name(), at)
+                .resolveActive(organizationId.value(), variantId.value(), currency, priceType.name(), at)
                 .map(rowMapper::toDomain);
     }
 
@@ -235,16 +235,16 @@ public class CatalogR2dbcPersistenceAdapter
     }
 
     @Override
-    public Mono<CatalogOffer> findByOfferId(TenantId tenantId, OfferId offerId) {
-        return findByVariantId(tenantId, VariantId.of(offerId.value()));
+    public Mono<CatalogOffer> findByOfferId(OrganizationId organizationId, OfferId offerId) {
+        return findByVariantId(organizationId, VariantId.of(offerId.value()));
     }
 
     @Override
-    public Mono<CatalogOffer> findByVariantId(TenantId tenantId, VariantId variantId) {
-        return variantRepository.findByTenantAndId(tenantId.value(), variantId.value())
+    public Mono<CatalogOffer> findByVariantId(OrganizationId organizationId, VariantId variantId) {
+        return variantRepository.findByOrganizationAndId(organizationId.value(), variantId.value())
                 .switchIfEmpty(Mono.empty())
-                .flatMap(variantRow -> productRepository.findByTenantAndId(tenantId.value(), variantRow.productId())
-                        .zipWith(priceRepository.findLatestByVariant(tenantId.value(), variantRow.variantId()))
+                .flatMap(variantRow -> productRepository.findByOrganizationAndId(organizationId.value(), variantRow.productId())
+                        .zipWith(priceRepository.findLatestByVariant(organizationId.value(), variantRow.variantId()))
                         .map(tuple -> CatalogOffer.rehydrate(
                                 OfferId.of(variantId.value()),
                                 rowMapper.toDomain(tuple.getT1()),
@@ -277,22 +277,22 @@ public class CatalogR2dbcPersistenceAdapter
     }
 
     @Override
-    public Mono<CatalogAuditEntry> findByIdempotency(String tenantId, String actionType, String idempotencyKey) {
+    public Mono<CatalogAuditEntry> findByIdempotency(String organizationId, String actionType, String idempotencyKey) {
         if (idempotencyKey == null || idempotencyKey.isBlank()) {
             return Mono.empty();
         }
-        return catalogAuditRepository.findByIdempotency(tenantId, actionType, idempotencyKey).map(rowMapper::toDomain);
+        return catalogAuditRepository.findByIdempotency(organizationId, actionType, idempotencyKey).map(rowMapper::toDomain);
     }
 
     @Override
-    public Flux<CatalogAuditEntry> findByTarget(String tenantId, String targetType, String targetId, int offset, int limit) {
-        return catalogAuditRepository.findByTarget(tenantId, emptyAsNull(targetType), emptyAsNull(targetId), offset, limit)
+    public Flux<CatalogAuditEntry> findByTarget(String organizationId, String targetType, String targetId, int offset, int limit) {
+        return catalogAuditRepository.findByTarget(organizationId, emptyAsNull(targetType), emptyAsNull(targetId), offset, limit)
                 .map(rowMapper::toDomain);
     }
 
     @Override
-    public Mono<Long> countByTarget(String tenantId, String targetType, String targetId) {
-        return catalogAuditRepository.countByTarget(tenantId, emptyAsNull(targetType), emptyAsNull(targetId));
+    public Mono<Long> countByTarget(String organizationId, String targetType, String targetId) {
+        return catalogAuditRepository.countByTarget(organizationId, emptyAsNull(targetType), emptyAsNull(targetId));
     }
 
     @Override
@@ -338,18 +338,18 @@ public class CatalogR2dbcPersistenceAdapter
                        pr.price_type,
                        (v.status = 'SELLABLE' AND pr.price_id IS NOT NULL) AS sellable
                 FROM products p
-                JOIN variants v ON v.product_id = p.product_id AND v.tenant_id = p.tenant_id
+                JOIN variants v ON v.product_id = p.product_id AND v.organization_id = p.organization_id
                 LEFT JOIN LATERAL (
                     SELECT pr.*
                     FROM prices pr
-                    WHERE pr.tenant_id = p.tenant_id
+                    WHERE pr.organization_id = p.organization_id
                       AND pr.variant_id = v.variant_id
                       AND pr.effective_from <= :at
                       AND (pr.effective_until IS NULL OR pr.effective_until > :at)
                     ORDER BY pr.effective_from DESC
                     LIMIT 1
                 ) pr ON TRUE
-                WHERE p.tenant_id = :tenantId
+                WHERE p.organization_id = :organizationId
                   AND (:brandId IS NULL OR p.brand_id = :brandId)
                   AND (:categoryId IS NULL OR p.category_id = :categoryId)
                   AND (:variantStatus IS NULL OR v.status = :variantStatus)
@@ -362,7 +362,7 @@ public class CatalogR2dbcPersistenceAdapter
                 """;
 
         return databaseClient.sql(sql)
-                .bind("tenantId", filter.tenantId())
+                .bind("organizationId", filter.organizationId())
                 .bind("brandId", emptyAsNull(filter.brandId()))
                 .bind("categoryId", emptyAsNull(filter.categoryId()))
                 .bind("variantStatus", emptyAsNull(filter.variantStatus()))
@@ -390,8 +390,8 @@ public class CatalogR2dbcPersistenceAdapter
         String sql = """
                 SELECT COUNT(*) AS total
                 FROM products p
-                JOIN variants v ON v.product_id = p.product_id AND v.tenant_id = p.tenant_id
-                WHERE p.tenant_id = :tenantId
+                JOIN variants v ON v.product_id = p.product_id AND v.organization_id = p.organization_id
+                WHERE p.organization_id = :organizationId
                   AND (:brandId IS NULL OR p.brand_id = :brandId)
                   AND (:categoryId IS NULL OR p.category_id = :categoryId)
                   AND (:variantStatus IS NULL OR v.status = :variantStatus)
@@ -400,7 +400,7 @@ public class CatalogR2dbcPersistenceAdapter
                                  OR UPPER(v.sku) LIKE UPPER(:textLike))
                 """;
         return databaseClient.sql(sql)
-                .bind("tenantId", filter.tenantId())
+                .bind("organizationId", filter.organizationId())
                 .bind("brandId", emptyAsNull(filter.brandId()))
                 .bind("categoryId", emptyAsNull(filter.categoryId()))
                 .bind("variantStatus", emptyAsNull(filter.variantStatus()))
@@ -411,29 +411,29 @@ public class CatalogR2dbcPersistenceAdapter
                 .defaultIfEmpty(0L);
     }
 
-    private Mono<Void> replaceProductTags(String tenantId, String productId, Iterable<ProductTag> tags) {
+    private Mono<Void> replaceProductTags(String organizationId, String productId, Iterable<ProductTag> tags) {
         List<ProductTag> list = new ArrayList<>();
         for (ProductTag tag : tags) {
             list.add(tag);
         }
         Instant now = Instant.now();
         return productTagRepository
-                .deleteByTenantAndProduct(tenantId, productId)
+                .deleteByOrganizationAndProduct(organizationId, productId)
                 .thenMany(Flux.fromIterable(list)
-                        .concatMap(tag -> entityTemplate.insert(rowMapper.toRow(tenantId, productId, tag, now))))
+                        .concatMap(tag -> entityTemplate.insert(rowMapper.toRow(organizationId, productId, tag, now))))
                 .then();
     }
 
-    private Mono<Void> replaceVariantAttributes(String tenantId, String variantId, Iterable<VariantAttribute> attributes) {
+    private Mono<Void> replaceVariantAttributes(String organizationId, String variantId, Iterable<VariantAttribute> attributes) {
         List<VariantAttribute> list = new ArrayList<>();
         for (VariantAttribute attribute : attributes) {
             list.add(attribute);
         }
         Instant now = Instant.now();
         return variantAttributeRepository
-                .deleteByTenantAndVariant(tenantId, variantId)
+                .deleteByOrganizationAndVariant(organizationId, variantId)
                 .thenMany(Flux.fromIterable(list)
-                        .concatMap(attr -> entityTemplate.insert(rowMapper.toRow(tenantId, variantId, attr, now))))
+                        .concatMap(attr -> entityTemplate.insert(rowMapper.toRow(organizationId, variantId, attr, now))))
                 .then();
     }
 

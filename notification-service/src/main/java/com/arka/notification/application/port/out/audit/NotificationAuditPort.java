@@ -7,9 +7,9 @@ public interface NotificationAuditPort {
 
     Mono<Void> record(NotificationAuditEntry entry);
 
-    Mono<NotificationAuditEntry> findByIdempotency(String tenantId, String actionType, String idempotencyKey);
+    Mono<NotificationAuditEntry> findByIdempotency(String organizationId, String actionType, String idempotencyKey);
 
-    Flux<NotificationAuditEntry> findByTarget(String tenantId, String targetType, String targetId, int offset, int limit);
+    Flux<NotificationAuditEntry> findByTarget(String organizationId, String targetType, String targetId, int offset, int limit);
 
-    Mono<Long> countByTarget(String tenantId, String targetType, String targetId);
+    Mono<Long> countByTarget(String organizationId, String targetType, String targetId);
 }

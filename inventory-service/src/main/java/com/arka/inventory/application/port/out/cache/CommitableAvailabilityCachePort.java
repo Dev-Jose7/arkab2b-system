@@ -5,9 +5,9 @@ import reactor.core.publisher.Mono;
 
 public interface CommitableAvailabilityCachePort {
 
-    Mono<CommitableAvailabilityResult> find(String tenantId, String warehouseId, String sku);
+    Mono<CommitableAvailabilityResult> find(String organizationId, String warehouseId, String sku);
 
     Mono<Void> put(CommitableAvailabilityResult availabilityResult);
 
-    Mono<Void> evict(String tenantId, String warehouseId, String sku);
+    Mono<Void> evict(String organizationId, String warehouseId, String sku);
 }

@@ -14,7 +14,9 @@ import com.arka.reporting.application.port.in.RegisterAnalyticFactCommandUseCase
 import com.arka.reporting.application.port.in.UpdateConsumerCheckpointCommandUseCase;
 import com.arka.reporting.application.result.AnalyticFactResult;
 import com.arka.reporting.infrastructure.adapter.in.event.InboundDomainEventParser.ParsedInboundDomainEvent;
-import com.arka.reporting.infrastructure.adapter.out.external.OrderTenantLookupHttpAdapter;
+import com.arka.reporting.infrastructure.adapter.in.security.IamSecurityPrincipal;
+import com.arka.reporting.infrastructure.adapter.out.external.OrderOrganizationLookupHttpAdapter;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Instant;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +25,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -42,7 +46,10 @@ class UpstreamDomainEventKafkaConsumerTest {
     private InboundDomainEventParser parser;
 
     @Mock
-    private OrderTenantLookupHttpAdapter orderTenantLookupHttpAdapter;
+    private OrderOrganizationLookupHttpAdapter orderOrganizationLookupHttpAdapter;
+
+    @Mock
+    private ObjectProvider<MeterRegistry> meterRegistryProvider;
 
     private UpstreamDomainEventKafkaConsumer consumer;
 
@@ -53,7 +60,8 @@ class UpstreamDomainEventKafkaConsumerTest {
                 applyUseCase,
                 checkpointUseCase,
                 parser,
-                orderTenantLookupHttpAdapter,
+                orderOrganizationLookupHttpAdapter,
+                meterRegistryProvider,
                 "reporting-kafka-consumer",
                 "reporting-service",
                 7_000);
@@ -67,7 +75,7 @@ class UpstreamDomainEventKafkaConsumerTest {
                 "OrderCreatedFromValidatedCart",
                 "Order",
                 "ord-11",
-                "tenant-11",
+                "organization-11",
                 null);
 
         when(parser.parse(record.value())).thenReturn(event);
@@ -86,7 +94,7 @@ class UpstreamDomainEventKafkaConsumerTest {
         verify(applyUseCase).handle(applyCaptor.capture());
         verify(checkpointUseCase).handle(checkpointCaptor.capture());
 
-        assertEquals("tenant-11", registerCaptor.getValue().tenantId());
+        assertEquals("organization-11", registerCaptor.getValue().organizationId());
         assertEquals("SALES", registerCaptor.getValue().factType());
         assertEquals("fact-11", applyCaptor.getValue().factId());
         assertEquals(record.topic(), checkpointCaptor.getValue().topic());
@@ -95,37 +103,85 @@ class UpstreamDomainEventKafkaConsumerTest {
     }
 
     @Test
-    void shouldResolveTenantFromOrderLookupWhenMissingInEvent() {
+    void shouldPropagateTechnicalAuthenticationAcrossRegisterApplyAndCheckpoint() {
+        ConsumerRecord<String, String> record =
+                new ConsumerRecord<>("order.cart.events.v1", 1, 7L, "k", "{\"eventType\":\"CartCreated\"}");
+        ParsedInboundDomainEvent event = parsedEvent(
+                "evt-ctx",
+                "CartCreated",
+                "Cart",
+                "cart-ctx",
+                "organization-ctx",
+                null);
+
+        when(parser.parse(record.value())).thenReturn(event);
+        when(registerUseCase.handle(any()))
+                .thenAnswer(invocation -> ReactiveSecurityContextHolder.getContext()
+                        .map(context -> {
+                            IamSecurityPrincipal principal =
+                                    IamSecurityPrincipal.fromAuthentication(context.getAuthentication());
+                            assertEquals("reporting-kafka-consumer", principal.actorId());
+                            assertEquals("organization-ctx", principal.organizationId());
+                            return fact("fact-ctx", "evt-ctx", "CartCreated");
+                        }));
+        when(applyUseCase.handle(any()))
+                .thenAnswer(invocation -> ReactiveSecurityContextHolder.getContext()
+                        .map(context -> {
+                            IamSecurityPrincipal principal =
+                                    IamSecurityPrincipal.fromAuthentication(context.getAuthentication());
+                            assertEquals("reporting-kafka-consumer", principal.actorId());
+                            assertEquals("organization-ctx", principal.organizationId());
+                            return fact("fact-ctx", "evt-ctx", "CartCreated");
+                        }));
+        when(checkpointUseCase.handle(any()))
+                .thenAnswer(invocation -> ReactiveSecurityContextHolder.getContext()
+                        .doOnNext(context -> {
+                            IamSecurityPrincipal principal =
+                                    IamSecurityPrincipal.fromAuthentication(context.getAuthentication());
+                            assertEquals("reporting-kafka-consumer", principal.actorId());
+                            assertEquals("organization-ctx", principal.organizationId());
+                        })
+                        .then());
+
+        StepVerifier.create(consumer.consume(record)).verifyComplete();
+
+        verify(registerUseCase).handle(any());
+        verify(applyUseCase).handle(any());
+        verify(checkpointUseCase).handle(any());
+    }
+
+    @Test
+    void shouldResolveOrganizationFromOrderLookupWhenMissingInEvent() {
         ConsumerRecord<String, String> record = new ConsumerRecord<>("order.events.v1", 0, 22L, "k", "{\"eventType\":\"OrderOperationalStatusUpdated\"}");
         when(parser.parse(record.value()))
                 .thenReturn(parsedEvent("evt-22", "OrderOperationalStatusUpdated", "Order", "ord-22", null, null));
-        when(orderTenantLookupHttpAdapter.resolveTenantByOrderId("ord-22")).thenReturn(Mono.just("tenant-resolved"));
+        when(orderOrganizationLookupHttpAdapter.resolveOrganizationByOrderId("ord-22")).thenReturn(Mono.just("organization-resolved"));
         when(registerUseCase.handle(any())).thenReturn(Mono.just(fact("fact-22", "evt-22", "OrderOperationalStatusUpdated")));
         when(applyUseCase.handle(any())).thenReturn(Mono.just(fact("fact-22", "evt-22", "OrderOperationalStatusUpdated")));
         when(checkpointUseCase.handle(any())).thenReturn(Mono.empty());
 
         StepVerifier.create(consumer.consume(record)).verifyComplete();
 
-        verify(orderTenantLookupHttpAdapter).resolveTenantByOrderId("ord-22");
+        verify(orderOrganizationLookupHttpAdapter).resolveOrganizationByOrderId("ord-22");
     }
 
     @Test
-    void shouldResolveTenantFromCartLookupForCartEvents() {
+    void shouldResolveOrganizationFromCartLookupForCartEvents() {
         ConsumerRecord<String, String> record = new ConsumerRecord<>("order.cart.events.v1", 0, 23L, "k", "{\"eventType\":\"CartCreated\"}");
         when(parser.parse(record.value())).thenReturn(parsedEvent("evt-23", "CartCreated", "Cart", "cart-23", null, null));
-        when(orderTenantLookupHttpAdapter.resolveTenantByCartId("cart-23")).thenReturn(Mono.just("tenant-cart"));
+        when(orderOrganizationLookupHttpAdapter.resolveOrganizationByCartId("cart-23")).thenReturn(Mono.just("organization-cart"));
         when(registerUseCase.handle(any())).thenReturn(Mono.just(fact("fact-23", "evt-23", "CartCreated")));
         when(applyUseCase.handle(any())).thenReturn(Mono.just(fact("fact-23", "evt-23", "CartCreated")));
         when(checkpointUseCase.handle(any())).thenReturn(Mono.empty());
 
         StepVerifier.create(consumer.consume(record)).verifyComplete();
 
-        verify(orderTenantLookupHttpAdapter).resolveTenantByCartId("cart-23");
-        verify(orderTenantLookupHttpAdapter, never()).resolveTenantByOrderId(any());
+        verify(orderOrganizationLookupHttpAdapter).resolveOrganizationByCartId("cart-23");
+        verify(orderOrganizationLookupHttpAdapter, never()).resolveOrganizationByOrderId(any());
     }
 
     @Test
-    void shouldSkipWhenTenantCannotBeResolved() {
+    void shouldSkipWhenOrganizationCannotBeResolved() {
         ConsumerRecord<String, String> record = new ConsumerRecord<>("catalog.offer-published.v1", 0, 99L, "k", "{\"eventType\":\"CatalogOfferPublished\"}");
         when(parser.parse(record.value()))
                 .thenReturn(parsedEvent("evt-99", "CatalogOfferPublished", "CatalogOffer", "offer-99", null, null));
@@ -138,7 +194,7 @@ class UpstreamDomainEventKafkaConsumerTest {
     @Test
     void shouldFailWhenEventTypeMissing() {
         ConsumerRecord<String, String> record = new ConsumerRecord<>("any.topic", 0, 1L, "k", "{}");
-        when(parser.parse(record.value())).thenReturn(parsedEvent("evt-x", "", "Order", "ord-x", "tenant-1", null));
+        when(parser.parse(record.value())).thenReturn(parsedEvent("evt-x", "", "Order", "ord-x", "organization-1", null));
 
         StepVerifier.create(consumer.consume(record))
                 .expectErrorMatches(error -> error instanceof IllegalArgumentException
@@ -151,16 +207,15 @@ class UpstreamDomainEventKafkaConsumerTest {
             String eventType,
             String aggregateType,
             String aggregateId,
-            String tenantId,
-            String organizationId) {
+            String organizationId,
+            String actorId) {
         return new ParsedInboundDomainEvent(
                 eventId,
                 eventType,
                 aggregateType,
                 aggregateId,
-                tenantId,
                 organizationId,
-                "actor-x",
+                actorId,
                 "trace-x",
                 "corr-x",
                 Instant.parse("2026-04-14T10:00:00Z"),
@@ -171,7 +226,7 @@ class UpstreamDomainEventKafkaConsumerTest {
     private AnalyticFactResult fact(String factId, String sourceEventId, String eventType) {
         return new AnalyticFactResult(
                 factId,
-                "tenant",
+                "organization",
                 sourceEventId,
                 eventType,
                 "SALES",

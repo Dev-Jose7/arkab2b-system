@@ -8,5 +8,5 @@ public interface OrderStatusHistoryPersistencePort {
 
     Mono<OrderStatusHistory> save(OrderStatusHistory statusHistory);
 
-    Flux<OrderStatusHistory> findByOrder(String tenantId, String orderId);
+    Flux<OrderStatusHistory> findByOrder(String organizationId, String orderId);
 }

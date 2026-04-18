@@ -10,9 +10,9 @@ public interface ReactiveNotificationAttemptRepository extends ReactiveCrudRepos
     @Query("""
             SELECT *
             FROM notification_attempts
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND notification_id = :notificationId
             ORDER BY attempt_number ASC
             """)
-    Flux<NotificationAttemptRow> findByNotificationId(String tenantId, String notificationId);
+    Flux<NotificationAttemptRow> findByNotificationId(String organizationId, String notificationId);
 }

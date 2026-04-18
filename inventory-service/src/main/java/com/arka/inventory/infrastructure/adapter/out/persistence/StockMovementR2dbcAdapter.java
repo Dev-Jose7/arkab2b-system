@@ -31,7 +31,7 @@ public class StockMovementR2dbcAdapter implements StockMovementPersistencePort {
     }
 
     @Override
-    public Flux<StockMovement> findByTenantAndStockItem(String tenantId, String stockItemId, int limit) {
-        return repository.findByTenantAndStockItem(tenantId, stockItemId, limit).map(rowMapper::toDomain);
+    public Flux<StockMovement> findByOrganizationAndStockItem(String organizationId, String stockItemId, int limit) {
+        return repository.findByOrganizationAndStockItem(organizationId, stockItemId, limit).map(rowMapper::toDomain);
     }
 }

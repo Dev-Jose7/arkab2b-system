@@ -4,7 +4,7 @@ import com.arka.notification.domain.notificationdispatch.enumtype.NotificationCh
 
 public record ChannelPolicy(
         String policyId,
-        String tenantId,
+        String organizationId,
         String sourceEventType,
         NotificationChannel primaryChannel,
         NotificationChannel fallbackChannel,

@@ -10,7 +10,7 @@ import org.springframework.data.relational.core.mapping.Table;
 public record OperationsKpiProjectionRow(
         @Id
         @Column("projection_id") String projectionId,
-        @Column("tenant_id") String tenantId,
+        @Column("organization_id") String organizationId,
         @Column("period") String period,
         @Column("kpi_name") String kpiName,
         @Column("kpi_value") BigDecimal kpiValue,

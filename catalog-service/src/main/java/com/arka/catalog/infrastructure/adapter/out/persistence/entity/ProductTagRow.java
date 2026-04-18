@@ -9,7 +9,7 @@ import org.springframework.data.relational.core.mapping.Table;
 public record ProductTagRow(
         @Id
         @Column("tag_id") String tagId,
-        @Column("tenant_id") String tenantId,
+        @Column("organization_id") String organizationId,
         @Column("product_id") String productId,
         @Column("tag_code") String tagCode,
         @Column("tag_value") String tagValue,

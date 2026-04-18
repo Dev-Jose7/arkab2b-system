@@ -3,7 +3,7 @@ package com.arka.catalog.application.query;
 import java.time.Instant;
 
 public record SearchCatalogQuery(
-        String tenantId,
+        String organizationId,
         String text,
         String brandId,
         String categoryId,

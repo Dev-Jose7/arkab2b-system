@@ -5,9 +5,9 @@ import reactor.core.publisher.Mono;
 
 public interface CheckoutAttemptCachePort {
 
-    Mono<CheckoutAttemptResult> findByCorrelation(String tenantId, String checkoutCorrelationId);
+    Mono<CheckoutAttemptResult> findByCorrelation(String organizationId, String checkoutCorrelationId);
 
     Mono<Void> put(CheckoutAttemptResult result);
 
-    Mono<Void> evict(String tenantId, String checkoutCorrelationId);
+    Mono<Void> evict(String organizationId, String checkoutCorrelationId);
 }

@@ -45,11 +45,15 @@ import com.arka.order.infrastructure.adapter.in.web.response.OrderFinancialStatu
 import com.arka.order.infrastructure.adapter.in.web.response.OrderResponse;
 import com.arka.order.infrastructure.adapter.in.web.response.OrderStatusHistoryResponse;
 import com.arka.order.infrastructure.adapter.in.web.response.OrderSummaryResponse;
+import com.arka.order.infrastructure.adapter.in.web.response.OrganizationContextResponse;
+import com.arka.order.infrastructure.adapter.out.persistence.repository.CartR2dbcRepository;
+import com.arka.order.infrastructure.adapter.out.persistence.repository.PurchaseOrderR2dbcRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.time.Instant;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
@@ -62,6 +66,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -94,6 +99,8 @@ public class OrderController {
     private final ListOrderPaymentsQueryUseCase listOrderPaymentsQueryUseCase;
     private final GetOrderAuditQueryUseCase getOrderAuditQueryUseCase;
     private final CalculateOrderAmountsQueryUseCase calculateOrderAmountsQueryUseCase;
+    private final CartR2dbcRepository cartR2dbcRepository;
+    private final PurchaseOrderR2dbcRepository purchaseOrderR2dbcRepository;
 
     public OrderController(
             OrderCommandMapper commandMapper,
@@ -119,7 +126,9 @@ public class OrderController {
             GetOrderFinancialStatusQueryUseCase getOrderFinancialStatusQueryUseCase,
             ListOrderPaymentsQueryUseCase listOrderPaymentsQueryUseCase,
             GetOrderAuditQueryUseCase getOrderAuditQueryUseCase,
-            CalculateOrderAmountsQueryUseCase calculateOrderAmountsQueryUseCase) {
+            CalculateOrderAmountsQueryUseCase calculateOrderAmountsQueryUseCase,
+            CartR2dbcRepository cartR2dbcRepository,
+            PurchaseOrderR2dbcRepository purchaseOrderR2dbcRepository) {
         this.commandMapper = commandMapper;
         this.queryMapper = queryMapper;
         this.responseMapper = responseMapper;
@@ -144,6 +153,8 @@ public class OrderController {
         this.listOrderPaymentsQueryUseCase = listOrderPaymentsQueryUseCase;
         this.getOrderAuditQueryUseCase = getOrderAuditQueryUseCase;
         this.calculateOrderAmountsQueryUseCase = calculateOrderAmountsQueryUseCase;
+        this.cartR2dbcRepository = cartR2dbcRepository;
+        this.purchaseOrderR2dbcRepository = purchaseOrderR2dbcRepository;
     }
 
     @PreAuthorize("hasAnyAuthority('order.write', 'ROLE_ORDER_ADMIN', 'ROLE_ARKA_ADMIN')")
@@ -278,7 +289,7 @@ public class OrderController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('order.admin', 'ROLE_ORDER_ADMIN', 'ROLE_ARKA_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('order.admin', 'order.write', 'ROLE_ORDER_ADMIN', 'ROLE_ARKA_ADMIN', 'ROLE_TRUSTED_SERVICE')")
     @PostMapping("/internal/carts/{cartId}/reservation-expired")
     public Mono<CartResponse> handleReservationExpired(
             @PathVariable String cartId,
@@ -288,6 +299,24 @@ public class OrderController {
         return handleReservationExpiredCommandUseCase
                 .handle(commandMapper.toCommand(cartId, request, principal))
                 .map(responseMapper::toResponse);
+    }
+
+    @PreAuthorize("hasRole('TRUSTED_SERVICE') and hasAuthority('order.read')")
+    @GetMapping({"/internal/orders/{orderId}/organization-context", "/internal/orders/{orderId}/organization"})
+    public Mono<OrganizationContextResponse> resolveOrganizationContextByOrder(@PathVariable String orderId) {
+        return purchaseOrderR2dbcRepository
+                .findContextByOrderId(orderId)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "order not found")))
+                .map(order -> new OrganizationContextResponse(order.organizationId(), order.userId()));
+    }
+
+    @PreAuthorize("hasRole('TRUSTED_SERVICE') and hasAuthority('order.read')")
+    @GetMapping({"/internal/carts/{cartId}/organization-context", "/internal/carts/{cartId}/organization"})
+    public Mono<OrganizationContextResponse> resolveOrganizationContextByCart(@PathVariable String cartId) {
+        return cartR2dbcRepository
+                .findContextByCartId(cartId)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "cart not found")))
+                .map(cart -> new OrganizationContextResponse(cart.organizationId(), cart.userId()));
     }
 
     @PreAuthorize("hasAnyAuthority('order.read', 'order.write', 'ROLE_ORDER_ADMIN', 'ROLE_ARKA_ADMIN')")

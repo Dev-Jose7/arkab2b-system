@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 public record CheckoutVariantResolutionResponse(
-        String tenantId,
+        String organizationId,
         String productId,
         String variantId,
         String sku,
@@ -12,5 +12,4 @@ public record CheckoutVariantResolutionResponse(
         BigDecimal amount,
         String currency,
         String priceType,
-        Instant resolvedAt) {
-}
+        Instant resolvedAt) {}

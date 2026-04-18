@@ -5,7 +5,7 @@ import com.arka.notification.domain.notificationdispatch.aggregate.NotificationD
 import com.arka.notification.domain.notificationdispatch.repository.NotificationDispatchRepository;
 import com.arka.notification.domain.notificationdispatch.valueobject.NotificationId;
 import com.arka.notification.domain.notificationdispatch.valueobject.NotificationKey;
-import com.arka.notification.domain.notificationdispatch.valueobject.TenantId;
+import com.arka.notification.domain.notificationdispatch.valueobject.OrganizationId;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -21,19 +21,19 @@ public class DomainNotificationDispatchRepositoryAdapter implements Notification
     @Override
     public Mono<NotificationDispatch> save(NotificationDispatch dispatch) {
         return requestPersistencePort
-                .findById(dispatch.request().tenantId(), dispatch.request().notificationId())
+                .findById(dispatch.request().organizationId(), dispatch.request().notificationId())
                 .flatMap(existing -> requestPersistencePort.update(dispatch.request()))
                 .switchIfEmpty(requestPersistencePort.create(dispatch.request()))
                 .map(NotificationDispatch::rehydrate);
     }
 
     @Override
-    public Mono<NotificationDispatch> findById(TenantId tenantId, NotificationId notificationId) {
-        return requestPersistencePort.findById(tenantId, notificationId).map(NotificationDispatch::rehydrate);
+    public Mono<NotificationDispatch> findById(OrganizationId organizationId, NotificationId notificationId) {
+        return requestPersistencePort.findById(organizationId, notificationId).map(NotificationDispatch::rehydrate);
     }
 
     @Override
-    public Mono<NotificationDispatch> findByKey(TenantId tenantId, NotificationKey notificationKey) {
-        return requestPersistencePort.findByKey(tenantId, notificationKey).map(NotificationDispatch::rehydrate);
+    public Mono<NotificationDispatch> findByKey(OrganizationId organizationId, NotificationKey notificationKey) {
+        return requestPersistencePort.findByKey(organizationId, notificationKey).map(NotificationDispatch::rehydrate);
     }
 }

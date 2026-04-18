@@ -9,5 +9,5 @@ public interface ReportingSearchCachePort {
 
     Mono<Void> put(String cacheKey, FactSearchResult result);
 
-    Mono<Void> evictTenant(String tenantId);
+    Mono<Void> evictOrganization(String organizationId);
 }

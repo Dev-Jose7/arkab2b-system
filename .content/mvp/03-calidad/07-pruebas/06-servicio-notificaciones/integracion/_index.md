@@ -36,7 +36,7 @@ Validar contratos REST/eventos, persistencia de solicitudes/intentos y comportam
 | NOTI-IT-012 | `GET /{id}` y `/attempts` | detalle de solicitud e intentos | consistencia de estados e intentos | FR-006 |
 | NOTI-IT-013 | `POST /reprocess-dlq` | reproceso tecnico por lote | mensajes reprocesados y trazados | NFR-007 |
 | NOTI-IT-014 | consumo `OrderConfirmed` | generar solicitud de confirmacion | `NotificationRequested` + `processed_event` | FR-006 |
-| NOTI-IT-015 | consumo `OrderStatusChanged` | generar aviso de estado | solicitud por canal y tenant correcto | FR-006 |
+| NOTI-IT-015 | consumo `OrderStatusChanged` | generar aviso de estado | solicitud por canal y organization correcto | FR-006 |
 | NOTI-IT-016 | consumo `OrderPaymentRegistered` | generar aviso de pago manual | solicitud trazable | FR-010 |
 | NOTI-IT-017 | consumo `CartAbandonedDetected` | generar recordatorio | solicitud no bloqueante | FR-008 |
 | NOTI-IT-018 | consumo `StockReservationExpired` | aviso preventivo | solicitud creada + dedupe | FR-006 |
@@ -46,7 +46,7 @@ Validar contratos REST/eventos, persistencia de solicitudes/intentos y comportam
 | NOTI-IT-022 | consumo `UserBlocked` | comunicacion de seguridad (si aplica policy) | solicitud creada o descartada segun policy | FR-009 |
 | NOTI-IT-023 | dedupe evento upstream duplicado | mismo `eventId` dos veces | segundo consumo `noop idempotente` | NFR-009 |
 | NOTI-IT-024 | seguridad scope m2m | scope insuficiente en endpoints internos | 403 `forbidden_scope` + sin cambios DB | NFR-005 |
-| NOTI-IT-025 | aislamiento tenant/ownership | actor tenant A sobre solicitud tenant B | rechazo `acceso_cruzado_detectado` | NFR-005, I-ACC-02 |
+| NOTI-IT-025 | aislamiento organization/ownership | actor organization A sobre solicitud organization B | rechazo `acceso_cruzado_detectado` | NFR-005, I-ACC-02 |
 | NOTI-IT-026 | trazabilidad completa | mutacion + evento + callback | `traceId/correlationId` en request/audit/outbox/evento | NFR-006 |
 | NOTI-IT-027 | ruta DLQ no recuperable | payload/evento irreparable | enrutado a DLQ + auditoria | NFR-007 |
 | NOTI-IT-028 | no rollback del core ante fallo | fallo dispatch tras evento Order | solo falla Notification; core Order intacto | RN-NOTI-01, I-NOTI-01 |
@@ -54,4 +54,4 @@ Validar contratos REST/eventos, persistencia de solicitudes/intentos y comportam
 ## Criterio de exito integracion
 - Escenarios `NOTI-IT-001..028` disenados para verificar ausencia de breaking en contratos `v1`.
 - Dedupe, retry, DLQ y reproceso disenados para verificarse con evidencia persistida durante la corrida.
-- En corrida de certificacion, no deben ocurrir mutaciones cross-tenant.
+- En corrida de certificacion, no deben ocurrir mutaciones cross-organization.

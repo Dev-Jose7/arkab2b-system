@@ -47,20 +47,21 @@ public class OutboxRowMapper {
             payload.put("aggregateType", event.aggregateType());
 
             if (event instanceof StockUpdated stockUpdated) {
-                payload.put("tenantId", stockUpdated.tenantId());
+                payload.put("organizationId", stockUpdated.organizationId());
                 payload.put("warehouseId", stockUpdated.warehouseId());
                 payload.put("sku", stockUpdated.sku());
                 payload.put("physicalQty", stockUpdated.physicalQty());
                 payload.put("reservedQty", stockUpdated.reservedQty());
                 payload.put("reason", stockUpdated.reason());
             } else if (event instanceof CommitableAvailabilityRecalculated availability) {
-                payload.put("tenantId", availability.tenantId());
+                payload.put("organizationId", availability.organizationId());
                 payload.put("warehouseId", availability.warehouseId());
                 payload.put("sku", availability.sku());
                 payload.put("availableQty", availability.availableQty());
                 payload.put("lowStock", availability.lowStock());
                 payload.put("reason", availability.reason());
             } else if (event instanceof InventoryMutationEvent mutationEvent) {
+                payload.put("organizationId", mutationEvent.organizationId());
                 payload.put("mutationType", mutationEvent.mutationType());
                 payload.put("targetType", mutationEvent.targetType());
                 payload.put("targetId", mutationEvent.targetId());

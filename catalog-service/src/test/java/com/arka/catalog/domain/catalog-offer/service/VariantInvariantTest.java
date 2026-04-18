@@ -7,7 +7,7 @@ import com.arka.catalog.domain.catalogoffer.enumtype.ProductStatus;
 import com.arka.catalog.domain.catalogoffer.exception.ProductNotActiveException;
 import com.arka.catalog.domain.catalogoffer.exception.RequiredAttributesMissingException;
 import com.arka.catalog.domain.catalogoffer.valueobject.ProductId;
-import com.arka.catalog.domain.catalogoffer.valueobject.TenantId;
+import com.arka.catalog.domain.catalogoffer.valueobject.OrganizationId;
 import com.arka.catalog.domain.catalogoffer.valueobject.VariantId;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,7 @@ class VariantInvariantTest {
     void shouldRequireActiveProductBeforeMarkingVariantSellable() {
         Instant now = Instant.parse("2026-02-01T00:00:00Z");
         Variant variant = Variant.draft(
-                TenantId.of("tenant-demo"),
+                OrganizationId.of("organization-demo"),
                 VariantId.of("variant-1"),
                 ProductId.of("product-1"),
                 "SKU-001",
@@ -36,7 +36,7 @@ class VariantInvariantTest {
     void shouldRequireMandatoryAttributesBeforeMarkingVariantSellable() {
         Instant now = Instant.parse("2026-02-01T00:00:00Z");
         Variant variant = Variant.draft(
-                TenantId.of("tenant-demo"),
+                OrganizationId.of("organization-demo"),
                 VariantId.of("variant-2"),
                 ProductId.of("product-1"),
                 "SKU-002",

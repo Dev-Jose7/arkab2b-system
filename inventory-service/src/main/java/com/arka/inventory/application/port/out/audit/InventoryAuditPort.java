@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono;
 public interface InventoryAuditPort {
 
     Mono<Void> record(
-            String tenantId,
+            String organizationId,
             String actorUserId,
             String actionType,
             String targetType,
@@ -15,5 +15,5 @@ public interface InventoryAuditPort {
             String outcome,
             String payload);
 
-    Flux<InventoryAuditEntryResult> findByTenant(String tenantId, int limit);
+    Flux<InventoryAuditEntryResult> findByOrganization(String organizationId, int limit);
 }

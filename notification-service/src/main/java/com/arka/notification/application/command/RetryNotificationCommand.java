@@ -1,7 +1,7 @@
 package com.arka.notification.application.command;
 
 public record RetryNotificationCommand(
-        String tenantId,
+        String organizationId,
         String actorId,
         String notificationId,
         String idempotencyKey) {

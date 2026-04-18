@@ -35,7 +35,7 @@ import com.arka.inventory.application.port.in.UpdateStockItemStatusCommandUseCas
 import com.arka.inventory.application.port.in.ValidateReservationReferenceQueryUseCase;
 import com.arka.inventory.application.port.out.audit.InventoryAuditPort;
 import com.arka.inventory.application.port.out.cache.CommitableAvailabilityCachePort;
-import com.arka.inventory.application.port.out.directory.TenantDirectoryPort;
+import com.arka.inventory.application.port.out.directory.OrganizationDirectoryPort;
 import com.arka.inventory.application.port.out.external.ActorLegitimacyPort;
 import com.arka.inventory.application.port.out.external.CatalogSkuPort;
 import com.arka.inventory.application.port.out.external.ClockPort;
@@ -136,7 +136,7 @@ public class InventoryApplicationService implements
     private final ActorLegitimacyPort actorLegitimacyPort;
     private final CatalogSkuPort catalogSkuPort;
     private final OrderReferencePort orderReferencePort;
-    private final TenantDirectoryPort tenantDirectoryPort;
+    private final OrganizationDirectoryPort organizationDirectoryPort;
     private final ActorContextProviderPort actorContextProviderPort;
     private final OversellGuardPolicy oversellGuardPolicy;
     private final CheckoutReservationValidationService checkoutReservationValidationService;
@@ -157,7 +157,7 @@ public class InventoryApplicationService implements
             ActorLegitimacyPort actorLegitimacyPort,
             CatalogSkuPort catalogSkuPort,
             OrderReferencePort orderReferencePort,
-            TenantDirectoryPort tenantDirectoryPort,
+            OrganizationDirectoryPort organizationDirectoryPort,
             ActorContextProviderPort actorContextProviderPort,
             OversellGuardPolicy oversellGuardPolicy,
             CheckoutReservationValidationService checkoutReservationValidationService,
@@ -176,7 +176,7 @@ public class InventoryApplicationService implements
         this.actorLegitimacyPort = actorLegitimacyPort;
         this.catalogSkuPort = catalogSkuPort;
         this.orderReferencePort = orderReferencePort;
-        this.tenantDirectoryPort = tenantDirectoryPort;
+        this.organizationDirectoryPort = organizationDirectoryPort;
         this.actorContextProviderPort = actorContextProviderPort;
         this.oversellGuardPolicy = oversellGuardPolicy;
         this.checkoutReservationValidationService = checkoutReservationValidationService;
@@ -187,28 +187,28 @@ public class InventoryApplicationService implements
     @Override
     @Transactional
     public Mono<WarehouseResult> handle(CreateWarehouseCommand command) {
-        String tenantId = normalizeRequired(command.tenantId(), "tenantId");
+        String organizationId = normalizeRequired(command.organizationId(), "organizationId");
         String actorUserId = normalizeRequired(command.actorUserId(), "actorUserId");
         String warehouseCode = normalizeRequired(command.warehouseCode(), "warehouseCode").toUpperCase(Locale.ROOT);
         String operationName = "CreateWarehouse";
         String requestHash = IdempotencySupport.sha256(String.valueOf(command));
 
-        return ensureActorAccess(tenantId, actorUserId, true)
+        return ensureActorAccess(organizationId, actorUserId, true)
                 .then(executeIdempotent(
-                        tenantId,
+                        organizationId,
                         operationName,
                         command.idempotencyKey(),
                         requestHash,
-                        record -> loadWarehouseResult(tenantId, record.resourceId()),
-                        () -> warehousePersistencePort.existsByTenantAndCode(tenantId, warehouseCode)
+                        record -> loadWarehouseResult(organizationId, record.resourceId()),
+                        () -> warehousePersistencePort.existsByOrganizationAndCode(organizationId, warehouseCode)
                                 .flatMap(exists -> exists
-                                        ? Mono.error(new InventoryConflictException("Warehouse code already exists for tenant"))
+                                        ? Mono.error(new InventoryConflictException("Warehouse code already exists for organization"))
                                         : Mono.empty())
                                 .then(Mono.defer(() -> {
                                     Instant now = now();
                                     Warehouse warehouse = new Warehouse(
                                             UUID.randomUUID().toString(),
-                                            tenantId,
+                                            organizationId,
                                             warehouseCode,
                                             normalizeRequired(command.warehouseName(), "warehouseName"),
                                             normalizeCountryCode(command.countryCode()),
@@ -218,7 +218,7 @@ public class InventoryApplicationService implements
 
                                     return warehousePersistencePort.save(warehouse)
                                             .flatMap(saved -> registerMutation(
-                                                            tenantId,
+                                                            organizationId,
                                                             actorUserId,
                                                             operationName,
                                                             "Warehouse",
@@ -234,7 +234,7 @@ public class InventoryApplicationService implements
     @Override
     @Transactional
     public Mono<StockItemResult> handle(InitializeStockItemCommand command) {
-        String tenantId = normalizeRequired(command.tenantId(), "tenantId");
+        String organizationId = normalizeRequired(command.organizationId(), "organizationId");
         String actorUserId = normalizeRequired(command.actorUserId(), "actorUserId");
         String warehouseId = normalizeRequired(command.warehouseId(), "warehouseId");
         String sku = normalizeSku(command.sku());
@@ -244,27 +244,27 @@ public class InventoryApplicationService implements
         String operationName = "InitializeStockItem";
         String requestHash = IdempotencySupport.sha256(String.valueOf(command));
 
-        return ensureActorAccess(tenantId, actorUserId, true)
+        return ensureActorAccess(organizationId, actorUserId, true)
                 .then(executeIdempotent(
-                        tenantId,
+                        organizationId,
                         operationName,
                         command.idempotencyKey(),
                         requestHash,
-                        record -> loadStockItemResult(tenantId, record.resourceId()),
-                        () -> loadWarehouse(tenantId, warehouseId)
-                                .then(catalogSkuPort.existsSellableSku(tenantId, sku))
+                        record -> loadStockItemResult(organizationId, record.resourceId()),
+                        () -> loadWarehouse(organizationId, warehouseId)
+                                .then(catalogSkuPort.existsSellableSku(organizationId, sku))
                                 .flatMap(exists -> exists
                                         ? Mono.empty()
-                                        : Mono.error(new InventoryValidationException("SKU is not sellable for tenant")))
-                                .then(stockItemPersistencePort.existsByTenantWarehouseSku(tenantId, warehouseId, sku))
+                                        : Mono.error(new InventoryValidationException("SKU is not sellable for organization")))
+                                .then(stockItemPersistencePort.existsByOrganizationWarehouseSku(organizationId, warehouseId, sku))
                                 .flatMap(exists -> exists
-                                        ? Mono.error(new InventoryConflictException("Stock item already exists for tenant + warehouse + sku"))
+                                        ? Mono.error(new InventoryConflictException("Stock item already exists for organization + warehouse + sku"))
                                         : Mono.empty())
                                 .then(Mono.defer(() -> {
                                     Instant now = now();
                                     StockItem stockItem = StockItem.initialize(
                                             UUID.randomUUID().toString(),
-                                            tenantId,
+                                            organizationId,
                                             warehouseId,
                                             sku,
                                             initialQty,
@@ -277,7 +277,7 @@ public class InventoryApplicationService implements
                                                 InventoryBalance balance = InventoryBalance.from(saved);
                                                 balance.updateOperationalStock(0, "InitializeStockItem", now);
                                                 StockMovement movement = stockMovement(
-                                                        tenantId,
+                                                        organizationId,
                                                         saved,
                                                         StockMovementType.INITIALIZED,
                                                         saved.physicalQty(),
@@ -288,7 +288,7 @@ public class InventoryApplicationService implements
                                                         now);
                                                 return stockMovementPersistencePort.save(movement)
                                                         .then(registerMutation(
-                                                                tenantId,
+                                                                organizationId,
                                                                 actorUserId,
                                                                 operationName,
                                                                 "StockItem",
@@ -309,7 +309,7 @@ public class InventoryApplicationService implements
     @Override
     @Transactional
     public Mono<StockItemResult> handle(UpdateOperationalStockCommand command) {
-        String tenantId = normalizeRequired(command.tenantId(), "tenantId");
+        String organizationId = normalizeRequired(command.organizationId(), "organizationId");
         String actorUserId = normalizeRequired(command.actorUserId(), "actorUserId");
         String stockItemId = normalizeRequired(command.stockItemId(), "stockItemId");
         int deltaQty = requireInteger(command.deltaQty(), "deltaQty");
@@ -317,15 +317,15 @@ public class InventoryApplicationService implements
         String operationName = "UpdateOperationalStock";
         String requestHash = IdempotencySupport.sha256(String.valueOf(command));
 
-        return ensureActorAccess(tenantId, actorUserId, true)
+        return ensureActorAccess(organizationId, actorUserId, true)
                 .then(executeIdempotent(
-                        tenantId,
+                        organizationId,
                         operationName,
                         command.idempotencyKey(),
                         requestHash,
-                        record -> loadStockItemResult(tenantId, record.resourceId()),
+                        record -> loadStockItemResult(organizationId, record.resourceId()),
                         () -> updateOperationalStockWithRetry(
-                                tenantId,
+                                organizationId,
                                 stockItemId,
                                 deltaQty,
                                 reason,
@@ -339,7 +339,7 @@ public class InventoryApplicationService implements
     @Override
     @Transactional
     public Mono<StockReservationResult> handle(ReserveStockCommand command) {
-        String tenantId = normalizeRequired(command.tenantId(), "tenantId");
+        String organizationId = normalizeRequired(command.organizationId(), "organizationId");
         String actorUserId = normalizeRequired(command.actorUserId(), "actorUserId");
         String stockItemId = normalizeRequired(command.stockItemId(), "stockItemId");
         String cartId = normalizeRequired(command.cartId(), "cartId");
@@ -348,19 +348,19 @@ public class InventoryApplicationService implements
         String operationName = "ReserveStock";
         String requestHash = IdempotencySupport.sha256(String.valueOf(command));
 
-        return ensureActorAccess(tenantId, actorUserId, true)
+        return ensureActorAccess(organizationId, actorUserId, true)
                 .then(executeIdempotent(
-                        tenantId,
+                        organizationId,
                         operationName,
                         command.idempotencyKey(),
                         requestHash,
-                        record -> loadReservationResult(tenantId, record.resourceId()),
-                        () -> orderReferencePort.isValidCartReference(tenantId, cartId)
+                        record -> loadReservationResult(organizationId, record.resourceId()),
+                        () -> orderReferencePort.isValidCartReference(organizationId, cartId)
                                 .flatMap(valid -> valid
                                         ? Mono.empty()
-                                        : Mono.error(new InventoryValidationException("cartId is not valid for tenant")))
+                                        : Mono.error(new InventoryValidationException("cartId is not valid for organization")))
                                 .then(reserveStockWithRetry(
-                                        tenantId,
+                                        organizationId,
                                         stockItemId,
                                         cartId,
                                         qty,
@@ -375,26 +375,26 @@ public class InventoryApplicationService implements
     @Override
     @Transactional
     public Mono<StockReservationResult> handle(ConfirmReservationCommand command) {
-        String tenantId = normalizeRequired(command.tenantId(), "tenantId");
+        String organizationId = normalizeRequired(command.organizationId(), "organizationId");
         String actorUserId = normalizeRequired(command.actorUserId(), "actorUserId");
         String reservationId = normalizeRequired(command.reservationId(), "reservationId");
         String orderId = normalizeRequired(command.orderId(), "orderId");
         String operationName = "ConfirmReservation";
         String requestHash = IdempotencySupport.sha256(String.valueOf(command));
 
-        return ensureActorAccess(tenantId, actorUserId, true)
+        return ensureActorAccess(organizationId, actorUserId, true)
                 .then(executeIdempotent(
-                        tenantId,
+                        organizationId,
                         operationName,
                         command.idempotencyKey(),
                         requestHash,
-                        record -> loadReservationResult(tenantId, record.resourceId()),
-                        () -> orderReferencePort.isValidOrderReference(tenantId, orderId)
+                        record -> loadReservationResult(organizationId, record.resourceId()),
+                        () -> orderReferencePort.isValidOrderReference(organizationId, orderId)
                                 .flatMap(valid -> valid
                                         ? Mono.empty()
-                                        : Mono.error(new InventoryValidationException("orderId is not valid for tenant")))
+                                        : Mono.error(new InventoryValidationException("orderId is not valid for organization")))
                                 .then(confirmReservationWithRetry(
-                                        tenantId,
+                                        organizationId,
                                         reservationId,
                                         orderId,
                                         actorUserId,
@@ -407,22 +407,22 @@ public class InventoryApplicationService implements
     @Override
     @Transactional
     public Mono<StockReservationResult> handle(ReleaseReservationCommand command) {
-        String tenantId = normalizeRequired(command.tenantId(), "tenantId");
+        String organizationId = normalizeRequired(command.organizationId(), "organizationId");
         String actorUserId = normalizeRequired(command.actorUserId(), "actorUserId");
         String reservationId = normalizeRequired(command.reservationId(), "reservationId");
         String reason = normalizeRequired(command.reason(), "reason");
         String operationName = "ReleaseReservation";
         String requestHash = IdempotencySupport.sha256(String.valueOf(command));
 
-        return ensureActorAccess(tenantId, actorUserId, true)
+        return ensureActorAccess(organizationId, actorUserId, true)
                 .then(executeIdempotent(
-                        tenantId,
+                        organizationId,
                         operationName,
                         command.idempotencyKey(),
                         requestHash,
-                        record -> loadReservationResult(tenantId, record.resourceId()),
+                        record -> loadReservationResult(organizationId, record.resourceId()),
                         () -> releaseReservationWithRetry(
-                                tenantId,
+                                organizationId,
                                 reservationId,
                                 reason,
                                 actorUserId,
@@ -435,13 +435,13 @@ public class InventoryApplicationService implements
     @Override
     @Transactional
     public Mono<ExpiredReservationsResult> handle(ExpireReservationsCommand command) {
-        String tenantId = normalizeRequired(command.tenantId(), "tenantId");
+        String organizationId = normalizeRequired(command.organizationId(), "organizationId");
         String actorUserId = normalizeRequired(command.actorUserId(), "actorUserId");
         int batchSize = command.batchSize() == null ? 200 : requirePositive(command.batchSize(), "batchSize");
 
-        return ensureActorAccess(tenantId, actorUserId, true)
-                .thenMany(stockReservationPersistencePort.findExpiredActive(tenantId, now(), batchSize))
-                .concatMap(reservation -> expireSingleReservation(tenantId, reservation, actorUserId, MAX_OPTIMISTIC_RETRIES)
+        return ensureActorAccess(organizationId, actorUserId, true)
+                .thenMany(stockReservationPersistencePort.findExpiredActive(organizationId, now(), batchSize))
+                .concatMap(reservation -> expireSingleReservation(organizationId, reservation, actorUserId, MAX_OPTIMISTIC_RETRIES)
                         .onErrorResume(error -> Mono.empty()))
                 .count()
                 .map(count -> new ExpiredReservationsResult(count.intValue()));
@@ -450,28 +450,28 @@ public class InventoryApplicationService implements
     @Override
     @Transactional
     public Mono<CommitableAvailabilityResult> handle(RecalculateCommitableAvailabilityCommand command) {
-        String tenantId = normalizeRequired(command.tenantId(), "tenantId");
+        String organizationId = normalizeRequired(command.organizationId(), "organizationId");
         String actorUserId = normalizeRequired(command.actorUserId(), "actorUserId");
         String stockItemId = normalizeRequired(command.stockItemId(), "stockItemId");
         String operationName = "RecalculateCommitableAvailability";
         String requestHash = IdempotencySupport.sha256(String.valueOf(command));
 
-        return ensureActorAccess(tenantId, actorUserId, true)
+        return ensureActorAccess(organizationId, actorUserId, true)
                 .then(executeIdempotent(
-                        tenantId,
+                        organizationId,
                         operationName,
                         command.idempotencyKey(),
                         requestHash,
-                        record -> loadStockItem(tenantId, record.resourceId())
+                        record -> loadStockItem(organizationId, record.resourceId())
                                 .map(this::toAvailabilityResult),
-                        () -> loadStockItem(tenantId, stockItemId)
+                        () -> loadStockItem(organizationId, stockItemId)
                                 .flatMap(stockItem -> {
                                     Instant now = now();
                                     InventoryBalance balance = InventoryBalance.from(stockItem);
                                     balance.recalculateCommitableAvailability(
                                             normalizeOptional(command.reason(), "manual-recalculation"), now);
                                     return registerMutation(
-                                                    tenantId,
+                                                    organizationId,
                                                     actorUserId,
                                                     operationName,
                                                     "StockItem",
@@ -488,7 +488,7 @@ public class InventoryApplicationService implements
     @Override
     @Transactional
     public Mono<StockItemResult> handle(UpdateStockItemStatusCommand command) {
-        String tenantId = normalizeRequired(command.tenantId(), "tenantId");
+        String organizationId = normalizeRequired(command.organizationId(), "organizationId");
         String actorUserId = normalizeRequired(command.actorUserId(), "actorUserId");
         String stockItemId = normalizeRequired(command.stockItemId(), "stockItemId");
         StockItemStatus targetStatus = parseStockItemStatus(command.targetStatus());
@@ -496,15 +496,15 @@ public class InventoryApplicationService implements
         String operationName = "UpdateStockItemStatus";
         String requestHash = IdempotencySupport.sha256(String.valueOf(command));
 
-        return ensureActorAccess(tenantId, actorUserId, true)
+        return ensureActorAccess(organizationId, actorUserId, true)
                 .then(executeIdempotent(
-                        tenantId,
+                        organizationId,
                         operationName,
                         command.idempotencyKey(),
                         requestHash,
-                        record -> loadStockItemResult(tenantId, record.resourceId()),
+                        record -> loadStockItemResult(organizationId, record.resourceId()),
                         () -> updateStockStatusWithRetry(
-                                tenantId,
+                                organizationId,
                                 stockItemId,
                                 targetStatus,
                                 reason,
@@ -517,94 +517,94 @@ public class InventoryApplicationService implements
 
     @Override
     public Mono<StockItemResult> handle(GetStockItemQuery query) {
-        String tenantId = normalizeRequired(query.tenantId(), "tenantId");
+        String organizationId = normalizeRequired(query.organizationId(), "organizationId");
         String actorUserId = normalizeRequired(query.actorUserId(), "actorUserId");
         String stockItemId = normalizeRequired(query.stockItemId(), "stockItemId");
 
-        return ensureActorAccess(tenantId, actorUserId, false)
-                .then(loadStockItemResult(tenantId, stockItemId));
+        return ensureActorAccess(organizationId, actorUserId, false)
+                .then(loadStockItemResult(organizationId, stockItemId));
     }
 
     @Override
     public Mono<CommitableAvailabilityResult> handle(GetCommitableAvailabilityQuery query) {
-        String tenantId = normalizeRequired(query.tenantId(), "tenantId");
+        String organizationId = normalizeRequired(query.organizationId(), "organizationId");
         String actorUserId = normalizeRequired(query.actorUserId(), "actorUserId");
         String warehouseId = normalizeRequired(query.warehouseId(), "warehouseId");
         String sku = normalizeSku(query.sku());
 
-        return ensureActorAccess(tenantId, actorUserId, false)
-                .then(commitableAvailabilityCachePort.find(tenantId, warehouseId, sku))
-                .switchIfEmpty(stockItemPersistencePort.findByTenantWarehouseSku(tenantId, warehouseId, sku)
-                        .switchIfEmpty(Mono.error(new InventoryResourceNotFoundException("Stock item not found for tenant + warehouse + sku")))
+        return ensureActorAccess(organizationId, actorUserId, false)
+                .then(commitableAvailabilityCachePort.find(organizationId, warehouseId, sku))
+                .switchIfEmpty(stockItemPersistencePort.findByOrganizationWarehouseSku(organizationId, warehouseId, sku)
+                        .switchIfEmpty(Mono.error(new InventoryResourceNotFoundException("Stock item not found for organization + warehouse + sku")))
                         .map(this::toAvailabilityResult)
                         .flatMap(result -> commitableAvailabilityCachePort.put(result).thenReturn(result)));
     }
 
     @Override
     public Flux<StockItemResult> handle(ListStockByWarehouseQuery query) {
-        String tenantId = normalizeRequired(query.tenantId(), "tenantId");
+        String organizationId = normalizeRequired(query.organizationId(), "organizationId");
         String actorUserId = normalizeRequired(query.actorUserId(), "actorUserId");
         String warehouseId = normalizeRequired(query.warehouseId(), "warehouseId");
 
-        return ensureActorAccess(tenantId, actorUserId, false)
-                .thenMany(stockItemPersistencePort.findByTenantAndWarehouse(tenantId, warehouseId)
+        return ensureActorAccess(organizationId, actorUserId, false)
+                .thenMany(stockItemPersistencePort.findByOrganizationAndWarehouse(organizationId, warehouseId)
                         .map(resultMapper::toResult));
     }
 
     @Override
     public Flux<StockReservationResult> handle(ListReservationsByCartQuery query) {
-        String tenantId = normalizeRequired(query.tenantId(), "tenantId");
+        String organizationId = normalizeRequired(query.organizationId(), "organizationId");
         String actorUserId = normalizeRequired(query.actorUserId(), "actorUserId");
         String cartId = normalizeRequired(query.cartId(), "cartId");
 
-        return ensureActorAccess(tenantId, actorUserId, false)
-                .thenMany(stockReservationPersistencePort.findByTenantAndCart(tenantId, cartId)
+        return ensureActorAccess(organizationId, actorUserId, false)
+                .thenMany(stockReservationPersistencePort.findByOrganizationAndCart(organizationId, cartId)
                         .map(resultMapper::toResult));
     }
 
     @Override
     public Flux<StockMovementResult> handle(GetStockMovementsQuery query) {
-        String tenantId = normalizeRequired(query.tenantId(), "tenantId");
+        String organizationId = normalizeRequired(query.organizationId(), "organizationId");
         String actorUserId = normalizeRequired(query.actorUserId(), "actorUserId");
         String stockItemId = normalizeRequired(query.stockItemId(), "stockItemId");
         int limit = query.limit() == null ? 100 : requirePositive(query.limit(), "limit");
 
-        return ensureActorAccess(tenantId, actorUserId, false)
-                .thenMany(stockMovementPersistencePort.findByTenantAndStockItem(tenantId, stockItemId, limit)
+        return ensureActorAccess(organizationId, actorUserId, false)
+                .thenMany(stockMovementPersistencePort.findByOrganizationAndStockItem(organizationId, stockItemId, limit)
                         .map(resultMapper::toResult));
     }
 
     @Override
     public Flux<StockItemResult> handle(GetLowStockQuery query) {
-        String tenantId = normalizeRequired(query.tenantId(), "tenantId");
+        String organizationId = normalizeRequired(query.organizationId(), "organizationId");
         String actorUserId = normalizeRequired(query.actorUserId(), "actorUserId");
         String warehouseId = normalizeRequired(query.warehouseId(), "warehouseId");
 
-        return ensureActorAccess(tenantId, actorUserId, false)
-                .thenMany(stockItemPersistencePort.findLowStockByTenantAndWarehouse(tenantId, warehouseId)
+        return ensureActorAccess(organizationId, actorUserId, false)
+                .thenMany(stockItemPersistencePort.findLowStockByOrganizationAndWarehouse(organizationId, warehouseId)
                         .map(resultMapper::toResult));
     }
 
     @Override
     public Mono<InventoryAuditResult> handle(GetInventoryAuditQuery query) {
-        String tenantId = normalizeRequired(query.tenantId(), "tenantId");
+        String organizationId = normalizeRequired(query.organizationId(), "organizationId");
         String actorUserId = normalizeRequired(query.actorUserId(), "actorUserId");
         int limit = query.limit() == null ? 100 : requirePositive(query.limit(), "limit");
 
-        return ensureActorAccess(tenantId, actorUserId, true)
-                .then(inventoryAuditPort.findByTenant(tenantId, limit).collectList())
-                .map(entries -> new InventoryAuditResult(tenantId, entries));
+        return ensureActorAccess(organizationId, actorUserId, true)
+                .then(inventoryAuditPort.findByOrganization(organizationId, limit).collectList())
+                .map(entries -> new InventoryAuditResult(organizationId, entries));
     }
 
     @Override
     public Mono<CheckoutAvailabilityResult> handle(ResolveCheckoutAvailabilityQuery query) {
-        String tenantId = normalizeRequired(query.tenantId(), "tenantId");
+        String organizationId = normalizeRequired(query.organizationId(), "organizationId");
         String actorUserId = normalizeRequired(query.actorUserId(), "actorUserId");
         String stockItemId = normalizeRequired(query.stockItemId(), "stockItemId");
         int requestedQty = requirePositive(query.requestedQty(), "requestedQty");
 
-        return ensureActorAccess(tenantId, actorUserId, false)
-                .then(loadStockItem(tenantId, stockItemId)
+        return ensureActorAccess(organizationId, actorUserId, false)
+                .then(loadStockItem(organizationId, stockItemId)
                         .map(stockItem -> new CheckoutAvailabilityResult(
                                 stockItem.stockItemId(),
                                 requestedQty,
@@ -614,13 +614,13 @@ public class InventoryApplicationService implements
 
     @Override
     public Mono<ReservationValidationResult> handle(ValidateReservationReferenceQuery query) {
-        String tenantId = normalizeRequired(query.tenantId(), "tenantId");
+        String organizationId = normalizeRequired(query.organizationId(), "organizationId");
         String reservationId = normalizeRequired(query.reservationId(), "reservationId");
         String sku = normalizeSku(query.sku());
         int qty = requirePositive(query.qty(), "qty");
         Instant now = now();
 
-        return stockReservationPersistencePort.findById(tenantId, reservationId)
+        return stockReservationPersistencePort.findById(organizationId, reservationId)
                 .map(reservation -> {
                     boolean statusAllowsCheckout = reservation.status().isActive()
                             || reservation.status() == StockReservationStatus.CONFIRMED;
@@ -644,14 +644,14 @@ public class InventoryApplicationService implements
     }
 
     private Mono<StockItemResult> updateOperationalStockWithRetry(
-            String tenantId,
+            String organizationId,
             String stockItemId,
             int deltaQty,
             String reason,
             String actorUserId,
             String correlationId,
             int retriesLeft) {
-        return loadStockItem(tenantId, stockItemId)
+        return loadStockItem(organizationId, stockItemId)
                 .flatMap(current -> {
                     Instant now = now();
                     InventoryBalance balance = InventoryBalance.from(current);
@@ -661,7 +661,7 @@ public class InventoryApplicationService implements
                             .flatMap(updated -> {
                                 if (Boolean.TRUE.equals(updated)) {
                                     StockMovement movement = stockMovement(
-                                            tenantId,
+                                            organizationId,
                                             next,
                                             StockMovementType.OPERATIONAL_ADJUSTMENT,
                                             deltaQty,
@@ -672,7 +672,7 @@ public class InventoryApplicationService implements
                                             now);
                                     return stockMovementPersistencePort.save(movement)
                                             .then(registerMutation(
-                                                    tenantId,
+                                                    organizationId,
                                                     actorUserId,
                                                     "UpdateOperationalStock",
                                                     "StockItem",
@@ -684,7 +684,7 @@ public class InventoryApplicationService implements
                                 }
                                 if (retriesLeft > 0) {
                                     return updateOperationalStockWithRetry(
-                                            tenantId,
+                                            organizationId,
                                             stockItemId,
                                             deltaQty,
                                             reason,
@@ -698,7 +698,7 @@ public class InventoryApplicationService implements
     }
 
     private Mono<StockReservationResult> reserveStockWithRetry(
-            String tenantId,
+            String organizationId,
             String stockItemId,
             String cartId,
             int qty,
@@ -706,7 +706,7 @@ public class InventoryApplicationService implements
             String actorUserId,
             String correlationId,
             int retriesLeft) {
-        return loadStockItem(tenantId, stockItemId)
+        return loadStockItem(organizationId, stockItemId)
                 .flatMap(current -> {
                     oversellGuardPolicy.assertReservationAllowed(current, qty);
                     Instant now = now();
@@ -723,7 +723,7 @@ public class InventoryApplicationService implements
                             .flatMap(updated -> {
                                 if (Boolean.TRUE.equals(updated)) {
                                     StockMovement movement = stockMovement(
-                                            tenantId,
+                                            organizationId,
                                             next,
                                             StockMovementType.RESERVATION_CREATED,
                                             0,
@@ -733,7 +733,7 @@ public class InventoryApplicationService implements
                                             correlationId,
                                             now);
                                     ReservationLedger ledger = reservationLedger(
-                                            tenantId,
+                                            organizationId,
                                             reservation.reservationId(),
                                             "RESERVED",
                                             reservation.qty(),
@@ -743,7 +743,7 @@ public class InventoryApplicationService implements
                                             .then(stockMovementPersistencePort.save(movement))
                                             .then(reservationLedgerPersistencePort.save(ledger))
                                             .then(registerMutation(
-                                                    tenantId,
+                                                    organizationId,
                                                     actorUserId,
                                                     "ReserveStock",
                                                     "StockReservation",
@@ -758,7 +758,7 @@ public class InventoryApplicationService implements
                                 }
                                 if (retriesLeft > 0) {
                                     return reserveStockWithRetry(
-                                            tenantId,
+                                            organizationId,
                                             stockItemId,
                                             cartId,
                                             qty,
@@ -773,14 +773,14 @@ public class InventoryApplicationService implements
     }
 
     private Mono<StockReservationResult> confirmReservationWithRetry(
-            String tenantId,
+            String organizationId,
             String reservationId,
             String orderId,
             String actorUserId,
             String correlationId,
             int retriesLeft) {
-        return loadReservation(tenantId, reservationId)
-                .flatMap(reservation -> loadStockItem(tenantId, reservation.stockItemId())
+        return loadReservation(organizationId, reservationId)
+                .flatMap(reservation -> loadStockItem(organizationId, reservation.stockItemId())
                         .flatMap(current -> {
                             Instant now = now();
                             checkoutReservationValidationService.ensureConfirmable(reservation, now);
@@ -792,7 +792,7 @@ public class InventoryApplicationService implements
                                     .flatMap(updated -> {
                                         if (Boolean.TRUE.equals(updated)) {
                                             StockMovement movement = stockMovement(
-                                                    tenantId,
+                                                    organizationId,
                                                     next,
                                                     StockMovementType.RESERVATION_CONFIRMED,
                                                     -confirmed.qty(),
@@ -802,7 +802,7 @@ public class InventoryApplicationService implements
                                                     correlationId,
                                                     now);
                                             ReservationLedger ledger = reservationLedger(
-                                                    tenantId,
+                                                    organizationId,
                                                     confirmed.reservationId(),
                                                     "CONFIRMED",
                                                     confirmed.qty(),
@@ -812,7 +812,7 @@ public class InventoryApplicationService implements
                                                     .then(stockMovementPersistencePort.save(movement))
                                                     .then(reservationLedgerPersistencePort.save(ledger))
                                                     .then(registerMutation(
-                                                            tenantId,
+                                                            organizationId,
                                                             actorUserId,
                                                             "ConfirmReservation",
                                                             "StockReservation",
@@ -824,7 +824,7 @@ public class InventoryApplicationService implements
                                         }
                                         if (retriesLeft > 0) {
                                             return confirmReservationWithRetry(
-                                                    tenantId,
+                                                    organizationId,
                                                     reservationId,
                                                     orderId,
                                                     actorUserId,
@@ -837,14 +837,14 @@ public class InventoryApplicationService implements
     }
 
     private Mono<StockReservationResult> releaseReservationWithRetry(
-            String tenantId,
+            String organizationId,
             String reservationId,
             String reason,
             String actorUserId,
             String correlationId,
             int retriesLeft) {
-        return loadReservation(tenantId, reservationId)
-                .flatMap(reservation -> loadStockItem(tenantId, reservation.stockItemId())
+        return loadReservation(organizationId, reservationId)
+                .flatMap(reservation -> loadStockItem(organizationId, reservation.stockItemId())
                         .flatMap(current -> {
                             Instant now = now();
                             InventoryBalance balance = InventoryBalance.from(current);
@@ -855,7 +855,7 @@ public class InventoryApplicationService implements
                                     .flatMap(updated -> {
                                         if (Boolean.TRUE.equals(updated)) {
                                             StockMovement movement = stockMovement(
-                                                    tenantId,
+                                                    organizationId,
                                                     next,
                                                     StockMovementType.RESERVATION_RELEASED,
                                                     0,
@@ -865,7 +865,7 @@ public class InventoryApplicationService implements
                                                     correlationId,
                                                     now);
                                             ReservationLedger ledger = reservationLedger(
-                                                    tenantId,
+                                                    organizationId,
                                                     released.reservationId(),
                                                     "RELEASED",
                                                     released.qty(),
@@ -875,7 +875,7 @@ public class InventoryApplicationService implements
                                                     .then(stockMovementPersistencePort.save(movement))
                                                     .then(reservationLedgerPersistencePort.save(ledger))
                                                     .then(registerMutation(
-                                                            tenantId,
+                                                            organizationId,
                                                             actorUserId,
                                                             "ReleaseReservation",
                                                             "StockReservation",
@@ -887,7 +887,7 @@ public class InventoryApplicationService implements
                                         }
                                         if (retriesLeft > 0) {
                                             return releaseReservationWithRetry(
-                                                    tenantId,
+                                                    organizationId,
                                                     reservationId,
                                                     reason,
                                                     actorUserId,
@@ -900,11 +900,11 @@ public class InventoryApplicationService implements
     }
 
     private Mono<Boolean> expireSingleReservation(
-            String tenantId,
+            String organizationId,
             StockReservation reservation,
             String actorUserId,
             int retriesLeft) {
-        return loadStockItem(tenantId, reservation.stockItemId())
+        return loadStockItem(organizationId, reservation.stockItemId())
                 .flatMap(current -> {
                     Instant now = now();
                     InventoryBalance balance = InventoryBalance.from(current);
@@ -915,7 +915,7 @@ public class InventoryApplicationService implements
                             .flatMap(updated -> {
                                 if (Boolean.TRUE.equals(updated)) {
                                     StockMovement movement = stockMovement(
-                                            tenantId,
+                                            organizationId,
                                             next,
                                             StockMovementType.RESERVATION_EXPIRED,
                                             0,
@@ -925,7 +925,7 @@ public class InventoryApplicationService implements
                                             "expire-batch",
                                             now);
                                     ReservationLedger ledger = reservationLedger(
-                                            tenantId,
+                                            organizationId,
                                             expired.reservationId(),
                                             "EXPIRED",
                                             expired.qty(),
@@ -936,7 +936,7 @@ public class InventoryApplicationService implements
                                             .then(stockMovementPersistencePort.save(movement))
                                             .then(reservationLedgerPersistencePort.save(ledger))
                                             .then(registerMutation(
-                                                    tenantId,
+                                                    organizationId,
                                                     actorUserId,
                                                     "ExpireReservation",
                                                     "StockReservation",
@@ -947,7 +947,7 @@ public class InventoryApplicationService implements
                                             .thenReturn(true);
                                 }
                                 if (retriesLeft > 0) {
-                                    return expireSingleReservation(tenantId, reservation, actorUserId, retriesLeft - 1);
+                                    return expireSingleReservation(organizationId, reservation, actorUserId, retriesLeft - 1);
                                 }
                                 return Mono.error(new InventoryConflictException("Concurrent expiration conflict"));
                             });
@@ -955,14 +955,14 @@ public class InventoryApplicationService implements
     }
 
     private Mono<StockItemResult> updateStockStatusWithRetry(
-            String tenantId,
+            String organizationId,
             String stockItemId,
             StockItemStatus targetStatus,
             String reason,
             String actorUserId,
             String correlationId,
             int retriesLeft) {
-        return loadStockItem(tenantId, stockItemId)
+        return loadStockItem(organizationId, stockItemId)
                 .flatMap(current -> {
                     Instant now = now();
                     InventoryBalance balance = InventoryBalance.from(current);
@@ -973,7 +973,7 @@ public class InventoryApplicationService implements
                             .flatMap(updated -> {
                                 if (Boolean.TRUE.equals(updated)) {
                                     StockMovement movement = stockMovement(
-                                            tenantId,
+                                            organizationId,
                                             next,
                                             StockMovementType.RECONCILIATION,
                                             0,
@@ -984,7 +984,7 @@ public class InventoryApplicationService implements
                                             now);
                                     return stockMovementPersistencePort.save(movement)
                                             .then(registerMutation(
-                                                    tenantId,
+                                                    organizationId,
                                                     actorUserId,
                                                     "UpdateStockItemStatus",
                                                     "StockItem",
@@ -996,7 +996,7 @@ public class InventoryApplicationService implements
                                 }
                                 if (retriesLeft > 0) {
                                     return updateStockStatusWithRetry(
-                                            tenantId,
+                                            organizationId,
                                             stockItemId,
                                             targetStatus,
                                             reason,
@@ -1009,15 +1009,18 @@ public class InventoryApplicationService implements
                 });
     }
 
-    private Mono<ActorContext> ensureActorAccess(String tenantId, String actorUserId, boolean requireAdmin) {
+    private Mono<ActorContext> ensureActorAccess(String organizationId, String actorUserId, boolean requireAdmin) {
         return actorContextProviderPort.currentActor()
                 .switchIfEmpty(Mono.error(new OperationNotPermittedException("Authenticated actor context is required")))
                 .flatMap(context -> {
+                    if (context.trustedService()) {
+                        return Mono.just(context);
+                    }
                     if (!actorUserId.equals(context.userId())) {
                         return Mono.error(new OperationNotPermittedException("Actor does not match authenticated principal"));
                     }
-                    if (!tenantId.equals(context.tenantId())) {
-                        return Mono.error(new OperationNotPermittedException("Tenant isolation violation"));
+                    if (!organizationId.equals(context.organizationId())) {
+                        return Mono.error(new OperationNotPermittedException("Organization isolation violation"));
                     }
                     if (requireAdmin && !context.inventoryAdmin()) {
                         return Mono.error(new OperationNotPermittedException("Inventory admin role is required"));
@@ -1027,14 +1030,14 @@ public class InventoryApplicationService implements
                                     ? Mono.just(context)
                                     : Mono.error(new OperationNotPermittedException("Actor is not legitimate")));
                 })
-                .flatMap(context -> tenantDirectoryPort.tenantExists(tenantId)
+                .flatMap(context -> organizationDirectoryPort.organizationExists(organizationId)
                         .flatMap(exists -> exists
                                 ? Mono.just(context)
-                                : Mono.error(new InventoryValidationException("Unknown tenantId"))));
+                                : Mono.error(new InventoryValidationException("Unknown organizationId"))));
     }
 
     private <T> Mono<T> executeIdempotent(
-            String tenantId,
+            String organizationId,
             String operationName,
             String idempotencyKey,
             String requestHash,
@@ -1045,7 +1048,7 @@ public class InventoryApplicationService implements
         String normalizedIdempotencyKey = IdempotencySupport.normalizeKey(idempotencyKey);
 
         return idempotencyRecordPersistencePort
-                .findByTenantOperationAndKey(tenantId, operationName, normalizedIdempotencyKey)
+                .findByOrganizationOperationAndKey(organizationId, operationName, normalizedIdempotencyKey)
                 .flatMap(existing -> {
                     if (!existing.requestHash().equals(requestHash)) {
                         return Mono.error(new IdempotencyConflictException(
@@ -1057,7 +1060,7 @@ public class InventoryApplicationService implements
                         .flatMap(result -> {
                             IdempotencyRecord record = new IdempotencyRecord(
                                     UUID.randomUUID().toString(),
-                                    tenantId,
+                                    organizationId,
                                     operationName,
                                     normalizedIdempotencyKey,
                                     requestHash,
@@ -1070,35 +1073,35 @@ public class InventoryApplicationService implements
                         })));
     }
 
-    private Mono<Warehouse> loadWarehouse(String tenantId, String warehouseId) {
-        return warehousePersistencePort.findById(tenantId, warehouseId)
+    private Mono<Warehouse> loadWarehouse(String organizationId, String warehouseId) {
+        return warehousePersistencePort.findById(organizationId, warehouseId)
                 .switchIfEmpty(Mono.error(new InventoryResourceNotFoundException("Warehouse not found")));
     }
 
-    private Mono<StockItem> loadStockItem(String tenantId, String stockItemId) {
-        return stockItemPersistencePort.findById(tenantId, stockItemId)
+    private Mono<StockItem> loadStockItem(String organizationId, String stockItemId) {
+        return stockItemPersistencePort.findById(organizationId, stockItemId)
                 .switchIfEmpty(Mono.error(new InventoryResourceNotFoundException("Stock item not found")));
     }
 
-    private Mono<StockReservation> loadReservation(String tenantId, String reservationId) {
-        return stockReservationPersistencePort.findById(tenantId, reservationId)
+    private Mono<StockReservation> loadReservation(String organizationId, String reservationId) {
+        return stockReservationPersistencePort.findById(organizationId, reservationId)
                 .switchIfEmpty(Mono.error(new InventoryResourceNotFoundException("Stock reservation not found")));
     }
 
-    private Mono<WarehouseResult> loadWarehouseResult(String tenantId, String warehouseId) {
-        return loadWarehouse(tenantId, warehouseId).map(resultMapper::toResult);
+    private Mono<WarehouseResult> loadWarehouseResult(String organizationId, String warehouseId) {
+        return loadWarehouse(organizationId, warehouseId).map(resultMapper::toResult);
     }
 
-    private Mono<StockItemResult> loadStockItemResult(String tenantId, String stockItemId) {
-        return loadStockItem(tenantId, stockItemId).map(resultMapper::toResult);
+    private Mono<StockItemResult> loadStockItemResult(String organizationId, String stockItemId) {
+        return loadStockItem(organizationId, stockItemId).map(resultMapper::toResult);
     }
 
-    private Mono<StockReservationResult> loadReservationResult(String tenantId, String reservationId) {
-        return loadReservation(tenantId, reservationId).map(resultMapper::toResult);
+    private Mono<StockReservationResult> loadReservationResult(String organizationId, String reservationId) {
+        return loadReservation(organizationId, reservationId).map(resultMapper::toResult);
     }
 
     private Mono<Void> registerMutation(
-            String tenantId,
+            String organizationId,
             String actorUserId,
             String actionType,
             String targetType,
@@ -1112,6 +1115,7 @@ public class InventoryApplicationService implements
         eventsToPublish.add(new InventoryMutationEvent(
                 now(),
                 targetId,
+                organizationId,
                 actionType,
                 targetType,
                 targetId,
@@ -1119,7 +1123,7 @@ public class InventoryApplicationService implements
 
         return inventoryAuditPort
                 .record(
-                        tenantId,
+                        organizationId,
                         actorUserId,
                         actionType,
                         targetType,
@@ -1136,7 +1140,7 @@ public class InventoryApplicationService implements
 
     private CommitableAvailabilityResult toAvailabilityResult(StockItem stockItem) {
         CommitableAvailability availability = CommitableAvailability.from(
-                stockItem.tenantId(),
+                stockItem.organizationId(),
                 stockItem.warehouseId(),
                 stockItem.sku(),
                 stockItem.physicalQty(),
@@ -1147,7 +1151,7 @@ public class InventoryApplicationService implements
     }
 
     private StockMovement stockMovement(
-            String tenantId,
+            String organizationId,
             StockItem stockItem,
             StockMovementType movementType,
             int deltaQty,
@@ -1158,7 +1162,7 @@ public class InventoryApplicationService implements
             Instant now) {
         return new StockMovement(
                 UUID.randomUUID().toString(),
-                tenantId,
+                organizationId,
                 stockItem.stockItemId(),
                 stockItem.warehouseId(),
                 stockItem.sku(),
@@ -1172,7 +1176,7 @@ public class InventoryApplicationService implements
     }
 
     private ReservationLedger reservationLedger(
-            String tenantId,
+            String organizationId,
             String reservationId,
             String entryType,
             int qty,
@@ -1180,7 +1184,7 @@ public class InventoryApplicationService implements
             Instant now) {
         return new ReservationLedger(
                 UUID.randomUUID().toString(),
-                tenantId,
+                organizationId,
                 reservationId,
                 normalizeRequired(entryType, "entryType"),
                 qty,

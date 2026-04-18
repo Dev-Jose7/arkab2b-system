@@ -9,7 +9,7 @@ import org.springframework.data.relational.core.mapping.Table;
 public record ProviderCallbackRow(
         @Id
         @Column("callback_id") String callbackId,
-        @Column("tenant_id") String tenantId,
+        @Column("organization_id") String organizationId,
         @Column("notification_id") String notificationId,
         @Column("provider_code") String providerCode,
         @Column("provider_ref") String providerRef,

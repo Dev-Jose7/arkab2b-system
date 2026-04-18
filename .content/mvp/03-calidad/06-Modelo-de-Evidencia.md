@@ -75,7 +75,7 @@ Regla de auditoria:
 
 ## 6) Integracion con puertas de calidad
 - Gate 1: evidencia de lint, unitarias y contract checks.
-- Gate 2: evidencia de integracion, DB, seguridad, tenant y trazabilidad.
+- Gate 2: evidencia de integracion, DB, seguridad, organization y trazabilidad.
 - Gate 3: evidencia E2E por flujo critico.
 - Gate 4: evidencia no funcional (performance, disponibilidad, resiliencia, regionalizacion, seguridad operacional).
 

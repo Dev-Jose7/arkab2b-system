@@ -7,8 +7,8 @@ import java.time.Instant;
 public record OrderLine(
         String orderLineId,
         String orderId,
-        String tenantId,
         String organizationId,
+
         String variantId,
         String sku,
         int qty,
@@ -23,7 +23,7 @@ public record OrderLine(
     public OrderLine {
         requireNotBlank(orderLineId, "orderLineId");
         requireNotBlank(orderId, "orderId");
-        requireNotBlank(tenantId, "tenantId");
+        requireNotBlank(organizationId, "organizationId");
         requireNotBlank(organizationId, "organizationId");
         requireNotBlank(variantId, "variantId");
         requireNotBlank(sku, "sku");

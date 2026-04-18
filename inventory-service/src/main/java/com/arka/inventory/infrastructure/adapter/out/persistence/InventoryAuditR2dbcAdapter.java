@@ -20,7 +20,7 @@ public class InventoryAuditR2dbcAdapter implements InventoryAuditPort {
 
     @Override
     public Mono<Void> record(
-            String tenantId,
+            String organizationId,
             String actorUserId,
             String actionType,
             String targetType,
@@ -30,7 +30,7 @@ public class InventoryAuditR2dbcAdapter implements InventoryAuditPort {
         Instant now = Instant.now();
         return repository.insert(
                         UUID.randomUUID().toString(),
-                        tenantId,
+                        organizationId,
                         actorUserId,
                         actionType,
                         targetType,
@@ -44,11 +44,11 @@ public class InventoryAuditR2dbcAdapter implements InventoryAuditPort {
     }
 
     @Override
-    public Flux<InventoryAuditEntryResult> findByTenant(String tenantId, int limit) {
-        return repository.findByTenant(tenantId, limit)
+    public Flux<InventoryAuditEntryResult> findByOrganization(String organizationId, int limit) {
+        return repository.findByOrganization(organizationId, limit)
                 .map(row -> new InventoryAuditEntryResult(
                         row.auditId(),
-                        row.tenantId(),
+                        row.organizationId(),
                         row.actorUserId(),
                         row.actionType(),
                         row.targetType(),

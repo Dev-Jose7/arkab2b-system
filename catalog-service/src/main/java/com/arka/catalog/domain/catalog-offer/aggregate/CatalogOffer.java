@@ -9,7 +9,7 @@ import com.arka.catalog.domain.catalogoffer.event.CatalogOfferUpdated;
 import com.arka.catalog.domain.catalogoffer.exception.ProductNotActiveException;
 import com.arka.catalog.domain.catalogoffer.exception.VariantNotSellableException;
 import com.arka.catalog.domain.catalogoffer.valueobject.OfferId;
-import com.arka.catalog.domain.catalogoffer.valueobject.TenantId;
+import com.arka.catalog.domain.catalogoffer.valueobject.OrganizationId;
 import com.arka.catalog.domain.shared.event.DomainEvent;
 import com.arka.catalog.domain.shared.exception.DomainInvariantViolationException;
 import java.time.Instant;
@@ -19,7 +19,7 @@ import java.util.List;
 public final class CatalogOffer {
 
     private final OfferId offerId;
-    private final TenantId tenantId;
+    private final OrganizationId organizationId;
     private final Product product;
     private final List<DomainEvent> domainEvents;
 
@@ -31,7 +31,7 @@ public final class CatalogOffer {
 
     private CatalogOffer(
             OfferId offerId,
-            TenantId tenantId,
+            OrganizationId organizationId,
             Product product,
             Variant variant,
             Price price,
@@ -40,7 +40,7 @@ public final class CatalogOffer {
             Instant updatedAt,
             List<DomainEvent> domainEvents) {
         this.offerId = offerId;
-        this.tenantId = tenantId;
+        this.organizationId = organizationId;
         this.product = product;
         this.variant = variant;
         this.price = price;
@@ -59,7 +59,7 @@ public final class CatalogOffer {
             Instant now) {
         CatalogOffer offer = new CatalogOffer(
                 OfferId.of(variant.variantId().value()),
-                product.tenantId(),
+                product.organizationId(),
                 product,
                 variant,
                 price,
@@ -69,7 +69,7 @@ public final class CatalogOffer {
                 new ArrayList<>());
         offer.domainEvents.add(new CatalogOfferPublished(
                 offer.offerId.value(),
-                offer.tenantId.value(),
+                offer.organizationId.value(),
                 product.productId().value(),
                 variant.variantId().value(),
                 price.priceId().value(),
@@ -88,7 +88,7 @@ public final class CatalogOffer {
             Instant updatedAt) {
         return new CatalogOffer(
                 offerId,
-                product.tenantId(),
+                product.organizationId(),
                 product,
                 variant,
                 price,
@@ -115,7 +115,7 @@ public final class CatalogOffer {
         ensureConsistency(now);
         this.domainEvents.add(new CatalogOfferUpdated(
                 offerId.value(),
-                tenantId.value(),
+                organizationId.value(),
                 product.productId().value(),
                 variant.variantId().value(),
                 price.priceId().value(),
@@ -127,11 +127,11 @@ public final class CatalogOffer {
         if (product.status() != ProductStatus.ACTIVE) {
             throw new ProductNotActiveException();
         }
-        if (!product.tenantId().value().equals(variant.tenantId().value())
-                || !product.tenantId().value().equals(price.tenantId().value())) {
+        if (!product.organizationId().value().equals(variant.organizationId().value())
+                || !product.organizationId().value().equals(price.organizationId().value())) {
             throw new DomainInvariantViolationException(
                     "oferta_inconsistente",
-                    "Producto, variante y precio deben pertenecer al mismo tenant");
+                    "Producto, variante y precio deben pertenecer al mismo organization");
         }
         if (!variant.productId().value().equals(product.productId().value())) {
             throw new DomainInvariantViolationException(
@@ -158,8 +158,8 @@ public final class CatalogOffer {
         return offerId;
     }
 
-    public TenantId tenantId() {
-        return tenantId;
+    public OrganizationId organizationId() {
+        return organizationId;
     }
 
     public Product product() {

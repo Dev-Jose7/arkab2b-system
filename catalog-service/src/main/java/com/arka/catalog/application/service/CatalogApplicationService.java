@@ -91,7 +91,7 @@ import com.arka.catalog.domain.catalogoffer.enumtype.PriceType;
 import com.arka.catalog.domain.catalogoffer.enumtype.VariantStatus;
 import com.arka.catalog.domain.catalogoffer.event.CatalogMutationEvent;
 import com.arka.catalog.domain.catalogoffer.exception.BrandOrCategoryInvalidException;
-import com.arka.catalog.domain.catalogoffer.exception.CrossTenantAccessException;
+import com.arka.catalog.domain.catalogoffer.exception.CrossOrganizationAccessException;
 import com.arka.catalog.domain.catalogoffer.exception.SkuNotUniqueException;
 import com.arka.catalog.domain.catalogoffer.exception.VariantNotSellableException;
 import com.arka.catalog.domain.catalogoffer.service.CatalogOfferPolicy;
@@ -99,7 +99,7 @@ import com.arka.catalog.domain.catalogoffer.valueobject.Money;
 import com.arka.catalog.domain.catalogoffer.valueobject.OfferId;
 import com.arka.catalog.domain.catalogoffer.valueobject.PriceId;
 import com.arka.catalog.domain.catalogoffer.valueobject.ProductId;
-import com.arka.catalog.domain.catalogoffer.valueobject.TenantId;
+import com.arka.catalog.domain.catalogoffer.valueobject.OrganizationId;
 import com.arka.catalog.domain.catalogoffer.valueobject.TimeWindow;
 import com.arka.catalog.domain.catalogoffer.valueobject.VariantId;
 import com.arka.catalog.domain.shared.event.DomainEvent;
@@ -192,20 +192,20 @@ public class CatalogApplicationService
     public Mono<ProductResult> handle(CreateProductCommand command) {
         Instant now = clockPort.now();
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
-        return requireActor(command.tenantId(), true)
-                .then(checkIdempotency(command.tenantId(), "PRODUCT_CREATED", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true)
+                .then(checkIdempotency(command.organizationId(), "PRODUCT_CREATED", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
-                        return findProductResult(command.tenantId(), idempotency.targetId());
+                        return findProductResult(command.organizationId(), idempotency.targetId());
                     }
-                    return ensureTaxonomyActive(command.tenantId(), command.brandId(), command.categoryId())
-                            .then(productPersistencePort.existsByProductCode(TenantId.of(command.tenantId()), command.productCode(), null))
+                    return ensureTaxonomyActive(command.organizationId(), command.brandId(), command.categoryId())
+                            .then(productPersistencePort.existsByProductCode(OrganizationId.of(command.organizationId()), command.productCode(), null))
                             .flatMap(exists -> {
                                 if (exists) {
                                     return Mono.error(new ApplicationException("product_code_no_unico", "productCode ya existe"));
                                 }
                                 Product product = Product.draft(
-                                        TenantId.of(command.tenantId()),
+                                        OrganizationId.of(command.organizationId()),
                                         ProductId.newId(),
                                         command.productCode(),
                                         command.name(),
@@ -217,7 +217,7 @@ public class CatalogApplicationService
                                 return productPersistencePort
                                         .create(product, tags)
                                         .flatMap(created -> afterMutation(
-                                                        command.tenantId(),
+                                                        command.organizationId(),
                                                         "PRODUCT_CREATED",
                                                         "Product",
                                                         created.productId().value(),
@@ -226,7 +226,7 @@ public class CatalogApplicationService
                                                         payloadHash,
                                                         payloadJson("productId", created.productId().value()),
                                                         new CatalogMutationEvent("Product", created.productId().value(), "ProductCreated", now))
-                                                .then(productPersistencePort.findTags(TenantId.of(command.tenantId()), created.productId())
+                                                .then(productPersistencePort.findTags(OrganizationId.of(command.organizationId()), created.productId())
                                                         .collectList()
                                                         .map(tagsResult -> resultMapper.toProductResult(created, tagsResult))));
                             });
@@ -237,20 +237,20 @@ public class CatalogApplicationService
     public Mono<ProductResult> handle(UpdateProductCommand command) {
         Instant now = clockPort.now();
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
-        return requireActor(command.tenantId(), true)
-                .then(checkIdempotency(command.tenantId(), "PRODUCT_UPDATED", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true)
+                .then(checkIdempotency(command.organizationId(), "PRODUCT_UPDATED", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
-                        return findProductResult(command.tenantId(), idempotency.targetId());
+                        return findProductResult(command.organizationId(), idempotency.targetId());
                     }
-                    return ensureTaxonomyActive(command.tenantId(), command.brandId(), command.categoryId())
-                            .then(loadProduct(command.tenantId(), command.productId()))
+                    return ensureTaxonomyActive(command.organizationId(), command.brandId(), command.categoryId())
+                            .then(loadProduct(command.organizationId(), command.productId()))
                             .flatMap(product -> {
                                 product.update(command.name(), command.description(), command.brandId(), command.categoryId(), now);
                                 return productPersistencePort.update(product, toProductTags(command.tags()));
                             })
                             .flatMap(updated -> afterMutation(
-                                            command.tenantId(),
+                                            command.organizationId(),
                                             "PRODUCT_UPDATED",
                                             "Product",
                                             updated.productId().value(),
@@ -260,7 +260,7 @@ public class CatalogApplicationService
                                             payloadJson("productId", updated.productId().value()),
                                             new CatalogMutationEvent("Product", updated.productId().value(), "ProductUpdated", now))
                                     .thenReturn(updated))
-                            .flatMap(updated -> productPersistencePort.findTags(TenantId.of(command.tenantId()), updated.productId())
+                            .flatMap(updated -> productPersistencePort.findTags(OrganizationId.of(command.organizationId()), updated.productId())
                                     .collectList()
                                     .map(tags -> resultMapper.toProductResult(updated, tags)));
                 });
@@ -270,19 +270,19 @@ public class CatalogApplicationService
     public Mono<ProductResult> handle(ActivateProductCommand command) {
         Instant now = clockPort.now();
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
-        return requireActor(command.tenantId(), true)
-                .then(checkIdempotency(command.tenantId(), "PRODUCT_ACTIVATED", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true)
+                .then(checkIdempotency(command.organizationId(), "PRODUCT_ACTIVATED", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
-                        return findProductResult(command.tenantId(), idempotency.targetId());
+                        return findProductResult(command.organizationId(), idempotency.targetId());
                     }
-                    return loadProduct(command.tenantId(), command.productId())
+                    return loadProduct(command.organizationId(), command.productId())
                             .flatMap(product -> {
                                 product.activate(now);
                                 return productPersistencePort.update(product, null);
                             })
                             .flatMap(updated -> afterMutation(
-                                            command.tenantId(),
+                                            command.organizationId(),
                                             "PRODUCT_ACTIVATED",
                                             "Product",
                                             updated.productId().value(),
@@ -292,7 +292,7 @@ public class CatalogApplicationService
                                             payloadJson("productId", updated.productId().value()),
                                             new CatalogMutationEvent("Product", updated.productId().value(), "ProductActivated", now))
                                     .thenReturn(updated))
-                            .flatMap(updated -> productPersistencePort.findTags(TenantId.of(command.tenantId()), updated.productId())
+                            .flatMap(updated -> productPersistencePort.findTags(OrganizationId.of(command.organizationId()), updated.productId())
                                     .collectList()
                                     .map(tags -> resultMapper.toProductResult(updated, tags)));
                 });
@@ -302,19 +302,19 @@ public class CatalogApplicationService
     public Mono<ProductResult> handle(RetireProductCommand command) {
         Instant now = clockPort.now();
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
-        return requireActor(command.tenantId(), true)
-                .then(checkIdempotency(command.tenantId(), "PRODUCT_RETIRED", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true)
+                .then(checkIdempotency(command.organizationId(), "PRODUCT_RETIRED", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
-                        return findProductResult(command.tenantId(), idempotency.targetId());
+                        return findProductResult(command.organizationId(), idempotency.targetId());
                     }
-                    return loadProduct(command.tenantId(), command.productId())
+                    return loadProduct(command.organizationId(), command.productId())
                             .flatMap(product -> {
                                 product.retire(now);
                                 return productPersistencePort.update(product, null);
                             })
                             .flatMap(updated -> afterMutation(
-                                            command.tenantId(),
+                                            command.organizationId(),
                                             "PRODUCT_RETIRED",
                                             "Product",
                                             updated.productId().value(),
@@ -324,7 +324,7 @@ public class CatalogApplicationService
                                             payloadJson("productId", updated.productId().value()),
                                             new CatalogMutationEvent("Product", updated.productId().value(), "ProductRetired", now))
                                     .thenReturn(updated))
-                            .flatMap(updated -> productPersistencePort.findTags(TenantId.of(command.tenantId()), updated.productId())
+                            .flatMap(updated -> productPersistencePort.findTags(OrganizationId.of(command.organizationId()), updated.productId())
                                     .collectList()
                                     .map(tags -> resultMapper.toProductResult(updated, tags)));
                 });
@@ -334,15 +334,15 @@ public class CatalogApplicationService
     public Mono<VariantResult> handle(CreateVariantCommand command) {
         Instant now = clockPort.now();
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
-        return requireActor(command.tenantId(), true)
-                .then(checkIdempotency(command.tenantId(), "VARIANT_CREATED", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true)
+                .then(checkIdempotency(command.organizationId(), "VARIANT_CREATED", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
-                        return findVariantResult(command.tenantId(), idempotency.targetId());
+                        return findVariantResult(command.organizationId(), idempotency.targetId());
                     }
-                    return loadProduct(command.tenantId(), command.productId())
+                    return loadProduct(command.organizationId(), command.productId())
                             .flatMap(product -> variantPersistencePort.existsSellableSku(
-                                            TenantId.of(command.tenantId()),
+                                            OrganizationId.of(command.organizationId()),
                                             command.sku(),
                                             null)
                                     .flatMap(existsSellableSku -> {
@@ -350,7 +350,7 @@ public class CatalogApplicationService
                                             return Mono.error(new SkuNotUniqueException(command.sku()));
                                         }
                                         Variant variant = Variant.draft(
-                                                TenantId.of(command.tenantId()),
+                                                OrganizationId.of(command.organizationId()),
                                                 VariantId.newId(),
                                                 product.productId(),
                                                 command.sku(),
@@ -361,7 +361,7 @@ public class CatalogApplicationService
                                         List<VariantAttribute> attributes = toVariantAttributes(command.attributes());
                                         return variantPersistencePort.create(variant, attributes)
                                                 .flatMap(created -> afterMutation(
-                                                                command.tenantId(),
+                                                                command.organizationId(),
                                                                 "VARIANT_CREATED",
                                                                 "Variant",
                                                                 created.variantId().value(),
@@ -372,7 +372,7 @@ public class CatalogApplicationService
                                                                 new CatalogMutationEvent("Variant", created.variantId().value(), "VariantCreated", now))
                                                         .thenReturn(created));
                                     }))
-                            .flatMap(created -> findVariantResult(command.tenantId(), created.variantId().value()));
+                            .flatMap(created -> findVariantResult(command.organizationId(), created.variantId().value()));
                 });
     }
 
@@ -380,19 +380,19 @@ public class CatalogApplicationService
     public Mono<VariantResult> handle(UpdateVariantCommand command) {
         Instant now = clockPort.now();
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
-        return requireActor(command.tenantId(), true)
-                .then(checkIdempotency(command.tenantId(), "VARIANT_UPDATED", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true)
+                .then(checkIdempotency(command.organizationId(), "VARIANT_UPDATED", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
-                        return findVariantResult(command.tenantId(), idempotency.targetId());
+                        return findVariantResult(command.organizationId(), idempotency.targetId());
                     }
-                    return loadVariant(command.tenantId(), command.variantId())
+                    return loadVariant(command.organizationId(), command.variantId())
                             .flatMap(variant -> {
                                 variant.update(command.name(), command.description(), command.weightGrams(), now);
                                 return variantPersistencePort.update(variant);
                             })
                             .flatMap(updated -> afterMutation(
-                                            command.tenantId(),
+                                            command.organizationId(),
                                             "VARIANT_UPDATED",
                                             "Variant",
                                             updated.variantId().value(),
@@ -402,7 +402,7 @@ public class CatalogApplicationService
                                             payloadJson("variantId", updated.variantId().value()),
                                             new CatalogMutationEvent("Variant", updated.variantId().value(), "VariantUpdated", now))
                                     .thenReturn(updated))
-                            .flatMap(updated -> findVariantResult(command.tenantId(), updated.variantId().value()));
+                            .flatMap(updated -> findVariantResult(command.organizationId(), updated.variantId().value()));
                 });
     }
 
@@ -411,21 +411,21 @@ public class CatalogApplicationService
         Instant now = clockPort.now();
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
         String actionType = "VARIANT_STATUS_CHANGED";
-        return requireActor(command.tenantId(), true)
-                .then(checkIdempotency(command.tenantId(), actionType, command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true)
+                .then(checkIdempotency(command.organizationId(), actionType, command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
-                        return findVariantResult(command.tenantId(), idempotency.targetId());
+                        return findVariantResult(command.organizationId(), idempotency.targetId());
                     }
-                    return loadVariant(command.tenantId(), command.variantId())
-                            .flatMap(variant -> loadProduct(command.tenantId(), variant.productId().value())
+                    return loadVariant(command.organizationId(), command.variantId())
+                            .flatMap(variant -> loadProduct(command.organizationId(), variant.productId().value())
                                     .flatMap(product -> {
                                         if ("SELLABLE".equalsIgnoreCase(command.targetStatus())) {
                                             return variantPersistencePort
-                                                    .findAttributes(TenantId.of(command.tenantId()), variant.variantId())
+                                                    .findAttributes(OrganizationId.of(command.organizationId()), variant.variantId())
                                                     .collectList()
                                                     .flatMap(attributes -> variantPersistencePort.existsSellableSku(
-                                                                    TenantId.of(command.tenantId()),
+                                                                    OrganizationId.of(command.organizationId()),
                                                                     variant.sku(),
                                                                     variant.variantId().value())
                                                             .flatMap(exists -> {
@@ -448,7 +448,7 @@ public class CatalogApplicationService
                                         return Mono.error(new ApplicationException("estado_variante_invalido", "targetStatus no soportado"));
                                     }))
                             .flatMap(updated -> afterMutation(
-                                            command.tenantId(),
+                                            command.organizationId(),
                                             actionType,
                                             "Variant",
                                             updated.variantId().value(),
@@ -464,7 +464,7 @@ public class CatalogApplicationService
                                                             : "VariantDiscontinued",
                                                     now))
                                     .thenReturn(updated))
-                            .flatMap(updated -> findVariantResult(command.tenantId(), updated.variantId().value()));
+                            .flatMap(updated -> findVariantResult(command.organizationId(), updated.variantId().value()));
                 });
     }
 
@@ -472,21 +472,21 @@ public class CatalogApplicationService
     public Mono<VariantResult> handle(UpsertVariantAttributesCommand command) {
         Instant now = clockPort.now();
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
-        return requireActor(command.tenantId(), true)
-                .then(checkIdempotency(command.tenantId(), "VARIANT_ATTRIBUTES_UPSERT", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true)
+                .then(checkIdempotency(command.organizationId(), "VARIANT_ATTRIBUTES_UPSERT", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
-                        return findVariantResult(command.tenantId(), idempotency.targetId());
+                        return findVariantResult(command.organizationId(), idempotency.targetId());
                     }
-                    return loadVariant(command.tenantId(), command.variantId())
+                    return loadVariant(command.organizationId(), command.variantId())
                             .flatMap(variant -> variantPersistencePort
                                     .replaceAttributes(
-                                            TenantId.of(command.tenantId()),
+                                            OrganizationId.of(command.organizationId()),
                                             variant.variantId(),
                                             toVariantAttributes(command.attributes()))
                                     .thenReturn(variant))
                             .flatMap(variant -> afterMutation(
-                                            command.tenantId(),
+                                            command.organizationId(),
                                             "VARIANT_ATTRIBUTES_UPSERT",
                                             "Variant",
                                             variant.variantId().value(),
@@ -496,7 +496,7 @@ public class CatalogApplicationService
                                             payloadJson("variantId", variant.variantId().value()),
                                             new CatalogMutationEvent("Variant", variant.variantId().value(), "VariantAttributesUpserted", now))
                                     .thenReturn(variant))
-                            .flatMap(variant -> findVariantResult(command.tenantId(), variant.variantId().value()));
+                            .flatMap(variant -> findVariantResult(command.organizationId(), variant.variantId().value()));
                 });
     }
 
@@ -504,16 +504,16 @@ public class CatalogApplicationService
     public Mono<PriceResult> handle(RegisterPriceCommand command) {
         Instant now = clockPort.now();
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
-        return requireActor(command.tenantId(), true)
-                .then(checkIdempotency(command.tenantId(), "PRICE_CREATED", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true)
+                .then(checkIdempotency(command.organizationId(), "PRICE_CREATED", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
-                        return findPriceResult(command.tenantId(), idempotency.targetId());
+                        return findPriceResult(command.organizationId(), idempotency.targetId());
                     }
-                    return loadVariant(command.tenantId(), command.variantId())
+                    return loadVariant(command.organizationId(), command.variantId())
                             .flatMap(variant -> {
                                 Price price = Price.register(
-                                        TenantId.of(command.tenantId()),
+                                        OrganizationId.of(command.organizationId()),
                                         PriceId.newId(),
                                         variant.variantId(),
                                         parsePriceType(command.priceType()),
@@ -522,7 +522,7 @@ public class CatalogApplicationService
                                         now);
                                 return pricePersistencePort
                                         .findTimeline(
-                                                TenantId.of(command.tenantId()),
+                                                OrganizationId.of(command.organizationId()),
                                                 variant.variantId(),
                                                 command.currency(),
                                                 parsePriceType(command.priceType()))
@@ -533,7 +533,7 @@ public class CatalogApplicationService
                                         });
                             })
                             .flatMap(created -> afterMutation(
-                                            command.tenantId(),
+                                            command.organizationId(),
                                             "PRICE_CREATED",
                                             "Price",
                                             created.priceId().value(),
@@ -551,16 +551,16 @@ public class CatalogApplicationService
     public Mono<PriceResult> handle(UpdatePriceCommand command) {
         Instant now = clockPort.now();
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
-        return requireActor(command.tenantId(), true)
-                .then(checkIdempotency(command.tenantId(), "PRICE_UPDATED", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true)
+                .then(checkIdempotency(command.organizationId(), "PRICE_UPDATED", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
-                        return findPriceResult(command.tenantId(), idempotency.targetId());
+                        return findPriceResult(command.organizationId(), idempotency.targetId());
                     }
-                    return loadPrice(command.tenantId(), command.priceId())
+                    return loadPrice(command.organizationId(), command.priceId())
                             .flatMap(price -> pricePersistencePort
                                     .findTimeline(
-                                            TenantId.of(command.tenantId()),
+                                            OrganizationId.of(command.organizationId()),
                                             price.variantId(),
                                             command.currency(),
                                             parsePriceType(command.priceType()))
@@ -574,7 +574,7 @@ public class CatalogApplicationService
                                         return pricePersistencePort.update(price);
                                     }))
                             .flatMap(updated -> afterMutation(
-                                            command.tenantId(),
+                                            command.organizationId(),
                                             "PRICE_UPDATED",
                                             "Price",
                                             updated.priceId().value(),
@@ -592,17 +592,17 @@ public class CatalogApplicationService
     public Mono<Void> handle(SchedulePriceActivationCommand command) {
         Instant now = clockPort.now();
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
-        return requireActor(command.tenantId(), true)
-                .then(checkIdempotency(command.tenantId(), "PRICE_SCHEDULED", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true)
+                .then(checkIdempotency(command.organizationId(), "PRICE_SCHEDULED", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
                         return Mono.empty();
                     }
-                    return loadPrice(command.tenantId(), command.priceId())
+                    return loadPrice(command.organizationId(), command.priceId())
                             .flatMap(price -> priceSchedulePersistencePort
                                     .create(new PriceSchedule(
                                             UUID.randomUUID().toString(),
-                                            command.tenantId(),
+                                            command.organizationId(),
                                             price.priceId().value(),
                                             command.executeAfter(),
                                             PriceScheduleJobStatus.PENDING,
@@ -610,7 +610,7 @@ public class CatalogApplicationService
                                             now,
                                             now)))
                             .flatMap(schedule -> afterMutation(
-                                    command.tenantId(),
+                                    command.organizationId(),
                                     "PRICE_SCHEDULED",
                                     "Price",
                                     command.priceId(),
@@ -626,14 +626,14 @@ public class CatalogApplicationService
     public Mono<CatalogOfferResult> handle(PublishCatalogOfferCommand command) {
         Instant now = clockPort.now();
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
-        return requireActor(command.tenantId(), true)
-                .then(checkIdempotency(command.tenantId(), "CATALOG_OFFER_PUBLISHED", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true)
+                .then(checkIdempotency(command.organizationId(), "CATALOG_OFFER_PUBLISHED", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
-                        return findOfferResult(command.tenantId(), idempotency.targetId());
+                        return findOfferResult(command.organizationId(), idempotency.targetId());
                     }
                     return composeOffer(
-                                    command.tenantId(),
+                                    command.organizationId(),
                                     command.productId(),
                                     command.variantId(),
                                     command.priceId(),
@@ -641,7 +641,7 @@ public class CatalogApplicationService
                             .flatMap(offerPersistencePort::create)
                             .flatMap(offer -> storeDomainEvents(offer.pullDomainEvents()).thenReturn(offer))
                             .flatMap(offer -> afterMutation(
-                                            command.tenantId(),
+                                            command.organizationId(),
                                             "CATALOG_OFFER_PUBLISHED",
                                             "CatalogOffer",
                                             offer.offerId().value(),
@@ -659,15 +659,15 @@ public class CatalogApplicationService
     public Mono<CatalogOfferResult> handle(UpdateCatalogOfferCommand command) {
         Instant now = clockPort.now();
         String payloadHash = IdempotencySupport.payloadHash(command.toString());
-        return requireActor(command.tenantId(), true)
-                .then(checkIdempotency(command.tenantId(), "CATALOG_OFFER_UPDATED", command.idempotencyKey(), payloadHash))
+        return requireActor(command.organizationId(), true)
+                .then(checkIdempotency(command.organizationId(), "CATALOG_OFFER_UPDATED", command.idempotencyKey(), payloadHash))
                 .flatMap(idempotency -> {
                     if (idempotency.replayed()) {
-                        return findOfferResult(command.tenantId(), idempotency.targetId());
+                        return findOfferResult(command.organizationId(), idempotency.targetId());
                     }
-                    return loadOffer(command.tenantId(), command.offerId())
+                    return loadOffer(command.organizationId(), command.offerId())
                             .flatMap(existing -> composeOffer(
-                                            command.tenantId(),
+                                            command.organizationId(),
                                             existing.product().productId().value(),
                                             command.variantId(),
                                             command.priceId(),
@@ -683,7 +683,7 @@ public class CatalogApplicationService
                             .flatMap(offerPersistencePort::update)
                             .flatMap(offer -> storeDomainEvents(offer.pullDomainEvents()).thenReturn(offer))
                             .flatMap(offer -> afterMutation(
-                                            command.tenantId(),
+                                            command.organizationId(),
                                             "CATALOG_OFFER_UPDATED",
                                             "CatalogOffer",
                                             offer.offerId().value(),
@@ -699,16 +699,16 @@ public class CatalogApplicationService
 
     @Override
     public Mono<ProductResult> handle(GetProductByIdQuery query) {
-        return requireActor(query.tenantId(), false).then(findProductResult(query.tenantId(), query.productId()));
+        return requireActor(query.organizationId(), false).then(findProductResult(query.organizationId(), query.productId()));
     }
 
     @Override
     public Mono<ProductDetailResult> handle(GetProductDetailQuery query) {
-        return requireActor(query.tenantId(), false)
-                .then(findProductResult(query.tenantId(), query.productId()))
+        return requireActor(query.organizationId(), false)
+                .then(findProductResult(query.organizationId(), query.productId()))
                 .zipWith(variantPersistencePort
-                        .findByProductId(TenantId.of(query.tenantId()), ProductId.of(query.productId()))
-                        .flatMap(variant -> findVariantResult(query.tenantId(), variant.variantId().value()))
+                        .findByProductId(OrganizationId.of(query.organizationId()), ProductId.of(query.productId()))
+                        .flatMap(variant -> findVariantResult(query.organizationId(), variant.variantId().value()))
                         .collectList())
                 .flatMap(tuple -> {
                     ProductResult product = tuple.getT1();
@@ -716,7 +716,7 @@ public class CatalogApplicationService
                     return Flux.fromIterable(variants)
                             .flatMap(variant -> pricePersistencePort
                                     .resolveActive(
-                                            TenantId.of(query.tenantId()),
+                                            OrganizationId.of(query.organizationId()),
                                             VariantId.of(variant.variantId()),
                                             "COP",
                                             PriceType.BASE,
@@ -730,7 +730,7 @@ public class CatalogApplicationService
 
     @Override
     public Mono<CatalogSearchResult> handle(SearchCatalogQuery query) {
-        return requireActor(query.tenantId(), false)
+        return requireActor(query.organizationId(), false)
                 .then(Mono.defer(() -> {
                     String cacheKey = cacheKeyFor(query);
                     return catalogSearchCachePort.get(cacheKey)
@@ -750,16 +750,16 @@ public class CatalogApplicationService
 
     @Override
     public Flux<VariantResult> handle(ListVariantsByProductQuery query) {
-        return requireActor(query.tenantId(), false)
+        return requireActor(query.organizationId(), false)
                 .thenMany(variantPersistencePort
-                        .findByProductId(TenantId.of(query.tenantId()), ProductId.of(query.productId()))
-                        .flatMap(variant -> findVariantResult(query.tenantId(), variant.variantId().value())));
+                        .findByProductId(OrganizationId.of(query.organizationId()), ProductId.of(query.productId()))
+                        .flatMap(variant -> findVariantResult(query.organizationId(), variant.variantId().value())));
     }
 
     @Override
     public Mono<CheckoutVariantResolutionResult> handle(ResolveVariantForCheckoutQuery query) {
-        return requireActor(query.tenantId(), false)
-                .then(variantPersistencePort.findBySku(TenantId.of(query.tenantId()), query.sku())
+        return requireActor(query.organizationId(), false)
+                .then(variantPersistencePort.findBySku(OrganizationId.of(query.organizationId()), query.sku())
                         .switchIfEmpty(Mono.error(new CatalogResourceNotFoundException("Variant", query.sku()))))
                 .flatMap(variant -> {
                     Instant at = query.at() == null ? clockPort.now() : query.at();
@@ -768,14 +768,14 @@ public class CatalogApplicationService
                     }
                     PriceType priceType = parsePriceType(query.priceType());
                     return pricePersistencePort.resolveActive(
-                                    TenantId.of(query.tenantId()),
+                                    OrganizationId.of(query.organizationId()),
                                     variant.variantId(),
                                     query.currency(),
                                     priceType,
                                     at)
                             .switchIfEmpty(Mono.error(new VariantNotSellableException()))
                             .map(price -> new CheckoutVariantResolutionResult(
-                                    query.tenantId(),
+                                    query.organizationId(),
                                     variant.productId().value(),
                                     variant.variantId().value(),
                                     variant.sku(),
@@ -789,9 +789,9 @@ public class CatalogApplicationService
 
     @Override
     public Mono<PriceResult> handle(ResolveCurrentPriceQuery query) {
-        return requireActor(query.tenantId(), false)
+        return requireActor(query.organizationId(), false)
                 .then(pricePersistencePort.resolveActive(
-                        TenantId.of(query.tenantId()),
+                        OrganizationId.of(query.organizationId()),
                         VariantId.of(query.variantId()),
                         query.currency(),
                         parsePriceType(query.priceType()),
@@ -802,10 +802,10 @@ public class CatalogApplicationService
 
     @Override
     public Mono<PriceTimelineResult> handle(GetPriceTimelineQuery query) {
-        return requireActor(query.tenantId(), false)
+        return requireActor(query.organizationId(), false)
                 .then(pricePersistencePort
                         .findTimeline(
-                                TenantId.of(query.tenantId()),
+                                OrganizationId.of(query.organizationId()),
                                 VariantId.of(query.variantId()),
                                 query.currency(),
                                 parsePriceType(query.priceType()))
@@ -820,18 +820,18 @@ public class CatalogApplicationService
 
     @Override
     public Mono<CatalogAuditResult> handle(GetCatalogAuditQuery query) {
-        return requireActor(query.tenantId(), true)
+        return requireActor(query.organizationId(), true)
                 .then(catalogAuditPort
-                        .findByTarget(query.tenantId(), query.targetType(), query.targetId(), query.page() * query.size(), query.size())
+                        .findByTarget(query.organizationId(), query.targetType(), query.targetId(), query.page() * query.size(), query.size())
                         .map(resultMapper::toAuditEntryResult)
                         .collectList()
-                        .zipWith(catalogAuditPort.countByTarget(query.tenantId(), query.targetType(), query.targetId()))
+                        .zipWith(catalogAuditPort.countByTarget(query.organizationId(), query.targetType(), query.targetId()))
                         .map(tuple -> new CatalogAuditResult(tuple.getT1(), query.page(), query.size(), tuple.getT2())));
     }
 
-    private Mono<Void> ensureTaxonomyActive(String tenantId, String brandId, String categoryId) {
-        return taxonomyPersistencePort.isBrandActive(tenantId, brandId)
-                .zipWith(taxonomyPersistencePort.isCategoryActive(tenantId, categoryId))
+    private Mono<Void> ensureTaxonomyActive(String organizationId, String brandId, String categoryId) {
+        return taxonomyPersistencePort.isBrandActive(organizationId, brandId)
+                .zipWith(taxonomyPersistencePort.isCategoryActive(organizationId, categoryId))
                 .flatMap(result -> {
                     if (!result.getT1() || !result.getT2()) {
                         return Mono.error(new BrandOrCategoryInvalidException());
@@ -840,64 +840,64 @@ public class CatalogApplicationService
                 });
     }
 
-    private Mono<Product> loadProduct(String tenantId, String productId) {
+    private Mono<Product> loadProduct(String organizationId, String productId) {
         return productPersistencePort
-                .findById(TenantId.of(tenantId), ProductId.of(productId))
+                .findById(OrganizationId.of(organizationId), ProductId.of(productId))
                 .switchIfEmpty(Mono.error(new CatalogResourceNotFoundException("Product", productId)));
     }
 
-    private Mono<Variant> loadVariant(String tenantId, String variantId) {
+    private Mono<Variant> loadVariant(String organizationId, String variantId) {
         return variantPersistencePort
-                .findById(TenantId.of(tenantId), VariantId.of(variantId))
+                .findById(OrganizationId.of(organizationId), VariantId.of(variantId))
                 .switchIfEmpty(Mono.error(new CatalogResourceNotFoundException("Variant", variantId)));
     }
 
-    private Mono<Price> loadPrice(String tenantId, String priceId) {
+    private Mono<Price> loadPrice(String organizationId, String priceId) {
         return pricePersistencePort
-                .findById(TenantId.of(tenantId), PriceId.of(priceId))
+                .findById(OrganizationId.of(organizationId), PriceId.of(priceId))
                 .switchIfEmpty(Mono.error(new CatalogResourceNotFoundException("Price", priceId)));
     }
 
-    private Mono<CatalogOffer> loadOffer(String tenantId, String offerId) {
+    private Mono<CatalogOffer> loadOffer(String organizationId, String offerId) {
         return offerPersistencePort
-                .findByOfferId(TenantId.of(tenantId), OfferId.of(offerId))
+                .findByOfferId(OrganizationId.of(organizationId), OfferId.of(offerId))
                 .switchIfEmpty(Mono.error(new CatalogResourceNotFoundException("CatalogOffer", offerId)));
     }
 
-    private Mono<ProductResult> findProductResult(String tenantId, String productId) {
-        return loadProduct(tenantId, productId)
+    private Mono<ProductResult> findProductResult(String organizationId, String productId) {
+        return loadProduct(organizationId, productId)
                 .flatMap(product -> productPersistencePort
-                        .findTags(TenantId.of(tenantId), product.productId())
+                        .findTags(OrganizationId.of(organizationId), product.productId())
                         .collectList()
                         .map(tags -> resultMapper.toProductResult(product, tags)));
     }
 
-    private Mono<VariantResult> findVariantResult(String tenantId, String variantId) {
-        return loadVariant(tenantId, variantId)
+    private Mono<VariantResult> findVariantResult(String organizationId, String variantId) {
+        return loadVariant(organizationId, variantId)
                 .flatMap(variant -> variantPersistencePort
-                        .findAttributes(TenantId.of(tenantId), variant.variantId())
+                        .findAttributes(OrganizationId.of(organizationId), variant.variantId())
                         .collectList()
                         .map(attrs -> resultMapper.toVariantResult(variant, attrs)));
     }
 
-    private Mono<PriceResult> findPriceResult(String tenantId, String priceId) {
-        return loadPrice(tenantId, priceId).map(resultMapper::toPriceResult);
+    private Mono<PriceResult> findPriceResult(String organizationId, String priceId) {
+        return loadPrice(organizationId, priceId).map(resultMapper::toPriceResult);
     }
 
-    private Mono<CatalogOfferResult> findOfferResult(String tenantId, String offerId) {
-        return loadOffer(tenantId, offerId).map(resultMapper::toOfferResult);
+    private Mono<CatalogOfferResult> findOfferResult(String organizationId, String offerId) {
+        return loadOffer(organizationId, offerId).map(resultMapper::toOfferResult);
     }
 
     private Mono<CatalogOffer> composeOffer(
-            String tenantId,
+            String organizationId,
             String productId,
             String variantId,
             String priceId,
             String regionalPolicyReference) {
         Instant now = clockPort.now();
-        return loadProduct(tenantId, productId)
-                .zipWith(loadVariant(tenantId, variantId))
-                .zipWith(loadPrice(tenantId, priceId))
+        return loadProduct(organizationId, productId)
+                .zipWith(loadVariant(organizationId, variantId))
+                .zipWith(loadPrice(organizationId, priceId))
                 .flatMap(tuple -> {
                     Product product = tuple.getT1().getT1();
                     Variant variant = tuple.getT1().getT2();
@@ -906,7 +906,7 @@ public class CatalogApplicationService
                         return Mono.just(CatalogOffer.publish(product, variant, price, regionalPolicyReference, now));
                     }
                     return regionalPolicyContextPort
-                            .resolveForTenant(tenantId, "")
+                            .resolveForOrganization(organizationId, "")
                             .defaultIfEmpty(new RegionalPolicyContext("", "", ""))
                             .map(policy -> CatalogOffer.publish(product, variant, price, policy.policyReference(), now));
                 });
@@ -943,9 +943,9 @@ public class CatalogApplicationService
         return normalized;
     }
 
-    private Mono<ActorContext> requireActor(String tenantId, boolean adminRequired) {
-        if (tenantId == null || tenantId.isBlank()) {
-            return Mono.error(new ApplicationException("tenant_requerido", "tenantId es obligatorio"));
+    private Mono<ActorContext> requireActor(String organizationId, boolean adminRequired) {
+        if (organizationId == null || organizationId.isBlank()) {
+            return Mono.error(new ApplicationException("organization_requerida", "organizationId es obligatorio"));
         }
         return actorContextProviderPort.currentActor()
                 .switchIfEmpty(Mono.error(new OperationNotPermittedException(
@@ -957,11 +957,14 @@ public class CatalogApplicationService
                                 "operacion_no_permitida",
                                 "La operacion requiere rol administrativo"));
                     }
-                    if (!actor.admin() && !tenantId.equals(actor.tenantId())) {
-                        return Mono.error(new CrossTenantAccessException());
+                    if (!actor.admin() && !actor.trustedService() && !organizationId.equals(actor.organizationId())) {
+                        return Mono.error(new CrossOrganizationAccessException());
+                    }
+                    if (actor.trustedService()) {
+                        return Mono.just(actor);
                     }
                     return actorLegitimacyPort
-                            .isLegitimate(actor.actorId(), tenantId)
+                            .isLegitimate(actor.actorId(), organizationId)
                             .flatMap(valid -> valid
                                     ? Mono.just(actor)
                                     : Mono.error(new ActorNotLegitimateException()));
@@ -969,7 +972,7 @@ public class CatalogApplicationService
     }
 
     private Mono<IdempotencyDecision> checkIdempotency(
-            String tenantId,
+            String organizationId,
             String actionType,
             String idempotencyKey,
             String payloadHash) {
@@ -977,7 +980,7 @@ public class CatalogApplicationService
             return Mono.just(IdempotencyDecision.none());
         }
         return catalogAuditPort
-                .findByIdempotency(tenantId, actionType, idempotencyKey)
+                .findByIdempotency(organizationId, actionType, idempotencyKey)
                 .flatMap(existing -> {
                     if (!payloadHash.equals(existing.payloadHash())) {
                         return Mono.error(new IdempotencyConflictException());
@@ -988,7 +991,7 @@ public class CatalogApplicationService
     }
 
     private Mono<Void> afterMutation(
-            String tenantId,
+            String organizationId,
             String actionType,
             String targetType,
             String targetId,
@@ -1000,7 +1003,7 @@ public class CatalogApplicationService
         Instant now = clockPort.now();
         CatalogAuditEntry audit = new CatalogAuditEntry(
                 UUID.randomUUID().toString(),
-                tenantId,
+                organizationId,
                 actorId,
                 actionType,
                 targetType,
@@ -1016,7 +1019,7 @@ public class CatalogApplicationService
                 : outboxPersistencePort.store(optionalEvent, payloadWithEventType(payload, optionalEvent.eventType()));
         return storeAudit
                 .then(storeEvent)
-                .then(catalogSearchCachePort.evictTenant(tenantId));
+                .then(catalogSearchCachePort.evictOrganization(organizationId));
     }
 
     private String payloadWithEventType(String payload, String eventType) {
@@ -1043,7 +1046,7 @@ public class CatalogApplicationService
         int size = query.size() <= 0 ? 20 : Math.min(query.size(), 100);
         int page = Math.max(query.page(), 0);
         return new CatalogSearchFilter(
-                query.tenantId(),
+                query.organizationId(),
                 query.text(),
                 query.brandId(),
                 query.categoryId(),
@@ -1056,7 +1059,7 @@ public class CatalogApplicationService
     private String cacheKeyFor(SearchCatalogQuery query) {
         return String.join(
                 "::",
-                query.tenantId(),
+                query.organizationId(),
                 String.valueOf(query.page()),
                 String.valueOf(query.size()),
                 nullSafe(query.text()),

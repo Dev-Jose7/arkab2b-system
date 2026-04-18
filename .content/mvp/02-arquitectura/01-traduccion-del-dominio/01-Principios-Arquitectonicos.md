@@ -57,6 +57,6 @@ subdominios definida en Dominio se considera drift y debe corregirse.
 | pico de lecturas/mutaciones en servicios `Core` | presupuestos de rendimiento por servicio y degradacion controlada por prioridad funcional |
 | checkout concurrente sobre SKU caliente | validaciones sync `order`-`inventory` en camino critico + no confirmacion sin disponibilidad |
 | falla parcial de dependencia derivada | mantener confirmacion `Core` y desacoplar `notification`/`reporting` por eventos |
-| intento de acceso cross-tenant | rechazo inmediato en borde/servicio owner + auditoria obligatoria |
+| intento de acceso cross-organization | rechazo inmediato en borde/servicio owner + auditoria obligatoria |
 | backlog de broker y reproceso | outbox en productores, dedupe en consumidores y `DLQ` con runbook |
 | carga 3x baseline | escalado progresivo y degradacion aceptable sin romper consistencia semantica |

@@ -7,5 +7,5 @@ public interface CheckoutAttemptPersistencePort {
 
     Mono<CheckoutAttempt> save(CheckoutAttempt checkoutAttempt);
 
-    Mono<CheckoutAttempt> findByCorrelation(String tenantId, String checkoutCorrelationId);
+    Mono<CheckoutAttempt> findByCorrelation(String organizationId, String checkoutCorrelationId);
 }

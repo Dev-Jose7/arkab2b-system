@@ -9,7 +9,7 @@ import org.springframework.data.relational.core.mapping.Table;
 public record NotificationTemplateRow(
         @Id
         @Column("template_id") String templateId,
-        @Column("tenant_id") String tenantId,
+        @Column("organization_id") String organizationId,
         @Column("source_event_type") String sourceEventType,
         @Column("channel") String channel,
         @Column("template_version") Integer templateVersion,

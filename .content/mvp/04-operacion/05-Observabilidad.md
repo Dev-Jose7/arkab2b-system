@@ -18,9 +18,9 @@ correlacionar incidentes y acelerar recuperacion.
 ## Campos minimos de observabilidad
 | Tipo | Campos minimos |
 |---|---|
-| Log mutante | `timestamp`, `service`, `operation`, `traceId`, `correlationId`, `tenantId`, `actorId`, `result`, `errorCode` |
-| Evento de dominio | `eventId`, `eventType`, `eventVersion`, `occurredAt`, `traceId`, `correlationId`, `tenantId` |
-| Auditoria | `operationRef`, `actorId`, `tenantId`, `decision`, `reason` |
+| Log mutante | `timestamp`, `service`, `operation`, `traceId`, `correlationId`, `organizationId`, `actorId`, `result`, `errorCode` |
+| Evento de dominio | `eventId`, `eventType`, `eventVersion`, `occurredAt`, `traceId`, `correlationId`, `organizationId` |
+| Auditoria | `operationRef`, `actorId`, `organizationId`, `decision`, `reason` |
 
 ## Dashboards minimos
 - Salud por servicio (`up/down`, p95, error-rate).

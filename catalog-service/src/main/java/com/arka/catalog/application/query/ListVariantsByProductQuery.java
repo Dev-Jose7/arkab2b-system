@@ -1,4 +1,4 @@
 package com.arka.catalog.application.query;
 
-public record ListVariantsByProductQuery(String tenantId, String productId) {
+public record ListVariantsByProductQuery(String organizationId, String productId) {
 }

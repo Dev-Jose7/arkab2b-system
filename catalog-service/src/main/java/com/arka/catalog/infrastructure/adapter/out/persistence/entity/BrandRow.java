@@ -9,7 +9,7 @@ import org.springframework.data.relational.core.mapping.Table;
 public record BrandRow(
         @Id
         @Column("brand_id") String brandId,
-        @Column("tenant_id") String tenantId,
+        @Column("organization_id") String organizationId,
         @Column("brand_code") String brandCode,
         @Column("brand_name") String brandName,
         @Column("status") String status,

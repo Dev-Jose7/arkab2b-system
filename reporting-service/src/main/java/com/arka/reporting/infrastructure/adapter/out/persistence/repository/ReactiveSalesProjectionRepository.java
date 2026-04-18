@@ -7,6 +7,6 @@ import reactor.core.publisher.Mono;
 
 public interface ReactiveSalesProjectionRepository extends ReactiveCrudRepository<SalesProjectionRow, String> {
 
-    @Query("SELECT * FROM sales_projections WHERE tenant_id = :tenantId AND period = :period")
-    Mono<SalesProjectionRow> findByTenantAndPeriod(String tenantId, String period);
+    @Query("SELECT * FROM sales_projections WHERE organization_id = :organizationId AND period = :period")
+    Mono<SalesProjectionRow> findByOrganizationAndPeriod(String organizationId, String period);
 }

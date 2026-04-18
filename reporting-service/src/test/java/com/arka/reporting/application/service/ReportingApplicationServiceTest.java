@@ -35,7 +35,7 @@ import com.arka.reporting.application.query.GetAnalyticFactByIdQuery;
 import com.arka.reporting.domain.analyticfact.entity.AnalyticFact;
 import com.arka.reporting.domain.analyticfact.enumtype.AnalyticFactType;
 import com.arka.reporting.domain.analyticfact.valueobject.SourceEventId;
-import com.arka.reporting.domain.analyticfact.valueobject.TenantId;
+import com.arka.reporting.domain.analyticfact.valueobject.OrganizationId;
 import com.arka.reporting.domain.shared.exception.OperationNotPermittedException;
 import com.arka.reporting.domain.weeklyreportexecution.exception.RebuildInProgressException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -132,7 +132,7 @@ class ReportingApplicationServiceTest {
     void shouldReturnExistingFactWhenSourceEventAlreadyExists() {
         Instant now = Instant.parse("2026-04-01T00:00:00Z");
         RegisterAnalyticFactCommand command = new RegisterAnalyticFactCommand(
-                "tenant-demo",
+                "organization-demo",
                 "actor-1",
                 "evt-1",
                 "order.confirmed",
@@ -159,7 +159,7 @@ class ReportingApplicationServiceTest {
     void shouldSkipApplyWhenFactAlreadyApplied() {
         Instant now = Instant.parse("2026-04-01T00:00:00Z");
         ApplyAnalyticFactCommand command = new ApplyAnalyticFactCommand(
-                "tenant-demo",
+                "organization-demo",
                 "actor-1",
                 "fact-1",
                 null);
@@ -184,7 +184,7 @@ class ReportingApplicationServiceTest {
     void shouldKeepDlqReprocessIdempotentWhenEventAlreadyProcessed() {
         Instant now = Instant.parse("2026-04-01T00:00:00Z");
         ReprocessReportingDlqCommand command = new ReprocessReportingDlqCommand(
-                "tenant-demo",
+                "organization-demo",
                 "actor-1",
                 "dlq-evt-1",
                 "reporting-dlq-consumer",
@@ -205,7 +205,7 @@ class ReportingApplicationServiceTest {
         when(actorContextProviderPort.currentActor()).thenReturn(Mono.empty());
         when(analyticFactPersistencePort.findById(any(), any())).thenReturn(Mono.empty());
 
-        StepVerifier.create(service.handle(new GetAnalyticFactByIdQuery("tenant-demo", "fact-1")))
+        StepVerifier.create(service.handle(new GetAnalyticFactByIdQuery("organization-demo", "fact-1")))
                 .expectError(OperationNotPermittedException.class)
                 .verify();
     }
@@ -214,7 +214,7 @@ class ReportingApplicationServiceTest {
     void shouldRejectFullRebuildWhenAnotherRebuildIsRunning() {
         Instant now = Instant.parse("2026-04-01T00:00:00Z");
         RebuildProjectionCommand command = new RebuildProjectionCommand(
-                "tenant-demo",
+                "organization-demo",
                 "actor-1",
                 true,
                 "2026-W14",
@@ -229,26 +229,97 @@ class ReportingApplicationServiceTest {
                 .verify();
     }
 
+    @Test
+    void shouldAllowTrustedServiceRegisterWithoutRegionalPolicyResolution() {
+        Instant now = Instant.parse("2026-04-01T00:00:00Z");
+        RegisterAnalyticFactCommand command = new RegisterAnalyticFactCommand(
+                "organization-demo",
+                "reporting-kafka-consumer",
+                "evt-async-1",
+                "CartCreated",
+                "SALES",
+                "{}",
+                now,
+                "reporting-service",
+                null);
+
+        AnalyticFact existing = capturedFact(now, "evt-async-1");
+
+        when(clockPort.now()).thenReturn(now);
+        when(actorContextProviderPort.currentActor())
+                .thenReturn(Mono.just(new ActorContext(
+                        "reporting-kafka-consumer",
+                        "organization-demo",
+                        "",
+                        false,
+                        true)));
+        when(analyticFactPersistencePort.findBySourceEventId(any(), any())).thenReturn(Mono.just(existing));
+
+        StepVerifier.create(service.handle(command))
+                .assertNext(result -> assertEquals(existing.factId().value(), result.factId()))
+                .verifyComplete();
+
+        verify(actorLegitimacyPort, never()).isLegitimate(any(), any());
+        verify(regionalPolicyPort, never()).resolveForOperation(any(), any());
+    }
+
+    @Test
+    void shouldAllowTrustedServiceApplyWithoutRegionalPolicyResolution() {
+        Instant now = Instant.parse("2026-04-01T00:00:00Z");
+        ApplyAnalyticFactCommand command = new ApplyAnalyticFactCommand(
+                "organization-demo",
+                "reporting-kafka-consumer",
+                "fact-async-1",
+                null);
+
+        AnalyticFact captured = capturedFact(now, "evt-async-apply-1");
+        captured.normalize("{\"totalSales\": 10}", now.plusSeconds(1));
+
+        when(clockPort.now()).thenReturn(now.plusSeconds(2));
+        when(actorContextProviderPort.currentActor())
+                .thenReturn(Mono.just(new ActorContext(
+                        "reporting-kafka-consumer",
+                        "organization-demo",
+                        "",
+                        false,
+                        true)));
+        when(analyticFactPersistencePort.findById(any(), any())).thenReturn(Mono.just(captured));
+        when(analyticFactPersistencePort.update(any())).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
+        when(projectionPersistencePort.upsertSalesProjection(any(), any(), any(), any(), any(), anyLong()))
+                .thenReturn(Mono.empty());
+        when(domainEventTopicPort.topicFor(any())).thenReturn("reporting.mutation.v1");
+        when(reportingSearchCachePort.evictOrganization(any())).thenReturn(Mono.empty());
+        when(reportingAuditPort.record(any())).thenReturn(Mono.empty());
+        when(outboxPersistencePort.store(any(), any())).thenReturn(Mono.empty());
+
+        StepVerifier.create(service.handle(command))
+                .assertNext(result -> assertEquals("APPLIED", result.factStatus()))
+                .verifyComplete();
+
+        verify(actorLegitimacyPort, never()).isLegitimate(any(), any());
+        verify(regionalPolicyPort, never()).resolveForOperation(any(), any());
+    }
+
     private void mockAdminActor(boolean withRegionalPolicy) {
         when(actorContextProviderPort.currentActor())
-                .thenReturn(Mono.just(new ActorContext("actor-1", "tenant-demo", "CO", true, false)));
-        when(actorLegitimacyPort.isLegitimate("actor-1", "tenant-demo")).thenReturn(Mono.just(Boolean.TRUE));
+                .thenReturn(Mono.just(new ActorContext("actor-1", "organization-demo", "CO", true, false)));
+        when(actorLegitimacyPort.isLegitimate("actor-1", "organization-demo")).thenReturn(Mono.just(Boolean.TRUE));
         when(domainEventTopicPort.topicFor(any())).thenReturn("reporting.mutation.v1");
-        when(reportingSearchCachePort.evictTenant(any())).thenReturn(Mono.empty());
+        when(reportingSearchCachePort.evictOrganization(any())).thenReturn(Mono.empty());
         when(reportingAuditPort.record(any())).thenReturn(Mono.empty());
         when(outboxPersistencePort.store(any(), any())).thenReturn(Mono.empty());
         when(processedEventPersistencePort.record(any(), any(), any())).thenReturn(Mono.empty());
         when(artifactStoragePort.store(any(), any(), any(), any(), any()))
                 .thenReturn(Mono.just(new StoredArtifact("stub://artifact", "hash", 100L)));
         if (withRegionalPolicy) {
-            when(regionalPolicyPort.resolveForOperation("tenant-demo", "CO"))
-                    .thenReturn(Mono.just(new RegionalPolicyResolution("tenant-demo", "CO", true, "policy-co")));
+            when(regionalPolicyPort.resolveForOperation("organization-demo", "CO"))
+                    .thenReturn(Mono.just(new RegionalPolicyResolution("organization-demo", "CO", true, "policy-co")));
         }
     }
 
     private AnalyticFact capturedFact(Instant now, String sourceEventId) {
         return AnalyticFact.capture(
-                TenantId.of("tenant-demo"),
+                OrganizationId.of("organization-demo"),
                 SourceEventId.of(sourceEventId),
                 "order.confirmed",
                 AnalyticFactType.SALES,

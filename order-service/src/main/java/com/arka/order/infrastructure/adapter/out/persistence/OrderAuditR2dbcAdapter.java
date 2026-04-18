@@ -26,8 +26,8 @@ public class OrderAuditR2dbcAdapter implements OrderAuditPort {
 
     @Override
     public Mono<Void> record(
-            String tenantId,
             String organizationId,
+
             String actorUserId,
             String actionType,
             String targetType,
@@ -36,7 +36,6 @@ public class OrderAuditR2dbcAdapter implements OrderAuditPort {
             String payload) {
         OrderAuditEntity entity = new OrderAuditEntity(
                 UUID.randomUUID().toString(),
-                tenantId,
                 organizationId,
                 actorUserId,
                 actionType,
@@ -49,11 +48,10 @@ public class OrderAuditR2dbcAdapter implements OrderAuditPort {
     }
 
     @Override
-    public Flux<OrderAuditEntryResult> findByOrder(String tenantId, String organizationId, String orderId, int limit) {
-        return repository.findByOrder(tenantId, organizationId, orderId, limit)
+    public Flux<OrderAuditEntryResult> findByOrder(String organizationId, String orderId, int limit) {
+        return repository.findByOrder(organizationId, orderId, limit)
                 .map(entity -> new OrderAuditEntryResult(
                         entity.auditId(),
-                        entity.tenantId(),
                         entity.organizationId(),
                         entity.actorUserId(),
                         entity.actionType(),

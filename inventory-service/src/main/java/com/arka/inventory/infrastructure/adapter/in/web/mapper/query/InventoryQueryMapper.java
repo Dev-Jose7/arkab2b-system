@@ -17,14 +17,14 @@ public class InventoryQueryMapper {
 
     public GetStockItemQuery toQuery(String stockItemId, IamSecurityPrincipal principal) {
         return new GetStockItemQuery(
-                principal.tenantId(),
+                principal.organizationId(),
                 stockItemId,
                 principal.userId());
     }
 
     public GetCommitableAvailabilityQuery toQuery(String warehouseId, String sku, IamSecurityPrincipal principal) {
         return new GetCommitableAvailabilityQuery(
-                principal.tenantId(),
+                principal.organizationId(),
                 warehouseId,
                 sku,
                 principal.userId());
@@ -32,21 +32,21 @@ public class InventoryQueryMapper {
 
     public ListStockByWarehouseQuery toListStockQuery(String warehouseId, IamSecurityPrincipal principal) {
         return new ListStockByWarehouseQuery(
-                principal.tenantId(),
+                principal.organizationId(),
                 warehouseId,
                 principal.userId());
     }
 
     public ListReservationsByCartQuery toListReservationsByCartQuery(String cartId, IamSecurityPrincipal principal) {
         return new ListReservationsByCartQuery(
-                principal.tenantId(),
+                principal.organizationId(),
                 cartId,
                 principal.userId());
     }
 
     public GetStockMovementsQuery toStockMovementsQuery(String stockItemId, Integer limit, IamSecurityPrincipal principal) {
         return new GetStockMovementsQuery(
-                principal.tenantId(),
+                principal.organizationId(),
                 stockItemId,
                 limit,
                 principal.userId());
@@ -54,14 +54,14 @@ public class InventoryQueryMapper {
 
     public GetLowStockQuery toLowStockQuery(String warehouseId, IamSecurityPrincipal principal) {
         return new GetLowStockQuery(
-                principal.tenantId(),
+                principal.organizationId(),
                 warehouseId,
                 principal.userId());
     }
 
     public GetInventoryAuditQuery toAuditQuery(Integer limit, IamSecurityPrincipal principal) {
         return new GetInventoryAuditQuery(
-                principal.tenantId(),
+                principal.organizationId(),
                 limit,
                 principal.userId());
     }
@@ -71,19 +71,19 @@ public class InventoryQueryMapper {
             Integer requestedQty,
             IamSecurityPrincipal principal) {
         return new ResolveCheckoutAvailabilityQuery(
-                principal.tenantId(),
+                principal.organizationId(),
                 stockItemId,
                 requestedQty,
                 principal.userId());
     }
 
     public ValidateReservationReferenceQuery toReservationValidationQuery(
-            String tenantId,
+            String organizationId,
             String reservationId,
             String sku,
             Integer qty) {
         return new ValidateReservationReferenceQuery(
-                tenantId,
+                organizationId,
                 reservationId,
                 sku,
                 qty == null ? 0 : qty);

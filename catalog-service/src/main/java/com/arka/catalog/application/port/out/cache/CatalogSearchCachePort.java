@@ -9,5 +9,5 @@ public interface CatalogSearchCachePort {
 
     Mono<Void> put(String cacheKey, CatalogSearchResult result);
 
-    Mono<Void> evictTenant(String tenantId);
+    Mono<Void> evictOrganization(String organizationId);
 }

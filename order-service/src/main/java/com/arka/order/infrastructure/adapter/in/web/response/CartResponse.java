@@ -6,7 +6,6 @@ import java.util.List;
 
 public record CartResponse(
         String cartId,
-        String tenantId,
         String organizationId,
         String userId,
         String status,

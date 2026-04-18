@@ -10,9 +10,9 @@ public interface ReactiveOperationsKpiProjectionRepository extends ReactiveCrudR
     @Query("""
             SELECT *
             FROM operations_kpi_projections
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND period = :period
             ORDER BY kpi_name ASC
             """)
-    Flux<OperationsKpiProjectionRow> findByTenantAndPeriod(String tenantId, String period);
+    Flux<OperationsKpiProjectionRow> findByOrganizationAndPeriod(String organizationId, String period);
 }

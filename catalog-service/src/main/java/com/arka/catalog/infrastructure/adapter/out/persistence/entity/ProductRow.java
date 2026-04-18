@@ -9,7 +9,7 @@ import org.springframework.data.relational.core.mapping.Table;
 public record ProductRow(
         @Id
         @Column("product_id") String productId,
-        @Column("tenant_id") String tenantId,
+        @Column("organization_id") String organizationId,
         @Column("product_code") String productCode,
         @Column("product_name") String productName,
         @Column("description") String description,

@@ -18,7 +18,7 @@ class CartAggregateTest {
     @Test
     void shouldCalculateSubtotalAfterAddingItems() {
         Instant now = Instant.parse("2026-04-14T10:00:00Z");
-        Cart cart = Cart.create("tenant-1", "org-1", "user-1", now)
+        Cart cart = Cart.create("organization-1", "user-1", now)
                 .addOrUpdateItem(
                         null,
                         "variant-1",
@@ -46,7 +46,7 @@ class CartAggregateTest {
     @Test
     void shouldRejectNonPositiveQty() {
         Instant now = Instant.parse("2026-04-14T10:00:00Z");
-        Cart cart = Cart.create("tenant-1", "org-1", "user-1", now);
+        Cart cart = Cart.create("organization-1", "user-1", now);
 
         assertThrows(CartItemInvariantException.class, () -> cart.addOrUpdateItem(
                 null,
@@ -63,7 +63,7 @@ class CartAggregateTest {
     @Test
     void shouldPreventMutationsAfterConversion() {
         Instant now = Instant.parse("2026-04-14T10:00:00Z");
-        Cart cart = Cart.create("tenant-1", "org-1", "user-1", now)
+        Cart cart = Cart.create("organization-1", "user-1", now)
                 .addOrUpdateItem(
                         null,
                         "variant-1",
@@ -79,7 +79,7 @@ class CartAggregateTest {
                 "corr-1",
                 cart.cartId(),
                 CheckoutValidationStatus.VALID,
-                "org-1",
+                "organization-1",
                 "addr-1",
                 "US",
                 1L,

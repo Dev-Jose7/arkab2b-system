@@ -4,7 +4,7 @@ import java.time.Instant;
 
 public record NotificationResponse(
         String notificationId,
-        String tenantId,
+        String organizationId,
         String sourceEventId,
         String sourceEventType,
         String recipientRef,
@@ -21,5 +21,4 @@ public record NotificationResponse(
         String correlationId,
         long version,
         Instant createdAt,
-        Instant updatedAt) {
-}
+        Instant updatedAt) {}

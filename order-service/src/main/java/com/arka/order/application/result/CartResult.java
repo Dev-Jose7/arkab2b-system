@@ -6,8 +6,8 @@ import java.util.List;
 
 public record CartResult(
         String cartId,
-        String tenantId,
         String organizationId,
+
         String userId,
         String status,
         BigDecimal subtotal,

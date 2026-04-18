@@ -9,7 +9,7 @@ import org.springframework.data.relational.core.mapping.Table;
 public record ChannelPolicyRow(
         @Id
         @Column("policy_id") String policyId,
-        @Column("tenant_id") String tenantId,
+        @Column("organization_id") String organizationId,
         @Column("source_event_type") String sourceEventType,
         @Column("primary_channel") String primaryChannel,
         @Column("fallback_channel") String fallbackChannel,

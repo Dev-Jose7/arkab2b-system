@@ -9,7 +9,7 @@ import com.arka.reporting.domain.analyticfact.enumtype.AnalyticFactType;
 import com.arka.reporting.domain.analyticfact.exception.FactAlreadyAppliedException;
 import com.arka.reporting.domain.analyticfact.exception.InvalidAnalyticFactTransitionException;
 import com.arka.reporting.domain.analyticfact.valueobject.SourceEventId;
-import com.arka.reporting.domain.analyticfact.valueobject.TenantId;
+import com.arka.reporting.domain.analyticfact.valueobject.OrganizationId;
 import com.arka.reporting.domain.shared.exception.DomainInvariantViolationException;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,7 @@ class AnalyticFactDomainModelTest {
     void shouldNormalizeAndApplyFactOnce() {
         Instant now = Instant.parse("2026-04-01T00:00:00Z");
         AnalyticFact fact = AnalyticFact.capture(
-                TenantId.of("tenant-demo"),
+                OrganizationId.of("organization-demo"),
                 SourceEventId.of("evt-1"),
                 "order.confirmed",
                 AnalyticFactType.SALES,
@@ -40,7 +40,7 @@ class AnalyticFactDomainModelTest {
     void shouldRejectSecondApplyForSameFact() {
         Instant now = Instant.parse("2026-04-01T00:00:00Z");
         AnalyticFact fact = AnalyticFact.capture(
-                TenantId.of("tenant-demo"),
+                OrganizationId.of("organization-demo"),
                 SourceEventId.of("evt-2"),
                 "order.confirmed",
                 AnalyticFactType.SALES,
@@ -59,7 +59,7 @@ class AnalyticFactDomainModelTest {
     void shouldNotAllowRejectAfterApplied() {
         Instant now = Instant.parse("2026-04-01T00:00:00Z");
         AnalyticFact fact = AnalyticFact.capture(
-                TenantId.of("tenant-demo"),
+                OrganizationId.of("organization-demo"),
                 SourceEventId.of("evt-3"),
                 "inventory.low-stock",
                 AnalyticFactType.REPLENISHMENT,
@@ -80,7 +80,7 @@ class AnalyticFactDomainModelTest {
     void shouldRejectApplyWhenFactIsNotNormalized() {
         Instant now = Instant.parse("2026-04-01T00:00:00Z");
         AnalyticFact fact = AnalyticFact.capture(
-                TenantId.of("tenant-demo"),
+                OrganizationId.of("organization-demo"),
                 SourceEventId.of("evt-4"),
                 "notification.delivery",
                 AnalyticFactType.NOTIFICATION,

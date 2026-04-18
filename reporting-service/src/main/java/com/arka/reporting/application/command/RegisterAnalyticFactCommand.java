@@ -3,7 +3,7 @@ package com.arka.reporting.application.command;
 import java.time.Instant;
 
 public record RegisterAnalyticFactCommand(
-        String tenantId,
+        String organizationId,
         String actorId,
         String sourceEventId,
         String sourceEventType,

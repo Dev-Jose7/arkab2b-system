@@ -21,7 +21,7 @@ public class NotificationResultMapper {
     public NotificationResult toNotificationResult(NotificationRequest request) {
         return new NotificationResult(
                 request.notificationId().value(),
-                request.tenantId().value(),
+                request.organizationId().value(),
                 request.sourceEventId(),
                 request.sourceEventType(),
                 request.recipientRef(),
@@ -94,7 +94,7 @@ public class NotificationResultMapper {
     public NotificationAuditEntryResult toAuditEntryResult(NotificationAuditEntry entry) {
         return new NotificationAuditEntryResult(
                 entry.auditId(),
-                entry.tenantId(),
+                entry.organizationId(),
                 entry.actorId(),
                 entry.actionType(),
                 entry.targetType(),

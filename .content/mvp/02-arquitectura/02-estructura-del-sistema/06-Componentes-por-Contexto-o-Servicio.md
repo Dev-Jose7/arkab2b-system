@@ -312,7 +312,7 @@ flowchart TB
 | Flujo critico de ejecucion | `PublicarOfertaDeCatalogo` valida vendibilidad y precio vigente, persiste oferta/variantes y publica `CatalogOfferPublished` para consumidores `order`, `inventory` y `reporting` |
 | Contratos relevantes | API de busqueda/detalle de oferta, API de resolucion de variante para checkout, eventos de oferta y precio |
 | Persistencia dominante | `product`, `variant`, `price`, `variant_attribute`, `catalog_audit`, `outbox_event`, `processed_event` |
-| Consideraciones de seguridad | RBAC de operacion comercial para mutaciones, controles de idempotencia en cambios masivos de precio, validacion de `tenant` en query y write |
+| Consideraciones de seguridad | RBAC de operacion comercial para mutaciones, controles de idempotencia en cambios masivos de precio, validacion de `organization` en query y write |
 | Presupuesto base de rendimiento | `p95` resolve variant <= `180 ms`; `p95` search <= `320 ms`; upsert de precio <= `350 ms`; outbox publish <= `250 ms` |
 
 ### `inventory-service` (`Core`)
@@ -323,7 +323,7 @@ flowchart TB
 | Flujo critico de ejecucion | `RecalcularDisponibilidadComprometible` aplica cambios de stock/reserva en transaccion local, recalcula `available = physical - reserved` y publica evento para `order`/`reporting` |
 | Contratos relevantes | API de disponibilidad/reserva/confirmacion/liberacion, API interna de validacion de reservas en checkout, eventos de stock/reserva |
 | Persistencia dominante | `stock_item`, `stock_reservation`, `stock_movement`, `idempotency_record`, `inventory_audit`, `outbox_event`, `processed_event` |
-| Consideraciones de seguridad | permisos granulares para ajustes de stock, uso exclusivo de identidad tecnica para confirmaciones de checkout, bloqueo de acceso cruzado por tenant |
+| Consideraciones de seguridad | permisos granulares para ajustes de stock, uso exclusivo de identidad tecnica para confirmaciones de checkout, bloqueo de acceso cruzado por organization |
 | Presupuesto base de rendimiento | `p95` crear reserva <= `120 ms`; `p95` confirmar reserva <= `150 ms`; `p95` disponibilidad <= `80 ms`; publish outbox <= `250 ms` |
 
 ### `order-service` (`Core`)
@@ -353,8 +353,8 @@ flowchart TB
 |---|---|
 | Arquitectura interna (`C4` L3 equivalente) | listeners de eventos + API read-only + API interna de jobs -> `GenerateWeeklySalesReportHandler` / `GenerateWeeklyReplenishmentReportHandler` y handlers de ingesta -> `ProjectionPolicy`, `FactDedupPolicy` -> repositorios de hechos/proyecciones/artefactos/checkpoints + outbox |
 | Componentes principales | ingesta idempotente de hechos, proyecciones materializadas, generacion semanal de reportes y consulta read-only |
-| Flujo critico de ejecucion | `GenerarReporteSemanalDeVentas` consolida snapshot semanal por tenant, persiste metadata de artefacto y publica `WeeklySalesReportGenerated` |
+| Flujo critico de ejecucion | `GenerarReporteSemanalDeVentas` consolida snapshot semanal por organization, persiste metadata de artefacto y publica `WeeklySalesReportGenerated` |
 | Contratos relevantes | API read-only de reportes semanales/KPI, API interna de rebuild y generacion manual, eventos de reporte semanal |
 | Persistencia dominante | `analytic_fact`, `sales_projection`, `replenishment_projection`, `operations_kpi_projection`, `weekly_report_execution`, `report_artifact`, `consumer_checkpoint`, `outbox_event`, `processed_event` |
-| Consideraciones de seguridad | consulta y artefactos siempre filtrados por tenant owner, ops internas solo con scope `reporting.ops`, validacion de schema/version en eventos consumidos |
+| Consideraciones de seguridad | consulta y artefactos siempre filtrados por organization owner, ops internas solo con scope `reporting.ops`, validacion de schema/version en eventos consumidos |
 | Presupuesto base de rendimiento | ingesta de hecho <= `220 ms` p95; consultas semanales <= `550-600 ms` p95; reporte semanal <= `15 min`; rebuild 10k hechos <= `8 min` |

@@ -35,17 +35,17 @@ public class StockReservationR2dbcAdapter implements StockReservationPersistence
     }
 
     @Override
-    public Mono<StockReservation> findById(String tenantId, String reservationId) {
-        return repository.findByTenantAndId(tenantId, reservationId).map(rowMapper::toDomain);
+    public Mono<StockReservation> findById(String organizationId, String reservationId) {
+        return repository.findByOrganizationAndId(organizationId, reservationId).map(rowMapper::toDomain);
     }
 
     @Override
-    public Flux<StockReservation> findByTenantAndCart(String tenantId, String cartId) {
-        return repository.findByTenantAndCart(tenantId, cartId).map(rowMapper::toDomain);
+    public Flux<StockReservation> findByOrganizationAndCart(String organizationId, String cartId) {
+        return repository.findByOrganizationAndCart(organizationId, cartId).map(rowMapper::toDomain);
     }
 
     @Override
-    public Flux<StockReservation> findExpiredActive(String tenantId, Instant now, int limit) {
-        return repository.findExpiredActive(tenantId, now, limit).map(rowMapper::toDomain);
+    public Flux<StockReservation> findExpiredActive(String organizationId, Instant now, int limit) {
+        return repository.findExpiredActive(organizationId, now, limit).map(rowMapper::toDomain);
     }
 }

@@ -12,7 +12,7 @@ Validar journeys de notificacion de punta a punta desde eventos de negocio hasta
 - envio por eventos de Order/Inventory/Reporting.
 - callbacks de proveedor y reconciliacion.
 - retries, descarte y DLQ.
-- seguridad m2m, tenant y callback trust.
+- seguridad m2m, organization y callback trust.
 
 ## Escenarios E2E priorizados
 | ID | Escenario | Flujo | Resultado esperado | Trazabilidad |
@@ -27,7 +27,7 @@ Validar journeys de notificacion de punta a punta desde eventos de negocio hasta
 | NOTI-E2E-008 | callback invalido es rechazado | callback con firma/token invalido | sin mutacion de estado + auditoria seguridad | NFR-005 |
 | NOTI-E2E-009 | retries controlados hasta descarte | fallos retryables sucesivos | `FAILED` -> reintentos -> `DISCARDED` | NFR-007 |
 | NOTI-E2E-010 | reproceso de DLQ recupera mensajes validos | enviar a DLQ -> `reprocess-dlq` | mensajes reaplicados sin duplicidad | NFR-007, NFR-009 |
-| NOTI-E2E-011 | aislamiento tenant en endpoints internos | actor tenant A opera tenant B | rechazo `acceso_cruzado_detectado` | NFR-005 |
+| NOTI-E2E-011 | aislamiento organization en endpoints internos | actor organization A opera organization B | rechazo `acceso_cruzado_detectado` | NFR-005 |
 | NOTI-E2E-012 | dedupe de eventos upstream | replay mismo `eventId` | segundo consumo `noop idempotente` | NFR-009 |
 | NOTI-E2E-013 | resiliencia provider timeout | provider timeout masivo | backlog controlado + no rollback core | NFR-007 |
 | NOTI-E2E-014 | trazabilidad tecnica completa | evento negocio -> envio/callback | cadena `evento->request->attempt->outbox->evento` correlacionada | NFR-006 |

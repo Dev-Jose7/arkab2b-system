@@ -6,14 +6,14 @@ import com.arka.reporting.domain.analyticfact.exception.FactAlreadyAppliedExcept
 import com.arka.reporting.domain.analyticfact.exception.InvalidAnalyticFactTransitionException;
 import com.arka.reporting.domain.analyticfact.valueobject.FactId;
 import com.arka.reporting.domain.analyticfact.valueobject.SourceEventId;
-import com.arka.reporting.domain.analyticfact.valueobject.TenantId;
+import com.arka.reporting.domain.analyticfact.valueobject.OrganizationId;
 import com.arka.reporting.domain.shared.exception.DomainInvariantViolationException;
 import java.time.Instant;
 
 public final class AnalyticFact {
 
     private final FactId factId;
-    private final TenantId tenantId;
+    private final OrganizationId organizationId;
     private final SourceEventId sourceEventId;
     private final String eventType;
     private final Instant occurredAt;
@@ -28,7 +28,7 @@ public final class AnalyticFact {
 
     private AnalyticFact(
             FactId factId,
-            TenantId tenantId,
+            OrganizationId organizationId,
             SourceEventId sourceEventId,
             String eventType,
             AnalyticFactType factType,
@@ -40,7 +40,7 @@ public final class AnalyticFact {
             Instant createdAt,
             Instant updatedAt) {
         this.factId = factId;
-        this.tenantId = tenantId;
+        this.organizationId = organizationId;
         this.sourceEventId = sourceEventId;
         this.eventType = required(eventType, "eventType");
         this.factType = factType == null ? AnalyticFactType.GENERIC : factType;
@@ -54,7 +54,7 @@ public final class AnalyticFact {
     }
 
     public static AnalyticFact capture(
-            TenantId tenantId,
+            OrganizationId organizationId,
             SourceEventId sourceEventId,
             String eventType,
             AnalyticFactType factType,
@@ -63,7 +63,7 @@ public final class AnalyticFact {
             Instant now) {
         return new AnalyticFact(
                 FactId.newId(),
-                tenantId,
+                organizationId,
                 sourceEventId,
                 eventType,
                 factType,
@@ -78,7 +78,7 @@ public final class AnalyticFact {
 
     public static AnalyticFact rehydrate(
             FactId factId,
-            TenantId tenantId,
+            OrganizationId organizationId,
             SourceEventId sourceEventId,
             String eventType,
             AnalyticFactType factType,
@@ -91,7 +91,7 @@ public final class AnalyticFact {
             Instant updatedAt) {
         return new AnalyticFact(
                 factId,
-                tenantId,
+                organizationId,
                 sourceEventId,
                 eventType,
                 factType,
@@ -153,8 +153,8 @@ public final class AnalyticFact {
         return factId;
     }
 
-    public TenantId tenantId() {
-        return tenantId;
+    public OrganizationId organizationId() {
+        return organizationId;
     }
 
     public SourceEventId sourceEventId() {

@@ -47,11 +47,7 @@ class RedisCheckoutAttemptCacheAdapterTest {
                 new RedisCheckoutAttemptCacheAdapter(redisTemplate, objectMapper, meterRegistryProvider, 300);
 
         CheckoutAttemptResult result = new CheckoutAttemptResult(
-                "att-1",
-                "corr-1",
-                "tenant-1",
-                "org-1",
-                "user-1",
+                "att-1", "corr-1", "organization-1", "user-1",
                 "cart-1",
                 "VALID",
                 "addr-1",
@@ -61,7 +57,7 @@ class RedisCheckoutAttemptCacheAdapterTest {
                 List.of(),
                 Instant.parse("2026-01-01T00:00:00Z"),
                 Instant.parse("2026-01-01T00:05:00Z"));
-        String key = "order:checkout-attempt:tenant-1:corr-1";
+        String key = "order:checkout-attempt:organization-1:corr-1";
 
         when(valueOperations.set(eq(key), any(String.class), eq(Duration.ofSeconds(300))))
                 .thenReturn(Mono.just(Boolean.TRUE));
@@ -73,11 +69,11 @@ class RedisCheckoutAttemptCacheAdapterTest {
 
         when(valueOperations.get(key)).thenReturn(Mono.just(payloadCaptor.getValue()));
 
-        StepVerifier.create(adapter.findByCorrelation("tenant-1", "corr-1"))
+        StepVerifier.create(adapter.findByCorrelation("organization-1", "corr-1"))
                 .assertNext(found -> {
                     assertEquals("att-1", found.checkoutAttemptId());
                     assertEquals("corr-1", found.checkoutCorrelationId());
-                    assertEquals("tenant-1", found.tenantId());
+                    assertEquals("organization-1", found.organizationId());
                 })
                 .verifyComplete();
     }
@@ -88,12 +84,12 @@ class RedisCheckoutAttemptCacheAdapterTest {
         SimpleMeterRegistry meterRegistry = new SimpleMeterRegistry();
         when(meterRegistryProvider.getIfAvailable()).thenReturn(meterRegistry);
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-        when(valueOperations.get("order:checkout-attempt:tenant-1:corr-1")).thenReturn(Mono.empty());
+        when(valueOperations.get("order:checkout-attempt:organization-1:corr-1")).thenReturn(Mono.empty());
 
         RedisCheckoutAttemptCacheAdapter adapter =
                 new RedisCheckoutAttemptCacheAdapter(redisTemplate, objectMapper, meterRegistryProvider, 300);
 
-        StepVerifier.create(adapter.findByCorrelation("tenant-1", "corr-1")).verifyComplete();
+        StepVerifier.create(adapter.findByCorrelation("organization-1", "corr-1")).verifyComplete();
     }
 
     @Test
@@ -102,13 +98,13 @@ class RedisCheckoutAttemptCacheAdapterTest {
         SimpleMeterRegistry meterRegistry = new SimpleMeterRegistry();
         when(meterRegistryProvider.getIfAvailable()).thenReturn(meterRegistry);
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-        when(valueOperations.get("order:checkout-attempt:tenant-1:corr-1"))
+        when(valueOperations.get("order:checkout-attempt:organization-1:corr-1"))
                 .thenReturn(Mono.error(new RuntimeException("redis-down")));
 
         RedisCheckoutAttemptCacheAdapter adapter =
                 new RedisCheckoutAttemptCacheAdapter(redisTemplate, objectMapper, meterRegistryProvider, 300);
 
-        StepVerifier.create(adapter.findByCorrelation("tenant-1", "corr-1")).verifyComplete();
+        StepVerifier.create(adapter.findByCorrelation("organization-1", "corr-1")).verifyComplete();
 
         assertEquals(
                 1.0,

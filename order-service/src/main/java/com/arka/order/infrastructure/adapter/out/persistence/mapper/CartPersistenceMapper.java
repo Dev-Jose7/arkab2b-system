@@ -14,7 +14,6 @@ public class CartPersistenceMapper {
     public CartEntity toEntity(Cart cart) {
         return new CartEntity(
                 cart.cartId(),
-                cart.tenantId(),
                 cart.organizationId(),
                 cart.userId(),
                 cart.status().name(),
@@ -31,7 +30,6 @@ public class CartPersistenceMapper {
         return new CartItemEntity(
                 item.cartItemId(),
                 item.cartId(),
-                item.tenantId(),
                 item.organizationId(),
                 item.variantId(),
                 item.sku(),
@@ -47,7 +45,6 @@ public class CartPersistenceMapper {
     public Cart toDomain(CartEntity cart, List<CartItemEntity> items) {
         return Cart.rehydrate(
                 cart.cartId(),
-                cart.tenantId(),
                 cart.organizationId(),
                 cart.userId(),
                 CartStatus.valueOf(cart.status()),
@@ -61,7 +58,6 @@ public class CartPersistenceMapper {
         return new CartItem(
                 item.cartItemId(),
                 item.cartId(),
-                item.tenantId(),
                 item.organizationId(),
                 item.variantId(),
                 item.sku(),

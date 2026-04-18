@@ -1,7 +1,7 @@
 package com.arka.reporting.application.command;
 
 public record GenerateWeeklyReplenishmentReportCommand(
-        String tenantId,
+        String organizationId,
         String actorId,
         String weekId,
         String format,

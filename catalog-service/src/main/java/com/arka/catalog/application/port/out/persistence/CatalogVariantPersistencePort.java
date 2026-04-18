@@ -3,7 +3,7 @@ package com.arka.catalog.application.port.out.persistence;
 import com.arka.catalog.domain.catalogoffer.entity.Variant;
 import com.arka.catalog.domain.catalogoffer.entity.VariantAttribute;
 import com.arka.catalog.domain.catalogoffer.valueobject.ProductId;
-import com.arka.catalog.domain.catalogoffer.valueobject.TenantId;
+import com.arka.catalog.domain.catalogoffer.valueobject.OrganizationId;
 import com.arka.catalog.domain.catalogoffer.valueobject.VariantId;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -14,15 +14,15 @@ public interface CatalogVariantPersistencePort {
 
     Mono<Variant> update(Variant variant);
 
-    Mono<Variant> findById(TenantId tenantId, VariantId variantId);
+    Mono<Variant> findById(OrganizationId organizationId, VariantId variantId);
 
-    Mono<Variant> findBySku(TenantId tenantId, String sku);
+    Mono<Variant> findBySku(OrganizationId organizationId, String sku);
 
-    Flux<Variant> findByProductId(TenantId tenantId, ProductId productId);
+    Flux<Variant> findByProductId(OrganizationId organizationId, ProductId productId);
 
-    Flux<VariantAttribute> findAttributes(TenantId tenantId, VariantId variantId);
+    Flux<VariantAttribute> findAttributes(OrganizationId organizationId, VariantId variantId);
 
-    Mono<Void> replaceAttributes(TenantId tenantId, VariantId variantId, Iterable<VariantAttribute> attributes);
+    Mono<Void> replaceAttributes(OrganizationId organizationId, VariantId variantId, Iterable<VariantAttribute> attributes);
 
-    Mono<Boolean> existsSellableSku(TenantId tenantId, String sku, String excludingVariantId);
+    Mono<Boolean> existsSellableSku(OrganizationId organizationId, String sku, String excludingVariantId);
 }

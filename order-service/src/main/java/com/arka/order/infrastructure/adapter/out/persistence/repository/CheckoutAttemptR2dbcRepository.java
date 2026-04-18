@@ -10,8 +10,8 @@ public interface CheckoutAttemptR2dbcRepository extends ReactiveCrudRepository<C
     @Query("""
             SELECT *
             FROM checkout_attempts
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND checkout_correlation_id = :checkoutCorrelationId
             """)
-    Mono<CheckoutAttemptEntity> findByCorrelation(String tenantId, String checkoutCorrelationId);
+    Mono<CheckoutAttemptEntity> findByCorrelation(String organizationId, String checkoutCorrelationId);
 }

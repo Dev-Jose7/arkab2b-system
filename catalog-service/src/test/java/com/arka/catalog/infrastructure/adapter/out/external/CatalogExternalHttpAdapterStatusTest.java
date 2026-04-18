@@ -18,40 +18,40 @@ class CatalogExternalHttpAdapterStatusTest {
     @Test
     void identityLegitimacyShouldReturnFalseOn404AndErrorOnOther4xx5xx() {
         IdentityActorLegitimacyHttpAdapter notFound = legitimacyAdapter(HttpStatus.NOT_FOUND, "{\"error\":\"not-found\"}");
-        StepVerifier.create(notFound.isLegitimate("actor-1", "tenant-1"))
+        StepVerifier.create(notFound.isLegitimate("actor-1", "organization-1"))
                 .expectNext(false)
                 .verifyComplete();
 
         IdentityActorLegitimacyHttpAdapter badRequest = legitimacyAdapter(HttpStatus.BAD_REQUEST, "{\"error\":\"bad\"}");
-        StepVerifier.create(badRequest.isLegitimate("actor-1", "tenant-1"))
+        StepVerifier.create(badRequest.isLegitimate("actor-1", "organization-1"))
                 .expectError(IllegalArgumentException.class)
                 .verify();
 
         IdentityActorLegitimacyHttpAdapter unauthorized =
                 legitimacyAdapter(HttpStatus.UNAUTHORIZED, "{\"error\":\"unauthorized\"}");
-        StepVerifier.create(unauthorized.isLegitimate("actor-1", "tenant-1"))
+        StepVerifier.create(unauthorized.isLegitimate("actor-1", "organization-1"))
                 .expectError(SecurityException.class)
                 .verify();
 
         IdentityActorLegitimacyHttpAdapter forbidden = legitimacyAdapter(HttpStatus.FORBIDDEN, "{\"error\":\"forbidden\"}");
-        StepVerifier.create(forbidden.isLegitimate("actor-1", "tenant-1"))
+        StepVerifier.create(forbidden.isLegitimate("actor-1", "organization-1"))
                 .expectError(SecurityException.class)
                 .verify();
 
         IdentityActorLegitimacyHttpAdapter conflict = legitimacyAdapter(HttpStatus.CONFLICT, "{\"error\":\"conflict\"}");
-        StepVerifier.create(conflict.isLegitimate("actor-1", "tenant-1"))
+        StepVerifier.create(conflict.isLegitimate("actor-1", "organization-1"))
                 .expectError(IllegalStateException.class)
                 .verify();
 
         IdentityActorLegitimacyHttpAdapter unprocessable =
                 legitimacyAdapter(HttpStatus.UNPROCESSABLE_ENTITY, "{\"error\":\"unprocessable\"}");
-        StepVerifier.create(unprocessable.isLegitimate("actor-1", "tenant-1"))
+        StepVerifier.create(unprocessable.isLegitimate("actor-1", "organization-1"))
                 .expectError(IllegalStateException.class)
                 .verify();
 
         IdentityActorLegitimacyHttpAdapter serverError =
                 legitimacyAdapter(HttpStatus.INTERNAL_SERVER_ERROR, "{\"error\":\"boom\"}");
-        StepVerifier.create(serverError.isLegitimate("actor-1", "tenant-1"))
+        StepVerifier.create(serverError.isLegitimate("actor-1", "organization-1"))
                 .expectError(IllegalStateException.class)
                 .verify();
     }
@@ -64,7 +64,7 @@ class CatalogExternalHttpAdapterStatusTest {
                 {"policyId":"policy-1","currencyCode":"usd","status":"ACTIVE"}
                 """,
                 "/api/v1/organizations/{organizationId}/country-policies/{countryCode}");
-        StepVerifier.create(ok.resolveForTenant("tenant-1", "co"))
+        StepVerifier.create(ok.resolveForOrganization("organization-1", "co"))
                 .assertNext(context -> {
                     assertEquals("policy-1", context.policyReference());
                     assertEquals("CO", context.countryCode());
@@ -76,13 +76,13 @@ class CatalogExternalHttpAdapterStatusTest {
                 HttpStatus.NOT_FOUND,
                 "{\"error\":\"not-found\"}",
                 "/api/v1/organizations/{organizationId}/country-policies/{countryCode}");
-        StepVerifier.create(notFound.resolveForTenant("tenant-1", "CO")).verifyComplete();
+        StepVerifier.create(notFound.resolveForOrganization("organization-1", "CO")).verifyComplete();
 
         DirectoryRegionalPolicyContextHttpAdapter badRequest = policyAdapter(
                 HttpStatus.BAD_REQUEST,
                 "{\"error\":\"bad\"}",
                 "/api/v1/organizations/{organizationId}/country-policies/{countryCode}");
-        StepVerifier.create(badRequest.resolveForTenant("tenant-1", "CO"))
+        StepVerifier.create(badRequest.resolveForOrganization("organization-1", "CO"))
                 .expectError(IllegalArgumentException.class)
                 .verify();
 
@@ -90,7 +90,7 @@ class CatalogExternalHttpAdapterStatusTest {
                 HttpStatus.UNAUTHORIZED,
                 "{\"error\":\"unauthorized\"}",
                 "/api/v1/organizations/{organizationId}/country-policies/{countryCode}");
-        StepVerifier.create(unauthorized.resolveForTenant("tenant-1", "CO"))
+        StepVerifier.create(unauthorized.resolveForOrganization("organization-1", "CO"))
                 .expectError(SecurityException.class)
                 .verify();
 
@@ -98,7 +98,7 @@ class CatalogExternalHttpAdapterStatusTest {
                 HttpStatus.FORBIDDEN,
                 "{\"error\":\"forbidden\"}",
                 "/api/v1/organizations/{organizationId}/country-policies/{countryCode}");
-        StepVerifier.create(forbidden.resolveForTenant("tenant-1", "CO"))
+        StepVerifier.create(forbidden.resolveForOrganization("organization-1", "CO"))
                 .expectError(SecurityException.class)
                 .verify();
 
@@ -106,7 +106,7 @@ class CatalogExternalHttpAdapterStatusTest {
                 HttpStatus.CONFLICT,
                 "{\"error\":\"conflict\"}",
                 "/api/v1/organizations/{organizationId}/country-policies/{countryCode}");
-        StepVerifier.create(conflict.resolveForTenant("tenant-1", "CO"))
+        StepVerifier.create(conflict.resolveForOrganization("organization-1", "CO"))
                 .expectError(IllegalStateException.class)
                 .verify();
 
@@ -114,7 +114,7 @@ class CatalogExternalHttpAdapterStatusTest {
                 HttpStatus.UNPROCESSABLE_ENTITY,
                 "{\"error\":\"unprocessable\"}",
                 "/api/v1/organizations/{organizationId}/country-policies/{countryCode}");
-        StepVerifier.create(unprocessable.resolveForTenant("tenant-1", "CO"))
+        StepVerifier.create(unprocessable.resolveForOrganization("organization-1", "CO"))
                 .expectError(IllegalStateException.class)
                 .verify();
 
@@ -122,7 +122,7 @@ class CatalogExternalHttpAdapterStatusTest {
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "{\"error\":\"boom\"}",
                 "/api/v1/organizations/{organizationId}/country-policies/{countryCode}");
-        StepVerifier.create(serverError.resolveForTenant("tenant-1", "CO"))
+        StepVerifier.create(serverError.resolveForOrganization("organization-1", "CO"))
                 .expectError(IllegalStateException.class)
                 .verify();
     }
@@ -146,8 +146,8 @@ class CatalogExternalHttpAdapterStatusTest {
                 "COP",
                 3_000);
 
-        StepVerifier.create(adapter.resolveForTenant("tenant-1", "CO")).verifyComplete();
-        assertEquals("/api/v1/organizations/tenant-1/country-policies/CO", capturedPath.get());
+        StepVerifier.create(adapter.resolveForOrganization("organization-1", "CO")).verifyComplete();
+        assertEquals("/api/v1/internal/organizations/organization-1/country-policies/CO", capturedPath.get());
     }
 
     private IdentityActorLegitimacyHttpAdapter legitimacyAdapter(HttpStatus status, String body) {

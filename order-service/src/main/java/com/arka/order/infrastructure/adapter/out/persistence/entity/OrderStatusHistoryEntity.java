@@ -8,7 +8,7 @@ import org.springframework.data.relational.core.mapping.Table;
 public record OrderStatusHistoryEntity(
         @Id String statusHistoryId,
         String orderId,
-        String tenantId,
+        String organizationId,
         String actorUserId,
         String fromStatus,
         String toStatus,

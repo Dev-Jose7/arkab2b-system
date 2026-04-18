@@ -1,6 +1,16 @@
 spring:
   application:
     name: ${SPRING_APPLICATION_NAME:notification-service}
+  config:
+    import: "optional:configserver:${APP_CONFIG_SERVER_URI:http://localhost:8888}"
+  cloud:
+    config:
+      enabled: ${APP_CONFIG_ENABLED:true}
+      fail-fast: ${APP_CONFIG_FAIL_FAST:false}
+      label: ${APP_CONFIG_LABEL:main}
+      discovery:
+        enabled: ${APP_CONFIG_DISCOVERY_ENABLED:false}
+        service-id: ${APP_CONFIG_DISCOVERY_SERVICE_ID:config-server}
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
@@ -23,7 +33,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: ${MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE:health,info,metrics}
+        include: ${MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE:health,info,metrics,prometheus}
   endpoint:
     health:
       probes:
@@ -60,7 +70,7 @@ logging:
 springdoc:
   api-docs:
     enabled: ${SPRINGDOC_API_DOCS_ENABLED:true}
-    path: ${SPRINGDOC_API_DOCS_PATH:/v3/api-docs}
+    path: ${SPRINGDOC_API_DOCS_PATH:/v1/api-docs}
   swagger-ui:
     enabled: ${SPRINGDOC_SWAGGER_UI_ENABLED:true}
     path: ${SPRINGDOC_SWAGGER_UI_PATH:/swagger-ui.html}
@@ -82,11 +92,24 @@ app:
       enabled: ${APP_DEP_KAFKA_ENABLED:true}
   security:
     jwt:
-      public-key-path: ${APP_SECURITY_JWT_PUBLIC_KEY_PATH:classpath:keys/dev-public.pem}
+      issuer: ${APP_SECURITY_JWT_ISSUER:identity-access-service}
+      allowed-audiences: ${APP_SECURITY_JWT_ALLOWED_AUDIENCES:arka-b2b,notification-service}
+      clock-skew-seconds: ${APP_SECURITY_JWT_CLOCK_SKEW_SECONDS:60}
+      jwks-uri: ${APP_SECURITY_JWT_JWKS_URI:http://localhost:8081/.well-known/jwks.json}
+    s2s:
+      enabled: ${APP_SECURITY_S2S_ENABLED:true}
+      client-id: ${APP_SECURITY_S2S_CLIENT_ID:${spring.application.name}}
+      client-secret: ${APP_SECURITY_S2S_CLIENT_SECRET:}
+      audience: ${APP_SECURITY_S2S_AUDIENCE:arka-b2b}
+      scopes: ${APP_SECURITY_S2S_SCOPES:notification.dispatch,directory.read,order.read,inventory.read,iam.permission.read}
+      identity-base-url: ${APP_SECURITY_S2S_IDENTITY_BASE_URL:${app.external.identity.base-url:http://identity-access-service}}
+      token-path: ${APP_SECURITY_S2S_TOKEN_PATH:/api/v1/internal/auth/service-token}
+      timeout-ms: ${APP_SECURITY_S2S_TIMEOUT_MS:2000}
+      refresh-skew-seconds: ${APP_SECURITY_S2S_REFRESH_SKEW_SECONDS:30}
     actor:
       fallback-enabled: ${APP_SECURITY_ACTOR_FALLBACK_ENABLED:false}
       fallback-actor-id: ${APP_SECURITY_ACTOR_FALLBACK_ACTOR_ID:notification-scheduler}
-      fallback-tenant-id: ${APP_SECURITY_ACTOR_FALLBACK_TENANT_ID:}
+      fallback-organization-id: 
       fallback-country-code: ${APP_SECURITY_ACTOR_FALLBACK_COUNTRY_CODE:}
   redis:
     cache:
@@ -100,7 +123,7 @@ app:
       order-events:
         enabled: ${APP_KAFKA_CONSUMER_ORDER_EVENTS_ENABLED:true}
         group-id: ${APP_KAFKA_CONSUMER_ORDER_EVENTS_GROUP_ID:notification-order-events-consumer}
-        topics: ${APP_KAFKA_CONSUMER_ORDER_EVENTS_TOPICS:order.events.v1,order.cart.events.v1,inventory.stock-updated.v1,inventory.commitable-availability-recalculated.v1,inventory.mutation.v1}
+        topics: ${APP_KAFKA_CONSUMER_ORDER_EVENTS_TOPICS:order.events.v1,order.cart.events.v1,inventory.stock-updated.v1,inventory.commitable-availability-recalculated.v1}
         channel: ${APP_KAFKA_CONSUMER_ORDER_EVENTS_CHANNEL:EMAIL}
         actor-id: ${APP_KAFKA_CONSUMER_ORDER_EVENTS_ACTOR_ID:notification-kafka-consumer}
         processing-timeout-ms: ${APP_KAFKA_CONSUMER_ORDER_EVENTS_PROCESSING_TIMEOUT_MS:8000}
@@ -126,18 +149,18 @@ app:
       base-url: ${APP_EXTERNAL_IDENTITY_BASE_URL:http://localhost:8081}
       service-token: ${APP_EXTERNAL_IDENTITY_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
       timeout-ms: ${APP_EXTERNAL_IDENTITY_TIMEOUT_MS:3000}
-      actor-legitimacy-path: ${APP_EXTERNAL_IDENTITY_ACTOR_LEGITIMACY_PATH:/api/v1/admin/iam/users/{actorId}/permissions}
+      actor-legitimacy-path: ${APP_EXTERNAL_IDENTITY_ACTOR_LEGITIMACY_PATH:/api/v1/internal/iam/users/{actorId}/permissions}
     directory:
       base-url: ${APP_EXTERNAL_DIRECTORY_BASE_URL:http://localhost:8082}
       service-token: ${APP_EXTERNAL_DIRECTORY_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
       timeout-ms: ${APP_EXTERNAL_DIRECTORY_TIMEOUT_MS:3000}
-      contacts-path: ${APP_EXTERNAL_DIRECTORY_CONTACTS_PATH:/api/v1/organizations/{organizationId}/contacts}
+      contacts-path: ${APP_EXTERNAL_DIRECTORY_CONTACTS_PATH:/api/v1/internal/organizations/{organizationId}/contacts}
     order:
       base-url: ${APP_EXTERNAL_ORDER_BASE_URL:http://localhost:8085}
       service-token: ${APP_EXTERNAL_ORDER_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
       timeout-ms: ${APP_EXTERNAL_ORDER_TIMEOUT_MS:3000}
-      order-path: ${APP_EXTERNAL_ORDER_ORDER_PATH:}
-      cart-path: ${APP_EXTERNAL_ORDER_CART_PATH:}
+      order-path: ${APP_EXTERNAL_ORDER_ORDER_PATH:/api/v1/internal/orders/{orderId}/organization-context}
+      cart-path: ${APP_EXTERNAL_ORDER_CART_PATH:/api/v1/internal/carts/{cartId}/organization-context}
     provider:
       base-url: ${APP_EXTERNAL_PROVIDER_BASE_URL:http://notification-provider:8088}
       auth-token: ${APP_EXTERNAL_PROVIDER_AUTH_TOKEN:}

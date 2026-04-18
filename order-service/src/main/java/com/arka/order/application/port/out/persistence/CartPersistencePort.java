@@ -5,9 +5,9 @@ import reactor.core.publisher.Mono;
 
 public interface CartPersistencePort {
 
-    Mono<Cart> findById(String tenantId, String cartId);
+    Mono<Cart> findById(String organizationId, String cartId);
 
-    Mono<Cart> findActiveByTenantOrganizationUser(String tenantId, String organizationId, String userId);
+    Mono<Cart> findActiveByOrganizationUser(String organizationId, String userId);
 
     Mono<Cart> save(Cart cart);
 

@@ -5,14 +5,14 @@ import com.arka.reporting.domain.weeklyreportexecution.enumtype.WeeklyReportExec
 import com.arka.reporting.domain.weeklyreportexecution.exception.WeeklyReportExecutionArtifactRequiredException;
 import com.arka.reporting.domain.weeklyreportexecution.exception.WeeklyReportExecutionTransitionException;
 import com.arka.reporting.domain.weeklyreportexecution.valueobject.ExecutionId;
-import com.arka.reporting.domain.weeklyreportexecution.valueobject.TenantId;
+import com.arka.reporting.domain.weeklyreportexecution.valueobject.OrganizationId;
 import com.arka.reporting.domain.weeklyreportexecution.valueobject.WeekId;
 import java.time.Instant;
 
 public final class WeeklyReportExecution {
 
     private final ExecutionId executionId;
-    private final TenantId tenantId;
+    private final OrganizationId organizationId;
     private final WeekId weekId;
     private final ReportType reportType;
     private final Instant createdAt;
@@ -28,7 +28,7 @@ public final class WeeklyReportExecution {
 
     private WeeklyReportExecution(
             ExecutionId executionId,
-            TenantId tenantId,
+            OrganizationId organizationId,
             WeekId weekId,
             ReportType reportType,
             WeeklyReportExecutionStatus status,
@@ -41,7 +41,7 @@ public final class WeeklyReportExecution {
             Instant completedAt,
             Instant updatedAt) {
         this.executionId = executionId;
-        this.tenantId = tenantId;
+        this.organizationId = organizationId;
         this.weekId = weekId;
         this.reportType = reportType;
         this.status = status;
@@ -56,13 +56,13 @@ public final class WeeklyReportExecution {
     }
 
     public static WeeklyReportExecution pending(
-            TenantId tenantId,
+            OrganizationId organizationId,
             WeekId weekId,
             ReportType reportType,
             Instant now) {
         return new WeeklyReportExecution(
                 ExecutionId.newId(),
-                tenantId,
+                organizationId,
                 weekId,
                 reportType,
                 WeeklyReportExecutionStatus.PENDING,
@@ -78,7 +78,7 @@ public final class WeeklyReportExecution {
 
     public static WeeklyReportExecution rehydrate(
             ExecutionId executionId,
-            TenantId tenantId,
+            OrganizationId organizationId,
             WeekId weekId,
             ReportType reportType,
             WeeklyReportExecutionStatus status,
@@ -92,7 +92,7 @@ public final class WeeklyReportExecution {
             Instant updatedAt) {
         return new WeeklyReportExecution(
                 executionId,
-                tenantId,
+                organizationId,
                 weekId,
                 reportType,
                 status,
@@ -149,8 +149,8 @@ public final class WeeklyReportExecution {
         return executionId;
     }
 
-    public TenantId tenantId() {
-        return tenantId;
+    public OrganizationId organizationId() {
+        return organizationId;
     }
 
     public WeekId weekId() {

@@ -4,14 +4,14 @@ import java.time.Instant;
 
 public final class NotificationDeliveryRecorded extends AbstractNotificationDomainEvent {
 
-    private final String tenantId;
+    private final String organizationId;
     private final String attemptId;
     private final String providerCode;
     private final String providerRef;
 
     public NotificationDeliveryRecorded(
             String notificationId,
-            String tenantId,
+            String organizationId,
             String attemptId,
             String providerCode,
             String providerRef,
@@ -21,14 +21,14 @@ public final class NotificationDeliveryRecorded extends AbstractNotificationDoma
                 "NotificationDispatch",
                 notificationId,
                 occurredAt);
-        this.tenantId = tenantId;
+        this.organizationId = organizationId;
         this.attemptId = attemptId;
         this.providerCode = providerCode;
         this.providerRef = providerRef;
     }
 
-    public String tenantId() {
-        return tenantId;
+    public String organizationId() {
+        return organizationId;
     }
 
     public String attemptId() {

@@ -7,8 +7,8 @@ import org.springframework.data.relational.core.mapping.Table;
 @Table("checkout_attempts")
 public record CheckoutAttemptEntity(
         @Id String checkoutAttemptId,
-        String tenantId,
         String organizationId,
+
         String userId,
         String cartId,
         String checkoutCorrelationId,

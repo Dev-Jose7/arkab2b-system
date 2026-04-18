@@ -32,7 +32,6 @@ public class OrderResponseMapper {
     public CartResponse toResponse(CartResult result) {
         return new CartResponse(
                 result.cartId(),
-                result.tenantId(),
                 result.organizationId(),
                 result.userId(),
                 result.status(),
@@ -47,7 +46,6 @@ public class OrderResponseMapper {
         return new CheckoutAttemptResponse(
                 result.checkoutAttemptId(),
                 result.checkoutCorrelationId(),
-                result.tenantId(),
                 result.organizationId(),
                 result.userId(),
                 result.cartId(),
@@ -65,7 +63,6 @@ public class OrderResponseMapper {
         return new OrderResponse(
                 result.orderId(),
                 result.orderNumber(),
-                result.tenantId(),
                 result.organizationId(),
                 result.userId(),
                 result.cartId(),
@@ -133,7 +130,6 @@ public class OrderResponseMapper {
 
     public OrderAuditResponse toResponse(OrderAuditResult result) {
         return new OrderAuditResponse(
-                result.tenantId(),
                 result.organizationId(),
                 result.orderId(),
                 result.entries().stream().map(this::toResponse).toList());
@@ -179,7 +175,6 @@ public class OrderResponseMapper {
     private OrderAuditEntryResponse toResponse(OrderAuditEntryResult result) {
         return new OrderAuditEntryResponse(
                 result.auditId(),
-                result.tenantId(),
                 result.organizationId(),
                 result.actorUserId(),
                 result.actionType(),

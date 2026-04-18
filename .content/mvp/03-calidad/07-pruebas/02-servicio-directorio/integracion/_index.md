@@ -43,11 +43,11 @@ Validar contratos REST/eventos, persistencia y adapters del servicio, incluyendo
 | DIR-IT-020 | consumo `RoleAssigned` | reconciliar profile local | upsert `organization_user_profile` + registro en `processed_event` | FR-009 |
 | DIR-IT-021 | consumo `UserBlocked` | inactivar profile local | profile `INACTIVE` + `processed_event` + auditoria | FR-009, NFR-005 |
 | DIR-IT-022 | dedupe evento IAM duplicado | mismo `eventId` dos veces | segundo consumo `noop idempotente` | NFR-009 |
-| DIR-IT-023 | control tenant/ownership en mutaciones | actor tenant A sobre org tenant B | rechazo 403/409 + sin cambios DB | NFR-005, I-ACC-02, D-CROSS-01 |
+| DIR-IT-023 | control organization/ownership en mutaciones | actor organization A sobre org organization B | rechazo 403/409 + sin cambios DB | NFR-005, I-ACC-02, D-CROSS-01 |
 | DIR-IT-024 | propagacion `traceId/correlationId` | mutacion + evento de salida | ids presentes en response, audit y outbox | NFR-006 |
 | DIR-IT-025 | masking PII en listados/summary | consultas de contactos/datos legales | valores sensibles enmascarados | NFR-010, seguridad Directory |
 
 ## Criterio de exito integracion
 - Escenarios `DIR-IT-001..025` disenados para verificar ausencia de breaking en contratos `v1`.
 - Outbox, dedupe y auditoria disenados para verificarse con evidencia persistida durante la corrida.
-- En corrida de certificacion, no deben ocurrir mutaciones cross-tenant.
+- En corrida de certificacion, no deben ocurrir mutaciones cross-organization.

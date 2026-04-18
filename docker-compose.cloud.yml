@@ -1,0 +1,112 @@
+services:
+  redis:
+    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
+    volumes:
+      - arkab2b-redis-data:/data
+
+  kafka:
+    environment:
+      KAFKA_LISTENERS: PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+
+  eureka-server:
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+  config-server:
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+  identity-access-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      APP_DOCKER_R2DBC_URL: "r2dbc:postgresql://postgres:5432/identity_access"
+      APP_DOCKER_R2DBC_USERNAME: "identity_access"
+      APP_DOCKER_R2DBC_PASSWORD: "identity_access"
+      APP_DOCKER_REDIS_HOST: redis
+      APP_DOCKER_REDIS_PORT: "6379"
+      APP_DOCKER_REDIS_PASSWORD: ""
+      APP_DOCKER_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+      APP_DOCKER_KAFKA_CLIENT_ID: "identity-access-service-cloud"
+      APP_DOCKER_KAFKA_CONSUMER_GROUP_ID: "identity-access-service-cloud"
+
+  directory-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      APP_DOCKER_R2DBC_URL: "r2dbc:postgresql://postgres:5432/directory"
+      APP_DOCKER_R2DBC_USERNAME: "directory"
+      APP_DOCKER_R2DBC_PASSWORD: "directory"
+      APP_DOCKER_REDIS_HOST: redis
+      APP_DOCKER_REDIS_PORT: "6379"
+      APP_DOCKER_REDIS_PASSWORD: ""
+      APP_DOCKER_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+      APP_DOCKER_KAFKA_CLIENT_ID: "directory-service-cloud"
+
+  catalog-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      APP_DOCKER_R2DBC_URL: "r2dbc:postgresql://postgres:5432/arkab2b_catalog"
+      APP_DOCKER_R2DBC_USERNAME: "catalog"
+      APP_DOCKER_R2DBC_PASSWORD: "catalog"
+      APP_DOCKER_REDIS_HOST: redis
+      APP_DOCKER_REDIS_PORT: "6379"
+      APP_DOCKER_REDIS_PASSWORD: ""
+      APP_DOCKER_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+      APP_DOCKER_KAFKA_CLIENT_ID: "catalog-service-cloud"
+
+  inventory-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      APP_DOCKER_R2DBC_URL: "r2dbc:postgresql://postgres:5432/inventory"
+      APP_DOCKER_R2DBC_USERNAME: "inventory"
+      APP_DOCKER_R2DBC_PASSWORD: "inventory"
+      APP_DOCKER_REDIS_HOST: redis
+      APP_DOCKER_REDIS_PORT: "6379"
+      APP_DOCKER_REDIS_PASSWORD: ""
+      APP_DOCKER_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+      APP_DOCKER_KAFKA_CLIENT_ID: "inventory-service-cloud"
+
+  order-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      APP_DOCKER_R2DBC_URL: "r2dbc:postgresql://postgres:5432/order"
+      APP_DOCKER_R2DBC_USERNAME: "order"
+      APP_DOCKER_R2DBC_PASSWORD: "order"
+      APP_DOCKER_REDIS_HOST: redis
+      APP_DOCKER_REDIS_PORT: "6379"
+      APP_DOCKER_REDIS_PASSWORD: ""
+      APP_DOCKER_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+      APP_DOCKER_KAFKA_CLIENT_ID: "order-service-cloud"
+
+  notification-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      APP_DOCKER_R2DBC_URL: "r2dbc:postgresql://postgres:5432/arkab2b_notification"
+      APP_DOCKER_R2DBC_USERNAME: "notification"
+      APP_DOCKER_R2DBC_PASSWORD: "notification"
+      APP_DOCKER_REDIS_HOST: redis
+      APP_DOCKER_REDIS_PORT: "6379"
+      APP_DOCKER_REDIS_PASSWORD: ""
+      APP_DOCKER_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+      APP_DOCKER_KAFKA_CLIENT_ID: "notification-service-cloud"
+
+  reporting-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      APP_DOCKER_R2DBC_URL: "r2dbc:postgresql://postgres:5432/arkab2b_reporting"
+      APP_DOCKER_R2DBC_USERNAME: "reporting"
+      APP_DOCKER_R2DBC_PASSWORD: "reporting"
+      APP_DOCKER_REDIS_HOST: redis
+      APP_DOCKER_REDIS_PORT: "6379"
+      APP_DOCKER_REDIS_PASSWORD: ""
+      APP_DOCKER_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+      APP_DOCKER_KAFKA_CLIENT_ID: "reporting-service-cloud"
+
+  api-gateway:
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+volumes:
+  arkab2b-redis-data:
+    name: arkab2b-redis-data

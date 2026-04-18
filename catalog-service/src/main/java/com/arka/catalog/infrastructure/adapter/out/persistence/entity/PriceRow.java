@@ -10,7 +10,7 @@ import org.springframework.data.relational.core.mapping.Table;
 public record PriceRow(
         @Id
         @Column("price_id") String priceId,
-        @Column("tenant_id") String tenantId,
+        @Column("organization_id") String organizationId,
         @Column("variant_id") String variantId,
         @Column("price_type") String priceType,
         @Column("currency") String currency,

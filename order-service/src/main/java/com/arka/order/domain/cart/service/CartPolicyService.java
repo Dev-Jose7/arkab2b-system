@@ -8,12 +8,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class CartPolicyService {
 
-    public void ensureOwnership(Cart cart, String tenantId, String organizationId, String userId) {
+    public void ensureOwnership(Cart cart, String organizationId, String userId) {
         if (cart == null) {
             throw new DomainInvariantViolationException("cart is required");
-        }
-        if (!cart.tenantId().equals(tenantId)) {
-            throw new DomainInvariantViolationException("tenant isolation violated for cart");
         }
         if (!cart.organizationId().equals(organizationId)) {
             throw new DomainInvariantViolationException("organization isolation violated for cart");

@@ -34,7 +34,7 @@ class NotificationHttpConsumerContractTest {
                     "notification-token",
                     3_000);
 
-            StepVerifier.create(adapter.resolve("tenant-1", "org-5", "EMAIL"))
+            StepVerifier.create(adapter.resolve("organization-1", "org-5", "EMAIL"))
                     .assertNext(resolution -> {
                         assertThat(resolution.recipientRef()).isEqualTo("org-5");
                         assertThat(resolution.channel()).isEqualTo("EMAIL");
@@ -55,7 +55,7 @@ class NotificationHttpConsumerContractTest {
         try (StubHttpServer server = StubHttpServer.responding(
                 200,
                 """
-                {"tenantId":"tenant-8","organizationId":"org-8","userId":"actor-8"}
+                {"organizationId":"organization-8","userId":"actor-8"}
                 """)) {
             OrderContextLookupHttpAdapter adapter = new OrderContextLookupHttpAdapter(
                     WebClient.builder(),
@@ -67,8 +67,7 @@ class NotificationHttpConsumerContractTest {
 
             StepVerifier.create(adapter.resolveByOrderId("ord-8"))
                     .assertNext(context -> {
-                        assertThat(context.tenantId()).isEqualTo("tenant-8");
-                        assertThat(context.organizationId()).isEqualTo("org-8");
+                        assertThat(context.organizationId()).isEqualTo("organization-8");
                         assertThat(context.actorId()).isEqualTo("actor-8");
                     })
                     .verifyComplete();

@@ -8,22 +8,22 @@ import reactor.core.publisher.Mono;
 
 public interface ReactiveVariantRepository extends ReactiveCrudRepository<VariantRow, String> {
 
-    @Query("SELECT * FROM variants WHERE tenant_id = :tenantId AND variant_id = :variantId")
-    Mono<VariantRow> findByTenantAndId(String tenantId, String variantId);
+    @Query("SELECT * FROM variants WHERE organization_id = :organizationId AND variant_id = :variantId")
+    Mono<VariantRow> findByOrganizationAndId(String organizationId, String variantId);
 
-    @Query("SELECT * FROM variants WHERE tenant_id = :tenantId AND UPPER(sku) = UPPER(:sku)")
-    Mono<VariantRow> findByTenantAndSku(String tenantId, String sku);
+    @Query("SELECT * FROM variants WHERE organization_id = :organizationId AND UPPER(sku) = UPPER(:sku)")
+    Mono<VariantRow> findByOrganizationAndSku(String organizationId, String sku);
 
-    @Query("SELECT * FROM variants WHERE tenant_id = :tenantId AND product_id = :productId ORDER BY created_at DESC")
-    Flux<VariantRow> findByTenantAndProduct(String tenantId, String productId);
+    @Query("SELECT * FROM variants WHERE organization_id = :organizationId AND product_id = :productId ORDER BY created_at DESC")
+    Flux<VariantRow> findByOrganizationAndProduct(String organizationId, String productId);
 
     @Query("""
             SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END
             FROM variants
-            WHERE tenant_id = :tenantId
+            WHERE organization_id = :organizationId
               AND UPPER(sku) = UPPER(:sku)
               AND status = 'SELLABLE'
               AND (:excludingVariantId IS NULL OR variant_id <> :excludingVariantId)
             """)
-    Mono<Boolean> existsSellableSku(String tenantId, String sku, String excludingVariantId);
+    Mono<Boolean> existsSellableSku(String organizationId, String sku, String excludingVariantId);
 }
