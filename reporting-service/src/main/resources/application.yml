@@ -1,0 +1,138 @@
+spring:
+  application:
+    name: ${SPRING_APPLICATION_NAME:reporting-service}
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: ${SPRING_KAFKA_CONSUMER_GROUP_ID:reporting-service}
+      auto-offset-reset: ${SPRING_KAFKA_CONSUMER_AUTO_OFFSET_RESET:latest}
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    listener:
+      missing-topics-fatal: ${SPRING_KAFKA_LISTENER_MISSING_TOPICS_FATAL:false}
+  main:
+    web-application-type: reactive
+
+server:
+  port: ${SERVER_PORT:8087}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ${MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE:health,info,metrics}
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: ${MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS:when_authorized}
+      validate-group-membership: false
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState,db,kafka
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+    db:
+      enabled: true
+    redis:
+      enabled: ${APP_DEP_REDIS_ENABLED:true}
+    kafka:
+      enabled: ${APP_DEP_KAFKA_ENABLED:true}
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+logging:
+  level:
+    root: ${LOG_LEVEL_ROOT:INFO}
+    com.arka.reporting: ${LOG_LEVEL_APP:INFO}
+  pattern:
+    console: ${LOG_PATTERN_CONSOLE:%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [%thread] [%X{traceId:-}/%X{correlationId:-}] %logger{36} - %msg%n}
+
+springdoc:
+  api-docs:
+    enabled: ${SPRINGDOC_API_DOCS_ENABLED:true}
+    path: ${SPRINGDOC_API_DOCS_PATH:/v3/api-docs}
+  swagger-ui:
+    enabled: ${SPRINGDOC_SWAGGER_UI_ENABLED:true}
+    path: ${SPRINGDOC_SWAGGER_UI_PATH:/swagger-ui.html}
+    operations-sorter: ${SPRINGDOC_SWAGGER_UI_OPERATIONS_SORTER:alpha}
+    tags-sorter: ${SPRINGDOC_SWAGGER_UI_TAGS_SORTER:alpha}
+
+app:
+  runtime:
+    profile: ${SPRING_PROFILES_ACTIVE:}
+  database:
+    schema:
+      initialize-on-startup: ${APP_DATABASE_SCHEMA_INITIALIZE_ON_STARTUP:false}
+  dependencies:
+    postgres:
+      enabled: ${APP_DEP_POSTGRES_ENABLED:true}
+    redis:
+      enabled: ${APP_DEP_REDIS_ENABLED:true}
+    kafka:
+      enabled: ${APP_DEP_KAFKA_ENABLED:true}
+  security:
+    jwt:
+      public-key-path: ${APP_SECURITY_JWT_PUBLIC_KEY_PATH:classpath:keys/dev-public.pem}
+    actor:
+      fallback-enabled: ${APP_SECURITY_ACTOR_FALLBACK_ENABLED:false}
+      fallback-actor-id: ${APP_SECURITY_ACTOR_FALLBACK_ACTOR_ID:reporting-scheduler}
+      fallback-tenant-id: ${APP_SECURITY_ACTOR_FALLBACK_TENANT_ID:}
+      fallback-country-code: ${APP_SECURITY_ACTOR_FALLBACK_COUNTRY_CODE:}
+  redis:
+    cache:
+      fact-search-ttl-seconds: ${APP_REDIS_CACHE_FACT_SEARCH_TTL_SECONDS:30}
+  kafka:
+    topics:
+      weekly-sales-report-generated: ${APP_KAFKA_TOPIC_WEEKLY_SALES_REPORT_GENERATED:reporting.weekly-sales-report-generated.v1}
+      weekly-replenishment-report-generated: ${APP_KAFKA_TOPIC_WEEKLY_REPLENISHMENT_REPORT_GENERATED:reporting.weekly-replenishment-report-generated.v1}
+      analytic-fact-applied: ${APP_KAFKA_TOPIC_ANALYTIC_FACT_APPLIED:reporting.analytic-fact-applied.v1}
+      reporting-mutation: ${APP_KAFKA_TOPIC_REPORTING_MUTATION:reporting.mutation.v1}
+    consumers:
+      upstream-events:
+        enabled: ${APP_KAFKA_CONSUMER_UPSTREAM_EVENTS_ENABLED:true}
+        group-id: ${APP_KAFKA_CONSUMER_UPSTREAM_EVENTS_GROUP_ID:reporting-upstream-events-consumer}
+        topics: ${APP_KAFKA_CONSUMER_UPSTREAM_EVENTS_TOPICS:directory.regional-policy-configured.v1,directory.regional-policy-applied.v1,directory.entity-mutated.v1,catalog.offer-published.v1,catalog.offer-updated.v1,catalog.mutation.v1,inventory.stock-updated.v1,inventory.commitable-availability-recalculated.v1,inventory.mutation.v1,order.events.v1,order.cart.events.v1,notification.relevant-change-notification-emitted.v1,notification.notification-delivery-recorded.v1,notification.mutation.v1}
+        consumer-name: ${APP_KAFKA_CONSUMER_UPSTREAM_EVENTS_CONSUMER_NAME:reporting-service}
+        actor-id: ${APP_KAFKA_CONSUMER_UPSTREAM_EVENTS_ACTOR_ID:reporting-kafka-consumer}
+        processing-timeout-ms: ${APP_KAFKA_CONSUMER_UPSTREAM_EVENTS_PROCESSING_TIMEOUT_MS:10000}
+        retry-backoff-ms: ${APP_KAFKA_CONSUMER_UPSTREAM_EVENTS_RETRY_BACKOFF_MS:1000}
+        max-retries: ${APP_KAFKA_CONSUMER_UPSTREAM_EVENTS_MAX_RETRIES:3}
+        dlq-suffix: ${APP_KAFKA_CONSUMER_UPSTREAM_EVENTS_DLQ_SUFFIX:.dlq}
+  outbox:
+    relay:
+      enabled: ${APP_OUTBOX_RELAY_ENABLED:true}
+      batch-size: ${APP_OUTBOX_RELAY_BATCH_SIZE:200}
+      poll-interval-ms: ${APP_OUTBOX_RELAY_POLL_INTERVAL_MS:2000}
+      max-retries: ${APP_OUTBOX_RELAY_MAX_RETRIES:3}
+  reporting:
+    rebuild:
+      lag-threshold: ${APP_REPORTING_REBUILD_LAG_THRESHOLD:10000}
+  external:
+    identity:
+      base-url: ${APP_EXTERNAL_IDENTITY_BASE_URL:http://localhost:8081}
+      service-token: ${APP_EXTERNAL_IDENTITY_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
+      timeout-ms: ${APP_EXTERNAL_IDENTITY_TIMEOUT_MS:3000}
+      actor-legitimacy-path: ${APP_EXTERNAL_IDENTITY_ACTOR_LEGITIMACY_PATH:/api/v1/admin/iam/users/{actorId}/permissions}
+    directory:
+      base-url: ${APP_EXTERNAL_DIRECTORY_BASE_URL:http://localhost:8082}
+      service-token: ${APP_EXTERNAL_DIRECTORY_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
+      timeout-ms: ${APP_EXTERNAL_DIRECTORY_TIMEOUT_MS:3000}
+      regional-context-path: ${APP_EXTERNAL_DIRECTORY_REGIONAL_CONTEXT_PATH:}
+    order:
+      base-url: ${APP_EXTERNAL_ORDER_BASE_URL:http://localhost:8085}
+      service-token: ${APP_EXTERNAL_ORDER_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
+      timeout-ms: ${APP_EXTERNAL_ORDER_TIMEOUT_MS:3000}
+      order-path: ${APP_EXTERNAL_ORDER_ORDER_PATH:}
+      cart-path: ${APP_EXTERNAL_ORDER_CART_PATH:}
+    artifact-storage:
+      base-path: ${APP_EXTERNAL_ARTIFACT_STORAGE_BASE_PATH:./build/artifacts/reporting}

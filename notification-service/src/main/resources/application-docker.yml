@@ -1,0 +1,17 @@
+spring:
+  r2dbc:
+    url: ${APP_DOCKER_R2DBC_URL}
+    username: ${APP_DOCKER_R2DBC_USERNAME}
+    password: ${APP_DOCKER_R2DBC_PASSWORD}
+  data:
+    redis:
+      host: ${APP_DOCKER_REDIS_HOST}
+      port: ${APP_DOCKER_REDIS_PORT:6379}
+      password: ${APP_DOCKER_REDIS_PASSWORD:}
+  kafka:
+    bootstrap-servers: ${APP_DOCKER_KAFKA_BOOTSTRAP_SERVERS}
+
+app:
+  database:
+    schema:
+      initialize-on-startup: ${APP_DATABASE_SCHEMA_INITIALIZE_ON_STARTUP:false}

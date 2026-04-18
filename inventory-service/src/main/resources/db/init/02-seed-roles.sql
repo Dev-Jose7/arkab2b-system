@@ -1,0 +1,1 @@
+-- inventory-service does not own IAM role seed data.

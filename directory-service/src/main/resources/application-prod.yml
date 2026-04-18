@@ -1,0 +1,21 @@
+spring:
+  r2dbc:
+    url: ${SPRING_R2DBC_URL}
+    username: ${SPRING_R2DBC_USERNAME}
+    password: ${SPRING_R2DBC_PASSWORD}
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST}
+      port: ${SPRING_DATA_REDIS_PORT}
+      password: ${SPRING_DATA_REDIS_PASSWORD}
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+
+app:
+  security:
+    jwt:
+      issuer: ${APP_SECURITY_JWT_ISSUER}
+      audience: ${APP_SECURITY_JWT_AUDIENCE}
+      key-id: ${APP_SECURITY_JWT_KEY_ID}
+      public-key-path: ${APP_SECURITY_JWT_PUBLIC_KEY_PATH}
+      additional-public-keys: ${APP_SECURITY_JWT_ADDITIONAL_PUBLIC_KEYS:}

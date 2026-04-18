@@ -1,0 +1,106 @@
+spring:
+  application:
+    name: ${SPRING_APPLICATION_NAME:inventory-service}
+  main:
+    web-application-type: reactive
+
+server:
+  port: ${SERVER_PORT:8084}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ${MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE:health,info,metrics}
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: ${MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS:when_authorized}
+      validate-group-membership: false
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState,db,kafka
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+    db:
+      enabled: true
+    redis:
+      enabled: ${APP_DEP_REDIS_ENABLED:true}
+    kafka:
+      enabled: ${APP_DEP_KAFKA_ENABLED:true}
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+logging:
+  level:
+    root: ${LOG_LEVEL_ROOT:INFO}
+    com.arka.inventory: ${LOG_LEVEL_APP:INFO}
+  pattern:
+    console: ${LOG_PATTERN_CONSOLE:%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [%thread] [%X{traceId:-}/%X{correlationId:-}] %logger{36} - %msg%n}
+
+springdoc:
+  api-docs:
+    enabled: ${SPRINGDOC_API_DOCS_ENABLED:true}
+    path: ${SPRINGDOC_API_DOCS_PATH:/v3/api-docs}
+  swagger-ui:
+    enabled: ${SPRINGDOC_SWAGGER_UI_ENABLED:true}
+    path: ${SPRINGDOC_SWAGGER_UI_PATH:/swagger-ui.html}
+
+app:
+  database:
+    schema:
+      initialize-on-startup: ${APP_DATABASE_SCHEMA_INITIALIZE_ON_STARTUP:false}
+  security:
+    jwt:
+      issuer: ${APP_SECURITY_JWT_ISSUER:identity-access-service}
+      audience: ${APP_SECURITY_JWT_AUDIENCE:arka-b2b}
+      clock-skew-seconds: ${APP_SECURITY_JWT_CLOCK_SKEW_SECONDS:60}
+      key-id: ${APP_SECURITY_JWT_KEY_ID:dev-rsa-key-1}
+      public-key-path: ${APP_SECURITY_JWT_PUBLIC_KEY_PATH:classpath:keys/dev-public.pem}
+      additional-public-keys: ${APP_SECURITY_JWT_ADDITIONAL_PUBLIC_KEYS:}
+      jwks-path: ${APP_SECURITY_JWT_JWKS_PATH:/.well-known/jwks.json}
+  redis:
+    cache:
+      commitable-availability-ttl-seconds: ${APP_REDIS_COMMITABLE_AVAILABILITY_TTL_SECONDS:300}
+  kafka:
+    topics:
+      stock-updated: ${APP_KAFKA_TOPIC_STOCK_UPDATED:inventory.stock-updated.v1}
+      commitable-availability-recalculated: ${APP_KAFKA_TOPIC_COMMITABLE_AVAILABILITY_RECALCULATED:inventory.commitable-availability-recalculated.v1}
+      inventory-mutation: ${APP_KAFKA_TOPIC_INVENTORY_MUTATION:inventory.mutation.v1}
+  outbox:
+    relay:
+      enabled: ${APP_OUTBOX_RELAY_ENABLED:true}
+      batch-size: ${APP_OUTBOX_RELAY_BATCH_SIZE:200}
+      poll-interval-ms: ${APP_OUTBOX_RELAY_POLL_INTERVAL_MS:2000}
+      max-retries: ${APP_OUTBOX_RELAY_MAX_RETRIES:3}
+  external:
+    identity:
+      base-url: ${APP_EXTERNAL_IDENTITY_BASE_URL:http://localhost:8081}
+      service-token: ${APP_EXTERNAL_IDENTITY_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
+      timeout-ms: ${APP_EXTERNAL_IDENTITY_TIMEOUT_MS:3000}
+      actor-legitimacy-path: ${APP_EXTERNAL_IDENTITY_ACTOR_LEGITIMACY_PATH:/api/v1/admin/iam/users/{actorId}/permissions}
+    catalog:
+      base-url: ${APP_EXTERNAL_CATALOG_BASE_URL:http://localhost:8083}
+      service-token: ${APP_EXTERNAL_CATALOG_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
+      timeout-ms: ${APP_EXTERNAL_CATALOG_TIMEOUT_MS:3000}
+      variant-resolution-path: ${APP_EXTERNAL_CATALOG_VARIANT_RESOLUTION_PATH:/api/v1/catalog/checkout/variant-resolution}
+      default-currency: ${APP_EXTERNAL_CATALOG_DEFAULT_CURRENCY:COP}
+      default-price-type: ${APP_EXTERNAL_CATALOG_DEFAULT_PRICE_TYPE:BASE}
+    order:
+      base-url: ${APP_EXTERNAL_ORDER_BASE_URL:http://localhost:8085}
+      service-token: ${APP_EXTERNAL_ORDER_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
+      timeout-ms: ${APP_EXTERNAL_ORDER_TIMEOUT_MS:3000}
+      cart-path: ${APP_EXTERNAL_ORDER_CART_PATH:}
+      order-path: ${APP_EXTERNAL_ORDER_ORDER_PATH:}
+    directory:
+      base-url: ${APP_EXTERNAL_DIRECTORY_BASE_URL:http://localhost:8082}
+      service-token: ${APP_EXTERNAL_DIRECTORY_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
+      timeout-ms: ${APP_EXTERNAL_DIRECTORY_TIMEOUT_MS:3000}
+      organization-path: ${APP_EXTERNAL_DIRECTORY_ORGANIZATION_PATH:}

@@ -1,0 +1,18 @@
+package com.arka.directory.infrastructure.adapter.out.persistence.entity;
+
+import java.time.Instant;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
+
+@Table("directory_audit")
+public record DirectoryAuditRow(
+        @Id @Column("audit_id") String auditId,
+        @Column("organization_id") String organizationId,
+        @Column("actor_user_id") String actorUserId,
+        @Column("action_type") String actionType,
+        @Column("target_type") String targetType,
+        @Column("target_id") String targetId,
+        @Column("outcome") String outcome,
+        @Column("payload") String payload,
+        @Column("created_at") Instant createdAt) {}

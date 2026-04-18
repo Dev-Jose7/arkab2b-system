@@ -1,0 +1,23 @@
+spring:
+  r2dbc:
+    url: ${APP_LOCAL_R2DBC_URL:r2dbc:postgresql://localhost:5432/inventory}
+    username: ${APP_LOCAL_R2DBC_USERNAME:inventory}
+    password: ${APP_LOCAL_R2DBC_PASSWORD:inventory}
+    pool:
+      enabled: ${APP_LOCAL_R2DBC_POOL_ENABLED:true}
+      initial-size: ${APP_LOCAL_R2DBC_POOL_INITIAL_SIZE:5}
+      max-size: ${APP_LOCAL_R2DBC_POOL_MAX_SIZE:20}
+  data:
+    redis:
+      host: ${APP_LOCAL_REDIS_HOST:localhost}
+      port: ${APP_LOCAL_REDIS_PORT:6379}
+      password: ${APP_LOCAL_REDIS_PASSWORD:}
+      timeout: ${APP_LOCAL_REDIS_TIMEOUT:2s}
+  kafka:
+    bootstrap-servers: ${APP_LOCAL_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    client-id: ${APP_LOCAL_KAFKA_CLIENT_ID:inventory-service-local}
+
+app:
+  database:
+    schema:
+      initialize-on-startup: ${APP_DATABASE_SCHEMA_INITIALIZE_ON_STARTUP:true}
