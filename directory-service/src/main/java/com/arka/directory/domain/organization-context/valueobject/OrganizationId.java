@@ -1,0 +1,17 @@
+package com.arka.directory.domain.organizationcontext.valueobject;
+
+import com.arka.directory.domain.shared.exception.DomainInvariantViolationException;
+
+public record OrganizationId(String value) {
+
+    public OrganizationId {
+        if (value == null || value.isBlank()) {
+            throw new DomainInvariantViolationException("organizationId is required");
+        }
+        value = value.trim();
+    }
+
+    public static OrganizationId of(String value) {
+        return new OrganizationId(value);
+    }
+}

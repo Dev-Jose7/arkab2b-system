@@ -1,0 +1,95 @@
+spring:
+  application:
+    name: ${SPRING_APPLICATION_NAME:directory-service}
+  main:
+    web-application-type: reactive
+
+server:
+  port: ${SERVER_PORT:8082}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ${MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE:health,info,metrics}
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: ${MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS:when_authorized}
+      validate-group-membership: false
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState,db,kafka
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+    db:
+      enabled: true
+    redis:
+      enabled: ${APP_DEP_REDIS_ENABLED:true}
+    kafka:
+      enabled: ${APP_DEP_KAFKA_ENABLED:true}
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+logging:
+  level:
+    root: ${LOG_LEVEL_ROOT:INFO}
+    com.arka.directory: ${LOG_LEVEL_APP:INFO}
+  pattern:
+    console: ${LOG_PATTERN_CONSOLE:%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [%thread] [%X{traceId:-}/%X{correlationId:-}] %logger{36} - %msg%n}
+
+springdoc:
+  api-docs:
+    enabled: ${SPRINGDOC_API_DOCS_ENABLED:true}
+    path: ${SPRINGDOC_API_DOCS_PATH:/v3/api-docs}
+  swagger-ui:
+    enabled: ${SPRINGDOC_SWAGGER_UI_ENABLED:true}
+    path: ${SPRINGDOC_SWAGGER_UI_PATH:/swagger-ui.html}
+
+app:
+  database:
+    schema:
+      initialize-on-startup: ${APP_DATABASE_SCHEMA_INITIALIZE_ON_STARTUP:false}
+  security:
+    jwt:
+      issuer: ${APP_SECURITY_JWT_ISSUER:identity-access-service}
+      audience: ${APP_SECURITY_JWT_AUDIENCE:arka-b2b}
+      clock-skew-seconds: ${APP_SECURITY_JWT_CLOCK_SKEW_SECONDS:60}
+      key-id: ${APP_SECURITY_JWT_KEY_ID:dev-rsa-key-1}
+      public-key-path: ${APP_SECURITY_JWT_PUBLIC_KEY_PATH:classpath:keys/dev-public.pem}
+      additional-public-keys: ${APP_SECURITY_JWT_ADDITIONAL_PUBLIC_KEYS:}
+      jwks-path: ${APP_SECURITY_JWT_JWKS_PATH:/.well-known/jwks.json}
+  redis:
+    cache:
+      directory-policy-ttl-seconds: ${APP_REDIS_DIRECTORY_POLICY_TTL_SECONDS:900}
+  kafka:
+    topics:
+      regional-policy-configured: ${APP_KAFKA_TOPIC_REGIONAL_POLICY_CONFIGURED:directory.regional-policy-configured.v1}
+      regional-policy-applied: ${APP_KAFKA_TOPIC_REGIONAL_POLICY_APPLIED:directory.regional-policy-applied.v1}
+      directory-entity-mutated: ${APP_KAFKA_TOPIC_DIRECTORY_ENTITY_MUTATED:directory.entity-mutated.v1}
+  outbox:
+    relay:
+      enabled: ${APP_OUTBOX_RELAY_ENABLED:true}
+      batch-size: ${APP_OUTBOX_RELAY_BATCH_SIZE:200}
+      poll-interval-ms: ${APP_OUTBOX_RELAY_POLL_INTERVAL_MS:2000}
+      max-retries: ${APP_OUTBOX_RELAY_MAX_RETRIES:3}
+  external:
+    identity:
+      base-url: ${APP_EXTERNAL_IDENTITY_BASE_URL:http://localhost:8081}
+      service-token: ${APP_EXTERNAL_IDENTITY_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
+      timeout-ms: ${APP_EXTERNAL_IDENTITY_TIMEOUT_MS:3000}
+      actor-legitimacy-path: ${APP_EXTERNAL_IDENTITY_ACTOR_LEGITIMACY_PATH:/api/v1/admin/iam/users/{actorId}/permissions}
+    validation:
+      base-url: ${APP_EXTERNAL_VALIDATION_BASE_URL:http://validation-service:8090}
+      enabled: ${APP_EXTERNAL_VALIDATION_ENABLED:false}
+      auth-token: ${APP_EXTERNAL_VALIDATION_AUTH_TOKEN:}
+      timeout-ms: ${APP_EXTERNAL_VALIDATION_TIMEOUT_MS:3000}
+      tax-path: ${APP_EXTERNAL_VALIDATION_TAX_PATH:/api/v1/validation/tax-id}
+      geo-path: ${APP_EXTERNAL_VALIDATION_GEO_PATH:/api/v1/validation/geo/address}

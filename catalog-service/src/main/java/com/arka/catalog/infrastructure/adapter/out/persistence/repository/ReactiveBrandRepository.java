@@ -1,0 +1,18 @@
+package com.arka.catalog.infrastructure.adapter.out.persistence.repository;
+
+import com.arka.catalog.infrastructure.adapter.out.persistence.entity.BrandRow;
+import org.springframework.data.r2dbc.repository.Query;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import reactor.core.publisher.Mono;
+
+public interface ReactiveBrandRepository extends ReactiveCrudRepository<BrandRow, String> {
+
+    @Query("""
+            SELECT *
+            FROM brands
+            WHERE tenant_id = :tenantId
+              AND brand_id = :brandId
+              AND status = 'ACTIVE'
+            """)
+    Mono<BrandRow> findActive(String tenantId, String brandId);
+}

@@ -1,0 +1,18 @@
+spring:
+  r2dbc:
+    url: ${APP_DOCKER_R2DBC_URL:r2dbc:postgresql://postgres:5432/order}
+    username: ${APP_DOCKER_R2DBC_USERNAME:order}
+    password: ${APP_DOCKER_R2DBC_PASSWORD:order}
+  data:
+    redis:
+      host: ${APP_DOCKER_REDIS_HOST:redis}
+      port: ${APP_DOCKER_REDIS_PORT:6379}
+      password: ${APP_DOCKER_REDIS_PASSWORD:}
+  kafka:
+    bootstrap-servers: ${APP_DOCKER_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+    client-id: ${APP_DOCKER_KAFKA_CLIENT_ID:order-service-docker}
+
+app:
+  database:
+    schema:
+      initialize-on-startup: ${APP_DATABASE_SCHEMA_INITIALIZE_ON_STARTUP:true}

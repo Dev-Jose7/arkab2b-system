@@ -1,0 +1,30 @@
+spring:
+  r2dbc:
+    url: ${APP_LOCAL_R2DBC_URL:r2dbc:postgresql://localhost:5432/arkab2b_reporting}
+    username: ${APP_LOCAL_R2DBC_USERNAME:reporting}
+    password: ${APP_LOCAL_R2DBC_PASSWORD:reporting}
+    pool:
+      enabled: ${APP_LOCAL_R2DBC_POOL_ENABLED:true}
+      initial-size: ${APP_LOCAL_R2DBC_POOL_INITIAL_SIZE:5}
+      max-size: ${APP_LOCAL_R2DBC_POOL_MAX_SIZE:20}
+  data:
+    redis:
+      host: ${APP_LOCAL_REDIS_HOST:localhost}
+      port: ${APP_LOCAL_REDIS_PORT:6379}
+      password: ${APP_LOCAL_REDIS_PASSWORD:}
+      timeout: ${APP_LOCAL_REDIS_TIMEOUT:2s}
+  kafka:
+    bootstrap-servers: ${APP_LOCAL_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    client-id: ${APP_LOCAL_KAFKA_CLIENT_ID:reporting-service-local}
+    listener:
+      missing-topics-fatal: ${APP_LOCAL_KAFKA_LISTENER_MISSING_TOPICS_FATAL:false}
+    producer:
+      acks: ${APP_LOCAL_KAFKA_PRODUCER_ACKS:all}
+      retries: ${APP_LOCAL_KAFKA_PRODUCER_RETRIES:3}
+      properties:
+        enable.idempotence: ${APP_LOCAL_KAFKA_PRODUCER_ENABLE_IDEMPOTENCE:true}
+
+app:
+  database:
+    schema:
+      initialize-on-startup: ${APP_DATABASE_SCHEMA_INITIALIZE_ON_STARTUP:true}

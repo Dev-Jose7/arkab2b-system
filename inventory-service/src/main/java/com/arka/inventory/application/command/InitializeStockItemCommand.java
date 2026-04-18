@@ -1,0 +1,11 @@
+package com.arka.inventory.application.command;
+
+public record InitializeStockItemCommand(
+        String tenantId,
+        String warehouseId,
+        String sku,
+        Integer initialPhysicalQty,
+        Integer reorderPoint,
+        Integer safetyStock,
+        String actorUserId,
+        String idempotencyKey) {}

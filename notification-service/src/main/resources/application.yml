@@ -1,0 +1,145 @@
+spring:
+  application:
+    name: ${SPRING_APPLICATION_NAME:notification-service}
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: ${SPRING_KAFKA_CONSUMER_GROUP_ID:notification-service}
+      auto-offset-reset: ${SPRING_KAFKA_CONSUMER_AUTO_OFFSET_RESET:latest}
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    listener:
+      missing-topics-fatal: ${SPRING_KAFKA_LISTENER_MISSING_TOPICS_FATAL:false}
+  main:
+    web-application-type: reactive
+
+server:
+  port: ${SERVER_PORT:8086}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ${MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE:health,info,metrics}
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: ${MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS:when_authorized}
+      validate-group-membership: false
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState,db,kafka
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+    db:
+      enabled: true
+    redis:
+      enabled: ${APP_DEP_REDIS_ENABLED:true}
+    kafka:
+      enabled: ${APP_DEP_KAFKA_ENABLED:true}
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+logging:
+  level:
+    root: ${LOG_LEVEL_ROOT:INFO}
+    com.arka.notification: ${LOG_LEVEL_APP:INFO}
+  pattern:
+    console: ${LOG_PATTERN_CONSOLE:%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [%thread] [%X{traceId:-}/%X{correlationId:-}] %logger{36} - %msg%n}
+
+springdoc:
+  api-docs:
+    enabled: ${SPRINGDOC_API_DOCS_ENABLED:true}
+    path: ${SPRINGDOC_API_DOCS_PATH:/v3/api-docs}
+  swagger-ui:
+    enabled: ${SPRINGDOC_SWAGGER_UI_ENABLED:true}
+    path: ${SPRINGDOC_SWAGGER_UI_PATH:/swagger-ui.html}
+    operations-sorter: ${SPRINGDOC_SWAGGER_UI_OPERATIONS_SORTER:alpha}
+    tags-sorter: ${SPRINGDOC_SWAGGER_UI_TAGS_SORTER:alpha}
+
+app:
+  runtime:
+    profile: ${SPRING_PROFILES_ACTIVE:}
+  database:
+    schema:
+      initialize-on-startup: ${APP_DATABASE_SCHEMA_INITIALIZE_ON_STARTUP:false}
+  dependencies:
+    postgres:
+      enabled: ${APP_DEP_POSTGRES_ENABLED:true}
+    redis:
+      enabled: ${APP_DEP_REDIS_ENABLED:true}
+    kafka:
+      enabled: ${APP_DEP_KAFKA_ENABLED:true}
+  security:
+    jwt:
+      public-key-path: ${APP_SECURITY_JWT_PUBLIC_KEY_PATH:classpath:keys/dev-public.pem}
+    actor:
+      fallback-enabled: ${APP_SECURITY_ACTOR_FALLBACK_ENABLED:false}
+      fallback-actor-id: ${APP_SECURITY_ACTOR_FALLBACK_ACTOR_ID:notification-scheduler}
+      fallback-tenant-id: ${APP_SECURITY_ACTOR_FALLBACK_TENANT_ID:}
+      fallback-country-code: ${APP_SECURITY_ACTOR_FALLBACK_COUNTRY_CODE:}
+  redis:
+    cache:
+      notification-search-ttl-seconds: ${APP_REDIS_CACHE_NOTIFICATION_SEARCH_TTL_SECONDS:30}
+  kafka:
+    topics:
+      relevant-change-notification-emitted: ${APP_KAFKA_TOPIC_RELEVANT_CHANGE_NOTIFICATION_EMITTED:notification.relevant-change-notification-emitted.v1}
+      notification-delivery-recorded: ${APP_KAFKA_TOPIC_NOTIFICATION_DELIVERY_RECORDED:notification.notification-delivery-recorded.v1}
+      notification-mutation: ${APP_KAFKA_TOPIC_NOTIFICATION_MUTATION:notification.mutation.v1}
+    consumers:
+      order-events:
+        enabled: ${APP_KAFKA_CONSUMER_ORDER_EVENTS_ENABLED:true}
+        group-id: ${APP_KAFKA_CONSUMER_ORDER_EVENTS_GROUP_ID:notification-order-events-consumer}
+        topics: ${APP_KAFKA_CONSUMER_ORDER_EVENTS_TOPICS:order.events.v1,order.cart.events.v1,inventory.stock-updated.v1,inventory.commitable-availability-recalculated.v1,inventory.mutation.v1}
+        channel: ${APP_KAFKA_CONSUMER_ORDER_EVENTS_CHANNEL:EMAIL}
+        actor-id: ${APP_KAFKA_CONSUMER_ORDER_EVENTS_ACTOR_ID:notification-kafka-consumer}
+        processing-timeout-ms: ${APP_KAFKA_CONSUMER_ORDER_EVENTS_PROCESSING_TIMEOUT_MS:8000}
+        retry-backoff-ms: ${APP_KAFKA_CONSUMER_ORDER_EVENTS_RETRY_BACKOFF_MS:1000}
+        max-retries: ${APP_KAFKA_CONSUMER_ORDER_EVENTS_MAX_RETRIES:3}
+        dlq-suffix: ${APP_KAFKA_CONSUMER_ORDER_EVENTS_DLQ_SUFFIX:.dlq}
+        supported-event-types: ${APP_KAFKA_CONSUMER_ORDER_EVENTS_SUPPORTED_EVENT_TYPES:OrderCreatedFromValidatedCart,OrderOperationalStatusUpdated,OrderFinancialStatusUpdated,ManualPaymentRegistered,OrderAdjustedBeforeClose,OrderConsistencyRevalidated,CartCreated,CartItemsAdjusted,CheckoutAvailabilityValidated,StockUpdated,CommitableAvailabilityRecalculated}
+  outbox:
+    relay:
+      enabled: ${APP_OUTBOX_RELAY_ENABLED:true}
+      batch-size: ${APP_OUTBOX_RELAY_BATCH_SIZE:200}
+      poll-interval-ms: ${APP_OUTBOX_RELAY_POLL_INTERVAL_MS:2000}
+      max-retries: ${APP_OUTBOX_RELAY_MAX_RETRIES:3}
+  notification:
+    dispatch:
+      scheduler:
+        enabled: ${APP_NOTIFICATION_DISPATCH_SCHEDULER_ENABLED:true}
+        poll-interval-ms: ${APP_NOTIFICATION_DISPATCH_SCHEDULER_POLL_INTERVAL_MS:5000}
+        batch-size: ${APP_NOTIFICATION_DISPATCH_SCHEDULER_BATCH_SIZE:50}
+        actor-id: ${APP_NOTIFICATION_DISPATCH_SCHEDULER_ACTOR_ID:notification-scheduler}
+  external:
+    identity:
+      base-url: ${APP_EXTERNAL_IDENTITY_BASE_URL:http://localhost:8081}
+      service-token: ${APP_EXTERNAL_IDENTITY_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
+      timeout-ms: ${APP_EXTERNAL_IDENTITY_TIMEOUT_MS:3000}
+      actor-legitimacy-path: ${APP_EXTERNAL_IDENTITY_ACTOR_LEGITIMACY_PATH:/api/v1/admin/iam/users/{actorId}/permissions}
+    directory:
+      base-url: ${APP_EXTERNAL_DIRECTORY_BASE_URL:http://localhost:8082}
+      service-token: ${APP_EXTERNAL_DIRECTORY_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
+      timeout-ms: ${APP_EXTERNAL_DIRECTORY_TIMEOUT_MS:3000}
+      contacts-path: ${APP_EXTERNAL_DIRECTORY_CONTACTS_PATH:/api/v1/organizations/{organizationId}/contacts}
+    order:
+      base-url: ${APP_EXTERNAL_ORDER_BASE_URL:http://localhost:8085}
+      service-token: ${APP_EXTERNAL_ORDER_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
+      timeout-ms: ${APP_EXTERNAL_ORDER_TIMEOUT_MS:3000}
+      order-path: ${APP_EXTERNAL_ORDER_ORDER_PATH:}
+      cart-path: ${APP_EXTERNAL_ORDER_CART_PATH:}
+    provider:
+      base-url: ${APP_EXTERNAL_PROVIDER_BASE_URL:http://notification-provider:8088}
+      auth-token: ${APP_EXTERNAL_PROVIDER_AUTH_TOKEN:}
+      timeout-ms: ${APP_EXTERNAL_PROVIDER_TIMEOUT_MS:5000}
+      send-path: ${APP_EXTERNAL_PROVIDER_SEND_PATH:/api/v1/messages/send}

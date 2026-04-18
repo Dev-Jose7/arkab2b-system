@@ -1,0 +1,99 @@
+spring:
+  application:
+    name: ${SPRING_APPLICATION_NAME:catalog-service}
+  main:
+    web-application-type: reactive
+
+server:
+  port: ${SERVER_PORT:8083}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ${MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE:health,info,metrics}
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: ${MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS:when_authorized}
+      validate-group-membership: false
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState,db,kafka
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+    db:
+      enabled: true
+    redis:
+      enabled: ${APP_DEP_REDIS_ENABLED:true}
+    kafka:
+      enabled: ${APP_DEP_KAFKA_ENABLED:true}
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+logging:
+  level:
+    root: ${LOG_LEVEL_ROOT:INFO}
+    com.arka.catalog: ${LOG_LEVEL_APP:INFO}
+  pattern:
+    console: ${LOG_PATTERN_CONSOLE:%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [%thread] [%X{traceId:-}/%X{correlationId:-}] %logger{36} - %msg%n}
+
+springdoc:
+  api-docs:
+    enabled: ${SPRINGDOC_API_DOCS_ENABLED:true}
+    path: ${SPRINGDOC_API_DOCS_PATH:/v3/api-docs}
+  swagger-ui:
+    enabled: ${SPRINGDOC_SWAGGER_UI_ENABLED:true}
+    path: ${SPRINGDOC_SWAGGER_UI_PATH:/swagger-ui.html}
+    operations-sorter: ${SPRINGDOC_SWAGGER_UI_OPERATIONS_SORTER:alpha}
+    tags-sorter: ${SPRINGDOC_SWAGGER_UI_TAGS_SORTER:alpha}
+
+app:
+  runtime:
+    profile: ${SPRING_PROFILES_ACTIVE:}
+  database:
+    schema:
+      initialize-on-startup: ${APP_DATABASE_SCHEMA_INITIALIZE_ON_STARTUP:false}
+  dependencies:
+    postgres:
+      enabled: ${APP_DEP_POSTGRES_ENABLED:true}
+    redis:
+      enabled: ${APP_DEP_REDIS_ENABLED:true}
+    kafka:
+      enabled: ${APP_DEP_KAFKA_ENABLED:true}
+  security:
+    jwt:
+      public-key-path: ${APP_SECURITY_JWT_PUBLIC_KEY_PATH:classpath:keys/dev-public.pem}
+  redis:
+    cache:
+      catalog-search-ttl-seconds: ${APP_REDIS_CACHE_CATALOG_SEARCH_TTL_SECONDS:30}
+  kafka:
+    topics:
+      catalog-offer-published: ${APP_KAFKA_TOPIC_CATALOG_OFFER_PUBLISHED:catalog.offer-published.v1}
+      catalog-offer-updated: ${APP_KAFKA_TOPIC_CATALOG_OFFER_UPDATED:catalog.offer-updated.v1}
+      catalog-mutation: ${APP_KAFKA_TOPIC_CATALOG_MUTATION:catalog.mutation.v1}
+  outbox:
+    relay:
+      enabled: ${APP_OUTBOX_RELAY_ENABLED:true}
+      batch-size: ${APP_OUTBOX_RELAY_BATCH_SIZE:200}
+      poll-interval-ms: ${APP_OUTBOX_RELAY_POLL_INTERVAL_MS:2000}
+      max-retries: ${APP_OUTBOX_RELAY_MAX_RETRIES:3}
+  external:
+    identity:
+      base-url: ${APP_EXTERNAL_IDENTITY_BASE_URL:http://localhost:8081}
+      service-token: ${APP_EXTERNAL_IDENTITY_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
+      timeout-ms: ${APP_EXTERNAL_IDENTITY_TIMEOUT_MS:3000}
+      actor-legitimacy-path: ${APP_EXTERNAL_IDENTITY_ACTOR_LEGITIMACY_PATH:/api/v1/admin/iam/users/{actorId}/permissions}
+    directory:
+      base-url: ${APP_EXTERNAL_DIRECTORY_BASE_URL:http://localhost:8082}
+      service-token: ${APP_EXTERNAL_DIRECTORY_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
+      timeout-ms: ${APP_EXTERNAL_DIRECTORY_TIMEOUT_MS:3000}
+      country-policy-path: ${APP_EXTERNAL_DIRECTORY_COUNTRY_POLICY_PATH:}
+      default-currency: ${APP_EXTERNAL_DIRECTORY_DEFAULT_CURRENCY:COP}
