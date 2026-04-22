@@ -6,7 +6,6 @@ import java.util.concurrent.TimeoutException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -19,7 +18,6 @@ public class CatalogSkuHttpAdapter implements CatalogSkuPort {
 
     private final WebClient webClient;
     private final String path;
-    private final String serviceToken;
     private final String currency;
     private final String priceType;
     private final Duration timeout;
@@ -31,7 +29,6 @@ public class CatalogSkuHttpAdapter implements CatalogSkuPort {
             @Qualifier("loadBalancedWebClientBuilder") WebClient.Builder webClientBuilder,
             @Value("${app.external.catalog.base-url:http://catalog-service}") String baseUrl,
             @Value("${app.external.catalog.variant-resolution-path:/api/v1/internal/catalog/checkout/variant-resolution}") String path,
-            @Value("${app.external.catalog.service-token:}") String serviceToken,
             @Value("${app.external.catalog.default-currency:COP}") String currency,
             @Value("${app.external.catalog.default-price-type:BASE}") String priceType,
             @Value("${app.external.catalog.timeout-ms:3000}") long timeoutMs,
@@ -39,7 +36,6 @@ public class CatalogSkuHttpAdapter implements CatalogSkuPort {
             @Value("${app.external.catalog.retry.backoff-ms:200}") long retryBackoffMs) {
         this.webClient = webClientBuilder.baseUrl(baseUrl).build();
         this.path = path;
-        this.serviceToken = serviceToken == null ? "" : serviceToken.trim();
         this.currency = currency == null || currency.isBlank() ? "COP" : currency.trim().toUpperCase();
         this.priceType = priceType == null || priceType.isBlank() ? "BASE" : priceType.trim().toUpperCase();
         this.timeout = Duration.ofMillis(Math.max(500L, timeoutMs));
@@ -51,11 +47,10 @@ public class CatalogSkuHttpAdapter implements CatalogSkuPort {
             WebClient.Builder webClientBuilder,
             String baseUrl,
             String path,
-            String serviceToken,
             String currency,
             String priceType,
             long timeoutMs) {
-        this(webClientBuilder, baseUrl, path, serviceToken, currency, priceType, timeoutMs, 2, 200L);
+        this(webClientBuilder, baseUrl, path, currency, priceType, timeoutMs, 2, 200L);
     }
 
     @Override
@@ -73,7 +68,6 @@ public class CatalogSkuHttpAdapter implements CatalogSkuPort {
                         .queryParam("priceType", priceType)
                         .build())
                 .accept(MediaType.APPLICATION_JSON)
-                .headers(this::applyAuthHeader)
                 .exchangeToMono(response -> {
                     if (response.statusCode().is2xxSuccessful()) {
                         return Mono.just(true);
@@ -117,12 +111,6 @@ public class CatalogSkuHttpAdapter implements CatalogSkuPort {
                     "Catalog SKU validation client error. status=" + status + " sku=" + normalizedSku + " body="
                             + body);
         };
-    }
-
-    private void applyAuthHeader(HttpHeaders headers) {
-        if (!serviceToken.isBlank()) {
-            headers.setBearerAuth(serviceToken);
-        }
     }
 
     private boolean isRetryable(Throwable throwable) {

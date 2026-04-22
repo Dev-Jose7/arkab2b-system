@@ -49,7 +49,9 @@ class JwtSignerAdapterTest {
                         EmailAddress.of("user@arka.com"),
                         Set.of(RoleCode.of("ORG_OWNER")),
                         Set.of(PermissionCode.of("iam.user.create"), PermissionCode.of("iam.user.read")),
-                        Instant.parse("2026-01-01T00:00:00Z")))
+                        Instant.parse("2026-01-01T00:00:00Z")),
+                "organization-1",
+                "CO")
                 .block();
 
         assertNotNull(token);
@@ -59,6 +61,8 @@ class JwtSignerAdapterTest {
         assertTrue(signedJWT.verify(new RSASSAVerifier(keyProvider.publicKey())));
         assertEquals("access", signedJWT.getJWTClaimsSet().getStringClaim("typ"));
         assertEquals("user@arka.com", signedJWT.getJWTClaimsSet().getStringClaim("email"));
+        assertEquals("organization-1", signedJWT.getJWTClaimsSet().getStringClaim("organization_id"));
+        assertEquals("CO", signedJWT.getJWTClaimsSet().getStringClaim("country_code"));
         assertEquals(Set.of("ORG_OWNER"), Set.copyOf(signedJWT.getJWTClaimsSet().getStringListClaim("roles")));
         assertEquals(
                 Set.of("iam.user.create", "iam.user.read"),
@@ -79,12 +83,14 @@ class JwtSignerAdapterTest {
                 "identity-access-service",
                 "arka-b2b");
 
-        String token = signerAdapter.signRefreshToken(testSession()).block();
+        String token = signerAdapter.signRefreshToken(testSession(), "organization-1", "CO").block();
 
         assertNotNull(token);
         SignedJWT signedJWT = SignedJWT.parse(token);
         assertTrue(signedJWT.verify(new RSASSAVerifier(keyProvider.publicKey())));
         assertEquals("refresh", signedJWT.getJWTClaimsSet().getStringClaim("typ"));
+        assertEquals("organization-1", signedJWT.getJWTClaimsSet().getStringClaim("organization_id"));
+        assertEquals("CO", signedJWT.getJWTClaimsSet().getStringClaim("country_code"));
         assertNull(signedJWT.getJWTClaimsSet().getClaim("roles"));
         assertNull(signedJWT.getJWTClaimsSet().getClaim("permissions"));
     }

@@ -120,7 +120,7 @@ public class ReportingController {
         this.getReportingAuditQueryUseCase = getReportingAuditQueryUseCase;
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_REPORTING_ADMIN','ROLE_TRUSTED_SERVICE','ROLE_ARKA_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_REPORTING_ADMIN','ROLE_INTERNAL_ACTOR','ROLE_ARKA_ADMIN')")
     @PostMapping("/facts")
     public Mono<AnalyticFactResponse> registerFact(
             @Valid @RequestBody RegisterAnalyticFactRequest request,
@@ -131,7 +131,7 @@ public class ReportingController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_REPORTING_ADMIN','ROLE_TRUSTED_SERVICE','ROLE_ARKA_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_REPORTING_ADMIN','ROLE_INTERNAL_ACTOR','ROLE_ARKA_ADMIN')")
     @PostMapping("/facts/{factId}/apply")
     public Mono<AnalyticFactResponse> applyFact(
             @PathVariable String factId,
@@ -168,7 +168,7 @@ public class ReportingController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_REPORTING_ADMIN','ROLE_TRUSTED_SERVICE','ROLE_ARKA_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_REPORTING_ADMIN','ROLE_INTERNAL_ACTOR','ROLE_ARKA_ADMIN')")
     @PostMapping("/checkpoints")
     public Mono<Void> updateCheckpoint(
             @Valid @RequestBody UpdateConsumerCheckpointRequest request,
@@ -177,7 +177,7 @@ public class ReportingController {
         return updateConsumerCheckpointCommandUseCase.handle(commandMapper.toCommand(request, principal));
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_REPORTING_ADMIN','ROLE_TRUSTED_SERVICE','ROLE_ARKA_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_REPORTING_ADMIN','ROLE_INTERNAL_ACTOR','ROLE_ARKA_ADMIN')")
     @PostMapping("/rebuild")
     public Mono<WeeklyExecutionResponse> rebuild(
             @RequestBody(required = false) RebuildProjectionRequest request,
@@ -224,7 +224,7 @@ public class ReportingController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_REPORTING_ADMIN','ROLE_TRUSTED_SERVICE','ROLE_ARKA_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_REPORTING_ADMIN','ROLE_INTERNAL_ACTOR','ROLE_ARKA_ADMIN')")
     @PostMapping("/weekly-executions/sales")
     public Mono<WeeklyExecutionResponse> generateWeeklySales(
             @RequestBody(required = false) GenerateWeeklyReportRequest request,
@@ -235,7 +235,7 @@ public class ReportingController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_REPORTING_ADMIN','ROLE_TRUSTED_SERVICE','ROLE_ARKA_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_REPORTING_ADMIN','ROLE_INTERNAL_ACTOR','ROLE_ARKA_ADMIN')")
     @PostMapping("/weekly-executions/replenishment")
     public Mono<WeeklyExecutionResponse> generateWeeklyReplenishment(
             @RequestBody(required = false) GenerateWeeklyReportRequest request,
@@ -267,7 +267,7 @@ public class ReportingController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_REPORTING_ADMIN','ROLE_TRUSTED_SERVICE','ROLE_ARKA_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_REPORTING_ADMIN','ROLE_INTERNAL_ACTOR','ROLE_ARKA_ADMIN')")
     @PostMapping("/weekly-executions/{executionId}/artifacts")
     public Mono<ReportArtifactResponse> generateArtifact(
             @PathVariable String executionId,
@@ -306,7 +306,7 @@ public class ReportingController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_REPORTING_ADMIN','ROLE_TRUSTED_SERVICE','ROLE_ARKA_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_REPORTING_ADMIN','ROLE_INTERNAL_ACTOR','ROLE_ARKA_ADMIN')")
     @PostMapping("/reprocess-dlq")
     public Mono<Void> reprocessDlq(
             @Valid @RequestBody ReprocessReportingDlqRequest request,
@@ -315,7 +315,7 @@ public class ReportingController {
         return reprocessReportingDlqCommandUseCase.handle(commandMapper.toCommand(request, principal));
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_REPORTING_ADMIN','ROLE_TRUSTED_SERVICE','ROLE_ARKA_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_REPORTING_ADMIN','ROLE_INTERNAL_ACTOR','ROLE_ARKA_ADMIN')")
     @GetMapping("/metrics")
     public Mono<ReportingMetricsResponse> metrics(
             @RequestParam(name = "period", required = false) String period,
@@ -326,7 +326,7 @@ public class ReportingController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_REPORTING_ADMIN','ROLE_TRUSTED_SERVICE','ROLE_ARKA_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_REPORTING_ADMIN','ROLE_INTERNAL_ACTOR','ROLE_ARKA_ADMIN')")
     @GetMapping("/audits")
     public Mono<ReportingAuditResponse> audits(
             @RequestParam(name = "targetType", required = false) String targetType,

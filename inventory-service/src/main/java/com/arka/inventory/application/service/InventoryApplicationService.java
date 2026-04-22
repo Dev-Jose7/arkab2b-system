@@ -1013,7 +1013,7 @@ public class InventoryApplicationService implements
         return actorContextProviderPort.currentActor()
                 .switchIfEmpty(Mono.error(new OperationNotPermittedException("Authenticated actor context is required")))
                 .flatMap(context -> {
-                    if (context.trustedService()) {
+                    if (context.internalActor()) {
                         return Mono.just(context);
                     }
                     if (!actorUserId.equals(context.userId())) {

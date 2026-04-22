@@ -106,7 +106,7 @@ public class NotificationController {
         this.getNotificationAuditQueryUseCase = getNotificationAuditQueryUseCase;
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_NOTIFICATION_ADMIN','ROLE_TRUSTED_SERVICE','ROLE_ARKA_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_NOTIFICATION_ADMIN','ROLE_INTERNAL_ACTOR','ROLE_ARKA_ADMIN')")
     @PostMapping
     public Mono<NotificationResponse> emitNotification(
             @Valid @RequestBody EmitNotificationRequest request,
@@ -152,7 +152,7 @@ public class NotificationController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_NOTIFICATION_ADMIN','ROLE_TRUSTED_SERVICE','ROLE_ARKA_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_NOTIFICATION_ADMIN','ROLE_INTERNAL_ACTOR','ROLE_ARKA_ADMIN')")
     @PostMapping("/{notificationId}/dispatch")
     public Mono<NotificationDetailResponse> dispatch(
             @PathVariable String notificationId,
@@ -164,7 +164,7 @@ public class NotificationController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_NOTIFICATION_ADMIN','ROLE_TRUSTED_SERVICE','ROLE_ARKA_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_NOTIFICATION_ADMIN','ROLE_INTERNAL_ACTOR','ROLE_ARKA_ADMIN')")
     @PostMapping("/{notificationId}/retry")
     public Mono<NotificationDetailResponse> retry(
             @PathVariable String notificationId,
@@ -176,7 +176,7 @@ public class NotificationController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_NOTIFICATION_ADMIN','ROLE_TRUSTED_SERVICE','ROLE_ARKA_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_NOTIFICATION_ADMIN','ROLE_INTERNAL_ACTOR','ROLE_ARKA_ADMIN')")
     @PostMapping("/{notificationId}/discard")
     public Mono<NotificationResponse> discard(
             @PathVariable String notificationId,
@@ -188,7 +188,7 @@ public class NotificationController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_NOTIFICATION_ADMIN','ROLE_TRUSTED_SERVICE','ROLE_ARKA_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_NOTIFICATION_ADMIN','ROLE_INTERNAL_ACTOR','ROLE_ARKA_ADMIN')")
     @PostMapping("/{notificationId}/deliveries")
     public Mono<NotificationResponse> recordDelivery(
             @PathVariable String notificationId,
@@ -220,7 +220,7 @@ public class NotificationController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_NOTIFICATION_ADMIN','ROLE_TRUSTED_SERVICE','ROLE_ARKA_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_NOTIFICATION_ADMIN','ROLE_INTERNAL_ACTOR','ROLE_ARKA_ADMIN')")
     @PostMapping("/provider-callbacks")
     public Mono<NotificationDetailResponse> processProviderCallback(
             @Valid @RequestBody ProcessProviderCallbackRequest request,
@@ -231,7 +231,7 @@ public class NotificationController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_NOTIFICATION_ADMIN','ROLE_TRUSTED_SERVICE','ROLE_ARKA_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_NOTIFICATION_ADMIN','ROLE_INTERNAL_ACTOR','ROLE_ARKA_ADMIN')")
     @PostMapping("/{notificationId}/reprocess-dlq")
     public Mono<NotificationDetailResponse> reprocessDlq(
             @PathVariable String notificationId,
@@ -243,7 +243,7 @@ public class NotificationController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_NOTIFICATION_ADMIN','ROLE_TRUSTED_SERVICE','ROLE_ARKA_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_NOTIFICATION_ADMIN','ROLE_INTERNAL_ACTOR','ROLE_ARKA_ADMIN')")
     @GetMapping("/metrics")
     public Mono<NotificationMetricsResponse> metrics(Authentication authentication) {
         IamSecurityPrincipal principal = IamSecurityPrincipal.fromAuthentication(authentication);
@@ -252,7 +252,7 @@ public class NotificationController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_NOTIFICATION_ADMIN','ROLE_TRUSTED_SERVICE','ROLE_ARKA_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_NOTIFICATION_ADMIN','ROLE_INTERNAL_ACTOR','ROLE_ARKA_ADMIN')")
     @GetMapping("/audits")
     public Mono<NotificationAuditResponse> audits(
             @RequestParam(name = "targetType", required = false) String targetType,

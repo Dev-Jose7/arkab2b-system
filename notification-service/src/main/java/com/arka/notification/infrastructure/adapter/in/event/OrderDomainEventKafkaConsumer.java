@@ -233,11 +233,11 @@ public class OrderDomainEventKafkaConsumer {
                 context.actorId(),
                 context.organizationId(),
                 "",
-                Set.of("ROLE_TRUSTED_SERVICE"));
+                Set.of("ROLE_INTERNAL_ACTOR"));
         return UsernamePasswordAuthenticationToken.authenticated(
                 principal,
                 null,
-                Set.of(new SimpleGrantedAuthority("ROLE_TRUSTED_SERVICE")));
+                Set.of(new SimpleGrantedAuthority("ROLE_INTERNAL_ACTOR")));
     }
 
     private void incrementKafkaMetric(String outcome, String eventType) {

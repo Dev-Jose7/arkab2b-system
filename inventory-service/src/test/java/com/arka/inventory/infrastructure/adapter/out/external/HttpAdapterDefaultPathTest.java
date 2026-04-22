@@ -25,7 +25,6 @@ class HttpAdapterDefaultPathTest {
                 WebClient.builder().exchangeFunction(exchangeFunction),
                 "http://directory-service:8080",
                 "",
-                "",
                 3_000);
 
         StepVerifier.create(adapter.organizationExists("org-123"))
@@ -54,7 +53,6 @@ class HttpAdapterDefaultPathTest {
         OrderReferenceHttpAdapter adapter = new OrderReferenceHttpAdapter(
                 WebClient.builder().exchangeFunction(exchangeFunction),
                 "http://order-service:8080",
-                "",
                 "",
                 "",
                 3_000);

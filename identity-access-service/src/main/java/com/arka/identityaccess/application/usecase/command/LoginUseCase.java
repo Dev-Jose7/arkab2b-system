@@ -90,8 +90,15 @@ public class LoginUseCase implements LoginCommandUseCase {
                 .flatMap(context -> sessionPersistencePort.create(context.session()).map(savedSession -> new MaterializedLoginContext(context.user(), savedSession)))
                 .flatMap(context -> userPersistencePort.loadAuthorizationSnapshot(context.user().id())
                         .flatMap(accessProfile -> Mono.zip(
-                                        jwtSigningPort.signAccessToken(context.session(), accessProfile),
-                                        jwtSigningPort.signRefreshToken(context.session()))
+                                        jwtSigningPort.signAccessToken(
+                                                context.session(),
+                                                accessProfile,
+                                                command.organizationId(),
+                                                command.countryCode()),
+                                        jwtSigningPort.signRefreshToken(
+                                                context.session(),
+                                                command.organizationId(),
+                                                command.countryCode()))
                                 .flatMap(tokens -> securityAuditPort.recordLoginSuccess(context.user(), context.session())
                                         .then(publishDomainEvents(context.session().pullDomainEvents()))
                                         .thenReturn(loginResultMapper.toResult(context.session(), tokens.getT1(), tokens.getT2())))));

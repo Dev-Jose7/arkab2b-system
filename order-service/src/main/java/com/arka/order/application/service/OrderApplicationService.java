@@ -1241,7 +1241,7 @@ public class OrderApplicationService implements
         return actorContextProviderPort.currentActor()
                 .flatMap(context -> {
                     validateActorContext(context, organizationId, actorUserId, requiresOrderAdmin);
-                    if (context.trustedService()) {
+                    if (context.internalActor()) {
                         return Mono.empty();
                     }
                     return actorLegitimacyPort.isLegitimate(actorUserId)
@@ -1257,7 +1257,7 @@ public class OrderApplicationService implements
 
             String actorUserId,
             boolean requiresOrderAdmin) {
-        if (context.trustedService()) {
+        if (context.internalActor()) {
             return;
         }
         if (!organizationId.equals(context.organizationId())) {

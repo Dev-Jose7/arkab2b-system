@@ -235,12 +235,10 @@ class ReportingExternalHttpAdapterStatusTest {
                 "http://order-service",
                 "",
                 "",
-                "",
                 3_000);
         DirectoryRegionalPolicyHttpAdapter regionalAdapter = new DirectoryRegionalPolicyHttpAdapter(
                 builder,
                 "http://directory-service",
-                "",
                 "",
                 3_000);
 
@@ -260,7 +258,6 @@ class ReportingExternalHttpAdapterStatusTest {
                 builder(status, body),
                 "http://identity-access-service",
                 "/api/v1/admin/iam/users/{actorId}/permissions",
-                "",
                 3_000);
     }
 
@@ -270,7 +267,6 @@ class ReportingExternalHttpAdapterStatusTest {
                 "http://order-service",
                 orderPath,
                 cartPath,
-                "",
                 3_000);
     }
 
@@ -279,7 +275,6 @@ class ReportingExternalHttpAdapterStatusTest {
                 builder(status, body),
                 "http://directory-service",
                 path,
-                "",
                 3_000);
     }
 

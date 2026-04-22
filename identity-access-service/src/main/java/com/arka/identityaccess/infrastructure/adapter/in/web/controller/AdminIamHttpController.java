@@ -122,7 +122,7 @@ public class AdminIamHttpController {
                 .map(userPermissionsResponseMapper::toResponse);
     }
 
-    @PreAuthorize("hasRole('TRUSTED_SERVICE') and hasAuthority('iam.permission.read')")
+    @PreAuthorize("permitAll()")
     @GetMapping("/internal/iam/users/{userId}/permissions")
     public Mono<UserPermissionsResponse> getUserPermissionsInternal(@PathVariable String userId) {
         return getUserPermissionsQueryUseCase

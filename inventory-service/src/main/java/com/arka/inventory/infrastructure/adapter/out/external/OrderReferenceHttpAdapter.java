@@ -6,7 +6,6 @@ import java.util.concurrent.TimeoutException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -23,7 +22,6 @@ public class OrderReferenceHttpAdapter implements OrderReferencePort {
     private final WebClient webClient;
     private final String cartPath;
     private final String orderPath;
-    private final String serviceToken;
     private final Duration timeout;
     private final int maxRetryAttempts;
     private final Duration retryBackoff;
@@ -34,14 +32,12 @@ public class OrderReferenceHttpAdapter implements OrderReferencePort {
             @Value("${app.external.order.base-url:http://order-service}") String baseUrl,
             @Value("${app.external.order.cart-path:}") String cartPath,
             @Value("${app.external.order.order-path:}") String orderPath,
-            @Value("${app.external.order.service-token:}") String serviceToken,
             @Value("${app.external.order.timeout-ms:3000}") long timeoutMs,
             @Value("${app.external.order.retry.max-attempts:2}") int maxRetryAttempts,
             @Value("${app.external.order.retry.backoff-ms:200}") long retryBackoffMs) {
         this.webClient = webClientBuilder.baseUrl(baseUrl).build();
         this.cartPath = cartPath == null || cartPath.isBlank() ? DEFAULT_CART_PATH : cartPath;
         this.orderPath = orderPath == null || orderPath.isBlank() ? DEFAULT_ORDER_PATH : orderPath;
-        this.serviceToken = serviceToken == null ? "" : serviceToken.trim();
         this.timeout = Duration.ofMillis(Math.max(500L, timeoutMs));
         this.maxRetryAttempts = Math.max(0, maxRetryAttempts);
         this.retryBackoff = Duration.ofMillis(Math.max(50L, retryBackoffMs));
@@ -52,9 +48,8 @@ public class OrderReferenceHttpAdapter implements OrderReferencePort {
             String baseUrl,
             String cartPath,
             String orderPath,
-            String serviceToken,
             long timeoutMs) {
-        this(webClientBuilder, baseUrl, cartPath, orderPath, serviceToken, timeoutMs, 2, 200L);
+        this(webClientBuilder, baseUrl, cartPath, orderPath, timeoutMs, 2, 200L);
     }
 
     @Override
@@ -78,7 +73,6 @@ public class OrderReferenceHttpAdapter implements OrderReferencePort {
                 .get()
                 .uri(path, resourceId)
                 .accept(MediaType.APPLICATION_JSON)
-                .headers(this::applyAuthHeader)
                 .exchangeToMono(response -> {
                     if (response.statusCode().is2xxSuccessful()) {
                         return Mono.just(true);
@@ -121,12 +115,6 @@ public class OrderReferenceHttpAdapter implements OrderReferencePort {
                     "Order reference validation client error. status=" + status + " resourceId=" + resourceId
                             + " body=" + body);
         };
-    }
-
-    private void applyAuthHeader(HttpHeaders headers) {
-        if (!serviceToken.isBlank()) {
-            headers.setBearerAuth(serviceToken);
-        }
     }
 
     private boolean isRetryable(Throwable throwable) {

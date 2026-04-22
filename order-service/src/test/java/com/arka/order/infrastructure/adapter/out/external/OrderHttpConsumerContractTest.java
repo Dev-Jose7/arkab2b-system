@@ -34,7 +34,6 @@ class OrderHttpConsumerContractTest {
                     WebClient.builder(),
                     server.baseUrl(),
                     "/api/v1/catalog/checkout/variant-resolution",
-                    "order-service-token",
                     "COP",
                     "BASE",
                     3_000);
@@ -54,7 +53,7 @@ class OrderHttpConsumerContractTest {
             assertThat(request.query()).contains("sku=SKU-1");
             assertThat(request.query()).contains("currency=COP");
             assertThat(request.query()).contains("priceType=BASE");
-            assertThat(request.header("Authorization")).isEqualTo("Bearer order-service-token");
+            assertThat(request.header("Authorization")).isNull();
         }
     }
 
@@ -73,7 +72,6 @@ class OrderHttpConsumerContractTest {
                     WebClient.builder(),
                     server.baseUrl(),
                     "/api/v1/organizations/{organizationId}/addresses/{addressId}/checkout-resolution",
-                    "order-service-token",
                     3_000);
 
             StepVerifier.create(adapter.resolveCheckoutContext("organization-1", "addr-22", "co"))
@@ -90,7 +88,7 @@ class OrderHttpConsumerContractTest {
             assertThat(request.method()).isEqualTo("GET");
             assertThat(request.path()).isEqualTo("/api/v1/organizations/organization-1/addresses/addr-22/checkout-resolution");
             assertThat(request.query()).isEqualTo("countryCode=CO");
-            assertThat(request.header("Authorization")).isEqualTo("Bearer order-service-token");
+            assertThat(request.header("Authorization")).isNull();
         }
     }
 
@@ -111,7 +109,6 @@ class OrderHttpConsumerContractTest {
                     WebClient.builder(),
                     server.baseUrl(),
                     "/api/v1/internal/reservations/{reservationId}/validation",
-                    "order-service-token",
                     3_000);
 
             StepVerifier.create(adapter.validateReservation("organization-9", "res-77", "sku-9", 3))
@@ -130,7 +127,7 @@ class OrderHttpConsumerContractTest {
             assertThat(request.query()).contains("organizationId=organization-9");
             assertThat(request.query()).contains("sku=SKU-9");
             assertThat(request.query()).contains("qty=3");
-            assertThat(request.header("Authorization")).isEqualTo("Bearer order-service-token");
+            assertThat(request.header("Authorization")).isNull();
         }
     }
 

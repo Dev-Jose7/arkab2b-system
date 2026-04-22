@@ -91,18 +91,6 @@ app:
       refresh-token-ttl-seconds: ${APP_SECURITY_JWT_REFRESH_TTL_SECONDS:604800}
       clock-skew-seconds: ${APP_SECURITY_JWT_CLOCK_SKEW_SECONDS:60}
       jwks-path: ${APP_SECURITY_JWT_JWKS_PATH:/.well-known/jwks.json}
-    s2s:
-      enabled: ${APP_SECURITY_S2S_ENABLED:true}
-      default-token-ttl-seconds: ${APP_SECURITY_S2S_DEFAULT_TOKEN_TTL_SECONDS:300}
-      client-id: ${APP_SECURITY_S2S_CLIENT_ID:${spring.application.name}}
-      client-secret: ${APP_SECURITY_S2S_CLIENT_SECRET:}
-      audience: ${APP_SECURITY_S2S_AUDIENCE:arka-b2b}
-      scopes: ${APP_SECURITY_S2S_SCOPES:notification.dispatch}
-      identity-base-url: ${APP_SECURITY_S2S_IDENTITY_BASE_URL:http://identity-access-service}
-      token-path: ${APP_SECURITY_S2S_TOKEN_PATH:/api/v1/internal/auth/service-token}
-      timeout-ms: ${APP_SECURITY_S2S_TIMEOUT_MS:2000}
-      refresh-skew-seconds: ${APP_SECURITY_S2S_REFRESH_SKEW_SECONDS:30}
-      clients: {}
   redis:
     cache:
       introspection-ttl-seconds: ${APP_REDIS_CACHE_INTROSPECTION_TTL_SECONDS:30}
@@ -133,6 +121,5 @@ app:
   external:
     notification:
       base-url: ${APP_EXTERNAL_NOTIFICATION_BASE_URL:http://localhost:8086}
-      service-token: ${APP_EXTERNAL_NOTIFICATION_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
       timeout-ms: ${APP_EXTERNAL_NOTIFICATION_TIMEOUT_MS:3000}
       emit-path: ${APP_EXTERNAL_NOTIFICATION_EMIT_PATH:/api/v1/notifications}

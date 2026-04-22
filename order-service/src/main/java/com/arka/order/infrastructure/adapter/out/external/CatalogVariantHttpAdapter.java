@@ -9,7 +9,6 @@ import java.util.concurrent.TimeoutException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -22,7 +21,6 @@ public class CatalogVariantHttpAdapter implements CatalogVariantPort {
 
     private final WebClient webClient;
     private final String path;
-    private final String serviceToken;
     private final String defaultCurrency;
     private final String defaultPriceType;
     private final Duration timeout;
@@ -34,7 +32,6 @@ public class CatalogVariantHttpAdapter implements CatalogVariantPort {
             @Qualifier("loadBalancedWebClientBuilder") WebClient.Builder webClientBuilder,
             @Value("${app.external.catalog.base-url:http://catalog-service}") String baseUrl,
             @Value("${app.external.catalog.variant-resolution-path:/api/v1/internal/catalog/checkout/variant-resolution}") String path,
-            @Value("${app.external.catalog.service-token:}") String serviceToken,
             @Value("${app.external.catalog.default-currency:COP}") String defaultCurrency,
             @Value("${app.external.catalog.default-price-type:BASE}") String defaultPriceType,
             @Value("${app.external.catalog.timeout-ms:3000}") long timeoutMs,
@@ -42,7 +39,6 @@ public class CatalogVariantHttpAdapter implements CatalogVariantPort {
             @Value("${app.external.catalog.retry.backoff-ms:200}") long retryBackoffMs) {
         this.webClient = webClientBuilder.baseUrl(baseUrl).build();
         this.path = path;
-        this.serviceToken = serviceToken == null ? "" : serviceToken.trim();
         this.defaultCurrency = defaultCurrency == null || defaultCurrency.isBlank()
                 ? "COP"
                 : defaultCurrency.trim().toUpperCase();
@@ -58,7 +54,6 @@ public class CatalogVariantHttpAdapter implements CatalogVariantPort {
             WebClient.Builder webClientBuilder,
             String baseUrl,
             String path,
-            String serviceToken,
             String defaultCurrency,
             String defaultPriceType,
             long timeoutMs) {
@@ -66,7 +61,6 @@ public class CatalogVariantHttpAdapter implements CatalogVariantPort {
                 webClientBuilder,
                 baseUrl,
                 path,
-                serviceToken,
                 defaultCurrency,
                 defaultPriceType,
                 timeoutMs,
@@ -89,7 +83,6 @@ public class CatalogVariantHttpAdapter implements CatalogVariantPort {
                         .queryParam("priceType", defaultPriceType)
                         .build())
                 .accept(MediaType.APPLICATION_JSON)
-                .headers(this::applyAuthHeader)
                 .exchangeToMono(response -> {
                     if (response.statusCode().is2xxSuccessful()) {
                         return response.bodyToMono(JsonNode.class).map(this::toSnapshot);
@@ -140,12 +133,6 @@ public class CatalogVariantHttpAdapter implements CatalogVariantPort {
             return BigDecimal.ZERO;
         }
         return new BigDecimal(value);
-    }
-
-    private void applyAuthHeader(HttpHeaders headers) {
-        if (!serviceToken.isBlank()) {
-            headers.setBearerAuth(serviceToken);
-        }
     }
 
     private RuntimeException clientError(int status, String sku, String body) {

@@ -175,7 +175,6 @@ class InventoryExternalHttpAdapterStatusTest {
                 builder(status, body),
                 "http://catalog-service",
                 "/api/v1/catalog/checkout/variant-resolution",
-                "",
                 "COP",
                 "BASE",
                 3_000);
@@ -186,7 +185,6 @@ class InventoryExternalHttpAdapterStatusTest {
                 builder(status, body),
                 "http://directory-service",
                 "/api/v1/organizations/{organizationId}",
-                "",
                 3_000);
     }
 
@@ -195,7 +193,6 @@ class InventoryExternalHttpAdapterStatusTest {
                 builder(status, body),
                 "http://identity-access-service",
                 "/api/v1/admin/iam/users/{actorId}/permissions",
-                "",
                 3_000);
     }
 
@@ -205,7 +202,6 @@ class InventoryExternalHttpAdapterStatusTest {
                 "http://order-service",
                 "/api/v1/carts/{cartId}",
                 "/api/v1/orders/{orderId}",
-                "",
                 3_000);
     }
 

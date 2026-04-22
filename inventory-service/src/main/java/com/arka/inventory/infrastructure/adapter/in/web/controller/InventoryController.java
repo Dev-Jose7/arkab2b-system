@@ -332,7 +332,7 @@ public class InventoryController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasRole('TRUSTED_SERVICE') and hasAuthority('inventory.read')")
+    @PreAuthorize("permitAll()")
     @GetMapping("/internal/reservations/{reservationId}/validation")
     public Mono<ReservationValidationResponse> validateReservationReference(
             @PathVariable String reservationId,

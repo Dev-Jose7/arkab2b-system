@@ -8,7 +8,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class RefreshSessionCommandMapper {
     public RefreshSessionCommand toCommand(RefreshSessionRequest request, ServerHttpRequest httpRequest) {
-        return new RefreshSessionCommand(request.refreshToken(), resolveClientIp(httpRequest));
+        return new RefreshSessionCommand(
+                request.refreshToken(),
+                resolveClientIp(httpRequest),
+                request.organizationId(),
+                request.countryCode());
     }
 
     private String resolveClientIp(ServerHttpRequest httpRequest) {

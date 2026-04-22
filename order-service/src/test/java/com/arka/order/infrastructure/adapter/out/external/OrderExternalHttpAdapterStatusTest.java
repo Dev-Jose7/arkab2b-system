@@ -163,7 +163,6 @@ class OrderExternalHttpAdapterStatusTest {
                 builder(status, body),
                 "http://identity-access-service",
                 "/api/v1/admin/iam/users/{actorId}/permissions",
-                "",
                 3_000);
     }
 
@@ -172,7 +171,6 @@ class OrderExternalHttpAdapterStatusTest {
                 builder(status, body),
                 "http://inventory-service",
                 "/api/v1/internal/reservations/{reservationId}/validation",
-                "",
                 3_000);
     }
 
@@ -181,7 +179,6 @@ class OrderExternalHttpAdapterStatusTest {
                 builder(status, body),
                 "http://directory-service",
                 "/api/v1/organizations/{organizationId}/addresses/{addressId}/checkout-resolution",
-                "",
                 3_000);
     }
 

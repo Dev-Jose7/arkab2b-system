@@ -13,7 +13,9 @@ public class LoginCommandMapper {
                 request.email(),
                 request.password(),
                 resolveUserAgent(httpRequest),
-                resolveClientIp(httpRequest));
+                resolveClientIp(httpRequest),
+                request.organizationId(),
+                request.countryCode());
     }
 
     private String resolveClientIp(ServerHttpRequest httpRequest) {

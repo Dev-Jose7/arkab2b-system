@@ -168,7 +168,6 @@ class DirectoryExternalHttpAdapterStatusTest {
                 builder(status, body),
                 "http://identity-access-service",
                 "/api/v1/admin/iam/users/{actorId}/permissions",
-                "",
                 3_000);
     }
 

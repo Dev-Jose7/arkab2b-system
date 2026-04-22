@@ -73,10 +73,10 @@ public class NotificationDispatchScheduler {
                 schedulerActorId,
                 organizationId,
                 "",
-                java.util.Set.of("ROLE_TRUSTED_SERVICE"));
+                java.util.Set.of("ROLE_INTERNAL_ACTOR"));
         return UsernamePasswordAuthenticationToken.authenticated(
                 principal,
                 null,
-                java.util.Set.of(new SimpleGrantedAuthority("ROLE_TRUSTED_SERVICE")));
+                java.util.Set.of(new SimpleGrantedAuthority("ROLE_INTERNAL_ACTOR")));
     }
 }

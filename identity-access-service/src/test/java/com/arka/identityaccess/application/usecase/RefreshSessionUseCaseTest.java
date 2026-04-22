@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.arka.identityaccess.application.command.RefreshSessionCommand;
 import com.arka.identityaccess.application.mapper.command.RefreshSessionCommandAssembler;
+import com.arka.identityaccess.application.mapper.command.RefreshSessionCommandAssembler.VerifiedRefreshToken;
 import com.arka.identityaccess.application.mapper.result.TokenPairResultMapper;
 import com.arka.identityaccess.application.port.out.audit.SecurityAuditPort;
 import com.arka.identityaccess.application.port.out.cache.SecurityRateLimitPort;
@@ -99,7 +100,11 @@ class RefreshSessionUseCaseTest {
                 SessionStatus.ACTIVE);
 
         when(securityRateLimitPort.ensureRefreshAllowed(any(), any())).thenReturn(Mono.empty());
-        when(assembler.toRefreshJti(any())).thenReturn(Mono.just(RefreshJti.of("55555555-5555-5555-5555-555555555555")));
+        when(assembler.verify(any()))
+                .thenReturn(Mono.just(new VerifiedRefreshToken(
+                        RefreshJti.of("55555555-5555-5555-5555-555555555555"),
+                        "organization-1",
+                        "CO")));
         when(sessionPersistencePort.findActiveByRefreshJti(any())).thenReturn(Mono.just(activeSession));
         when(clockPort.now()).thenReturn(now);
         when(sessionPersistencePort.update(any())).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
@@ -110,8 +115,8 @@ class RefreshSessionUseCaseTest {
                         Set.of(RoleCode.of("ORG_OWNER")),
                         Set.of(PermissionCode.of("iam.user.create"), PermissionCode.of("iam.user.read")),
                         now)));
-        when(jwtSigningPort.signAccessToken(any(), any())).thenReturn(Mono.just("access-new"));
-        when(jwtSigningPort.signRefreshToken(any())).thenReturn(Mono.just("refresh-new"));
+        when(jwtSigningPort.signAccessToken(any(), any(), any(), any())).thenReturn(Mono.just("access-new"));
+        when(jwtSigningPort.signRefreshToken(any(), any(), any())).thenReturn(Mono.just("refresh-new"));
         when(securityAuditPort.recordSessionRefreshed(any())).thenReturn(Mono.empty());
         when(outboxPersistencePort.store(any())).thenReturn(Mono.empty());
 
@@ -145,7 +150,7 @@ class RefreshSessionUseCaseTest {
 
         assertThrows(
                 RateLimitExceededException.class,
-                () -> useCase.handle(new RefreshSessionCommand("any-refresh-token", "10.0.0.1")).block());
+                () -> useCase.handle(new RefreshSessionCommand("any-refresh-token", "10.0.0.1", null, null)).block());
 
         verifyNoInteractions(assembler, sessionPersistencePort, jwtSigningPort, outboxPersistencePort);
     }

@@ -59,7 +59,7 @@ class SecurityActorContextProviderAdapterTest {
         StepVerifier.create(adapter.currentActor())
                 .assertNext(context -> {
                     assertEquals("reporting-scheduler", context.actorId());
-                    assertTrue(context.trustedService());
+                    assertTrue(context.internalActor());
                     assertTrue(context.admin());
                 })
                 .verifyComplete();

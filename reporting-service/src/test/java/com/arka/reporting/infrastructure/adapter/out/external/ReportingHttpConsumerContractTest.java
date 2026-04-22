@@ -29,7 +29,6 @@ class ReportingHttpConsumerContractTest {
                     WebClient.builder(),
                     server.baseUrl(),
                     "/api/v1/organizations/{organizationId}/regional-context/{countryCode}",
-                    "reporting-token",
                     3_000);
 
             StepVerifier.create(adapter.resolveForOperation("organization-77", "co"))
@@ -44,7 +43,7 @@ class ReportingHttpConsumerContractTest {
             CapturedRequest request = server.lastRequest();
             assertThat(request.method()).isEqualTo("GET");
             assertThat(request.path()).isEqualTo("/api/v1/organizations/organization-77/regional-context/CO");
-            assertThat(request.header("Authorization")).isEqualTo("Bearer reporting-token");
+            assertThat(request.header("Authorization")).isNull();
         }
     }
 
@@ -60,7 +59,6 @@ class ReportingHttpConsumerContractTest {
                     server.baseUrl(),
                     "/api/v1/orders/{orderId}",
                     "/api/v1/carts/{cartId}",
-                    "reporting-token",
                     3_000);
 
             StepVerifier.create(adapter.resolveOrganizationByOrderId("ord-11"))
@@ -70,7 +68,7 @@ class ReportingHttpConsumerContractTest {
             CapturedRequest request = server.lastRequest();
             assertThat(request.method()).isEqualTo("GET");
             assertThat(request.path()).isEqualTo("/api/v1/orders/ord-11");
-            assertThat(request.header("Authorization")).isEqualTo("Bearer reporting-token");
+            assertThat(request.header("Authorization")).isNull();
         }
     }
 

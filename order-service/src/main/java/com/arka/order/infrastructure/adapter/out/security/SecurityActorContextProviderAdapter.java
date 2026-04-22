@@ -24,6 +24,6 @@ public class SecurityActorContextProviderAdapter implements ActorContextProvider
                 principal.userId(),
                 principal.organizationId(),
                 principal.isOrderAdmin(),
-                principal.isTrustedService());
+                principal.isInternalActor());
     }
 }

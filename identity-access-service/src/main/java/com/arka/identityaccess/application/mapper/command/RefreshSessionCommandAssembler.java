@@ -16,7 +16,7 @@ public class RefreshSessionCommandAssembler {
         this.jwtVerificationPort = jwtVerificationPort;
     }
 
-    public Mono<RefreshJti> toRefreshJti(RefreshSessionCommand command) {
+    public Mono<VerifiedRefreshToken> verify(RefreshSessionCommand command) {
         return jwtVerificationPort.verify(command.refreshToken())
                 .flatMap(verification -> {
                     if (!verification.valid()) {
@@ -28,7 +28,15 @@ public class RefreshSessionCommandAssembler {
                     if (verification.jti() == null || verification.jti().isBlank()) {
                         return Mono.error(new SessionRefreshNotAllowedException());
                     }
-                    return Mono.just(RefreshJti.of(verification.jti()));
+                    return Mono.just(new VerifiedRefreshToken(
+                            RefreshJti.of(verification.jti()),
+                            verification.organizationId(),
+                            verification.countryCode()));
                 });
     }
+
+    public record VerifiedRefreshToken(
+            RefreshJti refreshJti,
+            String organizationId,
+            String countryCode) {}
 }

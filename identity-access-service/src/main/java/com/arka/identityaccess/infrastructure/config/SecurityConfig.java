@@ -68,8 +68,7 @@ public class SecurityConfig {
                                 "/api/v1/auth/login",
                                 "/api/v1/auth/refresh",
                                 "/api/v1/auth/register-founder",
-                                "/api/v1/auth/introspect",
-                                "/api/v1/internal/auth/service-token")
+                                "/api/v1/auth/introspect")
                         .permitAll()
                         .pathMatchers(HttpMethod.POST, "/api/v1/admin/iam/users")
                         .authenticated()

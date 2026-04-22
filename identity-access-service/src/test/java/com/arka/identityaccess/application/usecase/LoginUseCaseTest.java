@@ -101,7 +101,9 @@ class LoginUseCaseTest {
                 "user@arka.com",
                 "raw-secret",
                 "Mozilla/5.0",
-                "10.0.0.1");
+                "10.0.0.1",
+                "organization-1",
+                "CO");
 
         when(securityRateLimitPort.ensureLoginAllowed(any(), any())).thenReturn(Mono.empty());
         when(userPersistencePort.loadForLogin(any())).thenReturn(Mono.just(user));
@@ -116,8 +118,8 @@ class LoginUseCaseTest {
         when(passwordHashPort.matches(anyString(), anyString())).thenReturn(Mono.just(true));
         when(clockPort.now()).thenReturn(Instant.parse("2026-01-01T00:00:00Z"));
         when(sessionPersistencePort.create(any())).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
-        when(jwtSigningPort.signAccessToken(any(), any())).thenReturn(Mono.just("access-token"));
-        when(jwtSigningPort.signRefreshToken(any())).thenReturn(Mono.just("refresh-token"));
+        when(jwtSigningPort.signAccessToken(any(), any(), any(), any())).thenReturn(Mono.just("access-token"));
+        when(jwtSigningPort.signRefreshToken(any(), any(), any())).thenReturn(Mono.just("refresh-token"));
         when(securityAuditPort.recordLoginSuccess(any(), any())).thenReturn(Mono.empty());
         when(outboxPersistencePort.store(any())).thenReturn(Mono.empty());
 
@@ -168,7 +170,9 @@ class LoginUseCaseTest {
                 "user@arka.com",
                 "raw-secret",
                 "Mozilla/5.0",
-                "10.0.0.1");
+                "10.0.0.1",
+                null,
+                null);
 
         assertThrows(RateLimitExceededException.class, () -> useCase.handle(command).block());
         verifyNoInteractions(userPersistencePort, passwordHashPort, sessionPersistencePort, jwtSigningPort);
@@ -202,7 +206,9 @@ class LoginUseCaseTest {
                 "user2@arka.com",
                 "wrong-password",
                 "Mozilla/5.0",
-                "10.0.0.2");
+                "10.0.0.2",
+                null,
+                null);
 
         when(securityRateLimitPort.ensureLoginAllowed(any(), any())).thenReturn(Mono.empty());
         when(userPersistencePort.loadForLogin(any())).thenReturn(Mono.just(user));

@@ -75,6 +75,8 @@ class IntrospectTokenUseCaseTest {
                 now.plusSeconds(600).getEpochSecond(),
                 "22222222-2222-2222-2222-222222222222",
                 "user@arka.com",
+                "organization-1",
+                "CO",
                 Set.of("ORG_OWNER"),
                 Set.of("iam.user.read"));
 
@@ -117,6 +119,8 @@ class IntrospectTokenUseCaseTest {
                 now.plusSeconds(600).getEpochSecond(),
                 "22222222-2222-2222-2222-222222222222",
                 "user@arka.com",
+                "organization-1",
+                "CO",
                 Set.of("ORG_OWNER"),
                 Set.of("iam.user.read"));
 
@@ -155,6 +159,8 @@ class IntrospectTokenUseCaseTest {
                 now.plusSeconds(600).getEpochSecond(),
                 "ref-other",
                 "user@arka.com",
+                "organization-1",
+                "CO",
                 Set.of("ORG_OWNER"),
                 Set.of("iam.user.read"));
 

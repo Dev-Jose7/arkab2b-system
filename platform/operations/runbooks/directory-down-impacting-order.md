@@ -5,7 +5,7 @@ Order checkout/validation flows fail when resolving organization/policy/address 
 
 ## Possible causes
 - `directory-service` unavailable
-- S2S auth failures between order and directory
+- JWT propagation or authorization failures between order and directory
 - regional context endpoint failures
 
 ## First checks
@@ -18,7 +18,7 @@ Order integration calls to directory fail with timeout/401/5xx.
 
 ## Mitigation / recovery
 1. Recover directory readiness.
-2. Validate S2S credentials/scopes for `order -> directory`.
+2. Validate bearer JWT propagation and receiver-side authorization for `order -> directory`.
 3. Retry failed order operations only after context resolution recovers.
 
 ## Escalation

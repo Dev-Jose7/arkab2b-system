@@ -52,14 +52,12 @@ class ProtectedPurchaseLightE2eTest {
                     WebClient.builder(),
                     directoryServer.baseUrl(),
                     "/api/v1/organizations/{organizationId}/addresses/{addressId}/checkout-resolution",
-                    "",
                     3_000);
 
             CatalogVariantHttpAdapter catalog = new CatalogVariantHttpAdapter(
                     WebClient.builder(),
                     catalogServer.baseUrl(),
                     "/api/v1/catalog/checkout/variant-resolution",
-                    "",
                     "COP",
                     "BASE",
                     3_000);
@@ -68,7 +66,6 @@ class ProtectedPurchaseLightE2eTest {
                     WebClient.builder(),
                     inventoryServer.baseUrl(),
                     "/api/v1/internal/reservations/{reservationId}/validation",
-                    "",
                     3_000);
 
             Mono<FlowOutcome> flow = directory

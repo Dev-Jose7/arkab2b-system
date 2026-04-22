@@ -90,6 +90,12 @@ public class JwtVerificationAdapter implements JwtVerificationPort {
             }
 
             String email = normalize(claims.getStringClaim("email"));
+            String organizationId = normalize(firstNonBlank(
+                    claims.getStringClaim("organization_id"),
+                    claims.getStringClaim("organizationId")));
+            String countryCode = normalize(firstNonBlank(
+                    claims.getStringClaim("country_code"),
+                    claims.getStringClaim("countryCode")));
             Set<String> roles = extractClaimValues(claims, "roles", true);
             Set<String> permissions = extractClaimValues(claims, "permissions", false);
 
@@ -103,6 +109,8 @@ public class JwtVerificationAdapter implements JwtVerificationPort {
                     claims.getExpirationTime().toInstant().getEpochSecond(),
                     jwtId,
                     email,
+                    organizationId,
+                    countryCode,
                     roles,
                     permissions);
         } catch (ParseException | JOSEException exception) {
@@ -135,5 +143,12 @@ public class JwtVerificationAdapter implements JwtVerificationPort {
             return null;
         }
         return value.trim();
+    }
+
+    private String firstNonBlank(String primary, String secondary) {
+        if (primary != null && !primary.isBlank()) {
+            return primary;
+        }
+        return secondary;
     }
 }

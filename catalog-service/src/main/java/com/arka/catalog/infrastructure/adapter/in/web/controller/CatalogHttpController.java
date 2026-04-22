@@ -143,7 +143,7 @@ public class CatalogHttpController {
         this.getCatalogAuditQueryUseCase = getCatalogAuditQueryUseCase;
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_TRUSTED_SERVICE')")
+    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_INTERNAL_ACTOR')")
     @PostMapping("/products")
     public Mono<ProductResponse> createProduct(
             @Valid @RequestBody CreateProductRequest request,
@@ -154,7 +154,7 @@ public class CatalogHttpController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_TRUSTED_SERVICE')")
+    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_INTERNAL_ACTOR')")
     @PutMapping("/products/{productId}")
     public Mono<ProductResponse> updateProduct(
             @PathVariable String productId,
@@ -166,7 +166,7 @@ public class CatalogHttpController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_TRUSTED_SERVICE')")
+    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_INTERNAL_ACTOR')")
     @PostMapping("/products/{productId}/activate")
     public Mono<ProductResponse> activateProduct(
             @PathVariable String productId,
@@ -178,7 +178,7 @@ public class CatalogHttpController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_TRUSTED_SERVICE')")
+    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_INTERNAL_ACTOR')")
     @PostMapping("/products/{productId}/retire")
     public Mono<ProductResponse> retireProduct(
             @PathVariable String productId,
@@ -190,7 +190,7 @@ public class CatalogHttpController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_TRUSTED_SERVICE')")
+    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_INTERNAL_ACTOR')")
     @PostMapping("/products/{productId}/variants")
     public Mono<VariantResponse> createVariant(
             @PathVariable String productId,
@@ -202,7 +202,7 @@ public class CatalogHttpController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_TRUSTED_SERVICE')")
+    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_INTERNAL_ACTOR')")
     @PutMapping("/variants/{variantId}")
     public Mono<VariantResponse> updateVariant(
             @PathVariable String variantId,
@@ -214,7 +214,7 @@ public class CatalogHttpController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_TRUSTED_SERVICE')")
+    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_INTERNAL_ACTOR')")
     @PostMapping("/variants/{variantId}/status")
     public Mono<VariantResponse> changeVariantStatus(
             @PathVariable String variantId,
@@ -226,7 +226,7 @@ public class CatalogHttpController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_TRUSTED_SERVICE')")
+    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_INTERNAL_ACTOR')")
     @PutMapping("/variants/{variantId}/attributes")
     public Mono<VariantResponse> upsertVariantAttributes(
             @PathVariable String variantId,
@@ -238,7 +238,7 @@ public class CatalogHttpController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_TRUSTED_SERVICE')")
+    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_INTERNAL_ACTOR')")
     @PostMapping("/variants/{variantId}/prices")
     public Mono<PriceResponse> registerPrice(
             @PathVariable String variantId,
@@ -250,7 +250,7 @@ public class CatalogHttpController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_TRUSTED_SERVICE')")
+    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_INTERNAL_ACTOR')")
     @PutMapping("/prices/{priceId}")
     public Mono<PriceResponse> updatePrice(
             @PathVariable String priceId,
@@ -262,7 +262,7 @@ public class CatalogHttpController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_TRUSTED_SERVICE')")
+    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_INTERNAL_ACTOR')")
     @PostMapping("/prices/{priceId}/schedules/activation")
     public Mono<Void> schedulePriceActivation(
             @PathVariable String priceId,
@@ -272,7 +272,7 @@ public class CatalogHttpController {
         return schedulePriceActivationCommandUseCase.handle(commandMapper.toCommand(priceId, request, principal));
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_TRUSTED_SERVICE')")
+    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_INTERNAL_ACTOR')")
     @PostMapping("/offers/publish")
     public Mono<CatalogOfferResponse> publishOffer(
             @Valid @RequestBody PublishCatalogOfferRequest request,
@@ -283,7 +283,7 @@ public class CatalogHttpController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_TRUSTED_SERVICE')")
+    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_INTERNAL_ACTOR')")
     @PutMapping("/offers/{offerId}")
     public Mono<CatalogOfferResponse> updateOffer(
             @PathVariable String offerId,
@@ -386,7 +386,7 @@ public class CatalogHttpController {
                 .map(responseMapper::toResponse);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_TRUSTED_SERVICE')")
+    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_INTERNAL_ACTOR')")
     @GetMapping("/audits")
     public Mono<CatalogAuditResponse> getCatalogAudit(
             @RequestParam(name = "targetType", required = false) String targetType,

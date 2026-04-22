@@ -7,7 +7,6 @@ import java.util.concurrent.TimeoutException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -23,7 +22,6 @@ public class DirectoryRegionalPolicyContextHttpAdapter implements RegionalPolicy
 
     private final WebClient webClient;
     private final String policyPath;
-    private final String serviceToken;
     private final String defaultCurrency;
     private final Duration timeout;
     private final int maxRetryAttempts;
@@ -34,14 +32,12 @@ public class DirectoryRegionalPolicyContextHttpAdapter implements RegionalPolicy
             @Qualifier("loadBalancedWebClientBuilder") WebClient.Builder webClientBuilder,
             @Value("${app.external.directory.base-url:http://directory-service}") String baseUrl,
             @Value("${app.external.directory.country-policy-path:}") String policyPath,
-            @Value("${app.external.directory.service-token:}") String serviceToken,
             @Value("${app.external.directory.default-currency:COP}") String defaultCurrency,
             @Value("${app.external.directory.timeout-ms:3000}") long timeoutMs,
             @Value("${app.external.directory.retry.max-attempts:2}") int maxRetryAttempts,
             @Value("${app.external.directory.retry.backoff-ms:200}") long retryBackoffMs) {
         this.webClient = webClientBuilder.baseUrl(baseUrl).build();
         this.policyPath = policyPath == null || policyPath.isBlank() ? DEFAULT_COUNTRY_POLICY_PATH : policyPath;
-        this.serviceToken = serviceToken == null ? "" : serviceToken.trim();
         this.defaultCurrency = defaultCurrency == null ? "COP" : defaultCurrency.trim().toUpperCase();
         this.timeout = Duration.ofMillis(Math.max(500L, timeoutMs));
         this.maxRetryAttempts = Math.max(0, maxRetryAttempts);
@@ -52,10 +48,9 @@ public class DirectoryRegionalPolicyContextHttpAdapter implements RegionalPolicy
             WebClient.Builder webClientBuilder,
             String baseUrl,
             String policyPath,
-            String serviceToken,
             String defaultCurrency,
             long timeoutMs) {
-        this(webClientBuilder, baseUrl, policyPath, serviceToken, defaultCurrency, timeoutMs, 2, 200L);
+        this(webClientBuilder, baseUrl, policyPath, defaultCurrency, timeoutMs, 2, 200L);
     }
 
     @Override
@@ -69,7 +64,6 @@ public class DirectoryRegionalPolicyContextHttpAdapter implements RegionalPolicy
                 .get()
                 .uri(policyPath, normalizedOrganizationId, normalizedCountryCode)
                 .accept(MediaType.APPLICATION_JSON)
-                .headers(this::applyAuthHeader)
                 .exchangeToMono(response -> {
                     if (response.statusCode().is2xxSuccessful()) {
                         return response
@@ -126,12 +120,6 @@ public class DirectoryRegionalPolicyContextHttpAdapter implements RegionalPolicy
                     "Regional policy context client error. status=" + status + " organizationId=" + organizationId
                             + " countryCode=" + countryCode + " body=" + body);
         };
-    }
-
-    private void applyAuthHeader(HttpHeaders headers) {
-        if (!serviceToken.isBlank()) {
-            headers.setBearerAuth(serviceToken);
-        }
     }
 
     private String normalizeCountry(String countryCode) {

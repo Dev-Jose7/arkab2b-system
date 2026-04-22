@@ -32,7 +32,6 @@ Generate them with:
 
 - `APP_SECURITY_JWT_PRIVATE_KEY_PATH`
 - `APP_SECURITY_JWT_PUBLIC_KEY_PATH`
-- `APP_SECURITY_S2S_CLIENT_SECRET` and per-service S2S secrets
 - DB/Kafka/Redis credentials in target environment
 
 ## Guardrails

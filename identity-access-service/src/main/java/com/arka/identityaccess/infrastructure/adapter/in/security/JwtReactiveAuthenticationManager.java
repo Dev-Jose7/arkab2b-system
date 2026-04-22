@@ -10,7 +10,6 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import java.text.ParseException;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -61,19 +60,6 @@ public class JwtReactiveAuthenticationManager implements ReactiveAuthenticationM
         Set<String> permissionCodes = validationResult.permissionCodes();
         Collection<GrantedAuthority> authorities = securityPrincipalMapper.toAuthorities(roleCodes, permissionCodes);
 
-        if (validationResult.servicePrincipal()) {
-            IamSecurityPrincipal principal = securityPrincipalMapper.toPrincipal(
-                    validationResult.userId(),
-                    validationResult.sessionId(),
-                    validationResult.email(),
-                    roleCodes);
-            return Mono.just((Authentication) new UsernamePasswordAuthenticationToken(
-                            principal,
-                            tokenRequest.token(),
-                            authorities))
-                    .onErrorMap(this::mapAuthenticationError);
-        }
-
         SessionId sessionId = SessionId.of(validationResult.sessionId());
         return sessionPersistencePort
                 .findBySessionId(sessionId)
@@ -90,7 +76,9 @@ public class JwtReactiveAuthenticationManager implements ReactiveAuthenticationM
                             session.userId().value(),
                             session.id().value(),
                             validationResult.email(),
-                            roleCodes);
+                            roleCodes,
+                            validationResult.organizationId(),
+                            validationResult.countryCode());
                     return Mono.just((Authentication) new UsernamePasswordAuthenticationToken(
                             principal,
                             tokenRequest.token(),
@@ -119,49 +107,42 @@ public class JwtReactiveAuthenticationManager implements ReactiveAuthenticationM
             JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
             Set<String> roleCodes = extractStringSetClaim(claimsSet, "roles", true);
             Set<String> permissionCodes = extractStringSetClaim(claimsSet, "permissions", false);
-            boolean trustedServiceToken = isTrustedServiceToken(claimsSet, roleCodes);
-            validateClaims(claimsSet, trustedServiceToken);
+            validateClaims(claimsSet);
 
             String userId = claimsSet.getSubject();
             String sessionId = claimsSet.getStringClaim("sid");
             String email = claimsSet.getStringClaim("email");
-            String tokenJti = claimsSet.getJWTID();
+            String organizationId = firstNonBlank(
+                    claimsSet.getStringClaim("organization_id"),
+                    claimsSet.getStringClaim("organizationId"));
+            String countryCode = firstNonBlank(
+                    claimsSet.getStringClaim("country_code"),
+                    claimsSet.getStringClaim("countryCode"));
 
             if (userId == null || userId.isBlank()) {
                 throw new BadCredentialsException("Token subject is missing");
             }
-
-            if (trustedServiceToken) {
-                if (sessionId == null || sessionId.isBlank()) {
-                    sessionId = tokenJti == null || tokenJti.isBlank()
-                            ? "svc-" + userId.trim()
-                            : tokenJti.trim();
-                }
-                if (email == null || email.isBlank()) {
-                    email = userId.trim() + "@service.local";
-                }
-            } else {
-                if (sessionId == null || sessionId.isBlank()) {
-                    throw new BadCredentialsException("Token is missing session id");
-                }
-                if (email == null || email.isBlank()) {
-                    throw new BadCredentialsException("Token email claim is missing");
-                }
+            if (sessionId == null || sessionId.isBlank()) {
+                throw new BadCredentialsException("Token is missing session id");
+            }
+            if (email == null || email.isBlank()) {
+                throw new BadCredentialsException("Token email claim is missing");
             }
 
             return new JwtValidationResult(
                     userId.trim(),
                     sessionId.trim(),
                     email.trim(),
+                    normalizeNullable(organizationId),
+                    normalizeNullable(countryCode),
                     roleCodes,
-                    permissionCodes,
-                    trustedServiceToken);
+                    permissionCodes);
         } catch (ParseException | JOSEException exception) {
             throw new BadCredentialsException("Token parsing failed", exception);
         }
     }
 
-    private void validateClaims(JWTClaimsSet claimsSet, boolean trustedServiceToken) throws ParseException {
+    private void validateClaims(JWTClaimsSet claimsSet) throws ParseException {
         Instant now = Instant.now();
         Instant allowedPast = now.minusSeconds(clockSkewSeconds);
         Instant allowedFuture = now.plusSeconds(clockSkewSeconds);
@@ -172,17 +153,12 @@ public class JwtReactiveAuthenticationManager implements ReactiveAuthenticationM
         if (claimsSet.getIssueTime() == null || claimsSet.getIssueTime().toInstant().isAfter(allowedFuture)) {
             throw new BadCredentialsException("Token issue time is invalid");
         }
-        if (!trustedServiceToken && (claimsSet.getJWTID() == null || claimsSet.getJWTID().isBlank())) {
+        if (claimsSet.getJWTID() == null || claimsSet.getJWTID().isBlank()) {
             throw new BadCredentialsException("Token jti is missing");
         }
 
         String tokenType = claimsSet.getStringClaim("typ");
-        if (trustedServiceToken) {
-            if (tokenType != null && !tokenType.isBlank()
-                    && !("access".equalsIgnoreCase(tokenType) || "service".equalsIgnoreCase(tokenType))) {
-                throw new BadCredentialsException("Token type is not allowed for authentication");
-            }
-        } else if (tokenType == null || !"access".equalsIgnoreCase(tokenType)) {
+        if (tokenType == null || !"access".equalsIgnoreCase(tokenType)) {
             throw new BadCredentialsException("Token type is not allowed for authentication");
         }
 
@@ -195,19 +171,6 @@ public class JwtReactiveAuthenticationManager implements ReactiveAuthenticationM
         if (tokenAudience == null || !tokenAudience.contains(audience)) {
             throw new BadCredentialsException("Token audience is invalid");
         }
-    }
-
-    private boolean isTrustedServiceToken(JWTClaimsSet claimsSet, Set<String> roleCodes) throws ParseException {
-        if (roleCodes.contains("TRUSTED_SERVICE")) {
-            return true;
-        }
-        String scope = claimsSet.getStringClaim("scope");
-        if (scope == null || scope.isBlank()) {
-            return false;
-        }
-        return Arrays.stream(scope.split("\\s+"))
-                .map(String::trim)
-                .anyMatch(value -> "service".equalsIgnoreCase(value) || "trusted".equalsIgnoreCase(value));
     }
 
     private AuthenticationException mapAuthenticationError(Throwable throwable) {
@@ -243,7 +206,25 @@ public class JwtReactiveAuthenticationManager implements ReactiveAuthenticationM
             String userId,
             String sessionId,
             String email,
+            String organizationId,
+            String countryCode,
             Set<String> roleCodes,
-            Set<String> permissionCodes,
-            boolean servicePrincipal) {}
+            Set<String> permissionCodes) {}
+
+    private String firstNonBlank(String primary, String fallback) {
+        if (primary != null && !primary.isBlank()) {
+            return primary.trim();
+        }
+        if (fallback != null && !fallback.isBlank()) {
+            return fallback.trim();
+        }
+        return null;
+    }
+
+    private String normalizeNullable(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return value.trim();
+    }
 }

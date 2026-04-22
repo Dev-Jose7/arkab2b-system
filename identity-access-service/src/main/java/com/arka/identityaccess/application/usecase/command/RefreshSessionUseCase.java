@@ -65,28 +65,62 @@ public class RefreshSessionUseCase implements RefreshSessionCommandUseCase {
         ClientIp clientIp = ClientIp.of(command.ipAddress());
         return securityRateLimitPort
                 .ensureRefreshAllowed(command.refreshToken(), clientIp)
-                .then(Mono.defer(() -> assembler.toRefreshJti(command)))
-                .flatMap(sessionPersistencePort::findActiveByRefreshJti)
-                .map(session -> {
+                .then(Mono.defer(() -> assembler.verify(command)))
+                .flatMap(verifiedToken -> sessionPersistencePort
+                        .findActiveByRefreshJti(verifiedToken.refreshJti())
+                        .map(session -> new RefreshedSessionContext(
+                                session,
+                                firstNonBlank(command.organizationId(), verifiedToken.organizationId()),
+                                firstNonBlank(command.countryCode(), verifiedToken.countryCode()))))
+                .map(context -> {
                     var now = clockPort.now();
-                    sessionPolicy.ensureSessionCanRefresh(session, now);
-                    return session.refresh(
+                    sessionPolicy.ensureSessionCanRefresh(context.session(), now);
+                    return new RefreshedSessionContext(
+                            context.session().refresh(
                             now,
                             tokenPolicy.calculateAccessExpiry(now),
                             tokenPolicy.calculateRefreshExpiry(now),
-                            sessionPolicy.shouldRotateRefreshTokenOnRefresh());
+                            sessionPolicy.shouldRotateRefreshTokenOnRefresh()),
+                            context.organizationId(),
+                            context.countryCode());
                 })
-                .flatMap(sessionPersistencePort::update)
-                .flatMap(session -> userPersistencePort.loadAuthorizationSnapshot(session.userId())
+                .flatMap(context -> sessionPersistencePort.update(context.session())
+                        .map(savedSession -> new RefreshedSessionContext(
+                                savedSession,
+                                context.organizationId(),
+                                context.countryCode())))
+                .flatMap(context -> userPersistencePort.loadAuthorizationSnapshot(context.session().userId())
                         .flatMap(accessProfile -> Mono.zip(
-                                        jwtSigningPort.signAccessToken(session, accessProfile),
-                                        jwtSigningPort.signRefreshToken(session))
-                                .flatMap(tokens -> securityAuditPort.recordSessionRefreshed(session)
-                                        .then(publishDomainEvents(session.pullDomainEvents()))
-                                        .thenReturn(resultMapper.toResult(session, tokens.getT1(), tokens.getT2())))));
+                                        jwtSigningPort.signAccessToken(
+                                                context.session(),
+                                                accessProfile,
+                                                context.organizationId(),
+                                                context.countryCode()),
+                                        jwtSigningPort.signRefreshToken(
+                                                context.session(),
+                                                context.organizationId(),
+                                                context.countryCode()))
+                                .flatMap(tokens -> securityAuditPort.recordSessionRefreshed(context.session())
+                                        .then(publishDomainEvents(context.session().pullDomainEvents()))
+                                        .thenReturn(resultMapper.toResult(context.session(), tokens.getT1(), tokens.getT2())))));
+    }
+
+    private String firstNonBlank(String primary, String fallback) {
+        if (primary != null && !primary.isBlank()) {
+            return primary.trim();
+        }
+        if (fallback != null && !fallback.isBlank()) {
+            return fallback.trim();
+        }
+        return null;
     }
 
     private Mono<Void> publishDomainEvents(Iterable<? extends DomainEvent> domainEvents) {
         return Flux.fromIterable(domainEvents).concatMap(outboxPersistencePort::store).then();
     }
+
+    private record RefreshedSessionContext(
+            com.arka.identityaccess.domain.session.aggregate.SessionAggregate session,
+            String organizationId,
+            String countryCode) {}
 }

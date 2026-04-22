@@ -32,7 +32,7 @@ public class CatalogInternalHttpController {
         this.responseMapper = responseMapper;
     }
 
-    @PreAuthorize("hasRole('TRUSTED_SERVICE') and hasAuthority('catalog.read')")
+    @PreAuthorize("permitAll()")
     @GetMapping("/checkout/variant-resolution")
     public Mono<CheckoutVariantResolutionResponse> resolveVariantForCheckoutInternal(
             @RequestParam(name = "organizationId", required = false) String organizationId,

@@ -156,7 +156,6 @@ class NotificationExternalHttpAdapterStatusTest {
                 "http://order-service",
                 "",
                 "",
-                "",
                 3_000);
 
         StepVerifier.create(adapter.resolveByOrderId("order-9")).verifyComplete();
@@ -171,7 +170,6 @@ class NotificationExternalHttpAdapterStatusTest {
                 builder(status, body),
                 "http://identity-access-service",
                 "/api/v1/admin/iam/users/{actorId}/permissions",
-                "",
                 3_000);
     }
 
@@ -181,7 +179,6 @@ class NotificationExternalHttpAdapterStatusTest {
                 "http://order-service",
                 orderPath,
                 cartPath,
-                "",
                 3_000);
     }
 

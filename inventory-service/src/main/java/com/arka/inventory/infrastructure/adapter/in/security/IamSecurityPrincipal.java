@@ -40,8 +40,8 @@ public final class IamSecurityPrincipal {
         return roles.contains("INVENTORY_ADMIN") || roles.contains("ROLE_INVENTORY_ADMIN");
     }
 
-    public boolean isTrustedService() {
-        return roles.contains("TRUSTED_SERVICE") || roles.contains("ROLE_TRUSTED_SERVICE");
+    public boolean isInternalActor() {
+        return roles.contains("INTERNAL_ACTOR") || roles.contains("ROLE_INTERNAL_ACTOR");
     }
 
     public static IamSecurityPrincipal fromAuthentication(Authentication authentication) {

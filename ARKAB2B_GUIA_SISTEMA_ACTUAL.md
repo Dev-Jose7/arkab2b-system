@@ -38,7 +38,7 @@ Referencias clave:
 
 | Servicio | Responsabilidad principal | Core/Derivado | Dependencias |
 |---|---|---|---|
-| `identity-access-service` | Login, refresh, registro fundador, JWKS, emisión de token S2S | Core transversal | Postgres, Redis, Kafka |
+| `identity-access-service` | Login, refresh, registro fundador, JWKS, emisión/verificación JWT con contexto organizacional | Core transversal | Postgres, Redis, Kafka |
 | `directory-service` | Organización, perfiles, contactos, direcciones, políticas por país | Core | Postgres, Redis, Kafka, IAM |
 | `catalog-service` | Productos, variantes, precios, resolución para checkout | Core | Postgres, Redis, Kafka, Directory/IAM |
 | `inventory-service` | Stock, reservas, disponibilidad comprometible | Core | Postgres, Redis, Kafka, Catalog/Directory/Order/IAM |
@@ -75,7 +75,7 @@ Roles técnicos:
 - Config Server: centraliza configuración y evita drift por archivo local suelto.
 - Eureka: discovery runtime; los clientes internos llaman por nombre lógico de servicio.
 - Gateway: borde externo, JWT validation y routing.
-- IAM: identidad/autorización + emisor de tokens técnicos S2S.
+- IAM: identidad/autorización + emisor/verificador de JWT.
 - Kafka: backbone async para hechos de dominio y servicios derivados.
 - Redis: cache/rate-limit/soporte de consultas y operación.
 - Postgres: persistencia transaccional por servicio.
@@ -179,7 +179,7 @@ Qué gobierna Config central:
 
 - rutas de gateway,
 - JWKS issuer/audience,
-- S2S client/scopes,
+- claims JWT, permisos y reglas de autorización,
 - topics Kafka,
 - external adapters (base URLs, paths, timeouts),
 - observabilidad (headers, métricas),
@@ -205,7 +205,7 @@ Cuando `config-server` está arriba, el flujo en ArkaB2B es así:
    - `order-service.yml`
    - `order-service-local.yml` (si existe)
 4. El microservicio fusiona propiedades con la precedencia normal de Spring (env vars del proceso suelen tener prioridad alta).
-5. Con la configuración efectiva inicializa beans (JWT/S2S, URLs externas, topics Kafka, outbox, puertos, etc.) y luego se registra en Eureka.
+5. Con la configuración efectiva inicializa beans (JWT/JWKS, URLs externas, topics Kafka, outbox, puertos, etc.) y luego se registra en Eureka.
 
 En resumen:
 
@@ -246,29 +246,26 @@ Referencias:
 
 - Endpoints auth: `/api/v1/auth/register-founder`, `/login`, `/refresh`, `/logout`.
 - JWKS en `/.well-known/jwks.json`.
-- Emite token técnico S2S en `/api/v1/internal/auth/service-token`.
+- Emite JWT de usuario y agrega `organizationId` / `countryCode` cuando login o refresh reciben ese contexto.
 
 Referencias:
 
 - AuthHttpController
-- ServiceTokenHttpController
 
-### Interna (S2S)
+### Interna (JWT propagado)
 
-- Cada servicio obtiene token técnico desde IAM (`clientId/clientSecret/scopes/audience`).
 - WebClient con `@LoadBalanced` + bearer auto + trace/correlation propagation.
-- Endpoints internos exigen `ROLE_TRUSTED_SERVICE` y scopes.
+- Las llamadas sync propagan el mismo bearer JWT ya autenticado.
 
 Referencias:
 
-- order ServiceToServiceTokenProvider
 - order internal endpoints
 
 ### Contexto organizacional
 
 - El dominio core opera por `organizationId`.
 - En sync se valida aislamiento organizacional.
-- En async se inyecta contexto técnico autenticado por consumidor/scheduler con organización resuelta.
+- En async se inyecta contexto autenticado interno por consumidor/scheduler con organización resuelta.
 
 ### Flujo de seguridad end-to-end (explicación clave)
 
@@ -279,8 +276,8 @@ Este es el flujo real y vigente del sistema:
 3. Cada microservicio de negocio vuelve a validar JWT localmente (resource server propio): `directory`, `catalog`, `inventory`, `order`, `notification`, `reporting`.
 4. En cada servicio se reconstruye principal/contexto de autenticación (`sub`, roles/scopes, `organizationId`, país) desde claims.
 5. Los endpoints se blindan con autorización explícita (`@PreAuthorize` + validaciones de aplicación) para evitar confianza implícita solo en gateway.
-6. Para llamadas internas, el llamador solicita token técnico S2S a IAM y el receptor exige `ROLE_TRUSTED_SERVICE` + scopes técnicos.
-7. En consumidores/schedulers async se usa actor técnico autenticado para ejecutar casos de uso sin depender de sesión HTTP.
+6. Para llamadas internas sync, el llamador propaga el mismo bearer JWT ya autenticado y el receptor vuelve a validar firma, issuer, audience y claims.
+7. En consumidores/schedulers async se usa actor interno autenticado en proceso para ejecutar casos de uso sin depender de sesión HTTP ni de un endpoint separado de emisión técnica.
 
 Por qué esto es importante:
 
@@ -320,7 +317,7 @@ Integraciones principales reales:
 Aspectos técnicos comunes:
 
 - discovery vía Eureka (`lb://` + load balanced WebClient),
-- token S2S automático,
+- propagación automática del bearer JWT autenticado,
 - propagación de `X-Trace-Id` / `X-Correlation-Id`,
 - mapeo explícito de errores 4xx/5xx por adapters + exception handlers.
 
@@ -366,7 +363,7 @@ Referencias:
 
 Secuencia de compra protegida (modelo actual):
 
-1. Cliente obtiene token (usuario o técnico según escenario de prueba).
+1. Cliente obtiene JWT de usuario con contexto organizacional.
 2. Entra por Gateway a `order-service`.
 3. `order-service` crea carrito.
 4. Ajusta ítems del carrito.
@@ -409,7 +406,7 @@ Puntos de validación:
 ### Cómo consume
 
 - `OrderDomainEventKafkaConsumer` procesa eventos soportados y resuelve organization context.
-- crea contexto técnico autenticado para que el use-case no dependa de sesión HTTP.
+- crea contexto interno autenticado para que el use-case no dependa de sesión HTTP.
 
 ### Dispatch
 
@@ -543,17 +540,15 @@ cd /Users/jose/Development/Java/arkab2b
 ./scripts/smoke-integrated-local.sh
 ```
 
-### 2) Obtener token técnico con contexto organizacional
+### 2) Obtener JWT de usuario con contexto organizacional
 
 ```bash
-IAM=http://localhost:8081
-TOKEN=$(curl -sS "$IAM/api/v1/internal/auth/service-token" \
+GW=http://localhost:8080
+TOKEN=$(curl -sS "$GW/api/v1/auth/login" \
   -H "Content-Type: application/json" \
   -d '{
-    "clientId":"order-service",
-    "clientSecret":"order-service-secret",
-    "audience":"arka-b2b",
-    "scopes":["order.read","order.write","directory.read","catalog.read","inventory.read","inventory.reserve","iam.permission.read"],
+    "email":"<usuario-valido>",
+    "password":"<password-valido>",
     "organizationId":"organization-phase6",
     "countryCode":"CO"
   }' | jq -r '.accessToken')
@@ -676,7 +671,7 @@ Se levanta con:
 
 Una compra pasa por Gateway + seguridad; order coordina sync con directory/catalog/inventory, persiste pedido y emite eventos; notification/reporting reaccionan async.
 
-Se prueba manualmente con token técnico + endpoints de carts/checkout/orders, y se confirma por tablas de notification y reporting.
+Se prueba manualmente con JWT de usuario + endpoints de carts/checkout/orders, y se confirma por tablas de notification y reporting.
 
 Estado práctico actual:
 

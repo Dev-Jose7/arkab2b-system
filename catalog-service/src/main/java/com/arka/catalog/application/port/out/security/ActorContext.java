@@ -5,5 +5,5 @@ public record ActorContext(
         String organizationId,
         String countryCode,
         boolean admin,
-        boolean trustedService) {
+        boolean internalActor) {
 }

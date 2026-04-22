@@ -20,6 +20,8 @@ public interface JwtVerificationPort {
             Long expiresAtEpochSecond,
             String jti,
             String email,
+            String organizationId,
+            String countryCode,
             Set<String> roles,
             Set<String> permissions) {
 
@@ -32,6 +34,8 @@ public interface JwtVerificationPort {
                     null,
                     null,
                     List.of(),
+                    null,
+                    null,
                     null,
                     null,
                     null,
@@ -50,6 +54,8 @@ public interface JwtVerificationPort {
                 Long expiresAtEpochSecond,
                 String jti,
                 String email,
+                String organizationId,
+                String countryCode,
                 Set<String> roles,
                 Set<String> permissions) {
             return new VerificationResult(
@@ -64,6 +70,8 @@ public interface JwtVerificationPort {
                     expiresAtEpochSecond,
                     jti,
                     email,
+                    organizationId,
+                    countryCode,
                     roles == null ? Set.of() : Set.copyOf(roles),
                     permissions == null ? Set.of() : Set.copyOf(permissions));
         }

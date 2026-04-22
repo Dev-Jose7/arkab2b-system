@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -23,7 +22,6 @@ public class NotificationMessageSenderAdapter implements PasswordResetMessageSen
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
     private final String emitPath;
-    private final String serviceToken;
     private final Duration timeout;
 
     public NotificationMessageSenderAdapter(
@@ -31,12 +29,10 @@ public class NotificationMessageSenderAdapter implements PasswordResetMessageSen
             ObjectMapper objectMapper,
             @Value("${app.external.notification.base-url:http://notification-service}") String baseUrl,
             @Value("${app.external.notification.emit-path:/api/v1/notifications}") String emitPath,
-            @Value("${app.external.notification.service-token:}") String serviceToken,
             @Value("${app.external.notification.timeout-ms:3000}") long timeoutMs) {
         this.webClient = webClientBuilder.baseUrl(baseUrl).build();
         this.objectMapper = objectMapper;
         this.emitPath = emitPath;
-        this.serviceToken = serviceToken == null ? "" : serviceToken.trim();
         this.timeout = Duration.ofMillis(Math.max(500L, timeoutMs));
     }
 
@@ -87,7 +83,6 @@ public class NotificationMessageSenderAdapter implements PasswordResetMessageSen
                 .uri(emitPath)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .headers(this::applyAuthHeader)
                 .bodyValue(request)
                 .retrieve()
                 .bodyToMono(String.class)
@@ -109,12 +104,6 @@ public class NotificationMessageSenderAdapter implements PasswordResetMessageSen
         payload.put("email", email);
         payload.put(tokenField, tokenValue);
         return payload;
-    }
-
-    private void applyAuthHeader(HttpHeaders headers) {
-        if (!serviceToken.isBlank()) {
-            headers.setBearerAuth(serviceToken);
-        }
     }
 
     private record NotificationEmitRequest(

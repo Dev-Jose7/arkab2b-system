@@ -33,7 +33,7 @@ La unidad semántica del dominio es **Organization**.
 
 | Servicio | Puerto | Responsabilidad |
 |---|---:|---|
-| `identity-access-service` | `8081` | Login, refresh, logout, register-founder, JWKS, token técnico S2S |
+| `identity-access-service` | `8081` | Login, refresh, logout, register-founder, JWKS y JWT con contexto organizacional |
 | `directory-service` | `8082` | Organización, direcciones, contactos, política por país |
 | `catalog-service` | `8083` | Productos, variantes, precios, resolución comercial |
 | `inventory-service` | `8084` | Stock, reservas, disponibilidad comprometible |
@@ -124,18 +124,23 @@ Los `application*.yml` internos de cada servicio actúan como bootstrap/fallback
 
 - Emite JWT de usuario.
 - Publica JWKS en `/.well-known/jwks.json`.
-- Emite token técnico S2S en `/api/v1/internal/auth/service-token`.
+- Incluye `organizationId` y `countryCode` cuando login/refresh reciben contexto organizacional.
 
 ### Servicios internos
 
 - Validan JWT/JWKS y audiencias.
 - Reconstruyen contexto de seguridad desde claims (`roles`, `permissions`, `scope/scp`, `organizationId` cuando aplica).
-- Protegen endpoints internos con scopes/roles técnicos (`TRUSTED_SERVICE`).
+- Blindan endpoints con autorización explícita y reglas de aplicación.
 
-### S2S
+### Sync interno
 
-- Cada servicio puede obtener token técnico desde IAM.
-- Integraciones sync internas usan token técnico con scopes mínimos necesarios.
+- Las integraciones HTTP internas propagan el bearer JWT ya autenticado desde el request entrante.
+- IAM emite JWT de usuario con contexto organizacional cuando el login/refresh lo recibe.
+
+### Async y schedulers
+
+- Consumidores Kafka y schedulers crean contexto autenticado interno en proceso.
+- Ese contexto no depende de un token emitido por IAM y solo existe para ejecutar casos de uso sin request HTTP.
 
 ## 7) Integración sync y async
 

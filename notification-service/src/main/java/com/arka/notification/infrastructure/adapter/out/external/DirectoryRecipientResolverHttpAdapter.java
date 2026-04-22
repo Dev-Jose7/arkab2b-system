@@ -10,7 +10,6 @@ import java.util.concurrent.TimeoutException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -23,7 +22,6 @@ public class DirectoryRecipientResolverHttpAdapter implements RecipientResolverP
 
     private final WebClient webClient;
     private final String contactsPath;
-    private final String serviceToken;
     private final Duration timeout;
     private final int maxRetryAttempts;
     private final Duration retryBackoff;
@@ -33,13 +31,11 @@ public class DirectoryRecipientResolverHttpAdapter implements RecipientResolverP
             @Qualifier("loadBalancedWebClientBuilder") WebClient.Builder webClientBuilder,
             @Value("${app.external.directory.base-url:http://directory-service}") String baseUrl,
             @Value("${app.external.directory.contacts-path:/api/v1/internal/organizations/{organizationId}/contacts}") String contactsPath,
-            @Value("${app.external.directory.service-token:}") String serviceToken,
             @Value("${app.external.directory.timeout-ms:3000}") long timeoutMs,
             @Value("${app.external.directory.retry.max-attempts:2}") int maxRetryAttempts,
             @Value("${app.external.directory.retry.backoff-ms:200}") long retryBackoffMs) {
         this.webClient = webClientBuilder.baseUrl(baseUrl).build();
         this.contactsPath = contactsPath;
-        this.serviceToken = serviceToken == null ? "" : serviceToken.trim();
         this.timeout = Duration.ofMillis(Math.max(500L, timeoutMs));
         this.maxRetryAttempts = Math.max(0, maxRetryAttempts);
         this.retryBackoff = Duration.ofMillis(Math.max(50L, retryBackoffMs));
@@ -49,9 +45,8 @@ public class DirectoryRecipientResolverHttpAdapter implements RecipientResolverP
             WebClient.Builder webClientBuilder,
             String baseUrl,
             String contactsPath,
-            String serviceToken,
             long timeoutMs) {
-        this(webClientBuilder, baseUrl, contactsPath, serviceToken, timeoutMs, 2, 200L);
+        this(webClientBuilder, baseUrl, contactsPath, timeoutMs, 2, 200L);
     }
 
     @Override
@@ -66,7 +61,6 @@ public class DirectoryRecipientResolverHttpAdapter implements RecipientResolverP
                 .get()
                 .uri(contactsPath, recipientRef.trim())
                 .accept(MediaType.APPLICATION_JSON)
-                .headers(this::applyAuthHeader)
                 .exchangeToMono(response -> {
                     if (response.statusCode().is2xxSuccessful()) {
                         return response.bodyToMono(JsonNode.class)
@@ -129,12 +123,6 @@ public class DirectoryRecipientResolverHttpAdapter implements RecipientResolverP
     private String text(JsonNode node, String field) {
         JsonNode value = node == null ? null : node.get(field);
         return value == null || value.isNull() ? null : value.asText();
-    }
-
-    private void applyAuthHeader(HttpHeaders headers) {
-        if (!serviceToken.isBlank()) {
-            headers.setBearerAuth(serviceToken);
-        }
     }
 
     private RuntimeException clientError(int status, String recipientRef, String channel, String body) {

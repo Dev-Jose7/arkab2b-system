@@ -224,14 +224,14 @@ window.ARKAB2B_E2E_CONFIG = {
     {
       id: "E2E-SEC-02",
       category: "transversal",
-      title: "Seguridad interna S2S con scopes",
-      objective: "EndPoints internos deben requerir token técnico y scope correcto.",
+      title: "Seguridad interna con JWT propagado",
+      objective: "EndPoints internos deben requerir JWT válido, contexto organizacional y autorización correcta.",
       services: [
-        { service: "iam", reason: "Emisión de service token para m2m.", keywords: ["service", "token", "internal", "scope"] },
+        { service: "iam", reason: "Emisión de JWT de usuario y JWKS para validación interna.", keywords: ["auth", "login", "refresh", "jwks", "token"] },
         { service: "directory", reason: "Endpoints internos de lookup/contexto.", keywords: ["internal", "organization", "policy", "lookup"] },
         { service: "catalog", reason: "Endpoints internos de resolve de variante.", keywords: ["internal", "resolve", "variant", "price"] },
         { service: "inventory", reason: "Endpoints internos de validate/reservation.", keywords: ["internal", "validate", "reservation", "availability"] },
-        { service: "reporting", reason: "Ops internas (rebuild/generate) con scopes.", keywords: ["internal", "ops", "rebuild", "generate", "report"] }
+        { service: "reporting", reason: "Ops internas (rebuild/generate) con autorización del actor.", keywords: ["internal", "ops", "rebuild", "generate", "report"] }
       ]
     },
     {

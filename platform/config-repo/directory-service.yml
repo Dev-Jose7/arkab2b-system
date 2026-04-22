@@ -18,16 +18,8 @@ app:
       issuer: ${APP_SECURITY_JWT_ISSUER:identity-access-service}
       allowed-audiences: ${APP_SECURITY_JWT_ALLOWED_AUDIENCES:arka-b2b,directory-service}
       jwks-uri: ${APP_SECURITY_JWT_JWKS_URI:http://localhost:8081/.well-known/jwks.json}
-    s2s:
-      client-id: ${APP_SECURITY_S2S_CLIENT_ID:directory-service}
-      client-secret: ${APP_SECURITY_S2S_CLIENT_SECRET:${APP_S2S_SECRET_DIRECTORY:directory-service-secret}}
-      audience: ${APP_SECURITY_S2S_AUDIENCE:arka-b2b}
-      scopes: ${APP_SECURITY_S2S_SCOPES:directory.read,directory.organization.read,directory.profile.read,iam.permission.read}
-      identity-base-url: ${APP_SECURITY_S2S_IDENTITY_BASE_URL:http://identity-access-service}
-      token-path: ${APP_SECURITY_S2S_TOKEN_PATH:/api/v1/internal/auth/service-token}
   external:
     identity:
       base-url: ${APP_EXTERNAL_IDENTITY_BASE_URL:http://identity-access-service}
-      service-token: ${APP_EXTERNAL_IDENTITY_SERVICE_TOKEN:}
       timeout-ms: ${APP_EXTERNAL_IDENTITY_TIMEOUT_MS:3000}
       actor-legitimacy-path: ${APP_EXTERNAL_IDENTITY_ACTOR_LEGITIMACY_PATH:/api/v1/internal/iam/users/{actorId}/permissions}

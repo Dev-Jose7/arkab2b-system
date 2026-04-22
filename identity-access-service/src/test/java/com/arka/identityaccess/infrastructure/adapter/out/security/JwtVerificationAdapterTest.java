@@ -49,7 +49,9 @@ class JwtVerificationAdapterTest {
                                 EmailAddress.of("user@arka.com"),
                                 Set.of(RoleCode.of("ORG_OWNER")),
                                 Set.of(PermissionCode.of("iam.user.create")),
-                                Instant.parse("2026-01-01T00:00:00Z")))
+                                Instant.parse("2026-01-01T00:00:00Z")),
+                        "organization-1",
+                        "CO")
                 .block();
 
         JwtVerificationPort.VerificationResult result = verifier.verify(token).block();
@@ -59,6 +61,8 @@ class JwtVerificationAdapterTest {
         assertEquals("11111111-1111-1111-1111-111111111111", result.sessionId());
         assertEquals("access", result.tokenType());
         assertEquals("22222222-2222-2222-2222-222222222222", result.jti());
+        assertEquals("organization-1", result.organizationId());
+        assertEquals("CO", result.countryCode());
         assertEquals(Set.of("ORG_OWNER"), result.roles());
         assertEquals(Set.of("iam.user.create"), result.permissions());
     }

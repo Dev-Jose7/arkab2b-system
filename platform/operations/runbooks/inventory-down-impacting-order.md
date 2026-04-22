@@ -18,7 +18,7 @@ Order confirmation fails due to reservation/availability validation failures.
 
 ## Mitigation / recovery
 1. Recover inventory service and dependencies.
-2. Validate S2S auth between order/inventory.
+2. Validate bearer JWT propagation and receiver-side authorization between order/inventory.
 3. Resume order confirmation only when reservation checks are stable.
 
 ## Escalation

@@ -1,6 +1,5 @@
 package com.arka.order.infrastructure.config;
 
-import com.arka.order.infrastructure.adapter.out.security.ServiceToServiceTokenProvider;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import java.time.Duration;
@@ -14,6 +13,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -46,24 +48,28 @@ public class DiscoveryWebClientConfig {
     @Primary
     @LoadBalanced
     public WebClient.Builder loadBalancedWebClientBuilder(
-            ServiceToServiceTokenProvider tokenProvider,
             ObjectProvider<MeterRegistry> meterRegistryProvider) {
         MeterRegistry meterRegistry = meterRegistryProvider.getIfAvailable();
         return WebClient.builder()
                 .filter(tracePropagationFilter())
-                .filter(outboundObservationFilter(meterRegistry))
-                .filter(bearerTokenFilter(tokenProvider));
+                .filter(bearerPropagationFilter())
+                .filter(outboundObservationFilter(meterRegistry));
     }
 
-    private ExchangeFilterFunction bearerTokenFilter(ServiceToServiceTokenProvider tokenProvider) {
+    private ExchangeFilterFunction bearerPropagationFilter() {
         return (request, next) -> {
             if (request.headers().containsKey(HttpHeaders.AUTHORIZATION)) {
                 return next.exchange(request);
             }
-            return tokenProvider.currentToken()
+            return ReactiveSecurityContextHolder.getContext()
+                    .map(securityContext -> securityContext.getAuthentication())
+                    .filter(authentication -> authentication != null && authentication.isAuthenticated())
+                    .map(this::extractBearerToken)
+                    .filter(token -> token != null && !token.isBlank())
                     .map(token -> ClientRequest.from(request)
                             .headers(headers -> headers.setBearerAuth(token))
                             .build())
+                    .defaultIfEmpty(request)
                     .flatMap(next::exchange);
         };
     }
@@ -150,6 +156,21 @@ public class DiscoveryWebClientConfig {
     private String normalizeOrDefault(String value, String fallback) {
         String normalized = normalize(value);
         return normalized.isBlank() ? fallback : normalized;
+    }
+
+    private String extractBearerToken(Authentication authentication) {
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof Jwt jwt) {
+            return normalize(jwt.getTokenValue());
+        }
+        Object credentials = authentication.getCredentials();
+        if (credentials instanceof String rawToken) {
+            String normalized = normalize(rawToken);
+            if (!normalized.isBlank() && !"n/a".equalsIgnoreCase(normalized)) {
+                return normalized;
+            }
+        }
+        return "";
     }
 
     private String firstNonBlank(String... values) {

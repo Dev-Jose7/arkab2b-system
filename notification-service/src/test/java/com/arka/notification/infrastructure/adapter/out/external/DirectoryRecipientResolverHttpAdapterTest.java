@@ -106,7 +106,6 @@ class DirectoryRecipientResolverHttpAdapterTest {
                 builder,
                 "http://directory-service",
                 "/api/v1/organizations/{organizationId}/contacts",
-                "",
                 3_000);
     }
 }

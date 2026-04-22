@@ -4,4 +4,4 @@ public record ActorContext(
         String userId,
         String organizationId,
         boolean inventoryAdmin,
-        boolean trustedService) {}
+        boolean internalActor) {}

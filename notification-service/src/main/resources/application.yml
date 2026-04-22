@@ -96,16 +96,6 @@ app:
       allowed-audiences: ${APP_SECURITY_JWT_ALLOWED_AUDIENCES:arka-b2b,notification-service}
       clock-skew-seconds: ${APP_SECURITY_JWT_CLOCK_SKEW_SECONDS:60}
       jwks-uri: ${APP_SECURITY_JWT_JWKS_URI:http://localhost:8081/.well-known/jwks.json}
-    s2s:
-      enabled: ${APP_SECURITY_S2S_ENABLED:true}
-      client-id: ${APP_SECURITY_S2S_CLIENT_ID:${spring.application.name}}
-      client-secret: ${APP_SECURITY_S2S_CLIENT_SECRET:}
-      audience: ${APP_SECURITY_S2S_AUDIENCE:arka-b2b}
-      scopes: ${APP_SECURITY_S2S_SCOPES:notification.dispatch,directory.read,order.read,inventory.read,iam.permission.read}
-      identity-base-url: ${APP_SECURITY_S2S_IDENTITY_BASE_URL:${app.external.identity.base-url:http://identity-access-service}}
-      token-path: ${APP_SECURITY_S2S_TOKEN_PATH:/api/v1/internal/auth/service-token}
-      timeout-ms: ${APP_SECURITY_S2S_TIMEOUT_MS:2000}
-      refresh-skew-seconds: ${APP_SECURITY_S2S_REFRESH_SKEW_SECONDS:30}
     actor:
       fallback-enabled: ${APP_SECURITY_ACTOR_FALLBACK_ENABLED:false}
       fallback-actor-id: ${APP_SECURITY_ACTOR_FALLBACK_ACTOR_ID:notification-scheduler}
@@ -147,17 +137,14 @@ app:
   external:
     identity:
       base-url: ${APP_EXTERNAL_IDENTITY_BASE_URL:http://localhost:8081}
-      service-token: ${APP_EXTERNAL_IDENTITY_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
       timeout-ms: ${APP_EXTERNAL_IDENTITY_TIMEOUT_MS:3000}
       actor-legitimacy-path: ${APP_EXTERNAL_IDENTITY_ACTOR_LEGITIMACY_PATH:/api/v1/internal/iam/users/{actorId}/permissions}
     directory:
       base-url: ${APP_EXTERNAL_DIRECTORY_BASE_URL:http://localhost:8082}
-      service-token: ${APP_EXTERNAL_DIRECTORY_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
       timeout-ms: ${APP_EXTERNAL_DIRECTORY_TIMEOUT_MS:3000}
       contacts-path: ${APP_EXTERNAL_DIRECTORY_CONTACTS_PATH:/api/v1/internal/organizations/{organizationId}/contacts}
     order:
       base-url: ${APP_EXTERNAL_ORDER_BASE_URL:http://localhost:8085}
-      service-token: ${APP_EXTERNAL_ORDER_SERVICE_TOKEN:${APP_SECURITY_SERVICE_SHARED_TOKEN:}}
       timeout-ms: ${APP_EXTERNAL_ORDER_TIMEOUT_MS:3000}
       order-path: ${APP_EXTERNAL_ORDER_ORDER_PATH:/api/v1/internal/orders/{orderId}/organization-context}
       cart-path: ${APP_EXTERNAL_ORDER_CART_PATH:/api/v1/internal/carts/{cartId}/organization-context}

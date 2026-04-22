@@ -142,7 +142,6 @@ class CatalogExternalHttpAdapterStatusTest {
                 WebClient.builder().exchangeFunction(exchangeFunction),
                 "http://directory-service",
                 "",
-                "",
                 "COP",
                 3_000);
 
@@ -155,7 +154,6 @@ class CatalogExternalHttpAdapterStatusTest {
                 builder(status, body),
                 "http://identity-access-service",
                 "/api/v1/admin/iam/users/{actorId}/permissions",
-                "",
                 3_000);
     }
 
@@ -164,7 +162,6 @@ class CatalogExternalHttpAdapterStatusTest {
                 builder(status, body),
                 "http://directory-service",
                 path,
-                "",
                 "COP",
                 3_000);
     }

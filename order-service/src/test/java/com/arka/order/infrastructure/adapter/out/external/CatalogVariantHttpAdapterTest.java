@@ -100,7 +100,6 @@ class CatalogVariantHttpAdapterTest {
                 builder,
                 "http://catalog-service",
                 "/api/v1/catalog/checkout/variant-resolution",
-                "",
                 "COP",
                 "BASE",
                 3_000);

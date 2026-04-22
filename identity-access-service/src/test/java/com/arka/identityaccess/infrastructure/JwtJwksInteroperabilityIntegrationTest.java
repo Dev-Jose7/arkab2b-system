@@ -86,7 +86,9 @@ class JwtJwksInteroperabilityIntegrationTest {
                                 EmailAddress.of("user@arka.com"),
                                 Set.of(RoleCode.of("ORG_OWNER")),
                                 Set.of(PermissionCode.of("iam.user.create"), PermissionCode.of("iam.user.read")),
-                                Instant.parse("2026-01-01T00:00:00Z")))
+                                Instant.parse("2026-01-01T00:00:00Z")),
+                        "organization-1",
+                        "CO")
                 .block();
 
         assertNotNull(accessToken);
@@ -108,6 +110,8 @@ class JwtJwksInteroperabilityIntegrationTest {
         assertEquals("usr-1", claimsSet.getSubject());
         assertEquals("11111111-1111-1111-1111-111111111111", claimsSet.getStringClaim("sid"));
         assertEquals("user@arka.com", claimsSet.getStringClaim("email"));
+        assertEquals("organization-1", claimsSet.getStringClaim("organization_id"));
+        assertEquals("CO", claimsSet.getStringClaim("country_code"));
         assertNotNull(claimsSet.getJWTID());
         assertNotNull(claimsSet.getIssueTime());
         assertNotNull(claimsSet.getExpirationTime());
@@ -127,7 +131,9 @@ class JwtJwksInteroperabilityIntegrationTest {
                                 EmailAddress.of("user@arka.com"),
                                 Set.of(RoleCode.of("ORG_OWNER")),
                                 Set.of(PermissionCode.of("iam.user.create")),
-                                Instant.parse("2026-01-01T00:00:00Z")))
+                                Instant.parse("2026-01-01T00:00:00Z")),
+                        "organization-1",
+                        "CO")
                 .block();
 
         assertNotNull(validAccessToken);

@@ -4,7 +4,6 @@ import com.arka.inventory.application.port.out.external.ActorLegitimacyPort;
 import java.time.Duration;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -15,18 +14,15 @@ public class IdentityActorLegitimacyHttpAdapter implements ActorLegitimacyPort {
 
     private final WebClient webClient;
     private final String path;
-    private final String serviceToken;
     private final Duration timeout;
 
     public IdentityActorLegitimacyHttpAdapter(
             @Qualifier("loadBalancedWebClientBuilder") WebClient.Builder webClientBuilder,
             @Value("${app.external.identity.base-url:http://identity-access-service}") String baseUrl,
             @Value("${app.external.identity.actor-legitimacy-path:/api/v1/internal/iam/users/{actorId}/permissions}") String path,
-            @Value("${app.external.identity.service-token:}") String serviceToken,
             @Value("${app.external.identity.timeout-ms:3000}") long timeoutMs) {
         this.webClient = webClientBuilder.baseUrl(baseUrl).build();
         this.path = path;
-        this.serviceToken = serviceToken == null ? "" : serviceToken.trim();
         this.timeout = Duration.ofMillis(Math.max(500L, timeoutMs));
     }
 
@@ -40,7 +36,6 @@ public class IdentityActorLegitimacyHttpAdapter implements ActorLegitimacyPort {
                 .get()
                 .uri(path, normalizedActorId)
                 .accept(MediaType.APPLICATION_JSON)
-                .headers(this::applyAuthHeader)
                 .exchangeToMono(response -> {
                     if (response.statusCode().is2xxSuccessful()) {
                         return Mono.just(true);
@@ -82,11 +77,5 @@ public class IdentityActorLegitimacyHttpAdapter implements ActorLegitimacyPort {
                     "Identity legitimacy client error. status=" + status + " actorId=" + actorId + " body="
                             + body);
         };
-    }
-
-    private void applyAuthHeader(HttpHeaders headers) {
-        if (!serviceToken.isBlank()) {
-            headers.setBearerAuth(serviceToken);
-        }
     }
 }

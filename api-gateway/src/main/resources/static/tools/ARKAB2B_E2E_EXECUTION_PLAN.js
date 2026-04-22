@@ -76,7 +76,7 @@
       p("notification", "GET", "/api/v1/notifications/{notificationId}/attempts", "Consultar intentos de entrega")
     ],
     "E2E-CUF12": [
-      p("iam", "POST", "/api/v1/internal/auth/service-token", "Obtener token técnico"),
+      p("iam", "POST", "/api/v1/auth/login", "Autenticar actor con JWT"),
       p("inventory", "POST", "/api/v1/stock-items/{stockItemId}/stock-adjustments", "Ajustar stock operativo"),
       p("inventory", "GET", "/api/v1/stock-items/{stockItemId}", "Consultar estado del stock item"),
       p("inventory", "GET", "/api/v1/stock-items/{stockItemId}/movements", "Consultar ledger de movimientos")
@@ -117,11 +117,11 @@
       p("order", "POST", "/api/v1/carts", "Probar endpoint protegido")
     ],
     "E2E-SEC-02": [
-      p("iam", "POST", "/api/v1/internal/auth/service-token", "Emitir token técnico S2S"),
-      p("directory", "GET", "/api/v1/internal/organizations/{organizationId}/regional-context/{countryCode}", "Validar scope interno en directory"),
-      p("catalog", "GET", "/api/v1/internal/catalog/checkout/variant-resolution", "Validar scope interno en catalog"),
-      p("inventory", "GET", "/api/v1/internal/reservations/{reservationId}/validation", "Validar scope interno en inventory"),
-      p("reporting", "POST", "/api/v1/reporting/rebuild", "Validar scope interno en reporting ops")
+      p("iam", "POST", "/api/v1/auth/login", "Obtener JWT de usuario con contexto organizacional"),
+      p("directory", "GET", "/api/v1/internal/organizations/{organizationId}/regional-context/{countryCode}", "Validar acceso interno con JWT propagado"),
+      p("catalog", "GET", "/api/v1/internal/catalog/checkout/variant-resolution", "Validar resolución interna con JWT propagado"),
+      p("inventory", "GET", "/api/v1/internal/reservations/{reservationId}/validation", "Validar lookup interno con JWT propagado"),
+      p("reporting", "POST", "/api/v1/reporting/rebuild", "Validar operación administrativa con JWT")
     ],
     "E2E-ORG-01": [
       p("iam", "POST", "/api/v1/auth/login", "Autenticar actor"),

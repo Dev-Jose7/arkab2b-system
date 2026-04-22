@@ -12,10 +12,8 @@ import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
-import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -37,25 +35,28 @@ public class JwtSignerAdapter implements JwtSigningPort {
     }
 
     @Override
-    public Mono<String> signAccessToken(SessionAggregate session, AccessProfile accessProfile) {
-        return Mono.fromSupplier(() -> encodeAccessToken(session, accessProfile));
+    public Mono<String> signAccessToken(
+            SessionAggregate session,
+            AccessProfile accessProfile,
+            String organizationId,
+            String countryCode) {
+        return Mono.fromSupplier(() -> encodeAccessToken(session, accessProfile, organizationId, countryCode));
     }
 
     @Override
-    public Mono<String> signRefreshToken(SessionAggregate session) {
-        return Mono.fromSupplier(() -> encodeRefreshToken(session));
+    public Mono<String> signRefreshToken(SessionAggregate session, String organizationId, String countryCode) {
+        return Mono.fromSupplier(() -> encodeRefreshToken(session, organizationId, countryCode));
     }
 
-    @Override
-    public Mono<String> signServiceToken(ServiceTokenClaims claims) {
-        return Mono.fromSupplier(() -> encodeServiceToken(claims));
-    }
-
-    private String encodeAccessToken(SessionAggregate session, AccessProfile accessProfile) {
+    private String encodeAccessToken(
+            SessionAggregate session,
+            AccessProfile accessProfile,
+            String organizationId,
+            String countryCode) {
         if (accessProfile == null) {
             throw new IllegalStateException("Access profile is required for access token signing");
         }
-        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+        JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder()
                 .issuer(issuer)
                 .audience(audience)
                 .subject(session.userId().value())
@@ -66,13 +67,13 @@ public class JwtSignerAdapter implements JwtSigningPort {
                 .claim("typ", "access")
                 .claim("email", normalizeEmail(accessProfile.email().value()))
                 .claim("roles", normalizeRoles(accessProfile.roleCodeValues()))
-                .claim("permissions", normalizePermissions(accessProfile.permissionCodeValues()))
-                .build();
-        return sign(claimsSet);
+                .claim("permissions", normalizePermissions(accessProfile.permissionCodeValues()));
+        applyOrganizationContext(builder, organizationId, countryCode);
+        return sign(builder.build());
     }
 
-    private String encodeRefreshToken(SessionAggregate session) {
-        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+    private String encodeRefreshToken(SessionAggregate session, String organizationId, String countryCode) {
+        JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder()
                 .issuer(issuer)
                 .audience(audience)
                 .subject(session.userId().value())
@@ -80,75 +81,8 @@ public class JwtSignerAdapter implements JwtSigningPort {
                 .issueTime(Date.from(session.timestamps().createdAt()))
                 .expirationTime(Date.from(session.timestamps().refreshTokenExpiresAt()))
                 .claim("sid", session.id().value())
-                .claim("typ", "refresh")
-                .build();
-        return sign(claimsSet);
-    }
-
-    private String encodeServiceToken(ServiceTokenClaims claims) {
-        if (claims == null) {
-            throw new IllegalStateException("Service token claims are required");
-        }
-        if (claims.clientId() == null || claims.clientId().isBlank()) {
-            throw new IllegalStateException("Service token clientId is required");
-        }
-        String normalizedAudience = claims.audience() == null || claims.audience().isBlank()
-                ? audience
-                : claims.audience().trim();
-        long ttlSeconds = claims.ttlSeconds() <= 0 ? 300L : claims.ttlSeconds();
-        Date issuedAt = new Date();
-        Date expiresAt = new Date(issuedAt.getTime() + (ttlSeconds * 1000L));
-
-        LinkedHashSet<String> normalizedScopes = new LinkedHashSet<>();
-        normalizedScopes.add("service");
-        if (claims.scopes() != null) {
-            for (String scope : claims.scopes()) {
-                if (scope == null || scope.isBlank()) {
-                    continue;
-                }
-                normalizedScopes.add(scope.trim());
-            }
-        }
-
-        LinkedHashSet<String> normalizedRoles = new LinkedHashSet<>();
-        normalizedRoles.add("TRUSTED_SERVICE");
-        if (claims.roles() != null) {
-            normalizedRoles.addAll(normalizeRoles(claims.roles()));
-        }
-
-        JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder()
-                .issuer(issuer)
-                .audience(normalizedAudience)
-                .subject("svc:" + claims.clientId().trim())
-                .jwtID(UUID.randomUUID().toString())
-                .issueTime(issuedAt)
-                .expirationTime(expiresAt)
-                .claim("typ", "service")
-                .claim("client_id", claims.clientId().trim())
-                .claim("scope", String.join(" ", normalizedScopes))
-                .claim("scp", normalizedScopes)
-                .claim("permissions", normalizedScopes)
-                .claim("roles", normalizedRoles);
-
-        if (claims.organizationId() != null && !claims.organizationId().isBlank()) {
-            builder.claim("organization_id", claims.organizationId().trim());
-            builder.claim("organizationId", claims.organizationId().trim());
-        }
-        String organizationId = claims.organizationId();
-        if ((organizationId == null || organizationId.isBlank())
-                && claims.organizationId() != null
-                && !claims.organizationId().isBlank()) {
-            organizationId = claims.organizationId();
-        }
-        if (organizationId != null && !organizationId.isBlank()) {
-            builder.claim("organization_id", organizationId.trim());
-            builder.claim("organizationId", organizationId.trim());
-        }
-        if (claims.countryCode() != null && !claims.countryCode().isBlank()) {
-            String countryCode = claims.countryCode().trim().toUpperCase(Locale.ROOT);
-            builder.claim("country_code", countryCode);
-            builder.claim("countryCode", countryCode);
-        }
+                .claim("typ", "refresh");
+        applyOrganizationContext(builder, organizationId, countryCode);
         return sign(builder.build());
     }
 
@@ -187,6 +121,22 @@ public class JwtSignerAdapter implements JwtSigningPort {
                 .filter(permission -> permission != null && !permission.isBlank())
                 .map(String::trim)
                 .collect(java.util.stream.Collectors.toCollection(java.util.LinkedHashSet::new));
+    }
+
+    private void applyOrganizationContext(
+            JWTClaimsSet.Builder builder,
+            String organizationId,
+            String countryCode) {
+        if (organizationId != null && !organizationId.isBlank()) {
+            String normalizedOrganizationId = organizationId.trim();
+            builder.claim("organization_id", normalizedOrganizationId);
+            builder.claim("organizationId", normalizedOrganizationId);
+        }
+        if (countryCode != null && !countryCode.isBlank()) {
+            String normalizedCountryCode = countryCode.trim().toUpperCase(Locale.ROOT);
+            builder.claim("country_code", normalizedCountryCode);
+            builder.claim("countryCode", normalizedCountryCode);
+        }
     }
 
     private String normalizeEmail(String email) {

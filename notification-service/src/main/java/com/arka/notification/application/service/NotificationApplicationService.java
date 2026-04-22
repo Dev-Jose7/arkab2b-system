@@ -818,16 +818,16 @@ public class NotificationApplicationService
                         "actor_no_autenticado",
                         "No hay actor autenticado disponible para ejecutar la operacion")))
                 .flatMap(actor -> {
-                    if (adminRequired && !actor.admin() && !actor.trustedService()) {
+                    if (adminRequired && !actor.admin() && !actor.internalActor()) {
                         return Mono.error(new OperationNotPermittedException(
                                 "operacion_no_permitida",
                                 "La operacion requiere rol administrativo o servicio tecnico"));
                     }
-                    if (!actor.admin() && !actor.trustedService() && !organizationId.equals(actor.organizationId())) {
+                    if (!actor.admin() && !actor.internalActor() && !organizationId.equals(actor.organizationId())) {
                         return Mono.error(new ApplicationException(
                                 "acceso_cross_organization", "Actor no autorizado para el organization solicitado"));
                     }
-                    if (actor.trustedService()) {
+                    if (actor.internalActor()) {
                         return Mono.empty();
                     }
                     return actorLegitimacyPort

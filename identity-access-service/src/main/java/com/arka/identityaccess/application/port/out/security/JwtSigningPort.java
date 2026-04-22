@@ -7,18 +7,14 @@ import reactor.core.publisher.Mono;
 
 public interface JwtSigningPort {
 
-    Mono<String> signAccessToken(SessionAggregate session, AccessProfile accessProfile);
-
-    Mono<String> signRefreshToken(SessionAggregate session);
-
-    Mono<String> signServiceToken(ServiceTokenClaims claims);
-
-    record ServiceTokenClaims(
-            String clientId,
-            Set<String> scopes,
-            Set<String> roles,
-            String audience,
+    Mono<String> signAccessToken(
+            SessionAggregate session,
+            AccessProfile accessProfile,
             String organizationId,
-            String countryCode,
-            long ttlSeconds) {}
+            String countryCode);
+
+    Mono<String> signRefreshToken(
+            SessionAggregate session,
+            String organizationId,
+            String countryCode);
 }

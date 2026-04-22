@@ -30,13 +30,6 @@ app:
       issuer: ${APP_SECURITY_JWT_ISSUER:identity-access-service}
       allowed-audiences: ${APP_SECURITY_JWT_ALLOWED_AUDIENCES:arka-b2b,notification-service}
       jwks-uri: ${APP_SECURITY_JWT_JWKS_URI:http://localhost:8081/.well-known/jwks.json}
-    s2s:
-      client-id: ${APP_SECURITY_S2S_CLIENT_ID:notification-service}
-      client-secret: ${APP_SECURITY_S2S_CLIENT_SECRET:${APP_S2S_SECRET_NOTIFICATION:notification-service-secret}}
-      audience: ${APP_SECURITY_S2S_AUDIENCE:arka-b2b}
-      scopes: ${APP_SECURITY_S2S_SCOPES:notification.dispatch,order.read,inventory.read,directory.read,iam.permission.read}
-      identity-base-url: ${APP_SECURITY_S2S_IDENTITY_BASE_URL:http://identity-access-service}
-      token-path: ${APP_SECURITY_S2S_TOKEN_PATH:/api/v1/internal/auth/service-token}
     actor:
       fallback-enabled: ${APP_SECURITY_ACTOR_FALLBACK_ENABLED:false}
       fallback-organization-id: 
@@ -44,12 +37,10 @@ app:
   external:
     identity:
       base-url: ${APP_EXTERNAL_IDENTITY_BASE_URL:http://identity-access-service}
-      service-token: ${APP_EXTERNAL_IDENTITY_SERVICE_TOKEN:}
       timeout-ms: ${APP_EXTERNAL_IDENTITY_TIMEOUT_MS:3000}
       actor-legitimacy-path: ${APP_EXTERNAL_IDENTITY_ACTOR_LEGITIMACY_PATH:/api/v1/internal/iam/users/{actorId}/permissions}
     directory:
       base-url: ${APP_EXTERNAL_DIRECTORY_BASE_URL:http://directory-service}
-      service-token: ${APP_EXTERNAL_DIRECTORY_SERVICE_TOKEN:}
       timeout-ms: ${APP_EXTERNAL_DIRECTORY_TIMEOUT_MS:3000}
       retry:
         max-attempts: ${APP_EXTERNAL_DIRECTORY_RETRY_MAX_ATTEMPTS:2}
@@ -57,7 +48,6 @@ app:
       contacts-path: ${APP_EXTERNAL_DIRECTORY_CONTACTS_PATH:/api/v1/internal/organizations/{organizationId}/contacts}
     order:
       base-url: ${APP_EXTERNAL_ORDER_BASE_URL:http://order-service}
-      service-token: ${APP_EXTERNAL_ORDER_SERVICE_TOKEN:}
       timeout-ms: ${APP_EXTERNAL_ORDER_TIMEOUT_MS:3000}
       retry:
         max-attempts: ${APP_EXTERNAL_ORDER_RETRY_MAX_ATTEMPTS:2}

@@ -25,7 +25,6 @@ class InventoryHttpConsumerContractTest {
                     WebClient.builder(),
                     server.baseUrl(),
                     "/api/v1/catalog/checkout/variant-resolution",
-                    "inventory-token",
                     "COP",
                     "BASE",
                     3_000);
@@ -40,7 +39,7 @@ class InventoryHttpConsumerContractTest {
             assertThat(request.query()).contains("sku=SKU-XYZ");
             assertThat(request.query()).contains("currency=COP");
             assertThat(request.query()).contains("priceType=BASE");
-            assertThat(request.header("Authorization")).isEqualTo("Bearer inventory-token");
+            assertThat(request.header("Authorization")).isNull();
         }
     }
 
@@ -51,7 +50,6 @@ class InventoryHttpConsumerContractTest {
                     WebClient.builder(),
                     server.baseUrl(),
                     "/api/v1/organizations/{organizationId}",
-                    "inventory-token",
                     3_000);
 
             StepVerifier.create(adapter.organizationExists("organization-22"))
@@ -61,7 +59,7 @@ class InventoryHttpConsumerContractTest {
             CapturedRequest request = server.lastRequest();
             assertThat(request.method()).isEqualTo("GET");
             assertThat(request.path()).isEqualTo("/api/v1/organizations/organization-22");
-            assertThat(request.header("Authorization")).isEqualTo("Bearer inventory-token");
+            assertThat(request.header("Authorization")).isNull();
         }
     }
 
@@ -73,7 +71,6 @@ class InventoryHttpConsumerContractTest {
                     server.baseUrl(),
                     "/api/v1/carts/{cartId}",
                     "/api/v1/orders/{orderId}",
-                    "inventory-token",
                     3_000);
 
             StepVerifier.create(adapter.isValidOrderReference("organization-1", "ord-77"))
@@ -83,7 +80,7 @@ class InventoryHttpConsumerContractTest {
             CapturedRequest request = server.lastRequest();
             assertThat(request.method()).isEqualTo("GET");
             assertThat(request.path()).isEqualTo("/api/v1/orders/ord-77");
-            assertThat(request.header("Authorization")).isEqualTo("Bearer inventory-token");
+            assertThat(request.header("Authorization")).isNull();
         }
     }
 

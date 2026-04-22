@@ -7,7 +7,7 @@ Runbooks included:
 1. `config-server-unavailable.md`
 2. `eureka-registration-failure.md`
 3. `api-gateway-routing-or-edge-auth-failure.md`
-4. `s2s-token-invalid-or-expired.md`
+4. `internal-jwt-propagation-or-actor-context-failure.md`
 5. `kafka-topic-missing-or-broker-partial.md`
 6. `outbox-relay-stuck.md`
 7. `consumer-lag-high.md`

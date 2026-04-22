@@ -31,7 +31,6 @@ class NotificationHttpConsumerContractTest {
                     WebClient.builder(),
                     server.baseUrl(),
                     "/api/v1/organizations/{organizationId}/contacts",
-                    "notification-token",
                     3_000);
 
             StepVerifier.create(adapter.resolve("organization-1", "org-5", "EMAIL"))
@@ -46,7 +45,7 @@ class NotificationHttpConsumerContractTest {
             CapturedRequest request = server.lastRequest();
             assertThat(request.method()).isEqualTo("GET");
             assertThat(request.path()).isEqualTo("/api/v1/organizations/org-5/contacts");
-            assertThat(request.header("Authorization")).isEqualTo("Bearer notification-token");
+            assertThat(request.header("Authorization")).isNull();
         }
     }
 
@@ -62,7 +61,6 @@ class NotificationHttpConsumerContractTest {
                     server.baseUrl(),
                     "/api/v1/orders/{orderId}",
                     "/api/v1/carts/{cartId}",
-                    "notification-token",
                     3_000);
 
             StepVerifier.create(adapter.resolveByOrderId("ord-8"))
@@ -75,7 +73,7 @@ class NotificationHttpConsumerContractTest {
             CapturedRequest request = server.lastRequest();
             assertThat(request.method()).isEqualTo("GET");
             assertThat(request.path()).isEqualTo("/api/v1/orders/ord-8");
-            assertThat(request.header("Authorization")).isEqualTo("Bearer notification-token");
+            assertThat(request.header("Authorization")).isNull();
         }
     }
 
