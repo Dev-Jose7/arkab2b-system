@@ -11,9 +11,9 @@ BUILD SUCCESSFUL in 5s
 Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.0.0/userguide/configuration_cache_enabling.html
  Container arkab2b-eureka-server Running 
  Container arkab2b-postgres Running 
- Container arkab2b-config-server Running 
- Container arkab2b-redis Running 
  Container arkab2b-kafka Running 
+ Container arkab2b-redis Running 
+ Container arkab2b-config-server Running 
  Container arkab2b-identity-access-service Running 
  Container arkab2b-directory-service Running 
  Container arkab2b-catalog-service Running 
@@ -28,12 +28,6 @@ Consider enabling configuration cache to speed up this build: https://docs.gradl
  Container arkab2b-postgres Waiting 
  Container arkab2b-redis Waiting 
  Container arkab2b-kafka Waiting 
- Container arkab2b-postgres Healthy 
- Container arkab2b-redis Healthy 
- Container arkab2b-kafka Healthy 
- Container arkab2b-postgres Waiting 
- Container arkab2b-redis Waiting 
- Container arkab2b-kafka Waiting 
  Container arkab2b-kafka Healthy 
  Container arkab2b-postgres Healthy 
  Container arkab2b-redis Healthy 
@@ -43,5 +37,11 @@ Consider enabling configuration cache to speed up this build: https://docs.gradl
  Container arkab2b-postgres Healthy 
  Container arkab2b-redis Healthy 
  Container arkab2b-kafka Healthy 
+ Container arkab2b-postgres Waiting 
+ Container arkab2b-redis Waiting 
+ Container arkab2b-kafka Waiting 
+ Container arkab2b-redis Healthy 
+ Container arkab2b-kafka Healthy 
+ Container arkab2b-postgres Healthy 
  Container arkab2b-order-service Starting 
  Container arkab2b-order-service Started 

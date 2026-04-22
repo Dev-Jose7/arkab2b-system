@@ -304,6 +304,28 @@ done
 (cd eureka-server && ./gradlew --no-daemon test)
 ```
 
+### Hub HTML de cobertura JaCoCo
+
+Para regenerar los reportes JaCoCo de los servicios que ya tienen cobertura y
+sincronizarlos dentro de los recursos estáticos del gateway:
+
+```bash
+./scripts/generate-jacoco-reports.sh
+```
+
+Si ya tienes los reportes generados y solo quieres volver a empaquetarlos en el
+gateway:
+
+```bash
+ARKAB2B_SKIP_TESTS=true ./scripts/generate-jacoco-reports.sh
+```
+
+Luego podrás abrir:
+
+```text
+http://localhost:8080/tools/ARKAB2B_JACOCO_HUB.html
+```
+
 ## 14) Observabilidad y operación
 
 Artefactos operativos:

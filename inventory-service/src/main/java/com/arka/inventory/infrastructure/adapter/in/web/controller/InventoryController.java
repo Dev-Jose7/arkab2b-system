@@ -40,6 +40,7 @@ import com.arka.inventory.infrastructure.adapter.in.web.response.StockMovementRe
 import com.arka.inventory.infrastructure.adapter.in.web.response.StockReservationResponse;
 import com.arka.inventory.infrastructure.adapter.in.web.response.WarehouseResponse;
 import com.arka.inventory.infrastructure.adapter.in.web.response.ReservationValidationResponse;
+import com.arka.inventory.infrastructure.adapter.out.persistence.InventoryBacklogReadService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -82,6 +83,7 @@ public class InventoryController {
     private final GetInventoryAuditQueryUseCase getInventoryAuditQueryUseCase;
     private final ResolveCheckoutAvailabilityQueryUseCase resolveCheckoutAvailabilityQueryUseCase;
     private final ValidateReservationReferenceQueryUseCase validateReservationReferenceQueryUseCase;
+    private final InventoryBacklogReadService inventoryBacklogReadService;
 
     public InventoryController(
             InventoryCommandMapper commandMapper,
@@ -104,7 +106,8 @@ public class InventoryController {
             GetLowStockQueryUseCase getLowStockQueryUseCase,
             GetInventoryAuditQueryUseCase getInventoryAuditQueryUseCase,
             ResolveCheckoutAvailabilityQueryUseCase resolveCheckoutAvailabilityQueryUseCase,
-            ValidateReservationReferenceQueryUseCase validateReservationReferenceQueryUseCase) {
+            ValidateReservationReferenceQueryUseCase validateReservationReferenceQueryUseCase,
+            InventoryBacklogReadService inventoryBacklogReadService) {
         this.commandMapper = commandMapper;
         this.queryMapper = queryMapper;
         this.responseMapper = responseMapper;
@@ -126,6 +129,7 @@ public class InventoryController {
         this.getInventoryAuditQueryUseCase = getInventoryAuditQueryUseCase;
         this.resolveCheckoutAvailabilityQueryUseCase = resolveCheckoutAvailabilityQueryUseCase;
         this.validateReservationReferenceQueryUseCase = validateReservationReferenceQueryUseCase;
+        this.inventoryBacklogReadService = inventoryBacklogReadService;
     }
 
     @PreAuthorize("hasAnyAuthority('inventory.write', 'ROLE_INVENTORY_ADMIN')")
@@ -306,6 +310,23 @@ public class InventoryController {
         IamSecurityPrincipal principal = IamSecurityPrincipal.fromAuthentication(authentication);
         return getLowStockQueryUseCase
                 .handle(queryMapper.toLowStockQuery(warehouseId, principal))
+                .map(responseMapper::toResponse);
+    }
+
+    @PreAuthorize("hasAnyAuthority('inventory.read', 'ROLE_INVENTORY_ADMIN')")
+    @GetMapping("/stock-items/low-stock-report")
+    public Flux<StockItemResponse> getLowStockReport(
+            @RequestParam String warehouseId,
+            @RequestParam(name = "threshold", required = false) @Min(0) Integer threshold,
+            Authentication authentication) {
+        IamSecurityPrincipal principal = IamSecurityPrincipal.fromAuthentication(authentication);
+        if (threshold == null) {
+            return getLowStockQueryUseCase
+                    .handle(queryMapper.toLowStockQuery(warehouseId, principal))
+                    .map(responseMapper::toResponse);
+        }
+        return inventoryBacklogReadService
+                .listLowStockWithThreshold(principal.organizationId(), warehouseId, threshold)
                 .map(responseMapper::toResponse);
     }
 

@@ -8,11 +8,10 @@ INSERT INTO brands (
     updated_at
 )
 VALUES
-    ('brand-logitech', 'organization-demo', 'LOGITECH', 'Logitech', 'ACTIVE', NOW(), NOW()),
-    ('brand-tplink', 'organization-demo', 'TPLINK', 'TP-Link', 'ACTIVE', NOW(), NOW()),
-    ('brand-legacy', 'organization-demo', 'LEGACY', 'Legacy Generic', 'INACTIVE', NOW(), NOW()),
-    ('brand-phase6-redragon', 'organization-phase6', 'REDRAGON', 'Redragon', 'ACTIVE', NOW(), NOW()),
-    ('brand-phase6-kingston', 'organization-phase6', 'KINGSTON', 'Kingston', 'ACTIVE', NOW(), NOW())
+    ('4d01aa38-baf1-4300-ad88-d1d97c4cb447', '8b88f0d3-7f1e-4f5e-b2d0-3dfb2ac6f3a1', 'LOGITECH', 'Logitech', 'ACTIVE', NOW(), NOW()),
+    ('27acb8a9-eef9-4d8f-86b9-93f9d71cf3e5', '8b88f0d3-7f1e-4f5e-b2d0-3dfb2ac6f3a1', 'TPLINK', 'TP-Link', 'ACTIVE', NOW(), NOW()),
+    ('e1af4db9-7a9a-4c40-b8a0-d9737d5988d8', '6f6d04b6-4c9d-4b6a-8e13-5b2f9c0a1d77', 'REDRAGON', 'Redragon', 'ACTIVE', NOW(), NOW()),
+    ('7d5dd0e5-7fd4-4c80-9592-df9a6b5d2159', '6f6d04b6-4c9d-4b6a-8e13-5b2f9c0a1d77', 'KINGSTON', 'Kingston', 'ACTIVE', NOW(), NOW())
 ON CONFLICT (brand_id) DO UPDATE
 SET
     organization_id = EXCLUDED.organization_id,
@@ -31,11 +30,10 @@ INSERT INTO categories (
     updated_at
 )
 VALUES
-    ('category-mice', 'organization-demo', 'MICE', 'Mice y apuntadores', 'ACTIVE', NOW(), NOW()),
-    ('category-connectivity', 'organization-demo', 'CONNECTIVITY', 'Conectividad USB y red', 'ACTIVE', NOW(), NOW()),
-    ('category-legacy', 'organization-demo', 'LEGACY', 'Catalogo legado', 'INACTIVE', NOW(), NOW()),
-    ('category-phase6-keyboards', 'organization-phase6', 'KEYBOARDS', 'Teclados mecanicos', 'ACTIVE', NOW(), NOW()),
-    ('category-phase6-storage', 'organization-phase6', 'STORAGE', 'Almacenamiento SSD', 'ACTIVE', NOW(), NOW())
+    ('2be89df2-2f04-4ba3-8d13-6b0c4dff0c5e', '8b88f0d3-7f1e-4f5e-b2d0-3dfb2ac6f3a1', 'MICE', 'Mice y apuntadores', 'ACTIVE', NOW(), NOW()),
+    ('c2f4085b-f11d-486c-a5d1-3c427ca7c859', '8b88f0d3-7f1e-4f5e-b2d0-3dfb2ac6f3a1', 'CONNECTIVITY', 'Conectividad USB y red', 'ACTIVE', NOW(), NOW()),
+    ('0a17f6d8-d7a7-4f22-bb9f-8ae735ef3c95', '6f6d04b6-4c9d-4b6a-8e13-5b2f9c0a1d77', 'KEYBOARDS', 'Teclados mecanicos', 'ACTIVE', NOW(), NOW()),
+    ('eab40527-9a6c-4e14-93d6-45b2a6ccf08d', '6f6d04b6-4c9d-4b6a-8e13-5b2f9c0a1d77', 'STORAGE', 'Almacenamiento SSD', 'ACTIVE', NOW(), NOW())
 ON CONFLICT (category_id) DO UPDATE
 SET
     organization_id = EXCLUDED.organization_id,
@@ -58,49 +56,49 @@ INSERT INTO products (
 )
 VALUES
     (
-        'product-demo-m185',
-        'organization-demo',
+        '0b5bf628-e499-4ba9-a352-ae77f722c650',
+        '8b88f0d3-7f1e-4f5e-b2d0-3dfb2ac6f3a1',
         'M185-WL',
         'Mouse inalambrico Logitech M185 gris',
         'Mouse inalambrico de entrada para oficinas, puntos de venta y estaciones administrativas.',
-        'brand-logitech',
-        'category-mice',
+        '4d01aa38-baf1-4300-ad88-d1d97c4cb447',
+        '2be89df2-2f04-4ba3-8d13-6b0c4dff0c5e',
         'ACTIVE',
         NOW(),
         NOW()
     ),
     (
-        'product-demo-ue300',
-        'organization-demo',
+        '659721ef-63a2-48f5-b620-d0cf91b81de2',
+        '8b88f0d3-7f1e-4f5e-b2d0-3dfb2ac6f3a1',
         'UE300-USB',
         'Adaptador USB 3.0 a Gigabit TP-Link UE300',
         'Adaptador de red USB para estaciones sin puerto ethernet dedicado.',
-        'brand-tplink',
-        'category-connectivity',
+        '27acb8a9-eef9-4d8f-86b9-93f9d71cf3e5',
+        'c2f4085b-f11d-486c-a5d1-3c427ca7c859',
         'ACTIVE',
         NOW(),
         NOW()
     ),
     (
-        'product-phase6-k552',
-        'organization-phase6',
+        '1ecf779c-0baf-4fd4-a2f6-720be51a12f0',
+        '6f6d04b6-4c9d-4b6a-8e13-5b2f9c0a1d77',
         'K552-RGB',
         'Teclado mecanico Redragon Kumara K552 RGB',
         'Teclado mecanico TKL para canal gamer, corporativo y armado de puestos de trabajo.',
-        'brand-phase6-redragon',
-        'category-phase6-keyboards',
+        'e1af4db9-7a9a-4c40-b8a0-d9737d5988d8',
+        '0a17f6d8-d7a7-4f22-bb9f-8ae735ef3c95',
         'ACTIVE',
         NOW(),
         NOW()
     ),
     (
-        'product-phase6-a400-480',
-        'organization-phase6',
+        '24f9bc61-bbf2-4318-8d6f-09f8cd4e2c51',
+        '6f6d04b6-4c9d-4b6a-8e13-5b2f9c0a1d77',
         'A400-480',
         'SSD Kingston A400 480GB SATA',
         'Unidad de estado solido para actualizacion de equipos corporativos y ensamble de PC.',
-        'brand-phase6-kingston',
-        'category-phase6-storage',
+        '7d5dd0e5-7fd4-4c80-9592-df9a6b5d2159',
+        'eab40527-9a6c-4e14-93d6-45b2a6ccf08d',
         'ACTIVE',
         NOW(),
         NOW()
@@ -132,12 +130,12 @@ INSERT INTO variants (
 )
 VALUES
     (
-        'variant-demo-m185',
-        'organization-demo',
-        'product-demo-m185',
-        'SKU-DEMO-M185-GRY',
+        '9ebaa7c4-cd85-4cfa-b916-86a390412534',
+        '8b88f0d3-7f1e-4f5e-b2d0-3dfb2ac6f3a1',
+        '0b5bf628-e499-4ba9-a352-ae77f722c650',
+        'ARK-LGT-M185-GRY',
         'Mouse Logitech M185 gris',
-        'Variante vendible de mouse inalambrico para baseline demo.',
+        'Variante vendible orientada a reposicion de estaciones de trabajo.',
         'SELLABLE',
         NOW() - INTERVAL '30 day',
         NULL,
@@ -146,12 +144,12 @@ VALUES
         NOW()
     ),
     (
-        'variant-demo-ue300',
-        'organization-demo',
-        'product-demo-ue300',
-        'SKU-DEMO-UE300',
+        '12ec4873-724d-44a8-9f85-3f6fdff36c8c',
+        '8b88f0d3-7f1e-4f5e-b2d0-3dfb2ac6f3a1',
+        '659721ef-63a2-48f5-b620-d0cf91b81de2',
+        'ARK-TPL-UE300',
         'TP-Link UE300 USB 3.0 a Gigabit',
-        'Variante vendible de conectividad para baseline demo.',
+        'Variante vendible para estaciones que requieren conectividad cableada.',
         'SELLABLE',
         NOW() - INTERVAL '30 day',
         NULL,
@@ -160,12 +158,12 @@ VALUES
         NOW()
     ),
     (
-        'variant-phase6-k552',
-        'organization-phase6',
-        'product-phase6-k552',
-        'SKU-PHASE6-K552-RGB',
+        'f5d14d62-7fbd-4b0b-9c97-872c62c0fd8e',
+        '6f6d04b6-4c9d-4b6a-8e13-5b2f9c0a1d77',
+        '1ecf779c-0baf-4fd4-a2f6-720be51a12f0',
+        'ARK-RDG-K552-RGB',
         'Redragon Kumara K552 RGB',
-        'Variante vendible principal para flujo de compra Arka B2B.',
+        'Variante vendible principal para el flujo de compra B2B de Arka.',
         'SELLABLE',
         NOW() - INTERVAL '30 day',
         NULL,
@@ -174,10 +172,10 @@ VALUES
         NOW()
     ),
     (
-        'variant-phase6-a400-480',
-        'organization-phase6',
-        'product-phase6-a400-480',
-        'SKU-PHASE6-A400-480',
+        '3b84ec72-acde-4433-a55f-cd5e47d2a8f5',
+        '6f6d04b6-4c9d-4b6a-8e13-5b2f9c0a1d77',
+        '24f9bc61-bbf2-4318-8d6f-09f8cd4e2c51',
+        'ARK-KNG-A400-480',
         'Kingston A400 480GB SATA',
         'Variante vendible de almacenamiento para renovacion de equipos.',
         'SELLABLE',
@@ -215,9 +213,9 @@ INSERT INTO prices (
 )
 VALUES
     (
-        'price-demo-m185-base',
-        'organization-demo',
-        'variant-demo-m185',
+        'de8e1c86-23a5-49e0-bf56-48e0887a97d3',
+        '8b88f0d3-7f1e-4f5e-b2d0-3dfb2ac6f3a1',
+        '9ebaa7c4-cd85-4cfa-b916-86a390412534',
         'BASE',
         'COP',
         64900.0000,
@@ -228,9 +226,9 @@ VALUES
         NOW()
     ),
     (
-        'price-demo-ue300-base',
-        'organization-demo',
-        'variant-demo-ue300',
+        '749c84d8-7144-4ca6-8c7e-05ca40fae535',
+        '8b88f0d3-7f1e-4f5e-b2d0-3dfb2ac6f3a1',
+        '12ec4873-724d-44a8-9f85-3f6fdff36c8c',
         'BASE',
         'COP',
         89900.0000,
@@ -241,9 +239,9 @@ VALUES
         NOW()
     ),
     (
-        'price-phase6-k552-base',
-        'organization-phase6',
-        'variant-phase6-k552',
+        '0db608d9-0ab8-44bf-95c2-3880f214d47c',
+        '6f6d04b6-4c9d-4b6a-8e13-5b2f9c0a1d77',
+        'f5d14d62-7fbd-4b0b-9c97-872c62c0fd8e',
         'BASE',
         'COP',
         189900.0000,
@@ -254,9 +252,9 @@ VALUES
         NOW()
     ),
     (
-        'price-phase6-a400-480-base',
-        'organization-phase6',
-        'variant-phase6-a400-480',
+        '53d3a9bd-f595-43a8-9c55-f2cb5e5d8a0c',
+        '6f6d04b6-4c9d-4b6a-8e13-5b2f9c0a1d77',
+        '3b84ec72-acde-4433-a55f-cd5e47d2a8f5',
         'BASE',
         'COP',
         159900.0000,

@@ -15,9 +15,9 @@ INSERT INTO organization (
 )
 VALUES
     (
-        'organization-demo',
-        'Arka Demo SAS',
-        'Arka Demo',
+        '8b88f0d3-7f1e-4f5e-b2d0-3dfb2ac6f3a1',
+        'NovaCore Integraciones SAS',
+        'NovaCore TI',
         'CO',
         'COP',
         'America/Bogota',
@@ -27,7 +27,7 @@ VALUES
         NOW()
     ),
     (
-        'organization-phase6',
+        '6f6d04b6-4c9d-4b6a-8e13-5b2f9c0a1d77',
         'Arka Distribuciones SAS',
         'Arka B2B',
         'CO',
@@ -64,12 +64,12 @@ INSERT INTO organization_legal_profile (
 )
 VALUES
     (
-        'legal-profile-organization-demo',
-        'organization-demo',
+        'a844ef93-e31f-4f3c-9c4f-1a2ffdb058d1',
+        '8b88f0d3-7f1e-4f5e-b2d0-3dfb2ac6f3a1',
         'NIT',
-        '901654321-7',
+        '901815274-1',
         'RESPONSABLE_IVA',
-        'Laura Mendoza Rios',
+        'Paula Andrea Vargas',
         'CO',
         'VERIFIED',
         NOW(),
@@ -77,10 +77,10 @@ VALUES
         NOW()
     ),
     (
-        'legal-profile-organization-phase6',
-        'organization-phase6',
+        'f1848a9e-7f5e-4939-8bd8-a4cf3dbfd3e3',
+        '6f6d04b6-4c9d-4b6a-8e13-5b2f9c0a1d77',
         'NIT',
-        '900812345-6',
+        '901642318-4',
         'RESPONSABLE_IVA',
         'Santiago Cardenas Mejia',
         'CO',
@@ -123,17 +123,17 @@ INSERT INTO address (
 )
 VALUES
     (
-        'addr-organization-demo-hq',
-        'organization-demo',
+        '1d3f5c0a-7d1c-4305-96b4-3cde13d8ac8f',
+        '8b88f0d3-7f1e-4f5e-b2d0-3dfb2ac6f3a1',
         'SHIPPING',
-        'Centro logistico demo',
-        'Calle 72 # 20-37',
-        'Bodega 4',
-        'Bogota',
-        'Cundinamarca',
-        '110231',
+        'Bodega metropolitana',
+        'Calle 10 Sur # 50FF-84',
+        'Bodega 7',
+        'Medellin',
+        'Antioquia',
+        '050022',
         'CO',
-        'Bodega local de pruebas para integracion de accesorios PC',
+        'Centro de despacho para integradores y resellers de perifericos.',
         NULL,
         NULL,
         TRUE,
@@ -144,17 +144,17 @@ VALUES
         NOW()
     ),
     (
-        'addr-organization-phase6-hq',
-        'organization-phase6',
+        '3c43c7db-bf2c-4f0a-bf63-8e0f7d8a1e9a',
+        '6f6d04b6-4c9d-4b6a-8e13-5b2f9c0a1d77',
         'SHIPPING',
-        'Centro de distribucion norte',
+        'Centro de distribucion principal',
         'Autopista Norte # 97-50',
         'Bodega 12',
         'Bogota',
         'Cundinamarca',
         '110221',
         'CO',
-        'Centro de distribucion Arka para perifericos y accesorios de PC',
+        'Centro de distribucion Arka para teclados, almacenamiento y accesorios de PC.',
         NULL,
         NULL,
         TRUE,
@@ -185,10 +185,10 @@ SET
     status = 'SUPERSEDED',
     effective_to = COALESCE(effective_to, NOW()),
     updated_at = NOW()
-WHERE organization_id = 'organization-demo'
+WHERE organization_id = '8b88f0d3-7f1e-4f5e-b2d0-3dfb2ac6f3a1'
   AND country_code = 'CO'
   AND status = 'ACTIVE'
-  AND policy_id <> 'policy-organization-demo-co-v1';
+  AND policy_id <> 'c5ebf957-6df6-432c-8e60-e9ee3c33ae45';
 
 INSERT INTO organization_country_policy (
     policy_id,
@@ -209,8 +209,8 @@ INSERT INTO organization_country_policy (
 )
 VALUES
     (
-        'policy-organization-demo-co-v1',
-        'organization-demo',
+        'c5ebf957-6df6-432c-8e60-e9ee3c33ae45',
+        '8b88f0d3-7f1e-4f5e-b2d0-3dfb2ac6f3a1',
         'CO',
         1,
         'COP',
@@ -244,10 +244,10 @@ SET
     status = 'SUPERSEDED',
     effective_to = COALESCE(effective_to, NOW()),
     updated_at = NOW()
-WHERE organization_id = 'organization-phase6'
+WHERE organization_id = '6f6d04b6-4c9d-4b6a-8e13-5b2f9c0a1d77'
   AND country_code = 'CO'
   AND status = 'ACTIVE'
-  AND policy_id <> 'policy-organization-phase6-co-v1';
+  AND policy_id <> 'f7c6c218-2bb4-4b4c-a7dc-7d4b9e2ef3f1';
 
 INSERT INTO organization_country_policy (
     policy_id,
@@ -268,8 +268,8 @@ INSERT INTO organization_country_policy (
 )
 VALUES
     (
-        'policy-organization-phase6-co-v1',
-        'organization-phase6',
+        'f7c6c218-2bb4-4b4c-a7dc-7d4b9e2ef3f1',
+        '6f6d04b6-4c9d-4b6a-8e13-5b2f9c0a1d77',
         'CO',
         1,
         'COP',
@@ -312,32 +312,44 @@ INSERT INTO organization_contact (
 )
 VALUES
     (
-        'contact-organization-demo-email',
-        'organization-demo',
+        '7b10db82-291f-49a3-a8fa-d2221872b33e',
+        '8b88f0d3-7f1e-4f5e-b2d0-3dfb2ac6f3a1',
         'EMAIL',
-        'Operaciones demo',
-        'operaciones.demo@arka-b2b.test',
-        'o***@arka-b2b.test',
+        'Operaciones Medellin',
+        'operaciones@novacoreti.co',
+        'o***@novacoreti.co',
         TRUE,
         'ACTIVE',
         NOW(),
         NOW()
     ),
     (
-        'contact-organization-phase6-email',
-        'organization-phase6',
+        '1d7288ce-a640-4907-a3e9-af9d6a3cc17f',
+        '8b88f0d3-7f1e-4f5e-b2d0-3dfb2ac6f3a1',
+        'PHONE',
+        'Linea comercial',
+        '+5746041180',
+        '+57******1180',
+        TRUE,
+        'ACTIVE',
+        NOW(),
+        NOW()
+    ),
+    (
+        'adcf4de2-d8e1-4a70-9cbb-3091ed021fd8',
+        '6f6d04b6-4c9d-4b6a-8e13-5b2f9c0a1d77',
         'EMAIL',
         'Operaciones B2B',
-        'operaciones.b2b@arka-b2b.test',
-        'o***@arka-b2b.test',
+        'operaciones@arka.co',
+        'o***@arka.co',
         TRUE,
         'ACTIVE',
         NOW(),
         NOW()
     ),
     (
-        'contact-organization-phase6-phone',
-        'organization-phase6',
+        '5c2b59de-2d87-4afd-9c75-bf2bc1329cff',
+        '6f6d04b6-4c9d-4b6a-8e13-5b2f9c0a1d77',
         'PHONE',
         'Linea comercial',
         '+573001110506',

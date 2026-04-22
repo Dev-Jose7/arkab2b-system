@@ -29,6 +29,7 @@ import com.arka.catalog.infrastructure.adapter.in.web.request.ChangeVariantStatu
 import com.arka.catalog.infrastructure.adapter.in.web.request.CreateProductRequest;
 import com.arka.catalog.infrastructure.adapter.in.web.request.CreateVariantRequest;
 import com.arka.catalog.infrastructure.adapter.in.web.request.PublishCatalogOfferRequest;
+import com.arka.catalog.infrastructure.adapter.in.web.request.ProductRegistrationRequest;
 import com.arka.catalog.infrastructure.adapter.in.web.request.RegisterPriceRequest;
 import com.arka.catalog.infrastructure.adapter.in.web.request.SchedulePriceActivationRequest;
 import com.arka.catalog.infrastructure.adapter.in.web.request.UpdateCatalogOfferRequest;
@@ -36,17 +37,24 @@ import com.arka.catalog.infrastructure.adapter.in.web.request.UpdatePriceRequest
 import com.arka.catalog.infrastructure.adapter.in.web.request.UpdateProductRequest;
 import com.arka.catalog.infrastructure.adapter.in.web.request.UpdateVariantRequest;
 import com.arka.catalog.infrastructure.adapter.in.web.request.UpsertVariantAttributesRequest;
+import com.arka.catalog.infrastructure.adapter.in.web.response.BrandResponse;
 import com.arka.catalog.infrastructure.adapter.in.web.response.CatalogAuditResponse;
 import com.arka.catalog.infrastructure.adapter.in.web.response.CatalogOfferResponse;
 import com.arka.catalog.infrastructure.adapter.in.web.response.CatalogSearchResponse;
+import com.arka.catalog.infrastructure.adapter.in.web.response.CategoryResponse;
 import com.arka.catalog.infrastructure.adapter.in.web.response.CheckoutVariantResolutionResponse;
 import com.arka.catalog.infrastructure.adapter.in.web.response.PriceResponse;
 import com.arka.catalog.infrastructure.adapter.in.web.response.PriceTimelineResponse;
+import com.arka.catalog.infrastructure.adapter.in.web.response.ProductRegistrationResponse;
 import com.arka.catalog.infrastructure.adapter.in.web.response.ProductDetailResponse;
 import com.arka.catalog.infrastructure.adapter.in.web.response.ProductResponse;
 import com.arka.catalog.infrastructure.adapter.in.web.response.VariantResponse;
+import com.arka.catalog.infrastructure.adapter.out.external.InventoryStockInitializationHttpAdapter;
+import com.arka.catalog.infrastructure.adapter.out.persistence.repository.ReactiveBrandRepository;
+import com.arka.catalog.infrastructure.adapter.out.persistence.repository.ReactiveCategoryRepository;
 import jakarta.validation.Valid;
 import java.time.Instant;
+import java.util.UUID;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -91,6 +99,9 @@ public class CatalogHttpController {
     private final ResolveCurrentPriceQueryUseCase resolveCurrentPriceQueryUseCase;
     private final GetPriceTimelineQueryUseCase getPriceTimelineQueryUseCase;
     private final GetCatalogAuditQueryUseCase getCatalogAuditQueryUseCase;
+    private final ReactiveBrandRepository brandRepository;
+    private final ReactiveCategoryRepository categoryRepository;
+    private final InventoryStockInitializationHttpAdapter inventoryStockInitializationHttpAdapter;
 
     public CatalogHttpController(
             CatalogCommandMapper commandMapper,
@@ -116,7 +127,10 @@ public class CatalogHttpController {
             ResolveVariantForCheckoutQueryUseCase resolveVariantForCheckoutQueryUseCase,
             ResolveCurrentPriceQueryUseCase resolveCurrentPriceQueryUseCase,
             GetPriceTimelineQueryUseCase getPriceTimelineQueryUseCase,
-            GetCatalogAuditQueryUseCase getCatalogAuditQueryUseCase) {
+            GetCatalogAuditQueryUseCase getCatalogAuditQueryUseCase,
+            ReactiveBrandRepository brandRepository,
+            ReactiveCategoryRepository categoryRepository,
+            InventoryStockInitializationHttpAdapter inventoryStockInitializationHttpAdapter) {
         this.commandMapper = commandMapper;
         this.queryMapper = queryMapper;
         this.responseMapper = responseMapper;
@@ -141,6 +155,125 @@ public class CatalogHttpController {
         this.resolveCurrentPriceQueryUseCase = resolveCurrentPriceQueryUseCase;
         this.getPriceTimelineQueryUseCase = getPriceTimelineQueryUseCase;
         this.getCatalogAuditQueryUseCase = getCatalogAuditQueryUseCase;
+        this.brandRepository = brandRepository;
+        this.categoryRepository = categoryRepository;
+        this.inventoryStockInitializationHttpAdapter = inventoryStockInitializationHttpAdapter;
+    }
+
+    @PreAuthorize("hasAnyAuthority('catalog.read','catalog.write','ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_INTERNAL_ACTOR')")
+    @GetMapping("/brands")
+    public Flux<BrandResponse> listBrands(Authentication authentication) {
+        IamSecurityPrincipal principal = IamSecurityPrincipal.fromAuthentication(authentication);
+        return brandRepository.findActiveByOrganization(principal.organizationId())
+                .map(row -> new BrandResponse(
+                        row.brandId(),
+                        row.brandCode(),
+                        row.brandName(),
+                        row.status()));
+    }
+
+    @PreAuthorize("hasAnyAuthority('catalog.read','catalog.write','ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_INTERNAL_ACTOR')")
+    @GetMapping("/categories")
+    public Flux<CategoryResponse> listCategories(Authentication authentication) {
+        IamSecurityPrincipal principal = IamSecurityPrincipal.fromAuthentication(authentication);
+        return categoryRepository.findActiveByOrganization(principal.organizationId())
+                .map(row -> new CategoryResponse(
+                        row.categoryId(),
+                        row.categoryCode(),
+                        row.categoryName(),
+                        row.status()));
+    }
+
+    @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_INTERNAL_ACTOR')")
+    @PostMapping("/product-registrations")
+    public Mono<ProductRegistrationResponse> registerProduct(
+            @Valid @RequestBody ProductRegistrationRequest request,
+            Authentication authentication) {
+        IamSecurityPrincipal principal = IamSecurityPrincipal.fromAuthentication(authentication);
+        String idempotencyBase = normalizeIdempotencyBase(request.idempotencyKey());
+        Instant effectiveFrom = request.price().effectiveFrom() == null ? Instant.now() : request.price().effectiveFrom();
+
+        CreateProductRequest createProductRequest = new CreateProductRequest(
+                request.productCode(),
+                request.name(),
+                request.description(),
+                request.brandId(),
+                request.categoryId(),
+                request.tags(),
+                idempotencyBase + "-product");
+
+        return createProductCommandUseCase
+                .handle(commandMapper.toCommand(createProductRequest, principal))
+                .flatMap(productResult -> activateProductCommandUseCase
+                        .handle(commandMapper.toActivateCommand(productResult.productId(), idempotencyBase + "-product-activate", principal))
+                        .flatMap(activeProductResult -> {
+                            CreateVariantRequest createVariantRequest = new CreateVariantRequest(
+                                    request.variant().sku(),
+                                    request.variant().name(),
+                                    request.variant().description(),
+                                    request.variant().weightGrams(),
+                                    request.variant().attributes().stream()
+                                            .map(attribute -> new com.arka.catalog.infrastructure.adapter.in.web.request.VariantAttributeRequest(
+                                                    attribute.attributeCode(),
+                                                    attribute.value(),
+                                                    attribute.normalizedValue()))
+                                            .toList(),
+                                    idempotencyBase + "-variant");
+
+                            return createVariantCommandUseCase
+                                    .handle(commandMapper.toCommand(activeProductResult.productId(), createVariantRequest, principal))
+                                    .flatMap(variantResult -> {
+                                        ChangeVariantStatusRequest variantStatusRequest = new ChangeVariantStatusRequest(
+                                                "SELLABLE",
+                                                effectiveFrom,
+                                                request.price().effectiveUntil(),
+                                                idempotencyBase + "-variant-sellable");
+                                        return changeVariantStatusCommandUseCase
+                                                .handle(commandMapper.toCommand(variantResult.variantId(), variantStatusRequest, principal))
+                                                .flatMap(sellableVariantResult -> {
+                                                    RegisterPriceRequest registerPriceRequest = new RegisterPriceRequest(
+                                                            request.price().amount(),
+                                                            request.price().currency(),
+                                                            request.price().priceType(),
+                                                            effectiveFrom,
+                                                            request.price().effectiveUntil(),
+                                                            idempotencyBase + "-price");
+                                                    return registerPriceCommandUseCase
+                                                            .handle(commandMapper.toCommand(
+                                                                    sellableVariantResult.variantId(),
+                                                                    registerPriceRequest,
+                                                                    principal))
+                                                            .flatMap(priceResult -> {
+                                                                PublishCatalogOfferRequest publishCatalogOfferRequest =
+                                                                        new PublishCatalogOfferRequest(
+                                                                                activeProductResult.productId(),
+                                                                                sellableVariantResult.variantId(),
+                                                                                priceResult.priceId(),
+                                                                                request.regionalPolicyReference(),
+                                                                                idempotencyBase + "-offer");
+                                                                return publishCatalogOfferCommandUseCase
+                                                                        .handle(commandMapper.toCommand(
+                                                                                publishCatalogOfferRequest,
+                                                                                principal))
+                                                                        .flatMap(offerResult -> inventoryStockInitializationHttpAdapter
+                                                                                .initializeStockItem(
+                                                                                        request.stock().warehouseId(),
+                                                                                        sellableVariantResult.sku(),
+                                                                                        request.stock().initialPhysicalQty(),
+                                                                                        request.stock().reorderPoint(),
+                                                                                        request.stock().safetyStock(),
+                                                                                        idempotencyBase + "-stock")
+                                                                                .map(stockResult -> new ProductRegistrationResponse(
+                                                                                        "Producto registrado con catalogo, oferta y stock inicial.",
+                                                                                        responseMapper.toResponse(activeProductResult),
+                                                                                        responseMapper.toResponse(sellableVariantResult),
+                                                                                        responseMapper.toResponse(priceResult),
+                                                                                        responseMapper.toResponse(offerResult),
+                                                                                        stockResult)));
+                                                            });
+                                                });
+                                    });
+                        }));
     }
 
     @PreAuthorize("hasAnyAuthority('ROLE_CATALOG_ADMIN','ROLE_ARKA_ADMIN','ROLE_INTERNAL_ACTOR')")
@@ -342,6 +475,13 @@ public class CatalogHttpController {
         return searchCatalogQueryUseCase
                 .handle(queryMapper.toSearchCatalogQuery(text, brandId, categoryId, variantStatus, page, size, at, principal))
                 .map(responseMapper::toResponse);
+    }
+
+    private String normalizeIdempotencyBase(String idempotencyKey) {
+        if (idempotencyKey == null || idempotencyKey.isBlank()) {
+            return "catalog-registration-" + UUID.randomUUID();
+        }
+        return idempotencyKey.trim();
     }
 
     @GetMapping("/checkout/variant-resolution")

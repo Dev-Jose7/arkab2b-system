@@ -10,19 +10,19 @@ INSERT INTO warehouses (
 )
 VALUES
     (
-        'warehouse-demo-main',
-        'organization-demo',
-        'BOG-MAIN',
-        'Centro logistico demo Bogota',
+        'b0d0d293-3f63-4a43-b0c1-8d9c2ac9ce0b',
+        '8b88f0d3-7f1e-4f5e-b2d0-3dfb2ac6f3a1',
+        'MED-CEN',
+        'Centro logistico NovaCore Medellin',
         'CO',
         'ACTIVE',
         NOW(),
         NOW()
     ),
     (
-        'warehouse-phase6-main',
-        'organization-phase6',
-        'BOG-NORTE',
+        '96c99bf8-7de7-4141-96fc-2d788b771c86',
+        '6f6d04b6-4c9d-4b6a-8e13-5b2f9c0a1d77',
+        'BOG-NOR',
         'Centro de distribucion Arka Bogota',
         'CO',
         'ACTIVE',
@@ -54,10 +54,10 @@ INSERT INTO stock_items (
 )
 VALUES
     (
-        'stock-item-demo-m185',
-        'organization-demo',
-        'warehouse-demo-main',
-        'SKU-DEMO-M185-GRY',
+        '8ca61d8f-0fb7-428d-b7a7-9a44d20f978a',
+        '8b88f0d3-7f1e-4f5e-b2d0-3dfb2ac6f3a1',
+        'b0d0d293-3f63-4a43-b0c1-8d9c2ac9ce0b',
+        'ARK-LGT-M185-GRY',
         120,
         2,
         25,
@@ -68,10 +68,10 @@ VALUES
         NOW()
     ),
     (
-        'stock-item-demo-ue300',
-        'organization-demo',
-        'warehouse-demo-main',
-        'SKU-DEMO-UE300',
+        '666041e9-d9d1-46aa-a6b8-e7c0b01e3ae1',
+        '8b88f0d3-7f1e-4f5e-b2d0-3dfb2ac6f3a1',
+        'b0d0d293-3f63-4a43-b0c1-8d9c2ac9ce0b',
+        'ARK-TPL-UE300',
         60,
         0,
         10,
@@ -82,10 +82,10 @@ VALUES
         NOW()
     ),
     (
-        'stock-item-phase6-k552',
-        'organization-phase6',
-        'warehouse-phase6-main',
-        'SKU-PHASE6-K552-RGB',
+        'cb35045a-8f6e-4c3e-a1d5-2e3217a43b9c',
+        '6f6d04b6-4c9d-4b6a-8e13-5b2f9c0a1d77',
+        '96c99bf8-7de7-4141-96fc-2d788b771c86',
+        'ARK-RDG-K552-RGB',
         48,
         2,
         8,
@@ -96,10 +96,10 @@ VALUES
         NOW()
     ),
     (
-        'stock-item-phase6-a400-480',
-        'organization-phase6',
-        'warehouse-phase6-main',
-        'SKU-PHASE6-A400-480',
+        '464ffdb0-70e2-4f8d-898f-a3ba0d78d597',
+        '6f6d04b6-4c9d-4b6a-8e13-5b2f9c0a1d77',
+        '96c99bf8-7de7-4141-96fc-2d788b771c86',
+        'ARK-KNG-A400-480',
         70,
         0,
         12,
@@ -139,13 +139,13 @@ INSERT INTO stock_reservations (
 )
 VALUES
     (
-        'reservation-demo-m185-1',
-        'organization-demo',
-        'stock-item-demo-m185',
-        'warehouse-demo-main',
-        'SKU-DEMO-M185-GRY',
-        'cart-demo-m185-seeded',
-        'order-demo-m185-seeded',
+        '1243c2fa-6f02-4baf-98e5-c98f7cc90c43',
+        '8b88f0d3-7f1e-4f5e-b2d0-3dfb2ac6f3a1',
+        '8ca61d8f-0fb7-428d-b7a7-9a44d20f978a',
+        'b0d0d293-3f63-4a43-b0c1-8d9c2ac9ce0b',
+        'ARK-LGT-M185-GRY',
+        '43d5ec97-89e3-46a2-a5aa-df69013ef8e0',
+        '67fc526d-b87e-42c9-a420-163243833fcf',
         2,
         'CONFIRMED',
         NOW() + INTERVAL '7 day',
@@ -155,13 +155,13 @@ VALUES
         NOW()
     ),
     (
-        'reservation-phase6-k552-1',
-        'organization-phase6',
-        'stock-item-phase6-k552',
-        'warehouse-phase6-main',
-        'SKU-PHASE6-K552-RGB',
-        'cart-phase6-k552-seeded',
-        'order-phase6-k552-seeded',
+        'b14c1f83-a18d-4934-8135-b8530f0240f5',
+        '6f6d04b6-4c9d-4b6a-8e13-5b2f9c0a1d77',
+        'cb35045a-8f6e-4c3e-a1d5-2e3217a43b9c',
+        '96c99bf8-7de7-4141-96fc-2d788b771c86',
+        'ARK-RDG-K552-RGB',
+        'bc4d3ef1-17d0-4e4b-9f41-5269936f8322',
+        'c588f9cf-08a1-4d5c-88db-49c02019a03e',
         2,
         'CONFIRMED',
         NOW() + INTERVAL '7 day',

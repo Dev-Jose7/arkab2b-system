@@ -10,9 +10,9 @@ INSERT INTO operations_kpi_projections (
 )
 VALUES
     (
-        'kpi-order-fill-rate-orgdemo-2026w01',
-        'organization-demo',
-        '2026-W01',
+        '0395f80c-9ea0-4ddd-a588-badd3d661601',
+        '6f6d04b6-4c9d-4b6a-8e13-5b2f9c0a1d77',
+        '2026-W17',
         'order_fill_rate',
         97.50,
         0,

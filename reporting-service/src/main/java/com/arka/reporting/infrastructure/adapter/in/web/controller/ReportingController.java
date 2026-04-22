@@ -30,6 +30,7 @@ import com.arka.reporting.infrastructure.adapter.in.web.request.ReprocessReporti
 import com.arka.reporting.infrastructure.adapter.in.web.request.UpdateConsumerCheckpointRequest;
 import com.arka.reporting.infrastructure.adapter.in.web.response.AnalyticFactResponse;
 import com.arka.reporting.infrastructure.adapter.in.web.response.FactSearchResponse;
+import com.arka.reporting.infrastructure.adapter.in.web.response.GeneratedBusinessReportResponse;
 import com.arka.reporting.infrastructure.adapter.in.web.response.OperationsKpiResponse;
 import com.arka.reporting.infrastructure.adapter.in.web.response.ReportArtifactResponse;
 import com.arka.reporting.infrastructure.adapter.in.web.response.ReplenishmentProjectionResponse;
@@ -38,6 +39,7 @@ import com.arka.reporting.infrastructure.adapter.in.web.response.ReportingMetric
 import com.arka.reporting.infrastructure.adapter.in.web.response.SalesProjectionResponse;
 import com.arka.reporting.infrastructure.adapter.in.web.response.WeeklyExecutionResponse;
 import jakarta.validation.Valid;
+import java.util.UUID;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
@@ -236,6 +238,25 @@ public class ReportingController {
     }
 
     @PreAuthorize("hasAnyAuthority('ROLE_REPORTING_ADMIN','ROLE_INTERNAL_ACTOR','ROLE_ARKA_ADMIN')")
+    @PostMapping("/reports/sales/weekly")
+    public Mono<GeneratedBusinessReportResponse> generateWeeklySalesBusinessReport(
+            @RequestBody(required = false) GenerateWeeklyReportRequest request,
+            Authentication authentication) {
+        IamSecurityPrincipal principal = IamSecurityPrincipal.fromAuthentication(authentication);
+        GenerateWeeklyReportRequest safeRequest = request == null
+                ? new GenerateWeeklyReportRequest(null, null, null)
+                : request;
+        return generateWeeklySalesReportCommandUseCase
+                .handle(commandMapper.toWeeklySalesCommand(safeRequest, principal))
+                .flatMap(execution -> buildBusinessReportResponse(
+                        "SALES",
+                        "Reporte semanal de ventas generado.",
+                        execution,
+                        safeRequest,
+                        principal));
+    }
+
+    @PreAuthorize("hasAnyAuthority('ROLE_REPORTING_ADMIN','ROLE_INTERNAL_ACTOR','ROLE_ARKA_ADMIN')")
     @PostMapping("/weekly-executions/replenishment")
     public Mono<WeeklyExecutionResponse> generateWeeklyReplenishment(
             @RequestBody(required = false) GenerateWeeklyReportRequest request,
@@ -244,6 +265,25 @@ public class ReportingController {
         return generateWeeklyReplenishmentReportCommandUseCase
                 .handle(commandMapper.toWeeklyReplenishmentCommand(request, principal))
                 .map(responseMapper::toResponse);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ROLE_REPORTING_ADMIN','ROLE_INTERNAL_ACTOR','ROLE_ARKA_ADMIN')")
+    @PostMapping("/reports/replenishment/weekly")
+    public Mono<GeneratedBusinessReportResponse> generateWeeklyReplenishmentBusinessReport(
+            @RequestBody(required = false) GenerateWeeklyReportRequest request,
+            Authentication authentication) {
+        IamSecurityPrincipal principal = IamSecurityPrincipal.fromAuthentication(authentication);
+        GenerateWeeklyReportRequest safeRequest = request == null
+                ? new GenerateWeeklyReportRequest(null, null, null)
+                : request;
+        return generateWeeklyReplenishmentReportCommandUseCase
+                .handle(commandMapper.toWeeklyReplenishmentCommand(safeRequest, principal))
+                .flatMap(execution -> buildBusinessReportResponse(
+                        "REPLENISHMENT",
+                        "Reporte semanal de abastecimiento generado.",
+                        execution,
+                        safeRequest,
+                        principal));
     }
 
     @GetMapping("/weekly-executions/{executionId}")
@@ -338,5 +378,43 @@ public class ReportingController {
         return getReportingAuditQueryUseCase
                 .handle(queryMapper.toAuditQuery(targetType, targetId, page, size, principal))
                 .map(responseMapper::toResponse);
+    }
+
+    private Mono<GeneratedBusinessReportResponse> buildBusinessReportResponse(
+            String reportType,
+            String message,
+            com.arka.reporting.application.result.WeeklyExecutionResult execution,
+            GenerateWeeklyReportRequest request,
+            IamSecurityPrincipal principal) {
+        WeeklyExecutionResponse executionResponse = responseMapper.toResponse(execution);
+        if (request == null || request.format() == null || request.format().isBlank()) {
+            return Mono.just(new GeneratedBusinessReportResponse(
+                    message,
+                    reportType,
+                    executionResponse,
+                    null));
+        }
+        GenerateReportArtifactRequest artifactRequest = new GenerateReportArtifactRequest(
+                execution.weekId(),
+                reportType,
+                request.format(),
+                null,
+                deriveArtifactIdempotencyKey(request.idempotencyKey(), reportType));
+        return generateReportArtifactCommandUseCase
+                .handle(commandMapper.toCommand(execution.executionId(), artifactRequest, principal))
+                .map(responseMapper::toResponse)
+                .map(artifact -> new GeneratedBusinessReportResponse(
+                        message + " Artefacto exportable creado.",
+                        reportType,
+                        executionResponse,
+                        artifact));
+    }
+
+    private String deriveArtifactIdempotencyKey(String idempotencyKey, String reportType) {
+        String normalizedType = reportType == null ? "report" : reportType.toLowerCase();
+        if (idempotencyKey == null || idempotencyKey.isBlank()) {
+            return normalizedType + "-artifact-" + UUID.randomUUID();
+        }
+        return idempotencyKey.trim() + "-artifact";
     }
 }

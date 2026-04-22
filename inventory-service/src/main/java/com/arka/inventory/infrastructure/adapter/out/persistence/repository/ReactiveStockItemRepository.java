@@ -26,6 +26,16 @@ public interface ReactiveStockItemRepository extends ReactiveCrudRepository<Stoc
     @Query("SELECT stock_item_id, organization_id, warehouse_id, sku, physical_qty, reserved_qty, reorder_point, safety_stock, status, version, created_at, updated_at FROM stock_items WHERE organization_id = :organizationId AND warehouse_id = :warehouseId AND (physical_qty - reserved_qty) <= reorder_point ORDER BY (physical_qty - reserved_qty) ASC")
     Flux<StockItemRow> findLowStockByOrganizationAndWarehouse(String organizationId, String warehouseId);
 
+    @Query("""
+            SELECT stock_item_id, organization_id, warehouse_id, sku, physical_qty, reserved_qty, reorder_point, safety_stock, status, version, created_at, updated_at
+            FROM stock_items
+            WHERE organization_id = :organizationId
+              AND warehouse_id = :warehouseId
+              AND (physical_qty - reserved_qty) <= :threshold
+            ORDER BY (physical_qty - reserved_qty) ASC, sku ASC
+            """)
+    Flux<StockItemRow> findLowStockByOrganizationAndWarehouseWithThreshold(String organizationId, String warehouseId, Integer threshold);
+
     @Modifying
     @Query("""
             UPDATE stock_items

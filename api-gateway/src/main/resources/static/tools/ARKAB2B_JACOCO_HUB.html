@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ArkaB2B JaCoCo Hub</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #11182b;
+      --panel-2: #18233c;
+      --text: #e6edf3;
+      --muted: #9ea7b8;
+      --accent: #2f81f7;
+      --border: #2a3552;
+      --ok: #238636;
+      --warn: #c69026;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: grid;
+      grid-template-rows: auto auto auto 1fr;
+    }
+
+    header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+
+    .header-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .header-links a {
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      text-decoration: none;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .header-links a:hover {
+      border-color: var(--accent);
+    }
+
+    .hint-bar {
+      display: grid;
+      gap: 6px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #11182b 0%, #0e1628 100%);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .hint-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      background: var(--panel-2);
+      font-size: 11px;
+      color: var(--text);
+    }
+
+    .pill.ok { border-color: rgba(35, 134, 54, 0.35); color: #9ee6b1; }
+    .pill.warn { border-color: rgba(198, 144, 38, 0.35); color: #ffd58a; }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+    }
+
+    .tab-btn {
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .tab-btn:hover { border-color: var(--accent); }
+    .tab-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .panels {
+      position: relative;
+      min-height: 0;
+    }
+
+    .panel {
+      display: none;
+      height: 100%;
+      grid-template-rows: auto 1fr;
+      min-height: 0;
+    }
+
+    .panel.active { display: grid; }
+
+    .panel-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .panel-toolbar .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .panel-toolbar a,
+    .panel-toolbar button {
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .panel-toolbar button:hover,
+    .panel-toolbar a:hover {
+      border-color: var(--accent);
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #fff;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ArkaB2B JaCoCo Hub</h1>
+    <div class="header-links">
+      <a href="/tools/ARKAB2B_HUBS.html" target="_blank" rel="noopener noreferrer">Abrir índice de hubs</a>
+      <a href="/tools/ARKAB2B_SWAGGER_TABS.html" target="_blank" rel="noopener noreferrer">Abrir Swagger Hub</a>
+      <a href="/tools/ARKAB2B_E2E_HUB.html" target="_blank" rel="noopener noreferrer">Abrir E2E Hub</a>
+    </div>
+  </header>
+
+  <section class="hint-bar">
+    <div class="hint-row">
+      <span class="pill ok">Cobertura HTML por servicio</span>
+      <span class="pill">Origen: <code>build/reports/jacoco/test/html</code></span>
+      <span class="pill warn">Si ves 404, regenera JaCoCo y rebuild del gateway</span>
+    </div>
+    <div class="hint-row">
+      Comando sugerido: <code>./scripts/generate-jacoco-reports.sh</code>
+    </div>
+  </section>
+
+  <nav id="tabs" class="tabs" aria-label="Servicios con reporte JaCoCo"></nav>
+  <main id="panels" class="panels" aria-live="polite"></main>
+
+  <script>
+    const jacocoServices = [
+      { id: "identity-access-service", label: "Identity Access" },
+      { id: "directory-service", label: "Directory" },
+      { id: "catalog-service", label: "Catalog" },
+      { id: "inventory-service", label: "Inventory" },
+      { id: "order-service", label: "Order" },
+      { id: "notification-service", label: "Notification" },
+      { id: "reporting-service", label: "Reporting" }
+    ].map((service) => ({
+      ...service,
+      url: `/tools/jacoco/${service.id}/index.html`
+    }));
+
+    const tabsContainer = document.getElementById("tabs");
+    const panelsContainer = document.getElementById("panels");
+    let currentId = jacocoServices[0].id;
+
+    function createUI() {
+      jacocoServices.forEach((service, index) => {
+        const tab = document.createElement("button");
+        tab.className = "tab-btn";
+        tab.type = "button";
+        tab.textContent = service.label;
+        tab.setAttribute("data-id", service.id);
+        tab.addEventListener("click", () => activate(service.id));
+        if (index === 0) tab.classList.add("active");
+        tabsContainer.appendChild(tab);
+
+        const panel = document.createElement("section");
+        panel.className = "panel";
+        panel.id = `panel-${service.id}`;
+        if (index === 0) panel.classList.add("active");
+
+        const toolbar = document.createElement("div");
+        toolbar.className = "panel-toolbar";
+        toolbar.innerHTML = `
+          <span>${service.url}</span>
+          <div class="actions">
+            <a href="${service.url}" target="_blank" rel="noopener noreferrer">Abrir en pestaña nueva</a>
+            <button type="button" data-reload="${service.id}">Recargar</button>
+          </div>
+        `;
+
+        const iframe = document.createElement("iframe");
+        iframe.title = `JaCoCo ${service.label}`;
+        iframe.setAttribute("data-frame", service.id);
+        if (index === 0) {
+          iframe.src = service.url;
+        }
+
+        panel.appendChild(toolbar);
+        panel.appendChild(iframe);
+        panelsContainer.appendChild(panel);
+      });
+
+      panelsContainer.addEventListener("click", (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+        const serviceId = target.getAttribute("data-reload");
+        if (!serviceId) return;
+        const service = jacocoServices.find((item) => item.id === serviceId);
+        const frame = document.querySelector(`iframe[data-frame="${serviceId}"]`);
+        if (service && frame) {
+          frame.src = service.url;
+        }
+      });
+    }
+
+    function activate(id) {
+      currentId = id;
+      document.querySelectorAll(".tab-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.getAttribute("data-id") === id);
+      });
+      document.querySelectorAll(".panel").forEach((panel) => {
+        panel.classList.toggle("active", panel.id === `panel-${id}`);
+      });
+
+      const service = jacocoServices.find((item) => item.id === id);
+      const frame = document.querySelector(`iframe[data-frame="${id}"]`);
+      if (service && frame && !frame.src) {
+        frame.src = service.url;
+      }
+    }
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      const currentIndex = jacocoServices.findIndex((service) => service.id === currentId);
+      if (currentIndex === -1) return;
+      const delta = event.key === "ArrowRight" ? 1 : -1;
+      const nextIndex = (currentIndex + delta + jacocoServices.length) % jacocoServices.length;
+      activate(jacocoServices[nextIndex].id);
+    });
+
+    createUI();
+  </script>
+</body>
+</html>

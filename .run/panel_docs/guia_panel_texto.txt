@@ -1,0 +1,153 @@
+
+===== PAGE 1 =====
+ 
+Guía  para  preparar  tu  Panel  De  Expertos  
+Programa:  Java  Backend  Developer  –  Acelera  TI  
+Modalidad:
+ 
+Presentación
+ 
+individual
+ 
+Duración
+ 
+máxima:
+ 
+45
+ 
+minutos
+ 
+por
+ 
+estudiante
+ 
+ 
+¿Qué  es  el  panel?  
+Es  un  espacio  de  evaluación  individual  donde  presentarás  tu  proyecto  ARKA ,  sustentando  
+las
+ 
+decisiones
+ 
+técnicas
+ 
+que
+ 
+tomaste
+ 
+durante
+ 
+su
+ 
+desarrollo.
+ 
+Estarás
+ 
+frente
+ 
+a
+ 
+un
+ 
+grupo
+ 
+de
+ 
+expertos
+ 
+de
+ 
+la
+ 
+industria
+ 
+que
+ 
+conocen
+ 
+muy
+ 
+bien
+ 
+el
+ 
+reto,
+ 
+por
+ 
+lo
+ 
+tanto
+ 
+no
+ 
+necesitas
+ 
+presentar
+ 
+el
+ 
+reto
+ 
+desde
+ 
+cero
+.
+ 
+ 
+Cronograma  
+●  Fase  de  preparación:  2  semanas  al  ﬁnalizar  clases.  ●  Sustentación  individual:  semana  siguiente  a  la  preparación.  ●  Entrega  de  feedback  personalizado:  máximo  una  semana  después  de  tu  
+sustentación.
+ 
+ 
+¿Qué  espera  el  panel  de  ti?  
+El  panel  evaluará  tu  nivel  de  apropiación  de  conocimientos  técnicos  a  partir  de  9  
+competencias
+ 
+clave:
+ 
+1.  Servicios  REST  y  protocolo  HTTP  2.  Spring  Boot  y  arquitectura  por  capas  3.  Pruebas  unitarias  (JUnit,  Mockito,  JaCoCo)  4.  Bases  de  datos  relacionales  (con  y  sin  JPA)  5.  Buenas  prácticas  y  principios  SOLID  6.  Patrones  de  diseño  y  arquitectura  hexagonal  7.  Documentación  de  APIs  (Swagger  u  OpenAPI)  8.  CI/CD  y  automatización  9.  Despliegue  en  la  nube  (AWS)  
+Guíate  por  el  Backlog  con  historias  de  usuario.  
+ 
+ 
+
+
+===== PAGE 2 =====
+ 
+¿Cómo  debes  estructurar  tu  presentación?  
+Tu  foco  principal  debe  estar  en  sustentar  cómo  enfrentaste  el  reto ,  qué  decisiones  técnicas  
+tomaste
+ 
+y
+ 
+por
+ 
+qué
+.
+ 
+Te
+ 
+sugerimos
+ 
+este
+ 
+ﬂujo:
+ 
+1.  Introducción  breve  (2–3  minutos)  ○  ¿Quién  eres?  
+ 2.  Arquitectura  y  enfoque  técnico  (10  minutos)  ○  ¿Qué  arquitectura  usaste  (por  capas  /  hexagonal)?  ○  ¿Qué  módulos  desarrollaste  y  cómo  se  comunican?  
+ 3.  Historias  de  usuario  (5–7  minutos)  ○  Explica  cómo  las  abordaste.  Usa  criterios  de  aceptación  y  casos  
+representativos.
+ 
+ 4.  Demostración  de  código  (15–20  minutos)  ○  Muestra  tu  repositorio.  Navega  por:  ■  Controladores,  servicios  y  entidades.  ■  Pruebas  unitarias  implementadas.  ■  Documentación  de  APIs.  ■  Conexión  con  base  de  datos.  ■  Conﬁguración  para  despliegue  en  AWS  (si  aplica).  
+ 5.  Reﬂexión  y  cierre  (5  minutos)  ○  ¿Qué  aprendiste?  ○  ¿Qué  habrías  hecho  diferente?  ○  ¿Qué  te  gustaría  seguir  fortaleciendo?  
+ 
+¿Qué  tipo  de  preguntas  puedes  recibir?  
+●  ¿Por  qué  elegiste  esa  arquitectura?  ●  ¿Cómo  garantizaste  la  separación  de  responsabilidades?  ●  ¿Qué  patrón  de  diseño  aplicaste  y  en  qué  parte  del  código?  ●  ¿Cómo  validaste  los  datos?  ●  ¿Mostramos  tu  pipeline  de  CI/CD  o  cómo  desplegaste  en  AWS?  ●  ¿Dónde  están  tus  pruebas?  ¿Qué  cobertura  lograste?  
+ 
+Tips  para  el  éxito  
+●  Ensaya  tu  presentación:  cronómetro  en  mano.  ●  No  expliques  el  reto  desde  cero :  parte  del  cómo  lo  resolviste.  
+
+
+===== PAGE 3 =====
+ 
+●  Sé  honesto  si  algo  no  lo  lograste,  pero  explica  qué  intentaste.  ●  Muestra  tu  código  con  seguridad .  ●  Evita  leer :  habla  con  tus  palabras.  ●  Incluye  ejemplos  visuales :  diagramas,  postman,  Swagger,  etc.  
+

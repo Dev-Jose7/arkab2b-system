@@ -1,3 +1,7 @@
+import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.api.tasks.Sync
+import org.gradle.kotlin.dsl.the
+
 plugins {
     id("java")
     id("org.springframework.boot") version "3.5.4"
@@ -41,6 +45,36 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("io.projectreactor:reactor-test")
+}
+
+val jacocoReportServices = listOf(
+    "identity-access-service",
+    "directory-service",
+    "catalog-service",
+    "inventory-service",
+    "order-service",
+    "notification-service",
+    "reporting-service"
+)
+
+val generatedJacocoResourcesDir = layout.buildDirectory.dir("generated-resources/jacoco")
+
+val syncJacocoReports by tasks.registering(Sync::class) {
+    into(generatedJacocoResourcesDir)
+
+    jacocoReportServices.forEach { service ->
+        from(layout.projectDirectory.dir("../$service/build/reports/jacoco/test/html")) {
+            into("static/tools/jacoco/$service")
+        }
+    }
+}
+
+the<SourceSetContainer>().named("main") {
+    resources.srcDir(generatedJacocoResourcesDir)
+}
+
+tasks.processResources {
+    dependsOn(syncJacocoReports)
 }
 
 tasks.withType<Test> {
