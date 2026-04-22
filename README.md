@@ -173,9 +173,11 @@ El stack local inicia con datos semilla útiles para pruebas integradas:
 - organizaciones: `organization-demo`, `organization-phase6`
 - direcciones: `addr-organization-demo-hq`, `addr-organization-phase6-hq`
 - políticas de país por organización
-- catálogo con variante vendible:
-  - `variant-demo-coffee-500` (`SKU-DEMO-COFFEE-500`)
-  - `variant-phase6-coffee-500` (`SKU-PHASE6-COFFEE-500`)
+- catálogo con periféricos y accesorios para PC:
+  - `variant-demo-m185` (`SKU-DEMO-M185-GRY`) mouse inalámbrico Logitech M185
+  - `variant-demo-ue300` (`SKU-DEMO-UE300`) adaptador USB 3.0 a Gigabit TP-Link UE300
+  - `variant-phase6-k552` (`SKU-PHASE6-K552-RGB`) teclado mecánico Redragon Kumara K552 RGB
+  - `variant-phase6-a400-480` (`SKU-PHASE6-A400-480`) SSD Kingston A400 480GB
 - inventario con stock para esos SKU
 - políticas y templates de notificación para eventos de pedido/carrito/inventario
 

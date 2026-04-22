@@ -481,14 +481,18 @@ Referencia:
 
 ### Datos base relevantes
 
-- Organizaciones seed: `organization-demo` y `organization-phase6`.
+- Organizaciones seed:
+  - `organization-demo`: Arka Demo SAS
+  - `organization-phase6`: Arka Distribuciones SAS
 - Directory: direcciones, contactos, `organization_country_policy`.
-- Catalog: producto/variante vendible:
-  - `variant-demo-coffee-500` / `SKU-DEMO-COFFEE-500`
-  - `variant-phase6-coffee-500` / `SKU-PHASE6-COFFEE-500`
+- Catalog: periféricos, conectividad y almacenamiento:
+  - `variant-demo-m185` / `SKU-DEMO-M185-GRY` / Mouse inalámbrico Logitech M185
+  - `variant-demo-ue300` / `SKU-DEMO-UE300` / Adaptador USB 3.0 a Gigabit TP-Link UE300
+  - `variant-phase6-k552` / `SKU-PHASE6-K552-RGB` / Teclado mecánico Redragon Kumara K552 RGB
+  - `variant-phase6-a400-480` / `SKU-PHASE6-A400-480` / SSD Kingston A400 480GB
 - Inventory: stock para ambas organizaciones.
-- Notification: channel policies y templates para eventos core.
-- Reporting: KPI seed inicial.
+- Notification: channel policies y templates alineados a pedidos B2B de accesorios para PC.
+- Reporting: KPI seed inicial de cumplimiento operativo.
 
 Referencias:
 
@@ -564,7 +568,7 @@ CART=$(curl -sS "$GW/api/v1/carts" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Idempotency-Key: $IDK" \
   -H "Content-Type: application/json" \
-  -d '{"userId":"owner-phase6"}')
+  -d '{}')
 
 CART_ID=$(echo "$CART" | jq -r '.cartId')
 ```
@@ -578,10 +582,10 @@ curl -sS -X PUT "$GW/api/v1/carts/$CART_ID/items" \
     "items":[
       {
         "operation":"UPSERT",
-        "variantId":"variant-phase6-coffee-500",
-        "sku":"SKU-PHASE6-COFFEE-500",
+        "variantId":"variant-phase6-k552",
+        "sku":"SKU-PHASE6-K552-RGB",
         "qty":1,
-        "unitPrice":19900,
+        "unitPrice":189900,
         "currency":"COP"
       }
     ]
@@ -608,8 +612,7 @@ ORDER=$(curl -sS "$GW/api/v1/orders" \
   -H "Content-Type: application/json" \
   -d "{
     \"cartId\":\"$CART_ID\",
-    \"checkoutCorrelationId\":\"$CHECKOUT_ID\",
-    \"userId\":\"owner-phase6\"
+    \"checkoutCorrelationId\":\"$CHECKOUT_ID\"
   }")
 echo "$ORDER" | jq
 ```

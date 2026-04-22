@@ -12,8 +12,8 @@ VALUES
     (
         'warehouse-demo-main',
         'organization-demo',
-        'MAIN',
-        'Warehouse Demo Main',
+        'BOG-MAIN',
+        'Centro logistico demo Bogota',
         'CO',
         'ACTIVE',
         NOW(),
@@ -22,8 +22,8 @@ VALUES
     (
         'warehouse-phase6-main',
         'organization-phase6',
-        'MAIN',
-        'Warehouse Phase6 Main',
+        'BOG-NORTE',
+        'Centro de distribucion Arka Bogota',
         'CO',
         'ACTIVE',
         NOW(),
@@ -31,6 +31,10 @@ VALUES
     )
 ON CONFLICT (warehouse_id) DO UPDATE
 SET
+    organization_id = EXCLUDED.organization_id,
+    warehouse_code = EXCLUDED.warehouse_code,
+    warehouse_name = EXCLUDED.warehouse_name,
+    country_code = EXCLUDED.country_code,
     status = EXCLUDED.status,
     updated_at = NOW();
 
@@ -50,28 +54,56 @@ INSERT INTO stock_items (
 )
 VALUES
     (
-        'stock-item-demo-coffee-500',
+        'stock-item-demo-m185',
         'organization-demo',
         'warehouse-demo-main',
-        'SKU-DEMO-COFFEE-500',
-        100,
+        'SKU-DEMO-M185-GRY',
+        120,
         2,
-        20,
-        10,
+        25,
+        12,
         'ACTIVE',
         0,
         NOW(),
         NOW()
     ),
     (
-        'stock-item-phase6-coffee-500',
+        'stock-item-demo-ue300',
+        'organization-demo',
+        'warehouse-demo-main',
+        'SKU-DEMO-UE300',
+        60,
+        0,
+        10,
+        5,
+        'ACTIVE',
+        0,
+        NOW(),
+        NOW()
+    ),
+    (
+        'stock-item-phase6-k552',
         'organization-phase6',
         'warehouse-phase6-main',
-        'SKU-PHASE6-COFFEE-500',
-        80,
+        'SKU-PHASE6-K552-RGB',
+        48,
         2,
-        20,
-        10,
+        8,
+        4,
+        'ACTIVE',
+        0,
+        NOW(),
+        NOW()
+    ),
+    (
+        'stock-item-phase6-a400-480',
+        'organization-phase6',
+        'warehouse-phase6-main',
+        'SKU-PHASE6-A400-480',
+        70,
+        0,
+        12,
+        6,
         'ACTIVE',
         0,
         NOW(),
@@ -79,6 +111,9 @@ VALUES
     )
 ON CONFLICT (stock_item_id) DO UPDATE
 SET
+    organization_id = EXCLUDED.organization_id,
+    warehouse_id = EXCLUDED.warehouse_id,
+    sku = EXCLUDED.sku,
     physical_qty = EXCLUDED.physical_qty,
     reserved_qty = EXCLUDED.reserved_qty,
     reorder_point = EXCLUDED.reorder_point,
@@ -104,13 +139,13 @@ INSERT INTO stock_reservations (
 )
 VALUES
     (
-        'reservation-demo-checkout-1',
+        'reservation-demo-m185-1',
         'organization-demo',
-        'stock-item-demo-coffee-500',
+        'stock-item-demo-m185',
         'warehouse-demo-main',
-        'SKU-DEMO-COFFEE-500',
-        'cart-demo-seeded',
-        'order-demo-seeded',
+        'SKU-DEMO-M185-GRY',
+        'cart-demo-m185-seeded',
+        'order-demo-m185-seeded',
         2,
         'CONFIRMED',
         NOW() + INTERVAL '7 day',
@@ -120,13 +155,13 @@ VALUES
         NOW()
     ),
     (
-        'reservation-phase6-checkout-1',
+        'reservation-phase6-k552-1',
         'organization-phase6',
-        'stock-item-phase6-coffee-500',
+        'stock-item-phase6-k552',
         'warehouse-phase6-main',
-        'SKU-PHASE6-COFFEE-500',
-        'cart-phase6-seeded',
-        'order-phase6-seeded',
+        'SKU-PHASE6-K552-RGB',
+        'cart-phase6-k552-seeded',
+        'order-phase6-k552-seeded',
         2,
         'CONFIRMED',
         NOW() + INTERVAL '7 day',
@@ -137,6 +172,12 @@ VALUES
     )
 ON CONFLICT (reservation_id) DO UPDATE
 SET
+    organization_id = EXCLUDED.organization_id,
+    stock_item_id = EXCLUDED.stock_item_id,
+    warehouse_id = EXCLUDED.warehouse_id,
+    sku = EXCLUDED.sku,
+    cart_id = EXCLUDED.cart_id,
+    order_id = EXCLUDED.order_id,
     qty = EXCLUDED.qty,
     status = EXCLUDED.status,
     expires_at = EXCLUDED.expires_at,
