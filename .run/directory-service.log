@@ -6,11 +6,11 @@ Daemon will be stopped at the end of the build
 > Task :resolveMainClassName UP-TO-DATE
 > Task :bootJar UP-TO-DATE
 
-BUILD SUCCESSFUL in 5s
+BUILD SUCCESSFUL in 4s
 4 actionable tasks: 4 up-to-date
 Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.0.0/userguide/configuration_cache_enabling.html
- Container arkab2b-redis Running 
  Container arkab2b-postgres Running 
+ Container arkab2b-redis Running 
  Container arkab2b-kafka Running 
  Container arkab2b-eureka-server Running 
  Container arkab2b-config-server Running 
@@ -20,14 +20,14 @@ Consider enabling configuration cache to speed up this build: https://docs.gradl
  Container arkab2b-postgres Waiting 
  Container arkab2b-redis Waiting 
  Container arkab2b-kafka Waiting 
- Container arkab2b-redis Healthy 
  Container arkab2b-kafka Healthy 
  Container arkab2b-postgres Healthy 
+ Container arkab2b-redis Healthy 
+ Container arkab2b-postgres Waiting 
  Container arkab2b-redis Waiting 
  Container arkab2b-kafka Waiting 
- Container arkab2b-postgres Waiting 
+ Container arkab2b-redis Healthy 
  Container arkab2b-postgres Healthy 
  Container arkab2b-kafka Healthy 
- Container arkab2b-redis Healthy 
  Container arkab2b-directory-service Starting 
  Container arkab2b-directory-service Started 

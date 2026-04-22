@@ -61,6 +61,28 @@
       background: var(--panel);
     }
 
+    .header-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .header-links a {
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      text-decoration: none;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .header-links a:hover {
+      border-color: var(--accent);
+    }
+
     .tab-btn {
       border: 1px solid var(--border);
       background: var(--panel-2);
@@ -136,7 +158,11 @@
 <body>
   <header>
     <h1>ArkaB2B Swagger Hub</h1>
-    <div class="hint">Vía API Gateway (sin exponer puertos internos)</div>
+    <div class="header-links">
+      <a href="/tools/ARKAB2B_HUBS.html" target="_blank" rel="noopener noreferrer">Abrir índice de hubs</a>
+      <a href="/tools/ARKAB2B_E2E_HUB.html" target="_blank" rel="noopener noreferrer">Abrir E2E Hub</a>
+      <div class="hint">Vía API Gateway (sin exponer puertos internos)</div>
+    </div>
   </header>
 
   <nav id="tabs" class="tabs" aria-label="Servicios"></nav>
@@ -144,41 +170,43 @@
   <main id="panels" class="panels" aria-live="polite"></main>
 
   <script>
+    const viewerVersion = "2026-04-22-01";
+
     const swaggerServices = [
       {
         id: "iam",
         label: "Identity Access",
-        url: "/tools/ARKAB2B_SWAGGER_VIEWER.html?service=iam"
+        url: `/tools/ARKAB2B_SWAGGER_VIEWER.html?service=iam&v=${viewerVersion}`
       },
       {
         id: "directory",
         label: "Directory",
-        url: "/tools/ARKAB2B_SWAGGER_VIEWER.html?service=directory"
+        url: `/tools/ARKAB2B_SWAGGER_VIEWER.html?service=directory&v=${viewerVersion}`
       },
       {
         id: "catalog",
         label: "Catalog",
-        url: "/tools/ARKAB2B_SWAGGER_VIEWER.html?service=catalog"
+        url: `/tools/ARKAB2B_SWAGGER_VIEWER.html?service=catalog&v=${viewerVersion}`
       },
       {
         id: "inventory",
         label: "Inventory",
-        url: "/tools/ARKAB2B_SWAGGER_VIEWER.html?service=inventory"
+        url: `/tools/ARKAB2B_SWAGGER_VIEWER.html?service=inventory&v=${viewerVersion}`
       },
       {
         id: "order",
         label: "Order",
-        url: "/tools/ARKAB2B_SWAGGER_VIEWER.html?service=order"
+        url: `/tools/ARKAB2B_SWAGGER_VIEWER.html?service=order&v=${viewerVersion}`
       },
       {
         id: "notification",
         label: "Notification",
-        url: "/tools/ARKAB2B_SWAGGER_VIEWER.html?service=notification"
+        url: `/tools/ARKAB2B_SWAGGER_VIEWER.html?service=notification&v=${viewerVersion}`
       },
       {
         id: "reporting",
         label: "Reporting",
-        url: "/tools/ARKAB2B_SWAGGER_VIEWER.html?service=reporting"
+        url: `/tools/ARKAB2B_SWAGGER_VIEWER.html?service=reporting&v=${viewerVersion}`
       }
     ];
 

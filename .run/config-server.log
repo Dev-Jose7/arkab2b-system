@@ -6,7 +6,7 @@ Daemon will be stopped at the end of the build
 > Task :resolveMainClassName UP-TO-DATE
 > Task :bootJar UP-TO-DATE
 
-BUILD SUCCESSFUL in 5s
+BUILD SUCCESSFUL in 4s
 4 actionable tasks: 4 up-to-date
 Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.0.0/userguide/configuration_cache_enabling.html
  Container arkab2b-eureka-server Running 

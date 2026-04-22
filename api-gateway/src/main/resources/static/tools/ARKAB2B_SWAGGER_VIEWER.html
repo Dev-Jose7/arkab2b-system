@@ -36,8 +36,93 @@
     const params = new URLSearchParams(window.location.search);
     const service = params.get("service") || "iam";
     const specUrl = serviceSpecs[service] || serviceSpecs.iam;
+    const initialTarget = sanitizeTarget({
+      method: params.get("method"),
+      path: params.get("path"),
+      operationId: params.get("operationId"),
+      tag: params.get("tag")
+    });
 
     document.title = `ArkaB2B Swagger Viewer - ${service}`;
+
+    function normalizePath(value) {
+      return String(value || "").replace(/\/+$/, "");
+    }
+
+    function sanitizeTarget(value) {
+      return {
+        method: String((value && value.method) || "").toLowerCase(),
+        path: String((value && value.path) || ""),
+        operationId: String((value && value.operationId) || ""),
+        tag: String((value && value.tag) || "")
+      };
+    }
+
+    function openOperationBlock(operationBlock) {
+      if (!operationBlock) return false;
+      const tagSection = operationBlock.closest(".opblock-tag-section");
+      if (tagSection && !tagSection.classList.contains("is-open")) {
+        const tagButton = tagSection.querySelector(".opblock-tag");
+        if (tagButton) tagButton.click();
+      }
+      const summaryButton = operationBlock.querySelector(".opblock-summary-control");
+      if (summaryButton && !operationBlock.classList.contains("is-open")) {
+        summaryButton.click();
+      }
+      operationBlock.scrollIntoView({ behavior: "smooth", block: "center" });
+      return true;
+    }
+
+    function findOperationByMethodAndPath(target) {
+      if (!target.method || !target.path) return null;
+      const expectedPath = normalizePath(target.path);
+      const blocks = Array.from(document.querySelectorAll(".opblock"));
+      return blocks.find((block) => {
+        const blockMethod = String(block.getAttribute("data-method") || "").toLowerCase();
+        const blockPath = normalizePath(block.getAttribute("data-path"));
+        return blockMethod === target.method && blockPath === expectedPath;
+      }) || null;
+    }
+
+    function findOperationById(target) {
+      if (!target.operationId) return null;
+      const idNeedle = String(target.operationId).toLowerCase();
+      const blocks = Array.from(document.querySelectorAll(".opblock"));
+      return blocks.find((block) => {
+        const blockId = String(block.id || "").toLowerCase();
+        return blockId.includes(idNeedle);
+      }) || null;
+    }
+
+    function applyDeepLinkHash(target) {
+      if (!target.tag || !target.operationId) return;
+      window.location.hash = `#/${encodeURIComponent(target.tag)}/${encodeURIComponent(target.operationId)}`;
+    }
+
+    function focusTargetOperationWithRetry(rawTarget) {
+      const target = sanitizeTarget(rawTarget);
+      if (!target.method && !target.path && !target.operationId) return;
+      applyDeepLinkHash(target);
+      let attempts = 0;
+      const maxAttempts = 24;
+      const timer = setInterval(() => {
+        attempts += 1;
+        const byMethodPath = findOperationByMethodAndPath(target);
+        const byOperationId = findOperationById(target);
+        if (openOperationBlock(byMethodPath || byOperationId) || attempts >= maxAttempts) {
+          clearInterval(timer);
+        }
+      }, 250);
+    }
+
+    function handleParentMessage(event) {
+      if (event.origin !== window.location.origin) return;
+      const payload = event.data || {};
+      if (payload.type !== "ARKAB2B_SWAGGER_FOCUS_OPERATION") return;
+      focusTargetOperationWithRetry(payload.target || {});
+    }
+
+    window.addEventListener("message", handleParentMessage);
 
     window.ui = SwaggerUIBundle({
       url: specUrl,
@@ -50,7 +135,10 @@
       plugins: [
         SwaggerUIBundle.plugins.DownloadUrl
       ],
-      layout: "StandaloneLayout"
+      layout: "StandaloneLayout",
+      onComplete: () => {
+        focusTargetOperationWithRetry(initialTarget);
+      }
     });
   </script>
 </body>

@@ -1,0 +1,855 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ArkaB2B E2E Hub</title>
+  <style>
+    :root {
+      --bg: #070b16;
+      --panel: #0f1629;
+      --panel-2: #151f38;
+      --panel-3: #1e2a4a;
+      --text: #e6edf3;
+      --muted: #9ca8be;
+      --accent: #2f81f7;
+      --accent-2: #31c48d;
+      --border: #2a3552;
+      --ok: #238636;
+      --warn: #d29922;
+      --shadow: rgba(0, 0, 0, 0.28);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 0% 0%, #0f1a35 0%, var(--bg) 55%);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      display: grid;
+      grid-template-rows: auto auto auto 1fr;
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(12, 19, 38, 0.92);
+      backdrop-filter: blur(6px);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    header .meta {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 11px;
+      color: var(--muted);
+      background: var(--panel-2);
+      white-space: nowrap;
+    }
+
+    .chip a {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .chip a:hover {
+      text-decoration: underline;
+    }
+
+    .category-tabs,
+    .flow-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(12, 19, 38, 0.88);
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+
+    .flow-tabs {
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 7px 11px;
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      border-color: var(--accent);
+    }
+
+    .btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    #workspace {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(420px, 44%) 1fr;
+      gap: 10px;
+      padding: 10px;
+    }
+
+    .left,
+    .right {
+      min-height: 0;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(19, 29, 53, 0.98) 0%, rgba(14, 22, 40, 0.98) 100%);
+      box-shadow: 0 12px 24px var(--shadow);
+    }
+
+    .left {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .left-head {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .flow-id {
+      display: inline-block;
+      background: #1d2b4d;
+      color: #a8c5ff;
+      border: 1px solid #2f4f8e;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      margin-bottom: 8px;
+    }
+
+    .flow-title {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.3;
+    }
+
+    .flow-objective {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .service-list {
+      min-height: 0;
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: auto;
+      padding: 10px 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .service-card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(19, 30, 55, 0.75);
+      display: flex;
+      flex-direction: column;
+      flex: 0 0 auto;
+      overflow: hidden;
+    }
+
+    .service-head {
+      padding: 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .service-head-main {
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .service-title {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .service-reason {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .service-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .service-actions button,
+    .service-actions a {
+      border: 1px solid var(--border);
+      background: var(--panel-3);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 5px 8px;
+      font-size: 11px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .service-actions button:hover,
+    .service-actions a:hover {
+      border-color: var(--accent);
+    }
+
+    .service-actions .toggle-btn {
+      background: #1f3360;
+      border-color: #355390;
+      color: #d8e6ff;
+      font-weight: 600;
+    }
+
+    .service-actions .toggle-btn:hover {
+      border-color: #5b84da;
+    }
+
+    .service-card.collapsed .ops,
+    .service-card.collapsed .ops-meta {
+      display: none;
+    }
+
+    .ops-meta {
+      padding: 8px 10px 0;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .ops {
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 6px;
+      max-height: 320px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+    }
+
+    .op-row {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(17, 27, 48, 0.9);
+      padding: 8px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .op-row.missing {
+      border-color: #bf4d63;
+      background: rgba(62, 22, 34, 0.78);
+    }
+
+    .op-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+
+    .step-no {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 1px 7px;
+      font-size: 10px;
+      color: var(--muted);
+      background: rgba(15, 22, 41, 0.95);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    .method {
+      border-radius: 6px;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      min-width: 52px;
+      text-align: center;
+    }
+
+    .method.GET { background: #1f6feb; }
+    .method.POST { background: #238636; }
+    .method.PUT { background: #8957e5; }
+    .method.PATCH { background: #0ea5a0; }
+    .method.DELETE { background: #d73a49; }
+    .method.OTHER { background: #6b7280; }
+
+    .path {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      color: #d8e6ff;
+      overflow-wrap: anywhere;
+    }
+
+    .summary {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .open-step-btn {
+      margin-left: auto;
+      border: 1px solid var(--border);
+      background: #1f3360;
+      color: #d8e6ff;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .open-step-btn:hover {
+      border-color: #5b84da;
+    }
+
+    .op-empty,
+    .loading {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 8px;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+    }
+
+    .right {
+      display: block;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .viewer-host {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .viewer-frame {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #fff;
+      display: none;
+    }
+
+    .viewer-frame.active {
+      display: block;
+    }
+
+    @media (max-width: 1200px) {
+      #workspace {
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(320px, auto) minmax(480px, 1fr);
+      }
+
+      .ops {
+        height: 280px;
+        min-height: 280px;
+        max-height: 280px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ArkaB2B E2E Hub</h1>
+    <div class="meta">
+      <span class="chip">Tabs por prueba E2E</span>
+      <span class="chip">Endpoints agrupados por servicio</span>
+      <span class="chip"><a href="/tools/ARKAB2B_SWAGGER_TABS.html" target="_blank" rel="noopener noreferrer">Abrir Swagger por servicio</a></span>
+    </div>
+  </header>
+
+  <nav id="categoryTabs" class="category-tabs" aria-label="Categorías E2E"></nav>
+  <nav id="flowTabs" class="flow-tabs" aria-label="Pruebas E2E"></nav>
+
+  <section id="workspace">
+    <article class="left">
+      <div id="leftHead" class="left-head"></div>
+      <div id="serviceList" class="service-list"></div>
+    </article>
+
+    <article class="right">
+      <div id="viewerHost" class="viewer-host"></div>
+    </article>
+  </section>
+
+  <script src="/tools/ARKAB2B_E2E_FLOWS_CONFIG.js"></script>
+  <script src="/tools/ARKAB2B_E2E_EXECUTION_PLAN.js"></script>
+  <script>
+    const viewerVersion = "2026-04-22-01";
+    const METHOD_RANK = { GET: 1, POST: 2, PUT: 3, PATCH: 4, DELETE: 5 };
+
+    const config = window.ARKAB2B_E2E_CONFIG;
+    const executionPlan = window.ARKAB2B_E2E_EXECUTION_PLAN || {};
+    const specsCache = new Map();
+
+    const categoryTabs = document.getElementById("categoryTabs");
+    const flowTabs = document.getElementById("flowTabs");
+    const leftHead = document.getElementById("leftHead");
+    const serviceList = document.getElementById("serviceList");
+    const viewerHost = document.getElementById("viewerHost");
+    const viewerFrames = new Map();
+
+    let activeCategoryId = config.categories[0].id;
+    let activeFlow = null;
+    let activeViewerService = "iam";
+
+    function normalizePath(value) {
+      return String(value || "").replace(/\/+$/, "");
+    }
+
+    function opKey(method, path) {
+      return `${String(method || "").toUpperCase()} ${normalizePath(path)}`;
+    }
+
+    function getViewerUrl(serviceId) {
+      return `/tools/ARKAB2B_SWAGGER_VIEWER.html?service=${encodeURIComponent(serviceId)}&v=${viewerVersion}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function setViewerService(serviceId) {
+      activeViewerService = serviceId;
+      const frame = ensureViewerFrame(serviceId, null);
+      activateViewerFrame(serviceId);
+      if (frame && frame.dataset.loaded === "true") {
+        postViewerMessage(frame, {
+          type: "ARKAB2B_SWAGGER_FOCUS_OPERATION",
+          service: serviceId,
+          target: {}
+        });
+      }
+    }
+
+    function createViewerFrame(serviceId, initialTarget) {
+      const iframe = document.createElement("iframe");
+      iframe.className = "viewer-frame";
+      iframe.title = `Swagger E2E viewer - ${serviceId}`;
+      iframe.dataset.service = serviceId;
+      iframe.dataset.loaded = "false";
+      iframe.src = buildViewerOperationUrl(serviceId, initialTarget || null);
+
+      iframe.addEventListener("load", () => {
+        iframe.dataset.loaded = "true";
+        const pendingRaw = iframe.dataset.pendingTarget;
+        if (pendingRaw) {
+          try {
+            const pendingTarget = JSON.parse(pendingRaw);
+            postViewerMessage(iframe, {
+              type: "ARKAB2B_SWAGGER_FOCUS_OPERATION",
+              service: serviceId,
+              target: pendingTarget || {}
+            });
+          } catch (error) {
+            // ignore malformed pending payload
+          } finally {
+            delete iframe.dataset.pendingTarget;
+          }
+        }
+      });
+
+      viewerHost.appendChild(iframe);
+      viewerFrames.set(serviceId, iframe);
+      return iframe;
+    }
+
+    function ensureViewerFrame(serviceId, initialTarget) {
+      const existing = viewerFrames.get(serviceId);
+      if (existing) return existing;
+      return createViewerFrame(serviceId, initialTarget);
+    }
+
+    function activateViewerFrame(serviceId) {
+      viewerFrames.forEach((frame, id) => {
+        frame.classList.toggle("active", id === serviceId);
+      });
+    }
+
+    function postViewerMessage(frame, payload) {
+      if (!frame || !frame.contentWindow) return;
+      frame.contentWindow.postMessage(payload, window.location.origin);
+    }
+
+    function buildViewerOperationUrl(serviceId, target) {
+      const params = new URLSearchParams();
+      params.set("service", serviceId);
+      params.set("v", viewerVersion);
+
+      if (target) {
+        if (target.method) params.set("method", String(target.method).toUpperCase());
+        if (target.path) params.set("path", target.path);
+        if (target.operationId) params.set("operationId", target.operationId);
+        if (target.tag) params.set("tag", target.tag);
+      }
+
+      return `/tools/ARKAB2B_SWAGGER_VIEWER.html?${params.toString()}`;
+    }
+
+    function setViewerOperation(serviceId, target) {
+      activeViewerService = serviceId;
+      const frame = ensureViewerFrame(serviceId, target);
+      activateViewerFrame(serviceId);
+      if (frame.dataset.loaded === "true") {
+        postViewerMessage(frame, {
+          type: "ARKAB2B_SWAGGER_FOCUS_OPERATION",
+          service: serviceId,
+          target: target || {}
+        });
+      } else {
+        frame.dataset.pendingTarget = JSON.stringify(target || {});
+      }
+    }
+
+    function renderCategories() {
+      categoryTabs.innerHTML = "";
+      config.categories.forEach((category) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "btn";
+        button.textContent = `${category.label}`;
+        if (category.id === activeCategoryId) {
+          button.classList.add("active");
+        }
+        button.addEventListener("click", () => {
+          activeCategoryId = category.id;
+          renderCategories();
+          renderFlows();
+        });
+        categoryTabs.appendChild(button);
+      });
+    }
+
+    function getFlowsByCategory(categoryId) {
+      return config.flows.filter((flow) => flow.category === categoryId);
+    }
+
+    function renderFlows() {
+      const flows = getFlowsByCategory(activeCategoryId);
+      if (!flows.length) {
+        flowTabs.innerHTML = "";
+        leftHead.innerHTML = "<p class=\"flow-objective\">No hay flujos definidos en esta categoría.</p>";
+        serviceList.innerHTML = "";
+        return;
+      }
+
+      if (!activeFlow || activeFlow.category !== activeCategoryId) {
+        activeFlow = flows[0];
+      }
+
+      flowTabs.innerHTML = "";
+      flows.forEach((flow) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "btn";
+        button.textContent = `${flow.id} · ${flow.title}`;
+        if (flow.id === activeFlow.id) {
+          button.classList.add("active");
+        }
+        button.addEventListener("click", () => {
+          activeFlow = flow;
+          renderFlows();
+        });
+        flowTabs.appendChild(button);
+      });
+
+      renderFlowDetail();
+    }
+
+    function buildFlowServicePlan(flow) {
+      const orderedSteps = executionPlan[flow.id] || [];
+      const reasonMap = new Map((flow.services || []).map((serviceCfg) => [serviceCfg.service, serviceCfg.reason || ""]));
+      const groups = [];
+      const byService = new Map();
+
+      orderedSteps.forEach((step, index) => {
+        const serviceId = step.service;
+        if (!byService.has(serviceId)) {
+          const group = {
+            service: serviceId,
+            reason: reasonMap.get(serviceId) || "",
+            endpoints: []
+          };
+          byService.set(serviceId, group);
+          groups.push(group);
+        }
+        byService.get(serviceId).endpoints.push({
+          ...step,
+          order: index + 1
+        });
+      });
+
+      return groups;
+    }
+
+    function renderFlowDetail() {
+      const category = config.categories.find((item) => item.id === activeFlow.category);
+      const groupedPlan = buildFlowServicePlan(activeFlow);
+
+      leftHead.innerHTML = `
+        <span class="flow-id">${escapeHtml(activeFlow.id)}</span>
+        <h2 class="flow-title">${escapeHtml(activeFlow.title)}</h2>
+        <p class="flow-objective">${escapeHtml(activeFlow.objective)}</p>
+        <p class="flow-objective" style="margin-top:6px;font-size:12px;">
+          Categoria: ${escapeHtml(category ? category.label : activeFlow.category)}
+        </p>
+        <p class="flow-objective" style="margin-top:4px;font-size:12px;">
+          Pasos configurados: ${groupedPlan.reduce((acc, group) => acc + group.endpoints.length, 0)}
+        </p>
+      `;
+
+      serviceList.innerHTML = "";
+      if (!groupedPlan.length) {
+        serviceList.innerHTML = `<div class="op-empty">No hay endpoints configurados para ${escapeHtml(activeFlow.id)} en el plan E2E.</div>`;
+        return;
+      }
+
+      groupedPlan.forEach((serviceCfg, index) => {
+        const serviceLabel = config.serviceLabels[serviceCfg.service] || serviceCfg.service;
+        const card = document.createElement("section");
+        card.className = "service-card";
+        const collapsed = index !== 0;
+        card.classList.toggle("collapsed", collapsed);
+        const viewerUrl = getViewerUrl(serviceCfg.service);
+        const toggleLabel = collapsed ? "Expandir endpoints" : "Colapsar endpoints";
+
+        card.innerHTML = `
+          <div class="service-head">
+            <div class="service-head-main">
+              <h3 class="service-title">${escapeHtml(serviceLabel)}</h3>
+              <p class="service-reason">${escapeHtml(serviceCfg.reason || "")}</p>
+            </div>
+            <div class="service-actions">
+              <button type="button" class="toggle-btn" data-toggle="${escapeHtml(serviceCfg.service)}">${toggleLabel}</button>
+              <button type="button" data-load="${escapeHtml(serviceCfg.service)}">Cargar Swagger</button>
+              <a href="${escapeHtml(viewerUrl)}" target="_blank" rel="noopener noreferrer">Abrir</a>
+            </div>
+          </div>
+          <div class="ops-meta" data-ops-meta-for="${escapeHtml(serviceCfg.service)}">Cargando endpoints...</div>
+          <div class="ops" data-ops-for="${escapeHtml(serviceCfg.service)}">
+            <div class="loading">Cargando endpoints sugeridos...</div>
+          </div>
+        `;
+
+        const loadButton = card.querySelector("button[data-load]");
+        loadButton.addEventListener("click", () => setViewerService(serviceCfg.service));
+        const toggleButton = card.querySelector("button[data-toggle]");
+        toggleButton.addEventListener("click", () => {
+          const isCollapsed = card.classList.toggle("collapsed");
+          toggleButton.textContent = isCollapsed ? "Expandir endpoints" : "Colapsar endpoints";
+        });
+
+        serviceList.appendChild(card);
+
+        const opsContainer = card.querySelector(`.ops[data-ops-for="${serviceCfg.service}"]`);
+        const opsMeta = card.querySelector(`.ops-meta[data-ops-meta-for="${serviceCfg.service}"]`);
+        fillOperations(opsContainer, opsMeta, serviceCfg.service, serviceCfg.endpoints).catch((error) => {
+          opsMeta.textContent = "Error al cargar endpoints.";
+          opsContainer.innerHTML = `<div class="op-empty">No fue posible cargar OpenAPI de ${escapeHtml(serviceLabel)}. ${escapeHtml(error.message || "")}</div>`;
+        });
+
+        if (index === 0) {
+          setViewerService(serviceCfg.service);
+        }
+      });
+    }
+
+    async function fetchServiceOperations(serviceId) {
+      if (specsCache.has(serviceId)) {
+        return specsCache.get(serviceId);
+      }
+
+      const specUrl = config.serviceSpecs[serviceId];
+      if (!specUrl) {
+        throw new Error(`No hay spec URL configurada para ${serviceId}`);
+      }
+
+      const promise = fetch(specUrl, { headers: { "Accept": "application/json" } })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status} en ${specUrl}`);
+          }
+          return response.json();
+        })
+        .then((spec) => extractOperations(spec))
+        .catch((error) => {
+          specsCache.delete(serviceId);
+          throw error;
+        });
+
+      specsCache.set(serviceId, promise);
+      return promise;
+    }
+
+    function extractOperations(spec) {
+      const operations = [];
+      const paths = spec && spec.paths ? spec.paths : {};
+      const methods = ["get", "post", "put", "patch", "delete", "options", "head"];
+
+      Object.entries(paths).forEach(([path, pathItem]) => {
+        methods.forEach((method) => {
+          const op = pathItem && pathItem[method];
+          if (!op) return;
+          operations.push({
+            method: method.toUpperCase(),
+            path,
+            summary: op.summary || op.operationId || "Sin resumen",
+            description: op.description || "",
+            operationId: op.operationId || "",
+            tags: Array.isArray(op.tags) ? op.tags : [],
+            primaryTag: Array.isArray(op.tags) && op.tags.length ? op.tags[0] : ""
+          });
+        });
+      });
+
+      operations.sort((a, b) => {
+        if (a.path !== b.path) return a.path.localeCompare(b.path);
+        const rankA = METHOD_RANK[a.method] || 99;
+        const rankB = METHOD_RANK[b.method] || 99;
+        return rankA - rankB;
+      });
+
+      return operations;
+    }
+
+    async function fillOperations(container, metaContainer, serviceId, orderedEndpoints) {
+      const operations = await fetchServiceOperations(serviceId);
+      const operationsByKey = new Map(
+        operations.map((operation) => [opKey(operation.method, operation.path), operation])
+      );
+
+      if (!orderedEndpoints || !orderedEndpoints.length) {
+        metaContainer.textContent = "No hay endpoints configurados para este servicio en este flujo.";
+        container.innerHTML = "<div class=\"op-empty\">Este flujo no define pasos para este servicio.</div>";
+        return;
+      }
+
+      const resolvedRows = orderedEndpoints.map((step) => {
+        const key = opKey(step.method, step.path);
+        const found = operationsByKey.get(key);
+        return {
+          step,
+          operation: found || null
+        };
+      });
+
+      const foundCount = resolvedRows.filter((item) => item.operation).length;
+      const missingCount = resolvedRows.length - foundCount;
+      metaContainer.textContent = `Mostrando ${resolvedRows.length} paso(s) configurados en orden. Resueltos en OpenAPI: ${foundCount}. No encontrados: ${missingCount}.`;
+
+      const rows = resolvedRows.map(({ step, operation }) => {
+        const method = String(step.method || "").toUpperCase();
+        const methodClass = ["GET", "POST", "PUT", "PATCH", "DELETE"].includes(method) ? method : "OTHER";
+        const summary = operation ? operation.summary : (step.note || "Endpoint configurado no encontrado en OpenAPI actual.");
+        const rowClass = operation ? "op-row" : "op-row missing";
+        const operationId = operation ? operation.operationId || "" : "";
+        const tag = operation ? operation.primaryTag || "" : "";
+        return `
+          <article class="${rowClass}">
+            <div class="op-top">
+              <span class="step-no">#${step.order}</span>
+              <span class="method ${methodClass}">${escapeHtml(method)}</span>
+              <span class="path">${escapeHtml(step.path)}</span>
+              <button
+                type="button"
+                class="open-step-btn"
+                data-open-step="1"
+                data-open-service="${escapeHtml(serviceId)}"
+                data-open-method="${escapeHtml(method)}"
+                data-open-path="${escapeHtml(step.path)}"
+                data-open-operation-id="${escapeHtml(operationId)}"
+                data-open-tag="${escapeHtml(tag)}"
+              >Abrir paso en Swagger</button>
+            </div>
+            <div class="summary">${escapeHtml(summary)}</div>
+          </article>
+        `;
+      }).join("");
+
+      container.innerHTML = rows;
+      container.querySelectorAll("button[data-open-step]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const target = {
+            method: button.getAttribute("data-open-method") || "",
+            path: button.getAttribute("data-open-path") || "",
+            operationId: button.getAttribute("data-open-operation-id") || "",
+            tag: button.getAttribute("data-open-tag") || ""
+          };
+          setViewerOperation(serviceId, target);
+        });
+      });
+    }
+
+    renderCategories();
+    renderFlows();
+    setViewerService(activeViewerService);
+  </script>
+</body>
+</html>
