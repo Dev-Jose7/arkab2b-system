@@ -1,6 +1,5 @@
 CREATE TABLE IF NOT EXISTS organization (
     organization_id        VARCHAR(100) PRIMARY KEY,
-    organization_code      VARCHAR(60)  NOT NULL,
     legal_name             VARCHAR(255) NOT NULL,
     trade_name             VARCHAR(255),
     country_code           VARCHAR(2)   NOT NULL,
@@ -14,8 +13,9 @@ CREATE TABLE IF NOT EXISTS organization (
         CHECK (status IN ('ONBOARDING', 'ACTIVE', 'SUSPENDED', 'INACTIVE'))
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS ux_organization_code
-    ON organization (UPPER(organization_code));
+DROP INDEX IF EXISTS ux_organization_code;
+ALTER TABLE organization DROP COLUMN IF EXISTS organization_code;
+
 CREATE INDEX IF NOT EXISTS idx_organization_status
     ON organization (status);
 CREATE INDEX IF NOT EXISTS idx_organization_country

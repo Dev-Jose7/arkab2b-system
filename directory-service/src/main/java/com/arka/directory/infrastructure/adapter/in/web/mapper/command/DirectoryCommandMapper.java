@@ -30,7 +30,6 @@ public class DirectoryCommandMapper {
 
     public CreateOrganizationCommand toCommand(CreateOrganizationRequest request, IamSecurityPrincipal principal) {
         return new CreateOrganizationCommand(
-                request.organizationCode(),
                 request.legalName(),
                 request.tradeName(),
                 request.countryCode(),

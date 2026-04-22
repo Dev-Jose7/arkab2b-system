@@ -1,7 +1,6 @@
 package com.arka.directory.application.command;
 
 public record CreateOrganizationCommand(
-        String organizationCode,
         String legalName,
         String tradeName,
         String countryCode,

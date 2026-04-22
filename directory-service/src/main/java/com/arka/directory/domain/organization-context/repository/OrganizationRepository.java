@@ -9,6 +9,4 @@ public interface OrganizationRepository {
     Organization save(Organization organization);
 
     Optional<Organization> findById(OrganizationId organizationId);
-
-    Optional<Organization> findByCode(String organizationCode);
 }

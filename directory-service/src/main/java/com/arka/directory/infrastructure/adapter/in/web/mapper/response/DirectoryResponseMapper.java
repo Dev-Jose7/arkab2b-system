@@ -33,7 +33,6 @@ public class DirectoryResponseMapper {
     public OrganizationResponse toResponse(OrganizationResult result) {
         return new OrganizationResponse(
                 result.organizationId(),
-                result.organizationCode(),
                 result.legalName(),
                 result.tradeName(),
                 result.countryCode(),

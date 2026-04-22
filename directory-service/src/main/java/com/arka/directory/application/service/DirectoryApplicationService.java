@@ -180,15 +180,10 @@ public class DirectoryApplicationService implements
     public Mono<OrganizationResult> handle(CreateOrganizationCommand command) {
         String actorUserId = normalizeRequired(command.actorUserId(), "actorUserId");
         return ensureActorLegitimate(actorUserId)
-                .then(organizationPersistencePort.existsByCode(normalizeRequired(command.organizationCode(), "organizationCode")))
-                .flatMap(exists -> exists
-                        ? Mono.error(new DirectoryConflictException("Organization code already exists"))
-                        : Mono.empty())
                 .then(Mono.defer(() -> {
                     Instant now = now();
                     Organization organization = Organization.register(
                             OrganizationId.of(UUID.randomUUID().toString()),
-                            command.organizationCode().trim().toUpperCase(),
                             command.legalName(),
                             command.tradeName(),
                             CountryCode.of(command.countryCode()),
@@ -203,7 +198,7 @@ public class DirectoryApplicationService implements
                                             "CreateOrganization",
                                             "Organization",
                                             saved.id().value(),
-                                            payload("organizationCode", saved.organizationCode()),
+                                            payload("legalName", saved.legalName()),
                                             organization.pullDomainEvents())
                                     .thenReturn(resultMapper.toResult(saved)));
                 }));

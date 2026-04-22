@@ -20,7 +20,6 @@ public class DirectoryResultMapper {
     public OrganizationResult toResult(Organization organization) {
         return new OrganizationResult(
                 organization.id().value(),
-                organization.organizationCode(),
                 organization.legalName(),
                 organization.tradeName(),
                 organization.countryCode().value(),

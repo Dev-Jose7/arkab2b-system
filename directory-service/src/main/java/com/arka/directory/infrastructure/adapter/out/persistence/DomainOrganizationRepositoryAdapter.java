@@ -37,9 +37,4 @@ public class DomainOrganizationRepositoryAdapter implements OrganizationReposito
     public Optional<Organization> findById(OrganizationId organizationId) {
         return repository.findById(organizationId.value()).map(rowMapper::toDomain).blockOptional(BLOCK_TIMEOUT);
     }
-
-    @Override
-    public Optional<Organization> findByCode(String organizationCode) {
-        return repository.findByOrganizationCodeIgnoreCase(organizationCode).map(rowMapper::toDomain).blockOptional(BLOCK_TIMEOUT);
-    }
 }

@@ -24,7 +24,6 @@ class DirectoryRowMapperTest {
     void organizationRoundTripMappingKeepsCoreFields() {
         Organization organization = Organization.rehydrate(
                 OrganizationId.of("org-1"),
-                "ACME",
                 "Acme Corp",
                 "Acme",
                 CountryCode.of("CO"),
@@ -39,7 +38,6 @@ class DirectoryRowMapperTest {
         Organization restored = mapper.toDomain(row);
 
         assertEquals("org-1", restored.id().value());
-        assertEquals("ACME", restored.organizationCode());
         assertEquals("ACTIVE", restored.status().name());
     }
 

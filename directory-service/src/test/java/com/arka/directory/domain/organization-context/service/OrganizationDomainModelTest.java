@@ -20,7 +20,6 @@ class OrganizationDomainModelTest {
     void registerCreatesOnboardingOrganizationAndEmitsEvent() {
         Organization organization = Organization.register(
                 OrganizationId.of("org-1"),
-                "ACME",
                 "Acme Corp",
                 "Acme",
                 CountryCode.of("CO"),
@@ -39,7 +38,6 @@ class OrganizationDomainModelTest {
     void inactiveOrganizationCannotTransitionBackToActive() {
         Organization organization = Organization.rehydrate(
                 OrganizationId.of("org-1"),
-                "ACME",
                 "Acme Corp",
                 "Acme",
                 CountryCode.of("CO"),
@@ -59,7 +57,6 @@ class OrganizationDomainModelTest {
     void sensitiveOperationsRequireActiveOrganization() {
         Organization organization = Organization.rehydrate(
                 OrganizationId.of("org-1"),
-                "ACME",
                 "Acme Corp",
                 "Acme",
                 CountryCode.of("CO"),

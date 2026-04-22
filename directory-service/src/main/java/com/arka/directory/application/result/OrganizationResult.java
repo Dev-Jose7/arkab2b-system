@@ -4,7 +4,6 @@ import java.time.Instant;
 
 public record OrganizationResult(
         String organizationId,
-        String organizationCode,
         String legalName,
         String tradeName,
         String countryCode,

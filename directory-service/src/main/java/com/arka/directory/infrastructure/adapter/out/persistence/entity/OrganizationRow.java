@@ -8,7 +8,6 @@ import org.springframework.data.relational.core.mapping.Table;
 @Table("organization")
 public record OrganizationRow(
         @Id @Column("organization_id") String organizationId,
-        @Column("organization_code") String organizationCode,
         @Column("legal_name") String legalName,
         @Column("trade_name") String tradeName,
         @Column("country_code") String countryCode,

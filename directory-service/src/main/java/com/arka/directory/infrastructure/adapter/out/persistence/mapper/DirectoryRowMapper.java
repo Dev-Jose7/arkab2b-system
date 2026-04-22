@@ -33,7 +33,6 @@ public class DirectoryRowMapper {
     public Organization toDomain(OrganizationRow row) {
         return Organization.rehydrate(
                 OrganizationId.of(row.organizationId()),
-                row.organizationCode(),
                 row.legalName(),
                 row.tradeName(),
                 CountryCode.of(row.countryCode()),
@@ -48,7 +47,6 @@ public class DirectoryRowMapper {
     public OrganizationRow toRow(Organization organization) {
         return new OrganizationRow(
                 organization.id().value(),
-                organization.organizationCode(),
                 organization.legalName(),
                 organization.tradeName(),
                 organization.countryCode().value(),

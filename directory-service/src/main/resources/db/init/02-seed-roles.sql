@@ -2,7 +2,6 @@
 -- Seed minimal organization/organization used by integrated local stack.
 INSERT INTO organization (
     organization_id,
-    organization_code,
     legal_name,
     trade_name,
     country_code,
@@ -15,7 +14,6 @@ INSERT INTO organization (
 )
 VALUES (
     'organization-demo',
-    'ORG-ORGANIZATION-DEMO',
     'Organization Demo Organization',
     'Organization Demo',
     'CO',
@@ -164,7 +162,6 @@ SET
 
 INSERT INTO organization (
     organization_id,
-    organization_code,
     legal_name,
     trade_name,
     country_code,
@@ -178,7 +175,6 @@ INSERT INTO organization (
 VALUES
     (
         'organization-phase6',
-        'ORG-ORGANIZATION-PHASE6',
         'Phase 6 Organization',
         'Phase 6',
         'CO',

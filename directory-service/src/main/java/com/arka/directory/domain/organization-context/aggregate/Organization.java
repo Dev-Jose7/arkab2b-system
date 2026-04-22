@@ -14,7 +14,6 @@ import java.util.List;
 public final class Organization {
 
     private final OrganizationId id;
-    private final String organizationCode;
     private final CountryCode countryCode;
     private final Instant createdAt;
     private final List<DomainEvent> domainEvents;
@@ -29,7 +28,6 @@ public final class Organization {
 
     private Organization(
             OrganizationId id,
-            String organizationCode,
             String legalName,
             String tradeName,
             CountryCode countryCode,
@@ -41,7 +39,6 @@ public final class Organization {
             Instant updatedAt,
             List<DomainEvent> domainEvents) {
         this.id = id;
-        this.organizationCode = requireNotBlank(organizationCode, "organizationCode").toUpperCase();
         this.legalName = requireNotBlank(legalName, "legalName");
         this.tradeName = normalizeOptional(tradeName);
         this.countryCode = countryCode;
@@ -56,7 +53,6 @@ public final class Organization {
 
     public static Organization register(
             OrganizationId organizationId,
-            String organizationCode,
             String legalName,
             String tradeName,
             CountryCode countryCode,
@@ -66,7 +62,6 @@ public final class Organization {
             Instant now) {
         Organization organization = new Organization(
                 organizationId,
-                organizationCode,
                 legalName,
                 tradeName,
                 countryCode,
@@ -81,14 +76,12 @@ public final class Organization {
         organization.domainEvents.add(new OrganizationRegistered(
                 now,
                 organization.id.value(),
-                organization.organizationCode,
                 organization.countryCode.value()));
         return organization;
     }
 
     public static Organization rehydrate(
             OrganizationId organizationId,
-            String organizationCode,
             String legalName,
             String tradeName,
             CountryCode countryCode,
@@ -100,7 +93,6 @@ public final class Organization {
             Instant updatedAt) {
         return new Organization(
                 organizationId,
-                organizationCode,
                 legalName,
                 tradeName,
                 countryCode,
@@ -155,10 +147,6 @@ public final class Organization {
 
     public OrganizationId id() {
         return id;
-    }
-
-    public String organizationCode() {
-        return organizationCode;
     }
 
     public String legalName() {

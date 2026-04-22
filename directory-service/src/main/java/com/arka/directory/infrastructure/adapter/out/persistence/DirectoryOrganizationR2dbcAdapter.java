@@ -25,11 +25,6 @@ public class DirectoryOrganizationR2dbcAdapter implements DirectoryOrganizationP
     }
 
     @Override
-    public Mono<Boolean> existsByCode(String organizationCode) {
-        return repository.existsByOrganizationCodeIgnoreCase(organizationCode);
-    }
-
-    @Override
     public Mono<Organization> save(Organization organization) {
         var row = rowMapper.toRow(organization);
         return repository.existsById(row.organizationId())

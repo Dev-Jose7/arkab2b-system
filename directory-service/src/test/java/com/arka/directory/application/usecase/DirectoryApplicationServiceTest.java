@@ -228,7 +228,6 @@ class DirectoryApplicationServiceTest {
     private Organization activeOrganization() {
         return Organization.rehydrate(
                 OrganizationId.of("org-1"),
-                "ACME",
                 "Acme Corp",
                 "Acme",
                 CountryCode.of("CO"),
